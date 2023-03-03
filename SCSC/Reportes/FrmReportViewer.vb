@@ -8,16 +8,20 @@
             Select Case gSession.Reporte.ToLower
                 Case "FrmReporteMarcas".ToLower
                     If gSession.TipoReporte = "DETALLADO" Then
-                        Rep = New RptRangoFecha
+                        Rep = New RptFechaComedor
                     Else
-                        Rep = New RptRangoFecha
+                        Rep = New RptFechaComedor
                     End If
+                Case "FrmProyeccionComedor".ToLower
+                    Rep = New RptProyecionComedor
                 Case "FrmReporteRutas".ToLower
                     If gSession.TipoReporte = "DETALLADO" Then
                         Rep = New RptRuta_detallado
                     Else
                         Rep = New RptRuta_general
                     End If
+                Case "FrmBecadosComedor".ToLower
+                    Rep = New RptBecadosTransporte
                 Case Else
                     MsgBox("Error interno asignar reporte, comuniquese con el administrador del sistema.!!", MsgBoxStyle.Critical)
             End Select
@@ -37,6 +41,7 @@
             Rep.SetParameterValue("RangodeFechas", IIf(gSession.RangoDeFecha = Nothing, "", gSession.RangoDeFecha))
             Rep.SetParameterValue("Leyenda", IIf(Leyenda = Nothing, "", Leyenda))
             Rep.SetParameterValue("Ubicacion", IIf(Ubicacion = Nothing, "", Ubicacion))
+            Rep.SetParameterValue("Horario", IIf(gSession.Valor1 = Nothing, "", gSession.Valor1))
 
             ReportViewer.ReportSource = Rep
         Catch ex As Exception

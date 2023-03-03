@@ -159,13 +159,14 @@ Public Class FrmImportarExcel
                             TipoUsuario = 1
                         Else
                             TipoUsuario = 2
-                            Throw New Exception("Funcion Profesores No Habilitada")
                         End If
                         Refresh()
 
                         ''Inicia pase de datos 
                         Cls.AbrirConexion(cn, True, pTransac)
-                        Cmd = "Update Usuario set Actualizado = 0 Where Codtipo = " & TipoUsuario
+                        Cmd = "Update Usuario set Actualizado = 0 Where Codtipo = " & TipoUsuario & " and IdHorario = " & CBHorario.SelectedIndex
+
+
                         Cls.AplicaSQL(Cmd, cn, pTransac)
                         LblEstado.Text = "Importando de Datos"
                         Progreso.Maximum = dts.Tables(0).Rows.Count
@@ -181,18 +182,29 @@ Public Class FrmImportarExcel
                             Cls.ArmaValor(Valores, "PrimerApellido", Row(1))
                             Cls.ArmaValor(Valores, "SegundoApellido", Row(2))
                             Cls.ArmaValor(Valores, "Nombre", Row(3))
-                            Cls.ArmaValor(Valores, "Seccion", Row(4))
                             Cls.ArmaValor(Valores, "IdHorario", CBHorario.SelectedIndex)
-                            If (Row(5).ToString.Length() > 0) Then
-                                Cls.ArmaValor(Valores, "Especialidad", Row(5).ToString.ToUpper())
-                            Else
-                                Cls.ArmaValor(Valores, "Especialidad", "III CICLO")
-                            End If
-                            Cls.ArmaValor(Valores, "FechaNac", Row(6))
-                            Cls.ArmaValor(Valores, "Telefono", Row(8))
                             Cls.ArmaValor(Valores, "CodTipo", TipoUsuario)
                             Cls.ArmaValor(Valores, "Actualizado", 1)
                             Cls.ArmaValor(Valores, "Activo", 1)
+                            If TipoUsuario = 1 Then
+                                Cls.ArmaValor(Valores, "Seccion", Row(4))
+                                If (Row(5).ToString.Length() > 0) Then
+                                    Cls.ArmaValor(Valores, "Especialidad", Row(5).ToString.ToUpper())
+                                Else
+                                    Cls.ArmaValor(Valores, "Especialidad", "III CICLO")
+                                End If
+                                Row(6) = Row(6).ToString.TrimEnd.TrimStart
+                                Try
+                                    Cls.ArmaValor(Valores, "FechaNac", Convert.ToDateTime(Row(6)))
+                                Catch ex As Exception
+                                    Row(6) = Now.Date
+                                End Try
+
+                                Cls.ArmaValor(Valores, "Telefono", Row(8))
+                            Else
+                                Cls.ArmaValor(Valores, "Seccion", "NA")
+                                Cls.ArmaValor(Valores, "Especialidad", "NA")
+                            End If
                             Cls.GuardarActualizar("Usuario", Valores, Llave, cn, pTransac)
                             Progreso.Value = Progreso.Value + 1
                             Contador += 1
@@ -201,7 +213,8 @@ Public Class FrmImportarExcel
                                 Refresh()
                             End If
                         Next
-                        Cmd = "Update Usuario set Activo = 0 Where Actualizado = 0 and Codtipo = " & TipoUsuario
+                        Cmd = "Update Usuario set Activo = 0 Where Actualizado = 0 and Codtipo = " & TipoUsuario & " and IdHorario = " & CBHorario.SelectedIndex
+
                         Cls.AplicaSQL(Cmd, cn, pTransac)
 
                         Cls.CerrarConexion(cn, pTransac)
@@ -213,7 +226,7 @@ Public Class FrmImportarExcel
                     Catch ex As Exception
                         Progreso.Value = 0
                         Cls.RollSQL(pTransac)
-                        MsgBox("Error al actulizar: " & ex.Message, MsgBoxStyle.Critical)
+                        MsgBox("Error al actulizar resgistro : " & Contador & " ->" & ex.Message, MsgBoxStyle.Critical)
                     End Try
                 End If
             Catch ex As Exception

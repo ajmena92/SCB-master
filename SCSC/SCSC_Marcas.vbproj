@@ -27,7 +27,7 @@
     <OldToolsVersion>2.0</OldToolsVersion>
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <TargetFrameworkProfile />
-    <PublishUrl>publish\</PublishUrl>
+    <PublishUrl>C:\Users\ajmen\Documents\Aplicacion de Control Marcas\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
     <UpdateEnabled>false</UpdateEnabled>
@@ -37,6 +37,7 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
+    <AutorunEnabled>true</AutorunEnabled>
     <ApplicationRevision>0</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
@@ -50,7 +51,7 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DocumentationFile>SCSC_Marcas.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022,42353,42354,42355</NoWarn>
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>x64</PlatformTarget>
     <WarningLevel>0</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
@@ -276,6 +277,7 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
     <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data.Entity" />
     <Reference Include="System.Deployment" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Management" />
@@ -324,6 +326,12 @@
     <Compile Include="Formularios\FrmAyuda.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Formularios\FrmAgregarEstudiante.Designer.vb">
+      <DependentUpon>FrmAgregarEstudiante.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Formularios\FrmAgregarEstudiante.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Formularios\FrmEstudiantes.Designer.vb">
       <DependentUpon>FrmEstudiantes.vb</DependentUpon>
     </Compile>
@@ -334,6 +342,18 @@
       <DependentUpon>FrmImportarExcel.vb</DependentUpon>
     </Compile>
     <Compile Include="Formularios\FrmImportarExcel.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Formularios\FrmBecas.designer.vb">
+      <DependentUpon>FrmBecas.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Formularios\FrmBecas.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Formularios\FrmRutas.designer.vb">
+      <DependentUpon>FrmRutas.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Formularios\FrmRutas.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Formularios\FrmRecargas.designer.vb">
@@ -376,6 +396,18 @@
     <Compile Include="Reportes\FrmReportViewer.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Reportes\Parametros\FrmBecados.Designer.vb">
+      <DependentUpon>FrmBecados.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Reportes\Parametros\FrmBecados.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Reportes\Parametros\FrmProyeccionComedor.Designer.vb">
+      <DependentUpon>FrmProyeccionComedor.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Reportes\Parametros\FrmProyeccionComedor.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Reportes\Parametros\FrmReporteRutas.Designer.vb">
       <DependentUpon>FrmReporteRutas.vb</DependentUpon>
     </Compile>
@@ -388,14 +420,26 @@
     <Compile Include="Reportes\Parametros\FrmReporteComedor.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Reportes\Rpt\RptRangoFecha.vb">
+    <Compile Include="Reportes\Rpt\RptFechaComedor.vb">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>RptRangoFecha.rpt</DependentUpon>
+      <DependentUpon>RptFechaComedor.rpt</DependentUpon>
       <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Reportes\Rpt\RptBecadosTransporte.vb">
+      <DependentUpon>RptBecadosTransporte.rpt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <SubType>Component</SubType>
+      <DesignTime>True</DesignTime>
     </Compile>
     <Compile Include="Reportes\Rpt\RptRuta_detallado.vb">
       <DependentUpon>RptRuta_detallado.rpt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <SubType>Component</SubType>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Reportes\Rpt\RptProyecionComedor.vb">
+      <DependentUpon>RptProyecionComedor.rpt</DependentUpon>
       <AutoGen>True</AutoGen>
       <SubType>Component</SubType>
       <DesignTime>True</DesignTime>
@@ -426,12 +470,22 @@
     <EmbeddedResource Include="Formularios\FrmAyuda.resx">
       <DependentUpon>FrmAyuda.vb</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Formularios\FrmAgregarEstudiante.resx">
+      <DependentUpon>FrmAgregarEstudiante.vb</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="Formularios\FrmEstudiantes.resx">
       <DependentUpon>FrmEstudiantes.vb</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Formularios\FrmImportarExcel.resx">
       <DependentUpon>FrmImportarExcel.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Formularios\FrmBecas.resx">
+      <DependentUpon>FrmBecas.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Formularios\FrmRutas.resx">
+      <DependentUpon>FrmRutas.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Formularios\FrmRecargas.resx">
       <DependentUpon>FrmRecargas.vb</DependentUpon>
@@ -451,19 +505,33 @@
     <EmbeddedResource Include="Reportes\FrmReportViewer.resx">
       <DependentUpon>FrmReportViewer.vb</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Reportes\Parametros\FrmBecados.resx">
+      <DependentUpon>FrmBecados.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Reportes\Parametros\FrmProyeccionComedor.resx">
+      <DependentUpon>FrmProyeccionComedor.vb</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Reportes\Parametros\FrmReporteRutas.resx">
       <DependentUpon>FrmReporteRutas.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Reportes\Parametros\FrmReporteComedor.resx">
       <DependentUpon>FrmReporteComedor.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Reportes\Rpt\RptRangoFecha.rpt">
+    <EmbeddedResource Include="Reportes\Rpt\RptFechaComedor.rpt">
       <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
-      <LastGenOutput>RptRangoFecha.vb</LastGenOutput>
+      <LastGenOutput>RptFechaComedor.vb</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Reportes\Rpt\RptBecadosTransporte.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>RptBecadosTransporte.vb</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="Reportes\Rpt\RptRuta_detallado.rpt">
       <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
       <LastGenOutput>RptRuta_detallado.vb</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Reportes\Rpt\RptProyecionComedor.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>RptProyecionComedor.vb</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="Reportes\Rpt\RptRuta_general.rpt">
       <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>

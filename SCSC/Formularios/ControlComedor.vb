@@ -2,17 +2,19 @@
 Imports System.Linq
 Imports System.Threading
 
-Public Class ControlTransporte
+Public Class ControlComedor
     Implements DPFP.Capture.EventHandler
     Private Capturer As DPFP.Capture.Capture
     Private Template As DPFP.Template
     Private Verificator As DPFP.Verification.Verification
     Dim Ulthuella As String
-    Dim ErrUltHuella, ErrTiquetes As Boolean '' controla el error de 2 marcas continuas y por cantidad de tiquetes
+    Dim ErrUltHuella, ErrTiquetes, AdverNOMarca, AdverMarcaTardia As Boolean '' controla el error de 2 marcas continuas y por cantidad de tiquetes
     Dim Cls As New FuncionesDB
     Dim Cn As New SqlClient.SqlConnection
-    Dim DsUsuarios As New DataSet ' Datset para busqueda por carnet
-    Dim DsRutas As New DataSet ' Datset para busqueda de rutas
+    Dim Ds As New DataSet ' Datset para busqueda por carnet
+    Dim DsMarcasEntrada ' Dataset registra las marcas del moculo de transporte diario
+    Dim DsBeca As New DataSet ' Datset para almacenar los tipos de becas
+    Dim DsHorarios As New DataSet ' Datset para almacenar los horarios
     Dim TablasBusqueda As List(Of DataTable) ' Tablas para busqueda por huella
     Dim ListaBusquedas As List(Of Thread)
     Dim EstadoVerificado As Boolean = False
@@ -21,8 +23,7 @@ Public Class ControlTransporte
         Me.Template = template
     End Sub
 
-    Private Sub BtnSalir_Click(sender As Object, e As EventArgs) Handles BtnCerrar.Click
-
+    Private Sub BtnSalir_Click(sender As Object, e As EventArgs) Handles BtnSalir.Click
         Me.Close()
     End Sub
 
@@ -52,7 +53,7 @@ Public Class ControlTransporte
         Dim ListBusqueda As List(Of Thread) = New List(Of Thread)
         If Not features Is Nothing Then
             For Each Tabla As DataTable In TablasBusqueda
-                Dim NuevaBusqueda As BusquedaHuella2 = New BusquedaHuella2
+                Dim NuevaBusqueda As BusquedaHuella = New BusquedaHuella
                 NuevaBusqueda.TablaBusqueda = Tabla
                 NuevaBusqueda.features = features
                 Dim MyHiloBusqueda As New Thread(AddressOf ProcesoBusqueda)
@@ -74,7 +75,7 @@ Public Class ControlTransporte
         End If
     End Sub
 
-    Private Sub ProcesoBusqueda(ByVal pBuscar As BusquedaHuella2)
+    Private Sub ProcesoBusqueda(ByVal pBuscar As BusquedaHuella)
         Try
             For Each Row As DataRow In pBuscar.TablaBusqueda.Rows
                 If EstadoVerificado = False Then
@@ -239,21 +240,35 @@ Public Class ControlTransporte
         Picture.Image = New Bitmap(bmp, Picture.Size)
     End Sub
 
-    Private Sub ControlTransporte_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+    Private Sub ControlComedor_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Try
             Cls.AbrirConexion(Cn, False)
-            DsUsuarios = Cls.ConsultarTSQL("Usuario", "SELECT IdUsuario,HuellaDactilar,Nombre,PrimerApellido,SegundoApellido,CodTipo,IdRuta,Seccion,Cedula,IdHorario,PermisoSalida FROM Usuario WHERE Activo = 1", Cn:=Cn)
-            DsRutas = Cls.ConsultarTSQL("Ruta", "SELECT * FROM Ruta", Cn:=Cn)
-            Dim tableCount = Math.Ceiling(DsUsuarios.Tables(0).Rows.Count / 40)  'Cantidad de Tablas a Crear para las busquedas 
-            Dim divisor = DsUsuarios.Tables(0).Rows.Count / tableCount 'Cantidad de registros por tablas
-            TablasBusqueda = DsUsuarios.Tables(0).AsEnumerable().
+            Ds = Cls.ConsultarTSQL("Usuario", "SELECT IdUsuario,TipoBeca,HuellaDactilar,Nombre,PrimerApellido,SegundoApellido,CodTipo,Cedula,IdHorario FROM Usuario WHERE Activo = 1", Cn:=Cn)
+            DsMarcasEntrada = Cls.ConsultarTSQL("Marcas", "SELECT IdUsuario,Fecha FROM RegistroTransporte WHERE " & ArmaFechaQueryHora("Fecha", FechaServer.Date, FechaServer), Cn:=Cn) 'Consulta de marcas en modulo de transporte del dia.
+            Ds.Tables(0).Columns.Add("MarcaTransporte", GetType(Integer)) ' Se agregan dos columnas para el control de la hora de marca y marca en modulo de transportes
+            Ds.Tables(0).Columns.Add("HoraMarca", GetType(DateTime))
+            For Each iRow As DataRow In Ds.Tables(0).Rows '' En este proceso se combina las marcas de transporte con las marcas de los usuarios.
+                Dim Marca() As DataRow = DsMarcasEntrada.Tables(0).Select(
+                    String.Format("IdUsuario = '{0}'", iRow!IdUsuario))
+                If Marca.Length > 0 Then
+                    iRow!MarcaTransporte = 1
+                    iRow!HoraMarca = Marca(0).ItemArray(1)
+                Else
+                    iRow!MarcaTransporte = 0
+                End If
+            Next
+            Dim tableCount = Math.Ceiling(Ds.Tables(0).Rows.Count / 40)  'Cantidad de Tablas a Crear para las busquedas 
+            Dim divisor = Ds.Tables(0).Rows.Count / tableCount 'Cantidad de registros por tablas
+            TablasBusqueda = Ds.Tables(0).AsEnumerable().
             Select(Function(r, i) New With {.Row = r, .Index = i}).
             GroupBy(Function(x) Math.Floor(x.Index / divisor)).
             Select(Function(g) g.Select(Function(x) x.Row).CopyToDataTable()).ToList
+            DsBeca = Cls.ConsultarTSQL("Becas", "Select IdBeca,DiasBeca From TipoBeca", Cn:=Cn)
+            DsHorarios = Cls.ConsultarTSQL("Horarios", "Select IdHorario,HoraLimite From Horario", Cn:=Cn)
             Init()
             StartCapture()
-            Ulthuella = -1
             LblFecha.Text = FechaServer
+            Ulthuella = -1
             TxtCedula.Focus()
         Catch ex As Exception
             If Cn.State = ConnectionState.Open Then
@@ -269,50 +284,63 @@ Public Class ControlTransporte
     End Sub
 
     Sub _ProcesarMarca(ByVal Usuario As DataRow)
+        Dim pTransac As SqlClient.SqlTransaction
         Try
             Dim cmd As String
+            Dim GuardarTrasaccion As Boolean = True
             Dim CantTiquetes As Integer = 0
             Dim Valores() As FuncionesDB.Campos
+            Dim Becado As Integer = 0
             LblCedula.Text = Usuario!Cedula
-            TxtUsuario.Text = CType(Usuario!Nombre & " " & Usuario!PrimerApellido & " " & Usuario!SegundoApellido, String)
-            TxtSeccion.Text = Usuario!Seccion
-            For Each rut As DataRow In DsRutas.Tables(0).Rows
-                If rut!IdRuta = Usuario!IdRuta Then
-                    TxtRuta.Text = rut!Codigo
-                    LblRuta.Text = rut!Descripcion & ": " & Usuario!Nombre & " " & Usuario!PrimerApellido
-                End If
-            Next
-            If Not IsDBNull(Usuario!PermisoSalida) Then
-                If Usuario!PermisoSalida Then
-                    TxtPermisoSalida.Text = "SI Autorizado"
-                Else
-                    TxtPermisoSalida.Text = "NO Autorizado"
-                End If
-            Else
-                TxtPermisoSalida.Text = "NO Autorizado"
-            End If
-            Valores = Cls.InicializarArray
-            Cls.ArmaValor(Valores, "IdUsuario", Usuario!IdUsuario)
-            Cls.ArmaValor(Valores, "IdHorario", Usuario!IdHorario)
-            Ulthuella = LblCedula.Text
+            TxtUsuario.Text = Usuario!Nombre & " " & Usuario!PrimerApellido & " " & Usuario!SegundoApellido
             If (Usuario!CodTipo = 1) Then
                 TxtTipo.Text = "ESTUDIANTE"
-                Cls.ArmaValor(Valores, "IdRuta", Usuario!IdRuta)
-                Cls.Insert("RegistroTransporte", Valores, Cn)
                 LblTitulo.Text = "ESTUDIANTE: " & TxtUsuario.Text
             Else
                 TxtTipo.Text = "PROFESOR"
-                Dim Ds As New DataSet
-                Ds = Cls.ConsultarTSQL("RegistroTransporte", "Select IdTransaccion From RegistroDocentes Where IdUsuario = " & Usuario!IdUsuario & " and " & ArmaFechaQueryHora("Fecha", FechaServer, FechaServer), Cn:=Cn)
-                If Ds.Tables(0).Rows.Count > 0 Then
-                    Cls.ArmaValor(Valores, "TipoMarca", 2)
-                Else
-                    Cls.ArmaValor(Valores, "TipoMarca", 1)
-                End If
-                Cls.Insert("RegistroDocentes", Valores, Cn)
-                LblTitulo.Text = "ESTUDIANTE: " & TxtUsuario.Text
+                LblTitulo.Text = "PROFESOR: " & TxtUsuario.Text
             End If
+            For Each Beca As DataRow In DsBeca.Tables(0).Rows
+                If Beca!IdBeca = Usuario!TipoBeca Then
+                    Becado = InStr(Beca!DiasBeca, DiaSemana) ' Se verifica que el tipo de la beca, tenga el dia actual con el beneficio.
+                    Exit For
+                End If
+            Next
+            Cls.IniciaSQL(Cn, pTransac)
+            Valores = Cls.InicializarArray
+            Cls.ArmaValor(Valores, "IdUsuario", Usuario!IdUsuario)
+
+            If Becado > 0 Then 'Valido el dia becado
+                TxtTiquetes.Text = " Usuario Becado"
+                Cls.ArmaValor(Valores, "Beca", 1)
+            Else
+                Dim Data As New DataSet
+                Data = Cls.ConsultarTSQL("Usuario", "SELECT CantidadTiquetes FROM Usuario WHERE IdUsuario = @IdUsuario", Valores, Cn, pTransac)
+                If Data.Tables(0).Rows(0)!CantidadTiquetes < 1 Then
+                    GuardarTrasaccion = False
+                    ErrTiquetes = True
+                Else
+                    CantTiquetes = Data.Tables(0).Rows(0)!CantidadTiquetes - 1
+                    cmd = "UPDATE Usuario set CantidadTiquetes = CantidadTiquetes - " & 1 & " WHERE IdUsuario = @IdUsuario"
+                    ''Suma los tiquetes en usuarios
+                    Cls.AplicaSQL(cmd, Cn, pTransac, Valores)
+                End If
+                TxtTiquetes.Text = CantTiquetes & " Tiquetes"
+                Cls.ArmaValor(Valores, "Beca", 0)
+            End If
+            Cls.ArmaValor(Valores, "TipoPago", 2)
+            Cls.ArmaValor(Valores, "Cantidad", 1)
+            If GuardarTrasaccion Then
+                Cls.Insert("RegistroComedor", Valores, Cn, pTransac)
+                Ulthuella = LblCedula.Text
+            End If
+            Cls.FinalSQL(pTransac)
         Catch ex As Exception
+            Try
+                Cls.RollSQL(pTransac)
+            Catch ex2 As Exception
+                ''Omitir error del rollback, pendiente mejorar
+            End Try
             LimpiarPantalla(True)
             MsgBox(ex.Message, MsgBoxStyle.Critical)
         End Try
@@ -325,14 +353,11 @@ Public Class ControlTransporte
     Private Sub _LimpiarPantalla(ByVal Limpiar)
         Try
             LblCedula.Clear()
+            LblTitulo.Text = ("Sistema de Control de Marcas Comedor")
             TxtTipo.Clear()
-            TxtSeccion.Clear()
-            TxtRuta.Clear()
-            LblRuta.Text = ""
+            TxtTiquetes.Clear()
             TxtUsuario.Clear()
             Picture.Image = Nothing
-            TxtCedula.Clear()
-            TxtPermisoSalida.Clear()
             TxtCedula.Focus()
         Catch ex As Exception
             MsgBox("Error al cargar el Formulario: " & ex.Message, MsgBoxStyle.Critical)
@@ -349,28 +374,52 @@ Public Class ControlTransporte
     Private Sub TxtCedula_KeyDown(sender As Object, e As KeyEventArgs) Handles TxtCedula.KeyDown
         If e.KeyCode = Keys.Enter Then
             e.SuppressKeyPress = True ' para evitar un 'beep'
+            MensajeVisual(2)
             If Cls.VereficaCarnet(TxtCedula.Text) Then
-                Dim Verificado = False
-                Dim DobleLectura = False
-                Picture.Image = My.Resources.huella_dactilar
-                For Each Row As DataRow In DsUsuarios.Tables(0).Rows
+                ErrUltHuella = False
+                AdverNOMarca = False
+                ErrTiquetes = False
+                AdverMarcaTardia = False
+                EstadoVerificado = False
+                LimpiarPantalla(False)
+                For Each Row As DataRow In Ds.Tables(0).Rows
                     If Row!Cedula = TxtCedula.Text Then
-                        If Ulthuella = TxtCedula.Text Then
-                            DobleLectura = True
-                        Else
-                            ProcesarMarca(Row)
-                            Verificado = True
+
+                        If Ulthuella = TxtCedula.Text Then ' Control doble marca
+                            ErrUltHuella = True
+                            Exit For
                         End If
-                        Exit For
-                    End If
+                        If Row!CodTipo = 1 Then
+                            Dim HoraLimite() As DataRow = DsHorarios.Tables(0).Select(
+                            String.Format("IdHorario = '{0}'", Row!IdHorario))
+                            If Row!MarcaTransporte = 0 Then ' Control no Marca ingreso en transporte
+                                AdverNOMarca = True
+                                MensajeVisual(5)
+                                If MessageBox.Show("El estudiante " & Row!Nombre & " " & Row!PrimerApellido & " NO registro marca  de ingreso. ¿Desea permitir que utilice el Servicio de Comedor?", "Advertencia", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) = DialogResult.No Then
+                                    Exit For
+                                End If
+                            ElseIf Row!HoraMarca.TimeOfDay > HoraLimite(0).ItemArray(1) Then ' Control marca tarde en trsnporte, Hora limite en la tabla Horarios
+                                AdverMarcaTardia = True
+                                MensajeVisual(6)
+                                If MessageBox.Show("El estudiante " & Row!Nombre & " " & Row!PrimerApellido & " marco fuera de la HORA límite para el control de asistencia. ¿Desea permitir que utilice el Servicio de Comedor?", "Advertencia", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) = DialogResult.No Then
+                                    Exit For
+                                End If
+                            End If
+                        End If
+                        ProcesarMarca(Row)
+                            EstadoVerificado = True
+                            Picture.Image = My.Resources.huella_dactilar
+                            Exit For
+                        End If
                 Next
-                '' 0=ok,1 = Error,2=Procesando,3= Doble verificacion</param>
-                If (Verificado) Then
-                    MensajeVisual(0)
-                ElseIf (DobleLectura) Then
+                If (ErrTiquetes) Then
+                    MensajeVisual(4)
+                ElseIf ErrUltHuella Then
                     MensajeVisual(3)
-                Else
+                ElseIf Not (EstadoVerificado) Then
                     MensajeVisual(1)
+                Else
+                    MensajeVisual(0)
                 End If
             Else
                 MensajeVisual(1)
@@ -378,12 +427,13 @@ Public Class ControlTransporte
             TxtCedula.Focus()
             TxtCedula.SelectAll()
         End If
-    End Sub
-
-
-    Private Sub TxtTipo_TextChanged(sender As Object, e As EventArgs) Handles TxtTipo.TextChanged
 
     End Sub
+
+    Private Sub lblProcesando_Click(sender As Object, e As EventArgs) Handles lblProcesando.Click
+
+    End Sub
+
     Private Sub _MensajeVisual(ByVal TipoImagen As Int16)
         Try
 
@@ -402,13 +452,7 @@ Public Class ControlTransporte
                     LblTitulo.ForeColor = Color.White
                     Imgprocess.Image = My.Resources.Error2
                     PanelResult.BackColor = Color.Red
-                    LblCedula.Clear()
-                    TxtTipo.Clear()
-                    TxtSeccion.Clear()
-                    TxtRuta.Clear()
-                    LblRuta.Text = ""
-                    TxtUsuario.Clear()
-                    LblTitulo.Text = "Sistema de Control de Marcas"
+
                 Case 2
                     lblProcesando.Text = "Procesando, por favor espere"
                     lblProcesando.ForeColor = Color.Black
@@ -417,7 +461,7 @@ Public Class ControlTransporte
                     PanelResult.BackColor = Color.Gainsboro
                     ''PictResult.Image = My.Resources.Procesado
                 Case 3
-                    lblProcesando.Text = "Se detecto doble verificación"
+                    lblProcesando.Text = "Se detecto doble verificación."
                     lblProcesando.ForeColor = Color.White
                     LblTitulo.ForeColor = Color.White
                     Imgprocess.Image = My.Resources.Double_check
@@ -426,6 +470,18 @@ Public Class ControlTransporte
 
                     Imgprocess.Image = My.Resources.Error2
                     lblProcesando.Text = "No tiene tiquetes disponibles."
+                    lblProcesando.ForeColor = Color.White
+                    LblTitulo.ForeColor = Color.White
+                    PanelResult.BackColor = Color.Orange
+                Case 5
+                    Imgprocess.Image = My.Resources.Error2
+                    lblProcesando.Text = "El estudiante no registro marca de ingreso."
+                    lblProcesando.ForeColor = Color.White
+                    LblTitulo.ForeColor = Color.White
+                    PanelResult.BackColor = Color.Coral
+                Case 6
+                    Imgprocess.Image = My.Resources.Error2
+                    lblProcesando.Text = "El estudiante marco fuera de la hora límite para el control de asistencia."
                     lblProcesando.ForeColor = Color.White
                     LblTitulo.ForeColor = Color.White
                     PanelResult.BackColor = Color.Orange
@@ -444,39 +500,37 @@ Public Class ControlTransporte
 
     '        Select Case TipoImagen
     '            Case 0
-    '                lblProcesando.Text = "Usuario verificado correctamente"
-    '                lblProcesando.ForeColor = Color.White
+    '                GbDatos.Text = "Usuario verificado correctamente"
+    '                lblProcesando.ForeColor = Color.Green
     '                Imgprocess.Image = My.Resources.Verificado2
     '                '   PictResult.Image = My.Resources.Verificado
-    '                PanelResult.BackColor = Color.Green
+
     '            Case 1
     '                'PictResult.Image = My.Resources.ErrorAcceso
     '                lblProcesando.Text = "Error, al verificar el usuario"
-    '                lblProcesando.ForeColor = Color.White
+    '                lblProcesando.ForeColor = Color.Red
     '                Imgprocess.Image = My.Resources.Error2
-    '                PanelResult.BackColor = Color.Red
+
 
     '            Case 2
     '                lblProcesando.Text = "Procesando, por favor espere"
-    '                lblProcesando.ForeColor = Color.Black
+    '                lblProcesando.ForeColor = Color.Blue
     '                Imgprocess.Image = My.Resources.Gif_cargando
-    '                PanelResult.BackColor = Color.Gainsboro
+
+
     '                ''PictResult.Image = My.Resources.Procesado
     '            Case 3
     '                lblProcesando.Text = "Se detecto doble verificación"
-    '                lblProcesando.ForeColor = Color.White
+    '                lblProcesando.ForeColor = Color.Blue
     '                Imgprocess.Image = My.Resources.Double_check
-    '                PanelResult.BackColor = Color.Blue
     '            Case 4
 
     '                Imgprocess.Image = My.Resources.Error2
     '                lblProcesando.Text = "No tiene tiquetes disponibles."
-    '                lblProcesando.ForeColor = Color.White
-    '                PanelResult.BackColor = Color.Orange
+    '                lblProcesando.ForeColor = Color.Red
     '            Case Else
     '                lblProcesando.Text = ""
     '                Imgprocess.Image = My.Resources.Gif_cargando
-    '                PanelResult.BackColor = Color.Gainsboro
     '        End Select
 
     '    Catch ex As Exception
@@ -484,43 +538,10 @@ Public Class ControlTransporte
     '    End Try
     'End Sub
 
-    'Private Sub TReloj_Tick(sender As Object, e As EventArgs) Handles TReloj.Tick
-    '    LblFecha.Text = CType(Date.Now(), String)
-    '    '.Text = FechaServer
-    'End Sub
 
-    Private Sub LblFecha_Click(sender As Object, e As EventArgs) Handles LblFecha.Click
-
-    End Sub
-
-    Private Sub TxtCedula_TextChanged(sender As Object, e As EventArgs) Handles TxtCedula.TextChanged
-
-    End Sub
-
-    Private Sub LblTitulo_Click(sender As Object, e As EventArgs) Handles LblTitulo.Click
-        LimpiarPantalla(True)
-    End Sub
-
-    Private Sub lblProcesando_Click(sender As Object, e As EventArgs) Handles lblProcesando.Click
-        LimpiarPantalla(True)
-    End Sub
-
-    Private Sub PanelResult_Paint(sender As Object, e As PaintEventArgs) Handles PanelResult.Paint
-
-    End Sub
-
-    Private Sub ControlTransporte_Closed(sender As Object, e As EventArgs) Handles Me.Closed
-        Try
-            If Cn.State = ConnectionState.Open Then
-                Cls.CerrarConexion(Cn)
-            End If
-        Catch ex As Exception
-            MsgBox(ex.Message, MsgBoxStyle.Critical)
-        End Try
-    End Sub
 End Class
 
-Public Class BusquedaHuella2
+Public Class BusquedaHuella
     Public features As DPFP.FeatureSet
     Public TablaBusqueda As DataTable
     Public Name As String

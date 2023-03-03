@@ -25,7 +25,7 @@ Partial Class ControlTransporte
         Me.components = New System.ComponentModel.Container()
         Dim PromptLabel As System.Windows.Forms.Label
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(ControlTransporte))
-        Me.Label1 = New System.Windows.Forms.Label()
+        Me.LblTitulo = New System.Windows.Forms.Label()
         Me.StatusLine = New System.Windows.Forms.Label()
         Me.Prompt = New System.Windows.Forms.TextBox()
         Me.LblRuta = New System.Windows.Forms.Label()
@@ -33,13 +33,11 @@ Partial Class ControlTransporte
         Me.StatusText = New System.Windows.Forms.TextBox()
         Me.lblProcesando = New System.Windows.Forms.Label()
         Me.BunifuElipse1 = New Bunifu.Framework.UI.BunifuElipse(Me.components)
-        Me.Panel1 = New System.Windows.Forms.Panel()
-        Me.BtnCerrar = New System.Windows.Forms.PictureBox()
         Me.BunifuGradientPanel1 = New Bunifu.Framework.UI.BunifuGradientPanel()
-        Me.Picture = New System.Windows.Forms.PictureBox()
-        Me.TxtCedula = New System.Windows.Forms.TextBox()
         Me.LblFecha = New System.Windows.Forms.Label()
         Me.GbDatos = New System.Windows.Forms.GroupBox()
+        Me.TxtPermisoSalida = New System.Windows.Forms.TextBox()
+        Me.Label1 = New System.Windows.Forms.Label()
         Me.TxtTipo = New System.Windows.Forms.TextBox()
         Me.TxtRuta = New System.Windows.Forms.TextBox()
         Me.Label6 = New System.Windows.Forms.Label()
@@ -49,17 +47,21 @@ Partial Class ControlTransporte
         Me.Label3 = New System.Windows.Forms.Label()
         Me.TxtUsuario = New System.Windows.Forms.TextBox()
         Me.Label2 = New System.Windows.Forms.Label()
+        Me.Picture = New System.Windows.Forms.PictureBox()
+        Me.TxtCedula = New System.Windows.Forms.TextBox()
         Me.Imgprocess = New System.Windows.Forms.PictureBox()
         Me.TReloj = New System.Windows.Forms.Timer(Me.components)
         Me.PanelResult = New System.Windows.Forms.Panel()
+        Me.BtnCerrar = New System.Windows.Forms.PictureBox()
+        Me.Panel1 = New System.Windows.Forms.Panel()
         PromptLabel = New System.Windows.Forms.Label()
-        Me.Panel1.SuspendLayout()
-        CType(Me.BtnCerrar, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.BunifuGradientPanel1.SuspendLayout()
-        CType(Me.Picture, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.GbDatos.SuspendLayout()
+        CType(Me.Picture, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.Imgprocess, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.PanelResult.SuspendLayout()
+        CType(Me.BtnCerrar, System.ComponentModel.ISupportInitialize).BeginInit()
+        Me.Panel1.SuspendLayout()
         Me.SuspendLayout()
         '
         'PromptLabel
@@ -72,19 +74,19 @@ Partial Class ControlTransporte
         PromptLabel.Text = "Prompt:"
         PromptLabel.Visible = False
         '
-        'Label1
+        'LblTitulo
         '
-        Me.Label1.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
+        Me.LblTitulo.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.Label1.BackColor = System.Drawing.Color.Transparent
-        Me.Label1.Font = New System.Drawing.Font("Arial Narrow", 36.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label1.ForeColor = System.Drawing.Color.Black
-        Me.Label1.Location = New System.Drawing.Point(3, 3)
-        Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(590, 136)
-        Me.Label1.TabIndex = 1
-        Me.Label1.Text = "Sistema de Control de Marcas  Transporte"
-        Me.Label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        Me.LblTitulo.BackColor = System.Drawing.Color.Transparent
+        Me.LblTitulo.Font = New System.Drawing.Font("Arial Narrow", 61.8!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LblTitulo.ForeColor = System.Drawing.Color.Black
+        Me.LblTitulo.Location = New System.Drawing.Point(3, 3)
+        Me.LblTitulo.Name = "LblTitulo"
+        Me.LblTitulo.Size = New System.Drawing.Size(590, 284)
+        Me.LblTitulo.TabIndex = 1
+        Me.LblTitulo.Text = "Sistema de Control de Marcas"
+        Me.LblTitulo.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
         'StatusLine
         '
@@ -100,7 +102,7 @@ Partial Class ControlTransporte
         '
         Me.Prompt.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.Prompt.Location = New System.Drawing.Point(104, 380)
+        Me.Prompt.Location = New System.Drawing.Point(6, 252)
         Me.Prompt.Name = "Prompt"
         Me.Prompt.ReadOnly = True
         Me.Prompt.Size = New System.Drawing.Size(269, 32)
@@ -144,7 +146,7 @@ Partial Class ControlTransporte
         Me.StatusText.Name = "StatusText"
         Me.StatusText.ReadOnly = True
         Me.StatusText.ScrollBars = System.Windows.Forms.ScrollBars.Both
-        Me.StatusText.Size = New System.Drawing.Size(269, 81)
+        Me.StatusText.Size = New System.Drawing.Size(269, 203)
         Me.StatusText.TabIndex = 18
         Me.StatusText.Visible = False
         '
@@ -154,11 +156,11 @@ Partial Class ControlTransporte
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.lblProcesando.Font = New System.Drawing.Font("Arial Narrow", 48.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.lblProcesando.ForeColor = System.Drawing.Color.Black
-        Me.lblProcesando.Location = New System.Drawing.Point(0, 141)
+        Me.lblProcesando.Location = New System.Drawing.Point(0, 287)
         Me.lblProcesando.Name = "lblProcesando"
         Me.lblProcesando.Size = New System.Drawing.Size(590, 286)
         Me.lblProcesando.TabIndex = 27
-        Me.lblProcesando.Text = "Por favor, coloque su huella digital en el dispositivo"
+        Me.lblProcesando.Text = "Por favor, coloque su identificador digital en el dispositivo"
         Me.lblProcesando.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
         'BunifuElipse1
@@ -166,36 +168,15 @@ Partial Class ControlTransporte
         Me.BunifuElipse1.ElipseRadius = 1
         Me.BunifuElipse1.TargetControl = Me
         '
-        'Panel1
-        '
-        Me.Panel1.Controls.Add(Me.BtnCerrar)
-        Me.Panel1.Dock = System.Windows.Forms.DockStyle.Top
-        Me.Panel1.Location = New System.Drawing.Point(447, 0)
-        Me.Panel1.Name = "Panel1"
-        Me.Panel1.Size = New System.Drawing.Size(593, 136)
-        Me.Panel1.TabIndex = 56
-        '
-        'BtnCerrar
-        '
-        Me.BtnCerrar.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.BtnCerrar.BackColor = System.Drawing.Color.Transparent
-        Me.BtnCerrar.BackgroundImage = CType(resources.GetObject("BtnCerrar.BackgroundImage"), System.Drawing.Image)
-        Me.BtnCerrar.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.BtnCerrar.Location = New System.Drawing.Point(546, 8)
-        Me.BtnCerrar.Name = "BtnCerrar"
-        Me.BtnCerrar.Size = New System.Drawing.Size(36, 36)
-        Me.BtnCerrar.TabIndex = 58
-        Me.BtnCerrar.TabStop = False
-        '
         'BunifuGradientPanel1
         '
         Me.BunifuGradientPanel1.BackColor = System.Drawing.Color.FromArgb(CType(CType(41, Byte), Integer), CType(CType(51, Byte), Integer), CType(CType(65, Byte), Integer))
         Me.BunifuGradientPanel1.BackgroundImage = CType(resources.GetObject("BunifuGradientPanel1.BackgroundImage"), System.Drawing.Image)
         Me.BunifuGradientPanel1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.BunifuGradientPanel1.Controls.Add(Me.TxtCedula)
         Me.BunifuGradientPanel1.Controls.Add(Me.LblFecha)
         Me.BunifuGradientPanel1.Controls.Add(Me.GbDatos)
         Me.BunifuGradientPanel1.Controls.Add(Me.Picture)
+        Me.BunifuGradientPanel1.Controls.Add(Me.TxtCedula)
         Me.BunifuGradientPanel1.Dock = System.Windows.Forms.DockStyle.Left
         Me.BunifuGradientPanel1.GradientBottomLeft = System.Drawing.Color.FromArgb(CType(CType(41, Byte), Integer), CType(CType(51, Byte), Integer), CType(CType(65, Byte), Integer))
         Me.BunifuGradientPanel1.GradientBottomRight = System.Drawing.Color.FromArgb(CType(CType(41, Byte), Integer), CType(CType(51, Byte), Integer), CType(CType(65, Byte), Integer))
@@ -204,25 +185,8 @@ Partial Class ControlTransporte
         Me.BunifuGradientPanel1.Location = New System.Drawing.Point(0, 0)
         Me.BunifuGradientPanel1.Name = "BunifuGradientPanel1"
         Me.BunifuGradientPanel1.Quality = 10
-        Me.BunifuGradientPanel1.Size = New System.Drawing.Size(447, 746)
+        Me.BunifuGradientPanel1.Size = New System.Drawing.Size(447, 784)
         Me.BunifuGradientPanel1.TabIndex = 30
-        '
-        'Picture
-        '
-        Me.Picture.BackColor = System.Drawing.SystemColors.Window
-        Me.Picture.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
-        Me.Picture.Location = New System.Drawing.Point(83, 81)
-        Me.Picture.Name = "Picture"
-        Me.Picture.Size = New System.Drawing.Size(263, 219)
-        Me.Picture.TabIndex = 14
-        Me.Picture.TabStop = False
-        '
-        'TxtCedula
-        '
-        Me.TxtCedula.Location = New System.Drawing.Point(116, 81)
-        Me.TxtCedula.Name = "TxtCedula"
-        Me.TxtCedula.Size = New System.Drawing.Size(195, 32)
-        Me.TxtCedula.TabIndex = 29
         '
         'LblFecha
         '
@@ -241,6 +205,8 @@ Partial Class ControlTransporte
         Me.GbDatos.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.GbDatos.BackColor = System.Drawing.Color.Transparent
+        Me.GbDatos.Controls.Add(Me.TxtPermisoSalida)
+        Me.GbDatos.Controls.Add(Me.Label1)
         Me.GbDatos.Controls.Add(Me.TxtTipo)
         Me.GbDatos.Controls.Add(Me.TxtRuta)
         Me.GbDatos.Controls.Add(Me.Label6)
@@ -251,14 +217,37 @@ Partial Class ControlTransporte
         Me.GbDatos.Controls.Add(Me.TxtSeccion)
         Me.GbDatos.Controls.Add(Me.TxtUsuario)
         Me.GbDatos.Controls.Add(Me.Label2)
-        Me.GbDatos.Controls.Add(Me.Prompt)
         Me.GbDatos.Font = New System.Drawing.Font("Calibri", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.GbDatos.ForeColor = System.Drawing.Color.White
-        Me.GbDatos.Location = New System.Drawing.Point(12, 339)
+        Me.GbDatos.Location = New System.Drawing.Point(12, 306)
         Me.GbDatos.Name = "GbDatos"
-        Me.GbDatos.Size = New System.Drawing.Size(420, 407)
+        Me.GbDatos.Size = New System.Drawing.Size(420, 466)
         Me.GbDatos.TabIndex = 20
         Me.GbDatos.TabStop = False
+        '
+        'TxtPermisoSalida
+        '
+        Me.TxtPermisoSalida.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.TxtPermisoSalida.BackColor = System.Drawing.Color.White
+        Me.TxtPermisoSalida.Font = New System.Drawing.Font("Calibri", 18.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.TxtPermisoSalida.ForeColor = System.Drawing.Color.FromArgb(CType(CType(192, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(0, Byte), Integer))
+        Me.TxtPermisoSalida.Location = New System.Drawing.Point(19, 416)
+        Me.TxtPermisoSalida.Name = "TxtPermisoSalida"
+        Me.TxtPermisoSalida.ReadOnly = True
+        Me.TxtPermisoSalida.Size = New System.Drawing.Size(241, 44)
+        Me.TxtPermisoSalida.TabIndex = 59
+        '
+        'Label1
+        '
+        Me.Label1.AutoSize = True
+        Me.Label1.Font = New System.Drawing.Font("Calibri", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label1.ForeColor = System.Drawing.Color.White
+        Me.Label1.Location = New System.Drawing.Point(20, 394)
+        Me.Label1.Name = "Label1"
+        Me.Label1.Size = New System.Drawing.Size(137, 24)
+        Me.Label1.TabIndex = 58
+        Me.Label1.Text = "Permiso Salida:"
         '
         'TxtTipo
         '
@@ -365,14 +354,31 @@ Partial Class ControlTransporte
         Me.Label2.TabIndex = 0
         Me.Label2.Text = "Usuario:"
         '
+        'Picture
+        '
+        Me.Picture.BackColor = System.Drawing.SystemColors.Window
+        Me.Picture.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
+        Me.Picture.Location = New System.Drawing.Point(83, 81)
+        Me.Picture.Name = "Picture"
+        Me.Picture.Size = New System.Drawing.Size(263, 219)
+        Me.Picture.TabIndex = 14
+        Me.Picture.TabStop = False
+        '
+        'TxtCedula
+        '
+        Me.TxtCedula.Location = New System.Drawing.Point(116, 81)
+        Me.TxtCedula.Name = "TxtCedula"
+        Me.TxtCedula.Size = New System.Drawing.Size(195, 32)
+        Me.TxtCedula.TabIndex = 29
+        '
         'Imgprocess
         '
         Me.Imgprocess.Anchor = System.Windows.Forms.AnchorStyles.Bottom
         Me.Imgprocess.BackColor = System.Drawing.Color.Transparent
         Me.Imgprocess.Image = Global.SCSC.My.Resources.Resources.Ingreso
-        Me.Imgprocess.Location = New System.Drawing.Point(205, 435)
+        Me.Imgprocess.Location = New System.Drawing.Point(249, 576)
         Me.Imgprocess.Name = "Imgprocess"
-        Me.Imgprocess.Size = New System.Drawing.Size(174, 163)
+        Me.Imgprocess.Size = New System.Drawing.Size(123, 118)
         Me.Imgprocess.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage
         Me.Imgprocess.TabIndex = 24
         Me.Imgprocess.TabStop = False
@@ -384,16 +390,38 @@ Partial Class ControlTransporte
         'PanelResult
         '
         Me.PanelResult.BackColor = System.Drawing.Color.Gainsboro
+        Me.PanelResult.Controls.Add(Me.Imgprocess)
         Me.PanelResult.Controls.Add(Me.lblProcesando)
-        Me.PanelResult.Controls.Add(Me.Label1)
+        Me.PanelResult.Controls.Add(Me.LblTitulo)
         Me.PanelResult.Controls.Add(Me.StatusText)
         Me.PanelResult.Controls.Add(Me.LblRuta)
-        Me.PanelResult.Controls.Add(Me.Imgprocess)
+        Me.PanelResult.Controls.Add(Me.Prompt)
         Me.PanelResult.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.PanelResult.Location = New System.Drawing.Point(447, 136)
+        Me.PanelResult.Location = New System.Drawing.Point(447, 52)
         Me.PanelResult.Name = "PanelResult"
-        Me.PanelResult.Size = New System.Drawing.Size(593, 610)
+        Me.PanelResult.Size = New System.Drawing.Size(593, 732)
         Me.PanelResult.TabIndex = 57
+        '
+        'BtnCerrar
+        '
+        Me.BtnCerrar.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.BtnCerrar.BackColor = System.Drawing.Color.Transparent
+        Me.BtnCerrar.BackgroundImage = CType(resources.GetObject("BtnCerrar.BackgroundImage"), System.Drawing.Image)
+        Me.BtnCerrar.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
+        Me.BtnCerrar.Location = New System.Drawing.Point(546, 8)
+        Me.BtnCerrar.Name = "BtnCerrar"
+        Me.BtnCerrar.Size = New System.Drawing.Size(36, 36)
+        Me.BtnCerrar.TabIndex = 58
+        Me.BtnCerrar.TabStop = False
+        '
+        'Panel1
+        '
+        Me.Panel1.Controls.Add(Me.BtnCerrar)
+        Me.Panel1.Dock = System.Windows.Forms.DockStyle.Top
+        Me.Panel1.Location = New System.Drawing.Point(447, 0)
+        Me.Panel1.Name = "Panel1"
+        Me.Panel1.Size = New System.Drawing.Size(593, 52)
+        Me.Panel1.TabIndex = 56
         '
         'ControlTransporte
         '
@@ -401,7 +429,7 @@ Partial Class ControlTransporte
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.Color.White
         Me.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.ClientSize = New System.Drawing.Size(1040, 746)
+        Me.ClientSize = New System.Drawing.Size(1040, 784)
         Me.ControlBox = False
         Me.Controls.Add(Me.PanelResult)
         Me.Controls.Add(Me.Panel1)
@@ -416,21 +444,21 @@ Partial Class ControlTransporte
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "ControlMarcas"
         Me.WindowState = System.Windows.Forms.FormWindowState.Maximized
-        Me.Panel1.ResumeLayout(False)
-        CType(Me.BtnCerrar, System.ComponentModel.ISupportInitialize).EndInit()
         Me.BunifuGradientPanel1.ResumeLayout(False)
         Me.BunifuGradientPanel1.PerformLayout()
-        CType(Me.Picture, System.ComponentModel.ISupportInitialize).EndInit()
         Me.GbDatos.ResumeLayout(False)
         Me.GbDatos.PerformLayout()
+        CType(Me.Picture, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.Imgprocess, System.ComponentModel.ISupportInitialize).EndInit()
         Me.PanelResult.ResumeLayout(False)
         Me.PanelResult.PerformLayout()
+        CType(Me.BtnCerrar, System.ComponentModel.ISupportInitialize).EndInit()
+        Me.Panel1.ResumeLayout(False)
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
     End Sub
-    Friend WithEvents Label1 As System.Windows.Forms.Label
+    Friend WithEvents LblTitulo As System.Windows.Forms.Label
     Private WithEvents StatusLine As System.Windows.Forms.Label
     Private WithEvents Prompt As System.Windows.Forms.TextBox
     Private WithEvents Picture As System.Windows.Forms.PictureBox
@@ -453,8 +481,10 @@ Partial Class ControlTransporte
     Friend WithEvents LblRuta As Label
     Friend WithEvents BunifuGradientPanel1 As Bunifu.Framework.UI.BunifuGradientPanel
     Friend WithEvents BunifuElipse1 As Bunifu.Framework.UI.BunifuElipse
-    Friend WithEvents Panel1 As Panel
     Friend WithEvents TReloj As Timer
-    Friend WithEvents BtnCerrar As PictureBox
     Friend WithEvents PanelResult As Panel
+    Friend WithEvents Panel1 As Panel
+    Friend WithEvents BtnCerrar As PictureBox
+    Friend WithEvents TxtPermisoSalida As TextBox
+    Friend WithEvents Label1 As Label
 End Class

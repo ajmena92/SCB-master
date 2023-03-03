@@ -11,10 +11,10 @@ Imports System.Runtime.InteropServices
 ' Review the values of the assembly attributes
 
 <Assembly: AssemblyTitle("SCSC")> 
-<Assembly: AssemblyDescription("Modulo de Control de Marcas")> 
-<Assembly: AssemblyCompany("CTP Guaycara")> 
-<Assembly: AssemblyProduct("SCSC")> 
-<Assembly: AssemblyCopyright("Copyright © DigitalPersona 2015")> 
+<Assembly: AssemblyDescription("Modulo de Control de Marcas")>
+<Assembly: AssemblyCompany("CTP Platanares")>
+<Assembly: AssemblyProduct("SCSC")>
+<Assembly: AssemblyCopyright("Copyright © Ing. Andrés Mena A.")>
 <Assembly: AssemblyTrademark("")> 
 
 <Assembly: ComVisible(True)> 
@@ -33,7 +33,7 @@ Imports System.Runtime.InteropServices
 ' by using the '*' as shown below:
 ' <Assembly: AssemblyVersion("1.0.*")> 
 
-<Assembly: AssemblyVersion("2016.06.1.7")> 
-<Assembly: AssemblyFileVersion("2016.06.1.7")> 
+<Assembly: AssemblyVersion("2022.03.17.1")>
+<Assembly: AssemblyFileVersion("2022.03.17.1")>
 
 <Assembly: NeutralResourcesLanguageAttribute("es-CR")> 

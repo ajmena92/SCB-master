@@ -5,8 +5,9 @@ Public Class FrmRecarga
 
     Dim Cn As New SqlClient.SqlConnection
     Dim Cls As New FuncionesDB
+    Dim DsBeca As New DataSet ' Datset para almacenar los tipos de becas
+    Dim TipoUsuario As String
     Dim Precio As Decimal
-
     'Private Property Ticket As Ticket
 
 
@@ -35,6 +36,7 @@ Public Class FrmRecarga
     Private Sub FrmEstudiantes_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Try
             Cls.AbrirConexion(Cn, False)
+            DsBeca = Cls.ConsultarTSQL("Becas", "Select IdBeca,DiasBeca,Descripcion From TipoBeca", Cn:=Cn)
         Catch ex As Exception
             If Cn.State = ConnectionState.Open Then
                 Cls.CerrarConexion(Cn)
@@ -44,6 +46,8 @@ Public Class FrmRecarga
         End Try
         txtCedula.Focus()
     End Sub
+
+
 
     Private Sub Buscar_Click(sender As Object, e As EventArgs) Handles Buscar.Click
         Try
@@ -77,42 +81,47 @@ Public Class FrmRecarga
     End Sub
 
     Private Sub TxtCedula_Validated(sender As Object, e As EventArgs) Handles txtCedula.Validated
-        txtCedula.Text = txtCedula.Text.Trim
+        Dim Cedula As String = Replace(txtCedula.Text.Trim, ControlCarnet, "")
         Dim Ds As New DataSet
         Dim Valores(), Llave() As FuncionesDB.Campos
-        If Len(txtCedula.Text) > 0 Then
+        If Len(Cedula) > 0 Then
             Try
                 Valores = Cls.InicializarArray
                 Llave = Cls.InicializarArray
-                Cls.ArmaValor(Llave, "Cedula", txtCedula.Text)
+                Cls.ArmaValor(Llave, "Cedula", Cedula)
                 Cls.ArmaValor(Valores, "IdUsuario")
                 Cls.ArmaValor(Valores, "Nombre")
                 Cls.ArmaValor(Valores, "PrimerApellido")
                 Cls.ArmaValor(Valores, "SegundoApellido")
                 Cls.ArmaValor(Valores, "CantidadTiquetes")
                 Cls.ArmaValor(Valores, "CodTipo")
-                Cls.ArmaValor(Valores, "ActivaBeca")
+                Cls.ArmaValor(Valores, "TipoBeca")
                 Cls.ArmaValor(Valores, "Activo")
-
+                DiaSemana = Weekday(Now)
                 Ds = Cls.Consultar("Usuario", Valores, Llave, Cn)
                 If Ds.Tables(0).Rows.Count > 0 Then
                     TxtNombre.Text = Ds.Tables(0).Rows(0)!Nombre
                     TxtPrimerApellido.Text = Ds.Tables(0).Rows(0)!PrimerApellido
                     TxtSegundoApellido.Text = Ds.Tables(0).Rows(0)!SegundoApellido
-                    If (Ds.Tables(0).Rows(0)!CodTipo = 1) Then
-                        Precio = 300
+                    If Ds.Tables(0).Rows(0)!CodTipo = 1 Then
+                        TipoUsuario = "ESTUDIANTE"
+                        Precio = PrecioEstudiante
                     Else
-                        Precio = 700
+                        TipoUsuario = "PROFESOR"
+                        Precio = PrecioDocente
                     End If
-                    If Ds.Tables(0).Rows(0)!ActivaBeca Then
-                        MsgBox("El usuario ingresado esta becado, no puede realizar recargas", MsgBoxStyle.Critical)
-                        LimpiarPantalla()
-                        Exit Sub
-                    ElseIf Ds.Tables(0).Rows(0)!activo = False Then
+                    If Ds.Tables(0).Rows(0)!activo = False Then
                         MsgBox("El usuario ingresado esta inactivo, no puede realizar recargas", MsgBoxStyle.Critical)
                         LimpiarPantalla()
                         Exit Sub
                     End If
+                    For Each Beca As DataRow In DsBeca.Tables(0).Rows
+                        If Beca!IdBeca = Ds.Tables(0).Rows(0)!TipoBeca Then
+                            LblTipoBeca.Text = Beca!Descripcion
+                            Exit For
+                        End If
+                    Next
+                    LblTipoUsuario.Text = TipoUsuario
                     txtCedula.Tag = Ds.Tables(0).Rows(0)!IdUsuario
                     LblCantTiques.Text = Ds.Tables(0).Rows(0)!CantidadTiquetes & " Disponibles "
                 Else
@@ -140,7 +149,8 @@ Public Class FrmRecarga
 
     Private Sub TxtRecarga_Validated(sender As Object, e As EventArgs) Handles TxtRecarga.Validated
         Dim Cantidad As Integer = Val(sen(TxtRecarga.Text))
-        LblTotal.Text = Cantidad * Precio
+        LblTotal.Text = Format(CType(Cantidad * Precio, Decimal), "#,##0.00")
+
     End Sub
 
     Private Sub BtnCancelar_Click(sender As Object, e As EventArgs) Handles BtnCancelar.Click
@@ -194,33 +204,30 @@ Public Class FrmRecarga
                 Valores = Cls.InicializarArray
                 Cls.ArmaValor(Valores, "IdUsuario", txtCedula.Tag)
                 Cls.ArmaValor(Valores, "TipoPago", 1)
+                Cls.ArmaValor(Valores, "Beca", 9)
+                Cls.ArmaValor(Valores, "Precio", Precio)
                 Cls.ArmaValor(Valores, "Cantidad", Val(sen(TxtRecarga.Text)))
 
-                Cls.Insert("Transacciones", Valores, Cn, pTransac)
+                Cls.Insert("RegistroComedor", Valores, Cn, pTransac)
 
                 Cls.FinalSQL(pTransac)
-                MsgBox("Recarga realizada con exito.", MsgBoxStyle.Information)
+                MsgBox("Recarga realizada con exitosamente.", MsgBoxStyle.Information)
 
 
-
+                'Para actualizar cantidad de tiquetes despues de recargar para poder imprimir recibo
                 Valores = Cls.InicializarArray
                 Llave = Cls.InicializarArray
-
+                Cls.ArmaValor(Llave, "IdUsuario", txtCedula.Tag)
                 Cls.ArmaValor(Valores, "IdUsuario")
-              
-
                 Cls.ArmaValor(Valores, "CantidadTiquetes")
-
-               
                 Ds = Cls.Consultar("Usuario", Valores, Llave, Cn)
-
-
-
                 LblCantTiques.Text = Ds.Tables(0).Rows(0)!CantidadTiquetes & " Disponibles "
-                'Para actualizar cantidad de tiquetes despues de recargar para poder imprimir recibo
 
 
 
+                TxtRecarga.Clear()
+                LblTotal.Text = 0
+                txtCedula.Focus()
                 'BtnCancelar_Click(sender, e)
             Catch ex As Exception
                 Try
@@ -236,16 +243,6 @@ Public Class FrmRecarga
     Private Sub BtnRegresar_Click(sender As Object, e As EventArgs) Handles BtnRegresar.Click
         Me.Close()
     End Sub
-
- 
-
-
-
-
-    Private Sub Imprimir_Click(sender As Object, e As EventArgs)
-
-    End Sub
-
     'Private Sub Imprimir_Click_1(sender As Object, e As EventArgs) Handles Imprimir.Click
 
 

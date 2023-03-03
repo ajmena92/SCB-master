@@ -56,7 +56,7 @@
     ''' <returns></returns>
     ''' <remarks></remarks>
     Function GetAppConfig(Optional ByVal NombreConfiguracion As String = "Conexion") As String
-        Dim strConn As String       
+        Dim strConn As String
         Dim configurationAppSettings As New System.Configuration.AppSettingsReader
         strConn = CStr(configurationAppSettings.GetValue(NombreConfiguracion, GetType(String)))
         Return strConn
@@ -117,12 +117,14 @@
         End Select
     End Function
 
+
+
     Function SCM(ByVal valor As String) As String
         Return "'" & valor & "'"
     End Function
     Public Function ArmaFechaReporte(ByRef Campo As String, ByRef FechaInicial As Date, ByRef FechaFinal As Date) As String
         'ArmaFechaReporte = Campo & ">=date(" & VB6.Format(FechaInicial, "yyyy,mm,dd") & ") and " & Campo & "<=date(" & VB6.Format(FechaFinal, "yyyy,mm,dd") & ")"
-        ArmaFechaReporte = Campo & ">=date(" & FechaInicial.Year & "," & FechaInicial.Month & "," & FechaInicial.Day & ") and " & _
+        ArmaFechaReporte = Campo & ">=date(" & FechaInicial.Year & "," & FechaInicial.Month & "," & FechaInicial.Day & ") and " &
             Campo & "<=date(" & FechaFinal.Year & "," & FechaFinal.Month & "," & FechaFinal.Day & ")"
     End Function
     Function sen(ByVal Valor As String) As String

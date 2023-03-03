@@ -18,7 +18,7 @@ Imports System
 Imports System.ComponentModel
 
 
-Public Class RptRuta_general
+Public Class RptBecadosTransporte_old
     Inherits ReportClass
     
     Public Sub New()
@@ -27,7 +27,7 @@ Public Class RptRuta_general
     
     Public Overrides Property ResourceName() As String
         Get
-            Return "RptRuta_general.rpt"
+            Return "RptBecadosTransporte_old.rpt"
         End Get
         Set
             'Do nothing
@@ -45,7 +45,7 @@ Public Class RptRuta_general
     
     Public Overrides Property FullResourceName() As String
         Get
-            Return "SCSC.RptRuta_general.rpt"
+            Return "SCSC.RptBecadosTransporte_old.rpt"
         End Get
         Set
             'Do nothing
@@ -70,7 +70,7 @@ Public Class RptRuta_general
     
     <Browsable(false),  _
      DesignerSerializationVisibilityAttribute(System.ComponentModel.DesignerSerializationVisibility.Hidden)>  _
-    Public ReadOnly Property GroupHeaderSection1() As CrystalDecisions.CrystalReports.Engine.Section
+    Public ReadOnly Property Section3() As CrystalDecisions.CrystalReports.Engine.Section
         Get
             Return Me.ReportDefinition.Sections(2)
         End Get
@@ -78,7 +78,7 @@ Public Class RptRuta_general
     
     <Browsable(false),  _
      DesignerSerializationVisibilityAttribute(System.ComponentModel.DesignerSerializationVisibility.Hidden)>  _
-    Public ReadOnly Property Section3() As CrystalDecisions.CrystalReports.Engine.Section
+    Public ReadOnly Property Section4() As CrystalDecisions.CrystalReports.Engine.Section
         Get
             Return Me.ReportDefinition.Sections(3)
         End Get
@@ -86,25 +86,9 @@ Public Class RptRuta_general
     
     <Browsable(false),  _
      DesignerSerializationVisibilityAttribute(System.ComponentModel.DesignerSerializationVisibility.Hidden)>  _
-    Public ReadOnly Property GroupFooterSection1() As CrystalDecisions.CrystalReports.Engine.Section
-        Get
-            Return Me.ReportDefinition.Sections(4)
-        End Get
-    End Property
-    
-    <Browsable(false),  _
-     DesignerSerializationVisibilityAttribute(System.ComponentModel.DesignerSerializationVisibility.Hidden)>  _
-    Public ReadOnly Property Section4() As CrystalDecisions.CrystalReports.Engine.Section
-        Get
-            Return Me.ReportDefinition.Sections(5)
-        End Get
-    End Property
-    
-    <Browsable(false),  _
-     DesignerSerializationVisibilityAttribute(System.ComponentModel.DesignerSerializationVisibility.Hidden)>  _
     Public ReadOnly Property Section5() As CrystalDecisions.CrystalReports.Engine.Section
         Get
-            Return Me.ReportDefinition.Sections(6)
+            Return Me.ReportDefinition.Sections(4)
         End Get
     End Property
     
@@ -158,7 +142,7 @@ Public Class RptRuta_general
 End Class
 
 <System.Drawing.ToolboxBitmapAttribute(GetType(CrystalDecisions.[Shared].ExportOptions), "report.bmp")>  _
-Public Class CachedRptRuta_general
+Public Class CachedRptBecadosTransporte_old
     Inherits Component
     Implements ICachedReport
     
@@ -200,7 +184,7 @@ Public Class CachedRptRuta_general
     End Property
     
     Public Overridable Function CreateReport() As CrystalDecisions.CrystalReports.Engine.ReportDocument Implements CrystalDecisions.ReportSource.ICachedReport.CreateReport
-        Dim rpt As RptRuta_general = New RptRuta_general()
+        Dim rpt As RptBecadosTransporte_old = New RptBecadosTransporte_old()
         rpt.Site = Me.Site
         Return rpt
     End Function

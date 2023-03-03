@@ -1,4 +1,4 @@
-﻿Public Class FrmReporteComedor
+﻿Public Class FrmProyeccionComedor
     Dim Cls As New FuncionesDB
     Dim Ds As New DataSet
     Dim Cn As New SqlClient.SqlConnection
@@ -7,15 +7,6 @@
 
         Try
             Cls.AbrirConexion(Cn, False)
-            Ds = Cls.ConsultarTSQL("TipoUsuario", "Select Codtipo,Descripcion From TipoUsuario Where Activo = 1", Cn:=Cn)
-            If Ds.Tables(0).Rows.Count > 0 Then
-                CbTipoUsuario.Items.Clear()
-                CbTipoUsuario.Items.Add(New LBItem("", "---- TODOS ----"))
-                For I As Integer = 0 To Ds.Tables(0).Rows.Count - 1
-                    CbTipoUsuario.Items.Add(New LBItem(Ds.Tables(0).Rows(I)("CodTipo"), Ds.Tables(0).Rows(I)("Descripcion")))
-                Next
-                CbTipoUsuario.SelectedIndex = 0
-            End If
 
             Ds = Cls.ConsultarTSQL("Horario", "Select IdHorario,Descripcion From Horario Where Activo = 1", Cn:=Cn)
             If Ds.Tables(0).Rows.Count > 0 Then
@@ -47,9 +38,6 @@
 
 
         FecIni.Value = Now.Date
-        FecFinal.Value = Now.Date
-
-
 
     End Sub
 
@@ -59,8 +47,6 @@
 
     Sub Limpiar()
         FecIni.Value = Now.Date
-        FecFinal.Value = Now.Date
-        RbGeneral.Checked = True
     End Sub
 
     Private Sub BtnRegresar_Click(sender As Object, e As EventArgs) Handles BtnRegresar.Click
@@ -86,39 +72,26 @@
         If Not IsDate(FecIni.Value) Then
             MsgBox("Debe Indicar una Fecha Válida de Inicio", MsgBoxStyle.Critical)
             FecIni.Focus()
-        ElseIf Not IsDate(FecFinal.Value) Then
-            MsgBox("Debe Indicar una Fecha Válida de Finalización", MsgBoxStyle.Critical)
-            FecFinal.Focus()
-        ElseIf FecFinal.Value < FecIni.Value Then
-            MsgBox("Rango fechas erroneo.", MsgBoxStyle.Critical)
         Else
 
             ' todo bien, se saca reporte.
             'Arma el Criterio de la Consulta
-            Criterio = ArmaFechaReporte("{RegistroComedor.Fecha}", CDate(FecIni.Text), CDate(FecFinal.Text))
-            gSession.RangoDeFecha = "Desde: " & FecIni.Value & "  " & "Hasta: " & FecFinal.Value
-            If CbTipoUsuario.SelectedIndex > 0 Then
-                Criterio = Criterio + " and {TipoUsuario.CodTipo}=" & CbTipoUsuario.Items(CbTipoUsuario.SelectedIndex).valor
+            Criterio = ArmaFechaReporte("{RegistroTransporte.Fecha}", CDate(FecIni.Text), CDate(FecIni.Text))
+            gSession.RangoDeFecha = "Fecha: " & FecIni.Value
+            If CbBeca.SelectedIndex > 0 Then
+                Criterio = Criterio + " and {TipoBeca.IdBeca}=" & CbBeca.Items(CbBeca.SelectedIndex).valor
             End If
             If CbHorario.SelectedIndex > 0 Then
-                Criterio = Criterio + " and {Horario.IdHorario}=" & CbHorario.Items(CbHorario.SelectedIndex).valor
+                Criterio = Criterio + " and {RegistroTransporte.IdHorario}=" & CbHorario.Items(CbHorario.SelectedIndex).valor
                 gSession.Valor1 = "Horario: " + CbHorario.Text
             End If
             If CbBeca.SelectedIndex > 0 Then
                 Criterio = Criterio + " and {TipoBeca.IdBeca}=" & CbBeca.Items(CbBeca.SelectedIndex).valor
             End If
-            If CbBeca.SelectedIndex > 0 Then
-                Criterio = Criterio + " and {TipoBeca.IdBeca}=" & CbBeca.Items(CbBeca.SelectedIndex).valor
-            End If
-
+            Criterio = Criterio + " and {Usuario.CodTipo}=1"
             gSession.Criterio = Criterio
-            gSession.Titulo = "Reporte de Marcas por Rango de Fechas"
-            If RbGeneral.Checked Then
-                gSession.TipoReporte = "GENERAL"
-            Else
-                gSession.TipoReporte = "DETALLADO"
-            End If
-            gSession.Reporte = "FrmReporteMarcas"
+            gSession.Titulo = "Reporte Proyección Asistencia Servicio Comedor"
+            gSession.Reporte = "FrmProyeccionComedor"
         End If
         Return True
     End Function

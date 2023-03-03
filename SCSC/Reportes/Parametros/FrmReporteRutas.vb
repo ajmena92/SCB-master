@@ -16,6 +16,16 @@
                 Next
                 CbTipoUsuario.SelectedIndex = 0
             End If
+
+            Ds = Cls.ConsultarTSQL("Horario", "Select IdHorario,Descripcion From Horario Where Activo = 1")
+            If Ds.Tables(0).Rows.Count > 0 Then
+                CbHorario.Items.Clear()
+                CbHorario.Items.Add(New LBItem("", "---- TODOS ----"))
+                For I As Integer = 0 To Ds.Tables(0).Rows.Count - 1
+                    CbHorario.Items.Add(New LBItem(Ds.Tables(0).Rows(I)("IdHorario"), Ds.Tables(0).Rows(I)("Descripcion")))
+                Next
+                CbHorario.SelectedIndex = 0
+            End If
         Catch ex As Exception
             MsgBox("Error al cargar formulario", MsgBoxStyle.Critical)
             Me.Dispose()
@@ -68,7 +78,11 @@
             Criterio = ArmaFechaReporte("Date({V_RutaEstudiante_x_Fecha.Fecha})", (FecIni.Text), (FecFinal.Text))
             gSession.RangoDeFecha = "Desde: " & FecIni.Value & "  " & "Hasta: " & FecFinal.Value
             If CbTipoUsuario.SelectedIndex > 0 Then
-                Criterio = Criterio + " and {V_RutaEstudiante_x_Fecha.IdRuta}=" & SCM(CbTipoUsuario.Items(CbTipoUsuario.SelectedIndex).valor)
+                Criterio = Criterio + " and {V_RutaEstudiante_x_Fecha.IdRuta}=" & CbTipoUsuario.Items(CbTipoUsuario.SelectedIndex).valor
+            End If
+            If CbHorario.SelectedIndex > 0 Then
+                Criterio = Criterio + " and {V_RutaEstudiante_x_Fecha.IdHorario}=" & CbHorario.Items(CbHorario.SelectedIndex).valor
+                gSession.Valor1 = "Horario: " + CbHorario.Text
             End If
 
             gSession.Criterio = Criterio

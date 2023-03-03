@@ -18,7 +18,7 @@ Imports System
 Imports System.ComponentModel
 
 
-Public Class RptRuta_general
+Public Class RptFechaComedor
     Inherits ReportClass
     
     Public Sub New()
@@ -27,7 +27,7 @@ Public Class RptRuta_general
     
     Public Overrides Property ResourceName() As String
         Get
-            Return "RptRuta_general.rpt"
+            Return "RptFechaComedor.rpt"
         End Get
         Set
             'Do nothing
@@ -45,7 +45,7 @@ Public Class RptRuta_general
     
     Public Overrides Property FullResourceName() As String
         Get
-            Return "SCSC.RptRuta_general.rpt"
+            Return "SCSC.RptFechaComedor.rpt"
         End Get
         Set
             'Do nothing
@@ -70,7 +70,7 @@ Public Class RptRuta_general
     
     <Browsable(false),  _
      DesignerSerializationVisibilityAttribute(System.ComponentModel.DesignerSerializationVisibility.Hidden)>  _
-    Public ReadOnly Property GroupHeaderSection1() As CrystalDecisions.CrystalReports.Engine.Section
+    Public ReadOnly Property Section3() As CrystalDecisions.CrystalReports.Engine.Section
         Get
             Return Me.ReportDefinition.Sections(2)
         End Get
@@ -78,7 +78,7 @@ Public Class RptRuta_general
     
     <Browsable(false),  _
      DesignerSerializationVisibilityAttribute(System.ComponentModel.DesignerSerializationVisibility.Hidden)>  _
-    Public ReadOnly Property Section3() As CrystalDecisions.CrystalReports.Engine.Section
+    Public ReadOnly Property Section4() As CrystalDecisions.CrystalReports.Engine.Section
         Get
             Return Me.ReportDefinition.Sections(3)
         End Get
@@ -86,7 +86,7 @@ Public Class RptRuta_general
     
     <Browsable(false),  _
      DesignerSerializationVisibilityAttribute(System.ComponentModel.DesignerSerializationVisibility.Hidden)>  _
-    Public ReadOnly Property GroupFooterSection1() As CrystalDecisions.CrystalReports.Engine.Section
+    Public ReadOnly Property Section5() As CrystalDecisions.CrystalReports.Engine.Section
         Get
             Return Me.ReportDefinition.Sections(4)
         End Get
@@ -94,23 +94,7 @@ Public Class RptRuta_general
     
     <Browsable(false),  _
      DesignerSerializationVisibilityAttribute(System.ComponentModel.DesignerSerializationVisibility.Hidden)>  _
-    Public ReadOnly Property Section4() As CrystalDecisions.CrystalReports.Engine.Section
-        Get
-            Return Me.ReportDefinition.Sections(5)
-        End Get
-    End Property
-    
-    <Browsable(false),  _
-     DesignerSerializationVisibilityAttribute(System.ComponentModel.DesignerSerializationVisibility.Hidden)>  _
-    Public ReadOnly Property Section5() As CrystalDecisions.CrystalReports.Engine.Section
-        Get
-            Return Me.ReportDefinition.Sections(6)
-        End Get
-    End Property
-    
-    <Browsable(false),  _
-     DesignerSerializationVisibilityAttribute(System.ComponentModel.DesignerSerializationVisibility.Hidden)>  _
-    Public ReadOnly Property Parameter_RangodeFechas() As CrystalDecisions.[Shared].IParameterField
+    Public ReadOnly Property Parameter_Ubicacion() As CrystalDecisions.[Shared].IParameterField
         Get
             Return Me.DataDefinition.ParameterFields(0)
         End Get
@@ -118,7 +102,7 @@ Public Class RptRuta_general
     
     <Browsable(false),  _
      DesignerSerializationVisibilityAttribute(System.ComponentModel.DesignerSerializationVisibility.Hidden)>  _
-    Public ReadOnly Property Parameter_Ubicacion() As CrystalDecisions.[Shared].IParameterField
+    Public ReadOnly Property Parameter_RangodeFechas() As CrystalDecisions.[Shared].IParameterField
         Get
             Return Me.DataDefinition.ParameterFields(1)
         End Get
@@ -134,7 +118,7 @@ Public Class RptRuta_general
     
     <Browsable(false),  _
      DesignerSerializationVisibilityAttribute(System.ComponentModel.DesignerSerializationVisibility.Hidden)>  _
-    Public ReadOnly Property Parameter_Compania() As CrystalDecisions.[Shared].IParameterField
+    Public ReadOnly Property Parameter_Titulo() As CrystalDecisions.[Shared].IParameterField
         Get
             Return Me.DataDefinition.ParameterFields(3)
         End Get
@@ -142,7 +126,7 @@ Public Class RptRuta_general
     
     <Browsable(false),  _
      DesignerSerializationVisibilityAttribute(System.ComponentModel.DesignerSerializationVisibility.Hidden)>  _
-    Public ReadOnly Property Parameter_Titulo() As CrystalDecisions.[Shared].IParameterField
+    Public ReadOnly Property Parameter_Compania() As CrystalDecisions.[Shared].IParameterField
         Get
             Return Me.DataDefinition.ParameterFields(4)
         End Get
@@ -158,7 +142,7 @@ Public Class RptRuta_general
 End Class
 
 <System.Drawing.ToolboxBitmapAttribute(GetType(CrystalDecisions.[Shared].ExportOptions), "report.bmp")>  _
-Public Class CachedRptRuta_general
+Public Class CachedRptFechaComedor
     Inherits Component
     Implements ICachedReport
     
@@ -200,7 +184,7 @@ Public Class CachedRptRuta_general
     End Property
     
     Public Overridable Function CreateReport() As CrystalDecisions.CrystalReports.Engine.ReportDocument Implements CrystalDecisions.ReportSource.ICachedReport.CreateReport
-        Dim rpt As RptRuta_general = New RptRuta_general()
+        Dim rpt As RptFechaComedor = New RptFechaComedor()
         rpt.Site = Me.Site
         Return rpt
     End Function

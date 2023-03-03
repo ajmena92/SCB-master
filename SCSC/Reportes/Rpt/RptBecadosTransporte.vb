@@ -18,7 +18,7 @@ Imports System
 Imports System.ComponentModel
 
 
-Public Class RptRuta_general
+Public Class RptBecadosTransporte
     Inherits ReportClass
     
     Public Sub New()
@@ -27,7 +27,7 @@ Public Class RptRuta_general
     
     Public Overrides Property ResourceName() As String
         Get
-            Return "RptRuta_general.rpt"
+            Return "RptBecadosTransporte.rpt"
         End Get
         Set
             'Do nothing
@@ -45,7 +45,7 @@ Public Class RptRuta_general
     
     Public Overrides Property FullResourceName() As String
         Get
-            Return "SCSC.RptRuta_general.rpt"
+            Return "SCSC.RptBecadosTransporte.rpt"
         End Get
         Set
             'Do nothing
@@ -158,7 +158,7 @@ Public Class RptRuta_general
 End Class
 
 <System.Drawing.ToolboxBitmapAttribute(GetType(CrystalDecisions.[Shared].ExportOptions), "report.bmp")>  _
-Public Class CachedRptRuta_general
+Public Class CachedRptBecadosTransporte
     Inherits Component
     Implements ICachedReport
     
@@ -200,7 +200,7 @@ Public Class CachedRptRuta_general
     End Property
     
     Public Overridable Function CreateReport() As CrystalDecisions.CrystalReports.Engine.ReportDocument Implements CrystalDecisions.ReportSource.ICachedReport.CreateReport
-        Dim rpt As RptRuta_general = New RptRuta_general()
+        Dim rpt As RptBecadosTransporte = New RptBecadosTransporte()
         rpt.Site = Me.Site
         Return rpt
     End Function

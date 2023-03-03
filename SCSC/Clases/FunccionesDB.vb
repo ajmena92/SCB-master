@@ -5,9 +5,9 @@ Imports System.Data.SqlClient
 
 ' Dar formato a celdas de datagridview en windows.
 
-'Dset = Cls.Consultar(Cn, "V_Transacciones", Valores, Llave, "NumFactura Desc")
+'Dset = Cls.Consultar(Cn, "V_RegistroComedor", Valores, Llave, "NumFactura Desc")
 'DataGridPendientes.DataSource = Dset
-'DataGridPendientes.DataMember = "V_Transacciones"
+'DataGridPendientes.DataMember = "V_RegistroComedor"
 'DataGridPendientes.Columns("Monto").DefaultCellStyle.Format = "c"
 'DataGridPendientes.Columns("Monto").DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight
 '
@@ -45,10 +45,10 @@ Public Class FuncionesDB
     '        End If
     '        pCnMysql.Open()
     '        If pUsarTransaccion Then
-    '            ' se manejan transacciones
+    '            ' se manejan RegistroComedor
     '            pTran = pCnMysql.BeginTransaction
     '        Else
-    '            ' Sin transacciones
+    '            ' Sin RegistroComedor
     '        End If
 
     '    Catch ex As Exception
@@ -906,6 +906,7 @@ Public Class FuncionesDB
     Public Function GuardarActualizar(ByVal Tabla As String, ByVal Campo As Campos(), Optional ByRef LlavePrimaria As Campos() = Nothing, Optional ByRef Cn As SqlConnection = Nothing, Optional ByRef PTransac As SqlTransaction = Nothing, Optional ByVal Conexion As String = "Conexion") As Boolean
         Dim LocalCN As Boolean = False
         Dim Resultado As Boolean = False
+        Dim ActivaInserta As Boolean = False
         Try
             ' ************ armar sql
             ' Consultar si registro existe.
@@ -920,6 +921,7 @@ Public Class FuncionesDB
             End If
 
             If Not LlavePrimaria Is Nothing Then
+
                 Dim Dset As DataSet = Consultar(Tabla, Campo, LlavePrimaria, Cn, PTransac, , , , Conexion)
                 If Dset.Tables(Tabla).Rows.Count > 0 Then
                     'Dato existe, se actualiza
@@ -1349,6 +1351,32 @@ Public Class FuncionesDB
         End Try
 
     End Sub
+
+    Public Function VereficaCarnet(ByRef pCedula As String) As Boolean
+        Dim CarnetEstudiante As Integer = InStr(pCedula, ControlCarnet)
+        Dim CarnetProfesor = InStr(pCedula, "CTPP")
+        If CarnetEstudiante > 0 Then
+            pCedula = Replace(pCedula, ControlCarnet, "")
+            Return True
+        ElseIf CarnetProfesor > 0 Then
+            Try
+                Dim Ds As New DataSet
+                pCedula = Replace(pCedula, "CTPP", "")
+                Ds = ConsultarTSQL("Usuario", "SELECT IdUsuario FROM Usuario WHERE Cedula = " & SCM(pCedula))
+                If Ds.Tables(0).Rows.Count > 0 Then
+                    Return True
+                Else
+                    Return False
+                End If
+            Catch ex As Exception
+                MsgBox("Error al cargar el Formulario: " & ex.Message, MsgBoxStyle.Critical)
+                Return False
+            End Try
+
+        Else
+            Return False
+        End If
+    End Function
 End Class
 
 

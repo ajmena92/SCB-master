@@ -12,4 +12,9 @@
     Public CodColegio As String
     Public NomColegio As String
     Public Leyenda As String
+    Public DiaSemana As String
+    Public ControlCarnet As String
+    Public PrecioEstudiante As Decimal
+    Public PrecioDocente As Decimal
+
 End Module
