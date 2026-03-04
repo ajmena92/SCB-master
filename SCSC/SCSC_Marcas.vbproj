@@ -139,6 +139,7 @@
     <Compile Include="Clases\LBItem.vb" />
     <Compile Include="Clases\FunccionesDB.vb" />
     <Compile Include="Clases\Servicios\ComedorDataService.vb" />
+    <Compile Include="Clases\Servicios\DashboardDataService.vb" />
     <Compile Include="Clases\Servicios\ImportacionExcelService.vb" />
     <Compile Include="Clases\Servicios\SeguridadRbacService.vb" />
     <Compile Include="Clases\Servicios\TransporteDataService.vb" />
@@ -342,6 +343,9 @@
     <EmbeddedResource Include="Formularios\FrmRecargas.resx">
       <DependentUpon>FrmRecargas.vb</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Formularios\FrmSeguridadRBAC.resx">
+      <DependentUpon>FrmSeguridadRBAC.vb</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Formularios\IMPRIMIR.resx">
       <DependentUpon>IMPRIMIR.vb</DependentUpon>
     </EmbeddedResource>
@@ -478,6 +482,18 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="favicon.ico" />
+    <Content Include="Resources\Logo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\LogoHero.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\LogoIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\LogoHorizontal.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="Resources\login_wh.png" />
     <None Include="Resources\comedor_w1.png" />
     <None Include="packages.config" />
@@ -496,7 +512,6 @@
     <None Include="Resources\Graduado-Birrete-83978.gif" />
     <None Include="Resources\Estudiantes.jpg" />
     <None Include="Resources\huella_dactilar.jpg" />
-    <None Include="Resources\LOGO - GUAYCARA-Transparente.png" />
     <None Include="Resources\Comedor.jpg" />
   </ItemGroup>
   <ItemGroup>

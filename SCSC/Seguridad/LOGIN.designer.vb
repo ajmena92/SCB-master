@@ -164,7 +164,9 @@
         Me.Label3.RightToLeft = System.Windows.Forms.RightToLeft.No
         Me.Label3.Size = New System.Drawing.Size(620, 56)
         Me.Label3.TabIndex = 43
-        Me.Label3.Text = "Gestione accesos y modulos de control escolar en una interfaz moderna y segura."
+        Me.Label3.Text = "Sistema para registrar y controlar el acceso al comedor y gestionar las becas de " &
+    "transporte, permitiendo la administración de usuarios y la generación de reporte" &
+    "s."
         '
         'SeparatorUsuario
         '

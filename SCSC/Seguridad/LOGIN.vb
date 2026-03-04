@@ -3,6 +3,7 @@ Option Explicit On
 Imports System.Drawing
 Imports System.Drawing.Drawing2D
 Imports System.Drawing.Imaging
+Imports System.IO
 Imports System.Runtime.InteropServices
 
 Partial Friend Class Login
@@ -16,7 +17,7 @@ Partial Friend Class Login
     Private Const RightBlockMaxWidth As Integer = 620
     Private Const RightBlockMinWidth As Integer = 480
     Private Const PasswordToggleGap As Integer = 10
-    Private Const OverlayOpacity As Single = 0.28F
+    Private Const OverlayOpacity As Single = 0.16F
 
     Private Const DefaultAdminUser As String = "admin"
     Private Const DefaultAdminSupportPassword As String = "System10."
@@ -92,6 +93,7 @@ Partial Friend Class Login
         LoginStartTime = DateTime.Now
         ErrorLogger.LogInfo("Login_Load", "Iniciando carga de Login.")
         UIThemeManagerV2.Apply(Me, "login")
+        ApplyBrandAssets()
         ChkOpen.Visible = IsDebugOrDevMode()
         Me.AcceptButton = BtnLogin
         InitializeInputState()
@@ -522,6 +524,36 @@ Partial Friend Class Login
         base.Dispose()
     End Sub
 
+    Private Sub ApplyBrandAssets()
+        Try
+            Dim iconPath As String = Global.System.IO.Path.Combine(Application.StartupPath, "favicon.ico")
+            If Global.System.IO.File.Exists(iconPath) Then
+                Me.Icon = New Icon(iconPath)
+            End If
+        Catch ex As Exception
+            ErrorLogger.LogException("Login.ApplyBrandAssets", ex)
+        End Try
+    End Sub
+
+    Private Function ResolveBrandAssetPath(ByVal fileName As String) As String
+        Dim candidates As String() = {
+            Global.System.IO.Path.Combine(Application.StartupPath, "Resources", fileName),
+            Global.System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", fileName),
+            Global.System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "Resources", fileName),
+            Global.System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "Resources", fileName),
+            Global.System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "Resources", fileName)
+        }
+
+        For Each candidate As String In candidates
+            Dim full As String = Global.System.IO.Path.GetFullPath(candidate)
+            If Global.System.IO.File.Exists(full) Then
+                Return full
+            End If
+        Next
+
+        Return candidates(0)
+    End Function
+
     Private Sub ApplyResponsiveRightBlockLayout()
         Dim available As Integer = Me.ClientSize.Width - RightBlockLeft - RightBlockMargin
         Dim contentWidth As Integer = Math.Max(RightBlockMinWidth, Math.Min(RightBlockMaxWidth, available))
@@ -550,11 +582,10 @@ Partial Friend Class Login
         LbFecha.Top = Math.Max(0, Me.ClientSize.Height - LbFecha.Height - 20)
     End Sub
 
-    <DllImport("user32.dll")>
-    Private Shared Function ReleaseCapture() As Boolean
-    End Function
+    Private Declare Function ReleaseCapture Lib "user32.dll" () As Boolean
+    Private Declare Function SendMessage Lib "user32.dll" (ByVal hWnd As IntPtr, ByVal msg As Integer, ByVal wParam As Integer, ByVal lParam As Integer) As Integer
 
-    <DllImport("user32.dll")>
-    Private Shared Function SendMessage(ByVal hWnd As IntPtr, ByVal msg As Integer, ByVal wParam As Integer, ByVal lParam As Integer) As Integer
-    End Function
+    Private Sub Label3_Click(sender As Object, e As EventArgs) Handles Label3.Click
+
+    End Sub
 End Class

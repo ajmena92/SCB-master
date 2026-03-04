@@ -70,7 +70,7 @@ Partial Class FrmPrincipal
         Me.MenuStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.MantenimientoToolStripMenuItem, Me.UtilitariosToolStripMenuItem, Me.ReportesToolStripMenuItem, Me.AyudaToolStripMenuItem, Me.ImprimirToolStripMenuItem})
         Me.MenuStrip1.Location = New System.Drawing.Point(0, 0)
         Me.MenuStrip1.Name = "MenuStrip1"
-        Me.MenuStrip1.Size = New System.Drawing.Size(1042, 32)
+        Me.MenuStrip1.Size = New System.Drawing.Size(1278, 32)
         Me.MenuStrip1.TabIndex = 1
         Me.MenuStrip1.Text = "MenuStrip1"
         '
@@ -207,7 +207,7 @@ Partial Class FrmPrincipal
         Me.BunifuFlatButton3.Size = New System.Drawing.Size(301, 59)
         Me.BunifuFlatButton3.TabIndex = 4
         Me.BunifuFlatButton3.Text = "Dashboard"
-        Me.BunifuFlatButton3.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        Me.BunifuFlatButton3.UseVisualStyleBackColor = False
         '
         'BunifuFlatButton2
         '
@@ -220,7 +220,7 @@ Partial Class FrmPrincipal
         Me.BunifuFlatButton2.Size = New System.Drawing.Size(301, 59)
         Me.BunifuFlatButton2.TabIndex = 3
         Me.BunifuFlatButton2.Text = "Reportes"
-        Me.BunifuFlatButton2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        Me.BunifuFlatButton2.UseVisualStyleBackColor = False
         '
         'BunifuFlatButton1
         '
@@ -233,7 +233,7 @@ Partial Class FrmPrincipal
         Me.BunifuFlatButton1.Size = New System.Drawing.Size(301, 59)
         Me.BunifuFlatButton1.TabIndex = 2
         Me.BunifuFlatButton1.Text = "Utilitarios"
-        Me.BunifuFlatButton1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        Me.BunifuFlatButton1.UseVisualStyleBackColor = False
         '
         'BtnMantenimiento
         '
@@ -246,7 +246,7 @@ Partial Class FrmPrincipal
         Me.BtnMantenimiento.Size = New System.Drawing.Size(301, 59)
         Me.BtnMantenimiento.TabIndex = 1
         Me.BtnMantenimiento.Text = "Mantenimientos"
-        Me.BtnMantenimiento.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        Me.BtnMantenimiento.UseVisualStyleBackColor = False
         '
         'Panel3
         '
@@ -294,7 +294,7 @@ Partial Class FrmPrincipal
         Me.Panel2.Location = New System.Drawing.Point(301, 32)
         Me.Panel2.Margin = New System.Windows.Forms.Padding(4)
         Me.Panel2.Name = "Panel2"
-        Me.Panel2.Size = New System.Drawing.Size(741, 70)
+        Me.Panel2.Size = New System.Drawing.Size(977, 70)
         Me.Panel2.TabIndex = 3
         '
         'PictureBox3
@@ -328,7 +328,7 @@ Partial Class FrmPrincipal
         Me.BtnCerrar.BackColor = System.Drawing.Color.Transparent
         Me.BtnCerrar.BackgroundImage = CType(resources.GetObject("BtnCerrar.BackgroundImage"), System.Drawing.Image)
         Me.BtnCerrar.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.BtnCerrar.Location = New System.Drawing.Point(1009, 0)
+        Me.BtnCerrar.Location = New System.Drawing.Point(1241, 1)
         Me.BtnCerrar.Margin = New System.Windows.Forms.Padding(4)
         Me.BtnCerrar.Name = "BtnCerrar"
         Me.BtnCerrar.Size = New System.Drawing.Size(33, 31)
@@ -341,7 +341,7 @@ Partial Class FrmPrincipal
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.Color.White
         Me.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.ClientSize = New System.Drawing.Size(1042, 653)
+        Me.ClientSize = New System.Drawing.Size(1440, 900)
         Me.Controls.Add(Me.Panel2)
         Me.Controls.Add(Me.BtnCerrar)
         Me.Controls.Add(Me.Panel1)
@@ -353,6 +353,7 @@ Partial Class FrmPrincipal
         Me.Name = "FrmPrincipal"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "Sistema Control Servicio al Comedor"
+        Me.WindowState = System.Windows.Forms.FormWindowState.Maximized
         Me.MenuStrip1.ResumeLayout(False)
         Me.MenuStrip1.PerformLayout()
         Me.Panel1.ResumeLayout(False)

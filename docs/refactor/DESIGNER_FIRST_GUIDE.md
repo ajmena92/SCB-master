@@ -53,10 +53,32 @@ Este documento establece el estándar obligatorio para cambios UI WinForms en SC
 - Registrar `FormClosing` con `CloseReason`, `DialogResult`, bandera de autorización de cierre.
 - Guardar en `%LOCALAPPDATA%\\SCSC\\logs\\`.
 
+## Incidente documentado (2026-03-04)
+### Sintoma
+- Visual Studio Designer no abre formularios (`LOGIN` y otros) con mensajes como:
+  - `The designer could not be shown... base class 'System.Void' cannot be designed`.
+  - `Type 'System.Windows.Forms.Form' is not defined`.
+  - Cascada de `Type ... is not defined` en `*.designer.vb`.
+
+### Causa probable
+- Estado inconsistente del cache interno de Visual Studio Designer/proyecto (no necesariamente error real del código fuente).
+
+### Recuperacion validada
+1. Guardar cambios.
+2. Cerrar pestañas Designer.
+3. Cerrar Visual Studio completamente.
+4. Reabrir solución en Visual Studio.
+5. Ejecutar `Clean Solution` + `Rebuild Solution`.
+6. Abrir nuevamente el formulario en Designer.
+
+### Prevencion
+- Evitar abrir Designer inmediatamente despues de cambios grandes en `*.designer.vb`/`*.vbproj`.
+- Hacer `Rebuild` antes de abrir Designer cuando se toquen formularios críticos (`LOGIN`, `FrmPrincipal`).
+- Mantener `Inherits System.Windows.Forms.Form` estándar en `*.designer.vb` y no usar variaciones manuales.
+
 ## Alcance
 Este modo aplica a:
 - `SCSC/Seguridad/*`
 - `SCSC/Formularios/*`
 - `SCSC/Reportes/Parametros/*`
 - Cualquier formulario WinForms agregado en adelante.
-

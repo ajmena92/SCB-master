@@ -71,6 +71,8 @@ Partial Class FrmSeguridadRBAC
         Me._btnActualizarPermiso = New System.Windows.Forms.Button()
         Me._btnEliminarPermiso = New System.Windows.Forms.Button()
         Me._gridPermisos = New System.Windows.Forms.DataGridView()
+        Me.PanelFooter = New System.Windows.Forms.Panel()
+        Me._btnSalir = New System.Windows.Forms.Button()
         Me.TabsPrincipal.SuspendLayout()
         Me.TabUsuarios.SuspendLayout()
         Me.PanelUsuariosBottom.SuspendLayout()
@@ -87,6 +89,7 @@ Partial Class FrmSeguridadRBAC
         Me.LayoutPermisos.SuspendLayout()
         Me.FlowPermisosBotones.SuspendLayout()
         CType(Me._gridPermisos, System.ComponentModel.ISupportInitialize).BeginInit()
+        Me.PanelFooter.SuspendLayout()
         Me.SuspendLayout()
         '
         'TabsPrincipal
@@ -98,7 +101,7 @@ Partial Class FrmSeguridadRBAC
         Me.TabsPrincipal.Location = New System.Drawing.Point(0, 0)
         Me.TabsPrincipal.Name = "TabsPrincipal"
         Me.TabsPrincipal.SelectedIndex = 0
-        Me.TabsPrincipal.Size = New System.Drawing.Size(1184, 721)
+        Me.TabsPrincipal.Size = New System.Drawing.Size(940, 532)
         Me.TabsPrincipal.TabIndex = 0
         '
         'TabUsuarios
@@ -108,19 +111,20 @@ Partial Class FrmSeguridadRBAC
         Me.TabUsuarios.Location = New System.Drawing.Point(4, 25)
         Me.TabUsuarios.Name = "TabUsuarios"
         Me.TabUsuarios.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabUsuarios.Size = New System.Drawing.Size(1176, 692)
+        Me.TabUsuarios.Size = New System.Drawing.Size(932, 551)
         Me.TabUsuarios.TabIndex = 0
         Me.TabUsuarios.Text = "Usuarios"
         Me.TabUsuarios.UseVisualStyleBackColor = True
         '
         'PanelUsuariosBottom
         '
+        Me.PanelUsuariosBottom.AutoScroll = True
         Me.PanelUsuariosBottom.Controls.Add(Me.LayoutUsuarios)
         Me.PanelUsuariosBottom.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.PanelUsuariosBottom.Location = New System.Drawing.Point(3, 303)
+        Me.PanelUsuariosBottom.Location = New System.Drawing.Point(3, 223)
         Me.PanelUsuariosBottom.Name = "PanelUsuariosBottom"
         Me.PanelUsuariosBottom.Padding = New System.Windows.Forms.Padding(8)
-        Me.PanelUsuariosBottom.Size = New System.Drawing.Size(1170, 386)
+        Me.PanelUsuariosBottom.Size = New System.Drawing.Size(926, 325)
         Me.PanelUsuariosBottom.TabIndex = 1
         '
         'LayoutUsuarios
@@ -141,59 +145,54 @@ Partial Class FrmSeguridadRBAC
         Me.LayoutUsuarios.Controls.Add(Me._cmbRolUsuario, 1, 2)
         Me.LayoutUsuarios.Controls.Add(Me.LabelRolesUsuario, 2, 2)
         Me.LayoutUsuarios.Controls.Add(Me._lstRolesUsuario, 3, 2)
-        Me.LayoutUsuarios.Controls.Add(Me.FlowUsuariosBotones, 0, 4)
+        Me.LayoutUsuarios.Controls.Add(Me.FlowUsuariosBotones, 0, 3)
         Me.LayoutUsuarios.Dock = System.Windows.Forms.DockStyle.Fill
         Me.LayoutUsuarios.Location = New System.Drawing.Point(8, 8)
         Me.LayoutUsuarios.Name = "LayoutUsuarios"
-        Me.LayoutUsuarios.RowCount = 5
+        Me.LayoutUsuarios.RowCount = 4
         Me.LayoutUsuarios.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 34.0!))
         Me.LayoutUsuarios.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 34.0!))
-        Me.LayoutUsuarios.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 120.0!))
-        Me.LayoutUsuarios.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 10.0!))
+        Me.LayoutUsuarios.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 110.0!))
         Me.LayoutUsuarios.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.LayoutUsuarios.Size = New System.Drawing.Size(1154, 370)
+        Me.LayoutUsuarios.Size = New System.Drawing.Size(910, 309)
         Me.LayoutUsuarios.TabIndex = 0
         Me.LayoutUsuarios.SetColumnSpan(Me.FlowUsuariosBotones, 4)
         '
-        'User labels/inputs
+        'Usuario controls
         '
+        Me.LabelUsuarioNombre.Anchor = System.Windows.Forms.AnchorStyles.Left
         Me.LabelUsuarioNombre.AutoSize = True
         Me.LabelUsuarioNombre.Text = "NombreUsuario"
-        Me.LabelUsuarioNombre.Anchor = System.Windows.Forms.AnchorStyles.Left
         Me._txtNombreUsuario.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.LabelUsuarioCompleto.Anchor = System.Windows.Forms.AnchorStyles.Left
         Me.LabelUsuarioCompleto.AutoSize = True
         Me.LabelUsuarioCompleto.Text = "NombreCompleto"
-        Me.LabelUsuarioCompleto.Anchor = System.Windows.Forms.AnchorStyles.Left
         Me._txtNombreCompletoUsuario.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.LabelUsuarioContrasena.Anchor = System.Windows.Forms.AnchorStyles.Left
         Me.LabelUsuarioContrasena.AutoSize = True
         Me.LabelUsuarioContrasena.Text = "Contraseña"
-        Me.LabelUsuarioContrasena.Anchor = System.Windows.Forms.AnchorStyles.Left
         Me._txtContrasenaUsuario.Dock = System.Windows.Forms.DockStyle.Fill
+        Me._chkUsuarioActivo.Anchor = System.Windows.Forms.AnchorStyles.Left
         Me._chkUsuarioActivo.Text = "EsActivo"
         Me._chkUsuarioActivo.Checked = True
-        Me._chkUsuarioActivo.Anchor = System.Windows.Forms.AnchorStyles.Left
+        Me.LabelRolAsignar.Anchor = System.Windows.Forms.AnchorStyles.Left
         Me.LabelRolAsignar.AutoSize = True
         Me.LabelRolAsignar.Text = "Rol para asignar"
-        Me.LabelRolAsignar.Anchor = System.Windows.Forms.AnchorStyles.Left
         Me._cmbRolUsuario.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.LabelRolesUsuario.Anchor = System.Windows.Forms.AnchorStyles.Left
         Me.LabelRolesUsuario.AutoSize = True
         Me.LabelRolesUsuario.Text = "Roles del usuario"
-        Me.LabelRolesUsuario.Anchor = System.Windows.Forms.AnchorStyles.Left
         Me._lstRolesUsuario.Dock = System.Windows.Forms.DockStyle.Fill
-        '
-        'FlowUsuariosBotones
-        '
+
+        Me.FlowUsuariosBotones.AutoSize = True
+        Me.FlowUsuariosBotones.WrapContents = True
+        Me.FlowUsuariosBotones.Dock = System.Windows.Forms.DockStyle.Top
         Me.FlowUsuariosBotones.Controls.Add(Me._btnCrearUsuario)
         Me.FlowUsuariosBotones.Controls.Add(Me._btnActualizarUsuario)
         Me.FlowUsuariosBotones.Controls.Add(Me._btnEliminarUsuario)
         Me.FlowUsuariosBotones.Controls.Add(Me._btnCambiarClave)
         Me.FlowUsuariosBotones.Controls.Add(Me._btnAsignarRolUsuario)
         Me.FlowUsuariosBotones.Controls.Add(Me._btnRevocarRolUsuario)
-        Me.FlowUsuariosBotones.Dock = System.Windows.Forms.DockStyle.Top
-        Me.FlowUsuariosBotones.Location = New System.Drawing.Point(3, 201)
-        Me.FlowUsuariosBotones.Name = "FlowUsuariosBotones"
-        Me.FlowUsuariosBotones.Size = New System.Drawing.Size(1148, 40)
-        Me.FlowUsuariosBotones.TabIndex = 11
 
         Me._btnCrearUsuario.Text = "Crear"
         Me._btnActualizarUsuario.Text = "Actualizar"
@@ -205,7 +204,7 @@ Partial Class FrmSeguridadRBAC
         Me._gridUsuarios.Dock = System.Windows.Forms.DockStyle.Top
         Me._gridUsuarios.Location = New System.Drawing.Point(3, 3)
         Me._gridUsuarios.Name = "_gridUsuarios"
-        Me._gridUsuarios.Size = New System.Drawing.Size(1170, 300)
+        Me._gridUsuarios.Size = New System.Drawing.Size(926, 220)
         Me._gridUsuarios.TabIndex = 0
 
         'TabRoles
@@ -214,17 +213,18 @@ Partial Class FrmSeguridadRBAC
         Me.TabRoles.Location = New System.Drawing.Point(4, 25)
         Me.TabRoles.Name = "TabRoles"
         Me.TabRoles.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabRoles.Size = New System.Drawing.Size(1176, 692)
+        Me.TabRoles.Size = New System.Drawing.Size(932, 551)
         Me.TabRoles.TabIndex = 1
         Me.TabRoles.Text = "Roles"
         Me.TabRoles.UseVisualStyleBackColor = True
 
+        Me.PanelRolesBottom.AutoScroll = True
         Me.PanelRolesBottom.Controls.Add(Me.LayoutRoles)
         Me.PanelRolesBottom.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.PanelRolesBottom.Location = New System.Drawing.Point(3, 303)
+        Me.PanelRolesBottom.Location = New System.Drawing.Point(3, 223)
         Me.PanelRolesBottom.Name = "PanelRolesBottom"
         Me.PanelRolesBottom.Padding = New System.Windows.Forms.Padding(8)
-        Me.PanelRolesBottom.Size = New System.Drawing.Size(1170, 386)
+        Me.PanelRolesBottom.Size = New System.Drawing.Size(926, 325)
 
         Me.LayoutRoles.ColumnCount = 4
         Me.LayoutRoles.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20.0!))
@@ -240,43 +240,46 @@ Partial Class FrmSeguridadRBAC
         Me.LayoutRoles.Controls.Add(Me._cmbPermisoRol, 1, 2)
         Me.LayoutRoles.Controls.Add(Me.LabelPermisosRol, 2, 2)
         Me.LayoutRoles.Controls.Add(Me._lstPermisosRol, 3, 2)
-        Me.LayoutRoles.Controls.Add(Me.FlowRolesBotones, 0, 4)
+        Me.LayoutRoles.Controls.Add(Me.FlowRolesBotones, 0, 3)
         Me.LayoutRoles.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.LayoutRoles.RowCount = 5
+        Me.LayoutRoles.Location = New System.Drawing.Point(8, 8)
+        Me.LayoutRoles.Name = "LayoutRoles"
+        Me.LayoutRoles.RowCount = 4
         Me.LayoutRoles.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 34.0!))
         Me.LayoutRoles.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 34.0!))
-        Me.LayoutRoles.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 120.0!))
-        Me.LayoutRoles.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 10.0!))
+        Me.LayoutRoles.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 110.0!))
         Me.LayoutRoles.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
+        Me.LayoutRoles.Size = New System.Drawing.Size(910, 309)
         Me.LayoutRoles.SetColumnSpan(Me.FlowRolesBotones, 4)
 
+        Me.LabelNombreRol.Anchor = System.Windows.Forms.AnchorStyles.Left
         Me.LabelNombreRol.AutoSize = True
         Me.LabelNombreRol.Text = "NombreRol"
-        Me.LabelNombreRol.Anchor = System.Windows.Forms.AnchorStyles.Left
         Me._txtNombreRol.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.LabelDescripcionRol.Anchor = System.Windows.Forms.AnchorStyles.Left
         Me.LabelDescripcionRol.AutoSize = True
         Me.LabelDescripcionRol.Text = "Descripcion"
-        Me.LabelDescripcionRol.Anchor = System.Windows.Forms.AnchorStyles.Left
         Me._txtDescripcionRol.Dock = System.Windows.Forms.DockStyle.Fill
+        Me._chkRolActivo.Anchor = System.Windows.Forms.AnchorStyles.Left
         Me._chkRolActivo.Text = "EsActivo"
         Me._chkRolActivo.Checked = True
-        Me._chkRolActivo.Anchor = System.Windows.Forms.AnchorStyles.Left
+        Me.LabelPermisoAsignar.Anchor = System.Windows.Forms.AnchorStyles.Left
         Me.LabelPermisoAsignar.AutoSize = True
         Me.LabelPermisoAsignar.Text = "Permiso para asignar"
-        Me.LabelPermisoAsignar.Anchor = System.Windows.Forms.AnchorStyles.Left
         Me._cmbPermisoRol.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.LabelPermisosRol.Anchor = System.Windows.Forms.AnchorStyles.Left
         Me.LabelPermisosRol.AutoSize = True
         Me.LabelPermisosRol.Text = "Permisos del rol"
-        Me.LabelPermisosRol.Anchor = System.Windows.Forms.AnchorStyles.Left
         Me._lstPermisosRol.Dock = System.Windows.Forms.DockStyle.Fill
 
+        Me.FlowRolesBotones.AutoSize = True
+        Me.FlowRolesBotones.WrapContents = True
+        Me.FlowRolesBotones.Dock = System.Windows.Forms.DockStyle.Top
         Me.FlowRolesBotones.Controls.Add(Me._btnCrearRol)
         Me.FlowRolesBotones.Controls.Add(Me._btnActualizarRol)
         Me.FlowRolesBotones.Controls.Add(Me._btnEliminarRol)
         Me.FlowRolesBotones.Controls.Add(Me._btnAsignarPermisoRol)
         Me.FlowRolesBotones.Controls.Add(Me._btnRevocarPermisoRol)
-        Me.FlowRolesBotones.Dock = System.Windows.Forms.DockStyle.Top
-        Me.FlowRolesBotones.Size = New System.Drawing.Size(1148, 40)
 
         Me._btnCrearRol.Text = "Crear"
         Me._btnActualizarRol.Text = "Actualizar"
@@ -286,7 +289,8 @@ Partial Class FrmSeguridadRBAC
 
         Me._gridRoles.Dock = System.Windows.Forms.DockStyle.Top
         Me._gridRoles.Location = New System.Drawing.Point(3, 3)
-        Me._gridRoles.Size = New System.Drawing.Size(1170, 300)
+        Me._gridRoles.Name = "_gridRoles"
+        Me._gridRoles.Size = New System.Drawing.Size(926, 220)
 
         'TabPermisos
         Me.TabPermisos.Controls.Add(Me.PanelPermisosBottom)
@@ -294,16 +298,18 @@ Partial Class FrmSeguridadRBAC
         Me.TabPermisos.Location = New System.Drawing.Point(4, 25)
         Me.TabPermisos.Name = "TabPermisos"
         Me.TabPermisos.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPermisos.Size = New System.Drawing.Size(1176, 692)
+        Me.TabPermisos.Size = New System.Drawing.Size(932, 551)
         Me.TabPermisos.TabIndex = 2
         Me.TabPermisos.Text = "Permisos"
         Me.TabPermisos.UseVisualStyleBackColor = True
 
+        Me.PanelPermisosBottom.AutoScroll = True
         Me.PanelPermisosBottom.Controls.Add(Me.LayoutPermisos)
         Me.PanelPermisosBottom.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.PanelPermisosBottom.Location = New System.Drawing.Point(3, 303)
+        Me.PanelPermisosBottom.Location = New System.Drawing.Point(3, 223)
+        Me.PanelPermisosBottom.Name = "PanelPermisosBottom"
         Me.PanelPermisosBottom.Padding = New System.Windows.Forms.Padding(8)
-        Me.PanelPermisosBottom.Size = New System.Drawing.Size(1170, 386)
+        Me.PanelPermisosBottom.Size = New System.Drawing.Size(926, 325)
 
         Me.LayoutPermisos.ColumnCount = 2
         Me.LayoutPermisos.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25.0!))
@@ -312,29 +318,32 @@ Partial Class FrmSeguridadRBAC
         Me.LayoutPermisos.Controls.Add(Me._txtClavePermiso, 1, 0)
         Me.LayoutPermisos.Controls.Add(Me.LabelDescripcionPermiso, 0, 1)
         Me.LayoutPermisos.Controls.Add(Me._txtDescripcionPermiso, 1, 1)
-        Me.LayoutPermisos.Controls.Add(Me.FlowPermisosBotones, 0, 3)
+        Me.LayoutPermisos.Controls.Add(Me.FlowPermisosBotones, 0, 2)
         Me.LayoutPermisos.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.LayoutPermisos.RowCount = 4
+        Me.LayoutPermisos.Location = New System.Drawing.Point(8, 8)
+        Me.LayoutPermisos.Name = "LayoutPermisos"
+        Me.LayoutPermisos.RowCount = 3
         Me.LayoutPermisos.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 34.0!))
         Me.LayoutPermisos.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 34.0!))
-        Me.LayoutPermisos.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 10.0!))
         Me.LayoutPermisos.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
+        Me.LayoutPermisos.Size = New System.Drawing.Size(910, 309)
         Me.LayoutPermisos.SetColumnSpan(Me.FlowPermisosBotones, 2)
 
+        Me.LabelClavePermiso.Anchor = System.Windows.Forms.AnchorStyles.Left
         Me.LabelClavePermiso.AutoSize = True
         Me.LabelClavePermiso.Text = "ClavePermiso"
-        Me.LabelClavePermiso.Anchor = System.Windows.Forms.AnchorStyles.Left
         Me._txtClavePermiso.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.LabelDescripcionPermiso.Anchor = System.Windows.Forms.AnchorStyles.Left
         Me.LabelDescripcionPermiso.AutoSize = True
         Me.LabelDescripcionPermiso.Text = "Descripcion"
-        Me.LabelDescripcionPermiso.Anchor = System.Windows.Forms.AnchorStyles.Left
         Me._txtDescripcionPermiso.Dock = System.Windows.Forms.DockStyle.Fill
 
+        Me.FlowPermisosBotones.AutoSize = True
+        Me.FlowPermisosBotones.WrapContents = True
+        Me.FlowPermisosBotones.Dock = System.Windows.Forms.DockStyle.Top
         Me.FlowPermisosBotones.Controls.Add(Me._btnCrearPermiso)
         Me.FlowPermisosBotones.Controls.Add(Me._btnActualizarPermiso)
         Me.FlowPermisosBotones.Controls.Add(Me._btnEliminarPermiso)
-        Me.FlowPermisosBotones.Dock = System.Windows.Forms.DockStyle.Top
-        Me.FlowPermisosBotones.Size = New System.Drawing.Size(1148, 40)
 
         Me._btnCrearPermiso.Text = "Crear"
         Me._btnActualizarPermiso.Text = "Actualizar"
@@ -342,13 +351,37 @@ Partial Class FrmSeguridadRBAC
 
         Me._gridPermisos.Dock = System.Windows.Forms.DockStyle.Top
         Me._gridPermisos.Location = New System.Drawing.Point(3, 3)
-        Me._gridPermisos.Size = New System.Drawing.Size(1170, 300)
+        Me._gridPermisos.Name = "_gridPermisos"
+        Me._gridPermisos.Size = New System.Drawing.Size(926, 220)
+
+        'PanelFooter
+        Me.PanelFooter.Controls.Add(Me._btnSalir)
+        Me.PanelFooter.Dock = System.Windows.Forms.DockStyle.Bottom
+        Me.PanelFooter.Location = New System.Drawing.Point(0, 532)
+        Me.PanelFooter.Name = "PanelFooter"
+        Me.PanelFooter.Padding = New System.Windows.Forms.Padding(8)
+        Me.PanelFooter.Size = New System.Drawing.Size(940, 48)
+        Me.PanelFooter.TabIndex = 1
+
+        '_btnSalir
+        Me._btnSalir.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me._btnSalir.Location = New System.Drawing.Point(828, 8)
+        Me._btnSalir.Name = "_btnSalir"
+        Me._btnSalir.Size = New System.Drawing.Size(100, 32)
+        Me._btnSalir.TabIndex = 0
+        Me._btnSalir.Text = "Salir"
+        Me._btnSalir.UseVisualStyleBackColor = True
 
         'Form
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
-        Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(1184, 721)
+        Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi
+        Me.ClientSize = New System.Drawing.Size(940, 580)
         Me.Controls.Add(Me.TabsPrincipal)
+        Me.Controls.Add(Me.PanelFooter)
+        Me.ControlBox = False
+        Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog
+        Me.MaximizeBox = False
+        Me.MinimizeBox = False
         Me.Name = "FrmSeguridadRBAC"
         Me.Text = "Gestión de Seguridad RBAC"
         Me.TabsPrincipal.ResumeLayout(False)
@@ -357,19 +390,23 @@ Partial Class FrmSeguridadRBAC
         Me.LayoutUsuarios.ResumeLayout(False)
         Me.LayoutUsuarios.PerformLayout()
         Me.FlowUsuariosBotones.ResumeLayout(False)
+        Me.FlowUsuariosBotones.PerformLayout()
         CType(Me._gridUsuarios, System.ComponentModel.ISupportInitialize).EndInit()
         Me.TabRoles.ResumeLayout(False)
         Me.PanelRolesBottom.ResumeLayout(False)
         Me.LayoutRoles.ResumeLayout(False)
         Me.LayoutRoles.PerformLayout()
         Me.FlowRolesBotones.ResumeLayout(False)
+        Me.FlowRolesBotones.PerformLayout()
         CType(Me._gridRoles, System.ComponentModel.ISupportInitialize).EndInit()
         Me.TabPermisos.ResumeLayout(False)
         Me.PanelPermisosBottom.ResumeLayout(False)
         Me.LayoutPermisos.ResumeLayout(False)
         Me.LayoutPermisos.PerformLayout()
         Me.FlowPermisosBotones.ResumeLayout(False)
+        Me.FlowPermisosBotones.PerformLayout()
         CType(Me._gridPermisos, System.ComponentModel.ISupportInitialize).EndInit()
+        Me.PanelFooter.ResumeLayout(False)
         Me.ResumeLayout(False)
 
     End Sub
@@ -431,4 +468,6 @@ Partial Class FrmSeguridadRBAC
     Friend WithEvents _btnCrearPermiso As Button
     Friend WithEvents _btnActualizarPermiso As Button
     Friend WithEvents _btnEliminarPermiso As Button
+    Friend WithEvents PanelFooter As Panel
+    Friend WithEvents _btnSalir As Button
 End Class
