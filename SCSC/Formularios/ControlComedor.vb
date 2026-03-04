@@ -4,9 +4,9 @@ Public Class ControlComedor
     Dim Ulthuella As String
     Dim ErrUltHuella, ErrTiquetes, AdverNOMarca, AdverMarcaTardia As Boolean '' controla el error de 2 marcas continuas y por cantidad de tiquetes
     Dim Cls As New FuncionesDB
+    Dim ComedorSvc As New ComedorDataService(Cls)
     Dim Cn As New SqlClient.SqlConnection
     Dim Ds As New DataSet ' Datset para busqueda por carnet
-    Dim DsMarcasEntrada ' Dataset registra las marcas del moculo de transporte diario
     Dim DsBeca As New DataSet ' Datset para almacenar los tipos de becas
     Dim DsHorarios As New DataSet ' Datset para almacenar los horarios
     Dim EstadoVerificado As Boolean = False
@@ -29,22 +29,9 @@ Public Class ControlComedor
     Private Sub ControlComedor_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Try
             Cls.AbrirConexion(Cn, False)
-            Ds = Cls.ConsultarTSQL("Usuario", "SELECT IdUsuario,TipoBeca,HuellaDactilar,Nombre,PrimerApellido,SegundoApellido,CodTipo,Cedula,IdHorario FROM Usuario WHERE Activo = 1", Cn:=Cn)
-            DsMarcasEntrada = Cls.ConsultarTSQL("Marcas", "SELECT IdUsuario,Fecha FROM RegistroTransporte WHERE " & ArmaFechaQueryHora("Fecha", FechaServer.Date, FechaServer), Cn:=Cn) 'Consulta de marcas en modulo de transporte del dia.
-            Ds.Tables(0).Columns.Add("MarcaTransporte", GetType(Integer)) ' Se agregan dos columnas para el control de la hora de marca y marca en modulo de transportes
-            Ds.Tables(0).Columns.Add("HoraMarca", GetType(DateTime))
-            For Each iRow As DataRow In Ds.Tables(0).Rows '' En este proceso se combina las marcas de transporte con las marcas de los usuarios.
-                Dim Marca() As DataRow = DsMarcasEntrada.Tables(0).Select(
-                    String.Format("IdUsuario = '{0}'", iRow!IdUsuario))
-                If Marca.Length > 0 Then
-                    iRow!MarcaTransporte = 1
-                    iRow!HoraMarca = Marca(0).ItemArray(1)
-                Else
-                    iRow!MarcaTransporte = 0
-                End If
-            Next
-            DsBeca = Cls.ConsultarTSQL("Becas", "Select IdBeca,DiasBeca From TipoBeca", Cn:=Cn)
-            DsHorarios = Cls.ConsultarTSQL("Horarios", "Select IdHorario,HoraLimite From Horario", Cn:=Cn)
+            Ds = ComedorSvc.CargarUsuariosConMarcaTransporte(Cn, FechaServer)
+            DsBeca = ComedorSvc.CargarBecas(Cn)
+            DsHorarios = ComedorSvc.CargarHorarios(Cn)
             LblFecha.Text = FechaServer
             Ulthuella = -1
             TxtCedula.Focus()
@@ -62,13 +49,7 @@ Public Class ControlComedor
     End Sub
 
     Sub _ProcesarMarca(ByVal Usuario As DataRow)
-        Dim pTransac As SqlClient.SqlTransaction
         Try
-            Dim cmd As String
-            Dim GuardarTrasaccion As Boolean = True
-            Dim CantTiquetes As Integer = 0
-            Dim Valores() As FuncionesDB.Campos
-            Dim Becado As Integer = 0
             LblCedula.Text = Usuario!Cedula
             TxtUsuario.Text = Usuario!Nombre & " " & Usuario!PrimerApellido & " " & Usuario!SegundoApellido
             If (Usuario!CodTipo = 1) Then
@@ -78,49 +59,14 @@ Public Class ControlComedor
                 TxtTipo.Text = "PROFESOR"
                 LblTitulo.Text = "PROFESOR: " & TxtUsuario.Text
             End If
-            For Each Beca As DataRow In DsBeca.Tables(0).Rows
-                If Beca!IdBeca = Usuario!TipoBeca Then
-                    Becado = InStr(Beca!DiasBeca, DiaSemana) ' Se verifica que el tipo de la beca, tenga el dia actual con el beneficio.
-                    Exit For
-                End If
-            Next
-            Cls.IniciaSQL(Cn, pTransac)
-            Valores = Cls.InicializarArray
-            Cls.ArmaValor(Valores, "IdUsuario", Usuario!IdUsuario)
-
-            If Becado > 0 Then 'Valido el dia becado
-                TxtTiquetes.Text = " Usuario Becado"
-                Cls.ArmaValor(Valores, "Beca", 1)
-            Else
-                Dim Data As New DataSet
-                Data = Cls.ConsultarTSQL("Usuario", "SELECT CantidadTiquetes FROM Usuario WHERE IdUsuario = @IdUsuario", Valores, Cn, pTransac)
-                If Data.Tables(0).Rows(0)!CantidadTiquetes < 1 Then
-                    GuardarTrasaccion = False
-                    ErrTiquetes = True
-                Else
-                    CantTiquetes = Data.Tables(0).Rows(0)!CantidadTiquetes - 1
-                    cmd = "UPDATE Usuario set CantidadTiquetes = CantidadTiquetes - " & 1 & " WHERE IdUsuario = @IdUsuario"
-                    ''Suma los tiquetes en usuarios
-                    Cls.AplicaSQL(cmd, Cn, pTransac, Valores)
-                End If
-                TxtTiquetes.Text = CantTiquetes & " Tiquetes"
-                Cls.ArmaValor(Valores, "Beca", 0)
-            End If
-            Cls.ArmaValor(Valores, "TipoPago", 2)
-            Cls.ArmaValor(Valores, "Cantidad", 1)
-            Cls.ArmaValor(Valores, "TipoUsuario", Usuario!CodTipo)
-            If GuardarTrasaccion Then
-                Cls.Insert("RegistroComedor", Valores, Cn, pTransac)
+            Dim resultado As ComedorDataService.MarcaComedorResultado = ComedorSvc.RegistrarMarca(Usuario, DsBeca, DiaSemana, Cn)
+            TxtTiquetes.Text = resultado.TextoTiquetes
+            ErrTiquetes = resultado.ErrorTiquetes
+            If resultado.RegistroGuardado Then
                 Ulthuella = LblCedula.Text
             End If
-            Cls.FinalSQL(pTransac)
             EstadoVerificado = True
         Catch ex As Exception
-            Try
-                Cls.RollSQL(pTransac)
-            Catch ex2 As Exception
-                ''Omitir error del rollback, pendiente mejorar
-            End Try
             LimpiarPantalla(True)
             MsgBox(ex.Message, MsgBoxStyle.Critical)
         End Try

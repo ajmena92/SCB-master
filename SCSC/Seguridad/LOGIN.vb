@@ -3,6 +3,8 @@ Option Explicit On
 
 Friend Class Login
     Inherits System.Windows.Forms.Form
+    Private Const DefaultAdminUser As String = "admin"
+    Private Const DefaultAdminSupportPassword As String = "S0p0rt3CTP."
     Dim ClaveUsuario As String
     Dim Cls As New FuncionesDB
     Dim Cn As New SqlClient.SqlConnection
@@ -20,9 +22,9 @@ Friend Class Login
         If Len(ClavePaso.Text) <> 0 Then
             Dim Seguridad As New Seguridad.Encriptacion64
             ''Esto para soporte del Administrdor
-            If CodUsuario.Text.Trim.ToLower = "admin" Then
-                If ClavePaso.Text.Trim <> "S0p0rt3CTP." Then
-                    MsgBox("Clave de Paso Inválida", 16)
+            If String.Equals(CodUsuario.Text.Trim(), ObtenerUsuarioAdmin(), StringComparison.OrdinalIgnoreCase) Then
+                If ClavePaso.Text.Trim <> ObtenerClaveSoporteAdmin() Then
+                    MsgBox("Clave de Paso InvÃ¡lida", 16)
                     ClavePaso.Text = ""
                     ClavePaso.Focus()
                 Else
@@ -31,12 +33,12 @@ Friend Class Login
             Else
                 'Pendiente encriptar claves de usuario
                 'If RTrim(Seguridad.encryptQueryString(ClavePaso.Text, LlaveIncriptacion)) <> RTrim(ClaveUsuario) Then
-                '    MsgBox("Clave de Paso Inválida", 16)
+                '    MsgBox("Clave de Paso InvÃ¡lida", 16)
                 '    ClavePaso.Text = ""
                 '    ClavePaso.Focus()
                 'End If
                 If RTrim(ClavePaso.Text) <> RTrim(ClaveUsuario) Then
-                    MsgBox("Usuario o contraseña invalida !", 16)
+                    MsgBox("Usuario o contraseÃ±a invalida !", 16)
                     ClavePaso.Text = ""
                     ClavePaso.Focus()
                 Else
@@ -79,7 +81,7 @@ Friend Class Login
                         FechaServer = CDate(Ds.Tables(0).Rows(0)!Fecha).Date
                     End If
                 Else
-                    If CodUsuario.Text.ToLower = "admin" Then
+                    If String.Equals(CodUsuario.Text.Trim(), ObtenerUsuarioAdmin(), StringComparison.OrdinalIgnoreCase) Then
                         Ds = Cls.ConsultarTSQL("Fecha", "Select GETDATE() as Fecha")
 
                         'LblNombreUsuario.Text = "Administrador Sistema"
@@ -127,7 +129,7 @@ Friend Class Login
                 LbFecha.Text = Format(DsParametro.Tables(0).Rows(0)!Fecha, "dd/MMM/yyyy")
                 DiaSemana = Weekday(DsParametro.Tables(0).Rows(0)!Fecha).ToString
             Else
-                Throw New Exception("No se encontarón los parametros de la aplicación. Imposible Iniciar !0x000020")
+                Throw New Exception("No se encontarÃ³n los parametros de la aplicaciÃ³n. Imposible Iniciar !0x000020")
             End If
             Cls.CerrarConexion(Cn)
         Catch ex As Exception
@@ -136,13 +138,13 @@ Friend Class Login
             End If
             MsgBox("Error al cargar el programa: " & ex.Message, MsgBoxStyle.Critical)
             MsgBox("Terminando programa, contacte a soporte y notifique el mensaje anterior.", MsgBoxStyle.Critical)
-            End
+            Application.Exit()
         End Try
     End Sub
 
     Private Sub Salir_ClickEvent(ByVal eventSender As System.Object, ByVal eventArgs As System.EventArgs) Handles BtnCerrar.Click
         'db.Close()
-        End
+        Application.Exit()
     End Sub
 
 
@@ -181,7 +183,7 @@ Abrir:
 ErrorAbrir:
         msg = "Error en Apertura de Sistema"
         MsgBox(msg, MsgBoxStyle.Critical)
-        End
+        Application.Exit()
     End Sub
 
     Private Sub BtnComedor_Click(sender As Object, e As EventArgs) Handles BtnComedor.Click
@@ -208,4 +210,24 @@ ErrorAbrir:
             ClavePaso.Focus()
         End If
     End Sub
+
+    Private Function ObtenerAppSettingConDefault(ByVal key As String, ByVal defaultValue As String) As String
+        Try
+            Dim value As String = System.Configuration.ConfigurationManager.AppSettings(key)
+            If String.IsNullOrWhiteSpace(value) Then
+                Return defaultValue
+            End If
+            Return value.Trim()
+        Catch
+            Return defaultValue
+        End Try
+    End Function
+
+    Private Function ObtenerUsuarioAdmin() As String
+        Return ObtenerAppSettingConDefault("AdminUsuario", DefaultAdminUser)
+    End Function
+
+    Private Function ObtenerClaveSoporteAdmin() As String
+        Return ObtenerAppSettingConDefault("AdminClaveSoporte", DefaultAdminSupportPassword)
+    End Function
 End Class

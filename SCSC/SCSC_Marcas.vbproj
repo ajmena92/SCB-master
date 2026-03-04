@@ -274,6 +274,9 @@
     <Compile Include="Clases\Encriptacion64.vb" />
     <Compile Include="Clases\LBItem.vb" />
     <Compile Include="Clases\FunccionesDB.vb" />
+    <Compile Include="Clases\Servicios\ComedorDataService.vb" />
+    <Compile Include="Clases\Servicios\ImportacionExcelService.vb" />
+    <Compile Include="Clases\Servicios\TransporteDataService.vb" />
     <Compile Include="Formularios\ControlTransporte.Designer.vb">
       <DependentUpon>ControlTransporte.vb</DependentUpon>
     </Compile>

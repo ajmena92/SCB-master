@@ -4,6 +4,7 @@ Public Class ControlTransporte
     Dim Ulthuella As String
     Dim ErrUltHuella, ErrTiquetes As Boolean '' controla el error de 2 marcas continuas y por cantidad de tiquetes
     Dim Cls As New FuncionesDB
+    Dim TransporteSvc As New TransporteDataService(Cls)
     Dim Cn As New SqlClient.SqlConnection
     Dim DsUsuarios As New DataSet ' Datset para busqueda por carnet
     Dim DsRutas As New DataSet ' Datset para busqueda de rutas
@@ -28,8 +29,8 @@ Public Class ControlTransporte
     Private Sub ControlTransporte_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Try
             Cls.AbrirConexion(Cn, False)
-            DsUsuarios = Cls.ConsultarTSQL("Usuario", "SELECT IdUsuario,HuellaDactilar,Nombre,PrimerApellido,SegundoApellido,CodTipo,IdRuta,Seccion,Cedula,IdHorario,PermisoSalida FROM Usuario WHERE Activo = 1", Cn:=Cn)
-            DsRutas = Cls.ConsultarTSQL("Ruta", "SELECT * FROM Ruta", Cn:=Cn)
+            DsUsuarios = TransporteSvc.CargarUsuariosActivos(Cn)
+            DsRutas = TransporteSvc.CargarRutas(Cn)
             Ulthuella = -1
             LblFecha.Text = FechaServer
             TxtCedula.Focus()
@@ -48,9 +49,6 @@ Public Class ControlTransporte
 
     Sub _ProcesarMarca(ByVal Usuario As DataRow)
         Try
-            Dim cmd As String
-            Dim CantTiquetes As Integer = 0
-            Dim Valores() As FuncionesDB.Campos
             LblCedula.Text = Usuario!Cedula
             TxtUsuario.Text = CType(Usuario!Nombre & " " & Usuario!PrimerApellido & " " & Usuario!SegundoApellido, String)
             TxtSeccion.Text = Usuario!Seccion
@@ -69,27 +67,15 @@ Public Class ControlTransporte
             Else
                 TxtPermisoSalida.Text = "NO Autorizado"
             End If
-            Valores = Cls.InicializarArray
-            Cls.ArmaValor(Valores, "IdUsuario", Usuario!IdUsuario)
-            Cls.ArmaValor(Valores, "IdHorario", Usuario!IdHorario)
             Ulthuella = LblCedula.Text
             If (Usuario!CodTipo = 1) Then
                 TxtTipo.Text = "ESTUDIANTE"
-                Cls.ArmaValor(Valores, "IdRuta", Usuario!IdRuta)
-                Cls.Insert("RegistroTransporte", Valores, Cn)
                 LblTitulo.Text = "ESTUDIANTE: " & TxtUsuario.Text
             Else
                 TxtTipo.Text = "PROFESOR"
-                Dim Ds As New DataSet
-                Ds = Cls.ConsultarTSQL("RegistroTransporte", "Select IdTransaccion From RegistroDocentes Where IdUsuario = " & Usuario!IdUsuario & " and " & ArmaFechaQueryHora("Fecha", FechaServer, FechaServer), Cn:=Cn)
-                If Ds.Tables(0).Rows.Count > 0 Then
-                    Cls.ArmaValor(Valores, "TipoMarca", 2)
-                Else
-                    Cls.ArmaValor(Valores, "TipoMarca", 1)
-                End If
-                Cls.Insert("RegistroDocentes", Valores, Cn)
                 LblTitulo.Text = "PROF.: " & TxtUsuario.Text
             End If
+            TransporteSvc.RegistrarMarca(Usuario, Cn, FechaServer)
             EstadoVerificado = True
         Catch ex As Exception
             LimpiarPantalla(True)
