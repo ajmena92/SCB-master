@@ -7,7 +7,8 @@ Imports System.Linq
 Imports System.Drawing
 Imports System.Windows.Forms
 
-Public Partial Class FrmSeguridadRBAC
+Partial Friend Class FrmSeguridadRBAC
+    Inherits System.Windows.Forms.Form
 
     Private ReadOnly _service As New SeguridadRbacService()
     Private _layoutReady As Boolean = False
