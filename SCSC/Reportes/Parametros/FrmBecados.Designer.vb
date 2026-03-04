@@ -28,12 +28,14 @@ Partial Class FrmBecados
         Me.BtnCancelar = New System.Windows.Forms.Button()
         Me.BtnGuardar = New System.Windows.Forms.Button()
         Me.GroupBox1 = New System.Windows.Forms.GroupBox()
+        Me.Panel1 = New System.Windows.Forms.Panel()
+        Me.RbPermisoSalida = New System.Windows.Forms.RadioButton()
+        Me.RbBecaTransporte = New System.Windows.Forms.RadioButton()
+        Me.RbBecaComedor = New System.Windows.Forms.RadioButton()
         Me.CbHorario = New System.Windows.Forms.ComboBox()
         Me.Label6 = New System.Windows.Forms.Label()
-        Me.Panel1 = New System.Windows.Forms.Panel()
-        Me.RbBecaComedor = New System.Windows.Forms.RadioButton()
-        Me.RbBecaTransporte = New System.Windows.Forms.RadioButton()
-        Me.RbPermisoSalida = New System.Windows.Forms.RadioButton()
+        Me.RbDetallo = New System.Windows.Forms.RadioButton()
+        Me.RbGeneral = New System.Windows.Forms.RadioButton()
         Me.Panel4.SuspendLayout()
         Me.GroupBox1.SuspendLayout()
         Me.Panel1.SuspendLayout()
@@ -48,12 +50,12 @@ Partial Class FrmBecados
         Me.Label1.BackColor = System.Drawing.Color.Transparent
         Me.Label1.Font = New System.Drawing.Font("Arial Narrow", 18.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Label1.ForeColor = System.Drawing.Color.Black
-        Me.Label1.Location = New System.Drawing.Point(128, 22)
+        Me.Label1.Location = New System.Drawing.Point(204, 22)
         Me.Label1.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(484, 35)
+        Me.Label1.Size = New System.Drawing.Size(374, 35)
         Me.Label1.TabIndex = 21
-        Me.Label1.Text = "Reporte Proyeción Asistencia Comedor"
+        Me.Label1.Text = "Reporte Estudiantes Becados "
         Me.Label1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
         'Panel4
@@ -105,6 +107,8 @@ Partial Class FrmBecados
         '
         'GroupBox1
         '
+        Me.GroupBox1.Controls.Add(Me.RbGeneral)
+        Me.GroupBox1.Controls.Add(Me.RbDetallo)
         Me.GroupBox1.Controls.Add(Me.Panel1)
         Me.GroupBox1.Controls.Add(Me.CbHorario)
         Me.GroupBox1.Controls.Add(Me.Label6)
@@ -118,26 +122,6 @@ Partial Class FrmBecados
         Me.GroupBox1.TabStop = False
         Me.GroupBox1.Text = "Parametros"
         '
-        'CbHorario
-        '
-        Me.CbHorario.FormattingEnabled = True
-        Me.CbHorario.Location = New System.Drawing.Point(496, 67)
-        Me.CbHorario.Margin = New System.Windows.Forms.Padding(4)
-        Me.CbHorario.Name = "CbHorario"
-        Me.CbHorario.Size = New System.Drawing.Size(213, 32)
-        Me.CbHorario.TabIndex = 12
-        '
-        'Label6
-        '
-        Me.Label6.AutoSize = True
-        Me.Label6.Font = New System.Drawing.Font("Calibri", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label6.Location = New System.Drawing.Point(405, 71)
-        Me.Label6.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
-        Me.Label6.Name = "Label6"
-        Me.Label6.Size = New System.Drawing.Size(83, 24)
-        Me.Label6.TabIndex = 11
-        Me.Label6.Text = "Horario: "
-        '
         'Panel1
         '
         Me.Panel1.Controls.Add(Me.RbPermisoSalida)
@@ -148,16 +132,16 @@ Partial Class FrmBecados
         Me.Panel1.Size = New System.Drawing.Size(304, 120)
         Me.Panel1.TabIndex = 13
         '
-        'RbBecaComedor
+        'RbPermisoSalida
         '
-        Me.RbBecaComedor.AutoSize = True
-        Me.RbBecaComedor.Location = New System.Drawing.Point(23, 12)
-        Me.RbBecaComedor.Name = "RbBecaComedor"
-        Me.RbBecaComedor.Size = New System.Drawing.Size(232, 28)
-        Me.RbBecaComedor.TabIndex = 0
-        Me.RbBecaComedor.TabStop = True
-        Me.RbBecaComedor.Text = "Reporte Becas Comedor"
-        Me.RbBecaComedor.UseVisualStyleBackColor = True
+        Me.RbPermisoSalida.AutoSize = True
+        Me.RbPermisoSalida.Location = New System.Drawing.Point(23, 80)
+        Me.RbPermisoSalida.Name = "RbPermisoSalida"
+        Me.RbPermisoSalida.Size = New System.Drawing.Size(259, 28)
+        Me.RbPermisoSalida.TabIndex = 2
+        Me.RbPermisoSalida.TabStop = True
+        Me.RbPermisoSalida.Text = "Reporte Permisos de Salida"
+        Me.RbPermisoSalida.UseVisualStyleBackColor = True
         '
         'RbBecaTransporte
         '
@@ -170,16 +154,60 @@ Partial Class FrmBecados
         Me.RbBecaTransporte.Text = "Reporte Becas Transporte"
         Me.RbBecaTransporte.UseVisualStyleBackColor = True
         '
-        'RbPermisoSalida
+        'RbBecaComedor
         '
-        Me.RbPermisoSalida.AutoSize = True
-        Me.RbPermisoSalida.Location = New System.Drawing.Point(23, 80)
-        Me.RbPermisoSalida.Name = "RbPermisoSalida"
-        Me.RbPermisoSalida.Size = New System.Drawing.Size(259, 28)
-        Me.RbPermisoSalida.TabIndex = 2
-        Me.RbPermisoSalida.TabStop = True
-        Me.RbPermisoSalida.Text = "Reporte Permisos de Salida"
-        Me.RbPermisoSalida.UseVisualStyleBackColor = True
+        Me.RbBecaComedor.AutoSize = True
+        Me.RbBecaComedor.Location = New System.Drawing.Point(23, 12)
+        Me.RbBecaComedor.Name = "RbBecaComedor"
+        Me.RbBecaComedor.Size = New System.Drawing.Size(232, 28)
+        Me.RbBecaComedor.TabIndex = 0
+        Me.RbBecaComedor.TabStop = True
+        Me.RbBecaComedor.Text = "Reporte Becas Comedor"
+        Me.RbBecaComedor.UseVisualStyleBackColor = True
+        '
+        'CbHorario
+        '
+        Me.CbHorario.FormattingEnabled = True
+        Me.CbHorario.Location = New System.Drawing.Point(500, 38)
+        Me.CbHorario.Margin = New System.Windows.Forms.Padding(4)
+        Me.CbHorario.Name = "CbHorario"
+        Me.CbHorario.Size = New System.Drawing.Size(213, 32)
+        Me.CbHorario.TabIndex = 12
+        '
+        'Label6
+        '
+        Me.Label6.AutoSize = True
+        Me.Label6.Font = New System.Drawing.Font("Calibri", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label6.Location = New System.Drawing.Point(409, 42)
+        Me.Label6.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.Label6.Name = "Label6"
+        Me.Label6.Size = New System.Drawing.Size(83, 24)
+        Me.Label6.TabIndex = 11
+        Me.Label6.Text = "Horario: "
+        '
+        'RbDetallo
+        '
+        Me.RbDetallo.AutoSize = True
+        Me.RbDetallo.Location = New System.Drawing.Point(408, 114)
+        Me.RbDetallo.Margin = New System.Windows.Forms.Padding(4)
+        Me.RbDetallo.Name = "RbDetallo"
+        Me.RbDetallo.Size = New System.Drawing.Size(214, 28)
+        Me.RbDetallo.TabIndex = 25
+        Me.RbDetallo.Text = "Detallado por servicio"
+        Me.RbDetallo.UseVisualStyleBackColor = True
+        '
+        'RbGeneral
+        '
+        Me.RbGeneral.AutoSize = True
+        Me.RbGeneral.Checked = True
+        Me.RbGeneral.Location = New System.Drawing.Point(408, 78)
+        Me.RbGeneral.Margin = New System.Windows.Forms.Padding(4)
+        Me.RbGeneral.Name = "RbGeneral"
+        Me.RbGeneral.Size = New System.Drawing.Size(199, 28)
+        Me.RbGeneral.TabIndex = 24
+        Me.RbGeneral.TabStop = True
+        Me.RbGeneral.Text = "Reporte por Sección"
+        Me.RbGeneral.UseVisualStyleBackColor = True
         '
         'FrmBecados
         '
@@ -216,4 +244,6 @@ Partial Class FrmBecados
     Friend WithEvents RbPermisoSalida As RadioButton
     Friend WithEvents RbBecaTransporte As RadioButton
     Friend WithEvents RbBecaComedor As RadioButton
+    Friend WithEvents RbDetallo As RadioButton
+    Friend WithEvents RbGeneral As RadioButton
 End Class

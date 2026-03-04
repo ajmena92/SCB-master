@@ -334,6 +334,7 @@ Partial Class ControlComedor
         'TxtCedula
         '
         Me.TxtCedula.Location = New System.Drawing.Point(120, 79)
+        Me.TxtCedula.MaxLength = 50
         Me.TxtCedula.Name = "TxtCedula"
         Me.TxtCedula.Size = New System.Drawing.Size(195, 32)
         Me.TxtCedula.TabIndex = 30

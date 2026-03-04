@@ -63,23 +63,39 @@
         Else
             ' todo bien, se saca reporte.
             'Arma el Criterio de la Consulta
+
+            Criterio = Criterio + " {Usuario.CodTipo}=1 and {Usuario.Activo}= True"
             If RbBecaComedor.Checked Then
                 gSession.Titulo = "Reporte Beneficiarios Servicio de Comedor"
-                Criterio = Criterio + " {Usuario.TipoBeca}<>1"
+                Criterio = Criterio + " and {Usuario.TipoBeca}<>1"
+                gSession.TipoReporte = "BecadosComedor"
             ElseIf RbBecaTransporte.Checked Then
                 gSession.Titulo = "Reporte Beneficiarios Servicio de Transporte"
-                Criterio = Criterio + "{Usuario.IdRuta}<>1"
+                Criterio = Criterio + " and {Usuario.IdRuta}<>1"
+                If RbGeneral.Checked Then
+                    gSession.TipoReporte = "FrmBecadosTransporteGeneral"
+                Else
+                    gSession.TipoReporte = "FrmBecadosTansporteDetallado"
+                End If
             Else
                 gSession.Titulo = "Reporte Estudiantes con Permiso de Salida"
-                Criterio = Criterio + " {Usuario.PermisoSalida}=1"
+                Criterio = Criterio + " and {Usuario.PermisoSalida}=1"
             End If
             If CbHorario.SelectedIndex > 0 Then
-                Criterio = " and {Horario.IdHorario}=" & CbHorario.Items(CbHorario.SelectedIndex).valor
+                Criterio = Criterio + " and {Usuario.IdHorario}=" & CbHorario.Items(CbHorario.SelectedIndex).valor
                 gSession.Valor1 = "Horario: " + CbHorario.Text
             End If
-            gSession.Reporte = "FrmBecadosComedor"
+            gSession.Reporte = "FrmBecados"
             gSession.Criterio = Criterio
             Return True
-        End If
+            End If
     End Function
+
+    Private Sub RbGeneral_CheckedChanged(sender As Object, e As EventArgs) Handles RbGeneral.CheckedChanged
+
+    End Sub
+
+    Private Sub RbDetallo_CheckedChanged(sender As Object, e As EventArgs) Handles RbDetallo.CheckedChanged
+
+    End Sub
 End Class

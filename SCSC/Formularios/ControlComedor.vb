@@ -96,7 +96,6 @@ Public Class ControlComedor
                                 ProcesarMarca(Row)
                             End If
                             MakeReport("The fingerprint was VERIFIED." & Row!IdUsuario)
-                            EstadoVerificado = True
                             Exit For
                         End If
                     End If
@@ -330,11 +329,13 @@ Public Class ControlComedor
             End If
             Cls.ArmaValor(Valores, "TipoPago", 2)
             Cls.ArmaValor(Valores, "Cantidad", 1)
+            Cls.ArmaValor(Valores, "TipoUsuario", Usuario!CodTipo)
             If GuardarTrasaccion Then
                 Cls.Insert("RegistroComedor", Valores, Cn, pTransac)
                 Ulthuella = LblCedula.Text
             End If
             Cls.FinalSQL(pTransac)
+            EstadoVerificado = True
         Catch ex As Exception
             Try
                 Cls.RollSQL(pTransac)
@@ -407,10 +408,9 @@ Public Class ControlComedor
                             End If
                         End If
                         ProcesarMarca(Row)
-                            EstadoVerificado = True
-                            Picture.Image = My.Resources.huella_dactilar
-                            Exit For
-                        End If
+                        Picture.Image = My.Resources.huella_dactilar
+                        Exit For
+                    End If
                 Next
                 If (ErrTiquetes) Then
                     MensajeVisual(4)

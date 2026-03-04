@@ -95,7 +95,6 @@ Public Class ControlTransporte
                                 ProcesarMarca(Row)
                             End If
                             MakeReport("The fingerprint was VERIFIED." & Row!IdUsuario)
-                            EstadoVerificado = True
                             Exit For
                         End If
                     End If
@@ -310,8 +309,9 @@ Public Class ControlTransporte
                     Cls.ArmaValor(Valores, "TipoMarca", 1)
                 End If
                 Cls.Insert("RegistroDocentes", Valores, Cn)
-                LblTitulo.Text = "ESTUDIANTE: " & TxtUsuario.Text
+                LblTitulo.Text = "PROF.: " & TxtUsuario.Text
             End If
+            EstadoVerificado = True
         Catch ex As Exception
             LimpiarPantalla(True)
             MsgBox(ex.Message, MsgBoxStyle.Critical)
@@ -350,7 +350,7 @@ Public Class ControlTransporte
         If e.KeyCode = Keys.Enter Then
             e.SuppressKeyPress = True ' para evitar un 'beep'
             If Cls.VereficaCarnet(TxtCedula.Text) Then
-                Dim Verificado = False
+                EstadoVerificado = False
                 Dim DobleLectura = False
                 Picture.Image = My.Resources.huella_dactilar
                 For Each Row As DataRow In DsUsuarios.Tables(0).Rows
@@ -359,13 +359,12 @@ Public Class ControlTransporte
                             DobleLectura = True
                         Else
                             ProcesarMarca(Row)
-                            Verificado = True
                         End If
                         Exit For
                     End If
                 Next
                 '' 0=ok,1 = Error,2=Procesando,3= Doble verificacion</param>
-                If (Verificado) Then
+                If (EstadoVerificado) Then
                     MensajeVisual(0)
                 ElseIf (DobleLectura) Then
                     MensajeVisual(3)

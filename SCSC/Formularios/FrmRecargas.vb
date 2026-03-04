@@ -7,6 +7,8 @@ Public Class FrmRecarga
     Dim Cls As New FuncionesDB
     Dim DsBeca As New DataSet ' Datset para almacenar los tipos de becas
     Dim TipoUsuario As String
+    Dim TipoUsuarioCod As Integer
+
     Dim Precio As Decimal
     'Private Property Ticket As Ticket
 
@@ -82,6 +84,7 @@ Public Class FrmRecarga
 
     Private Sub TxtCedula_Validated(sender As Object, e As EventArgs) Handles txtCedula.Validated
         Dim Cedula As String = Replace(txtCedula.Text.Trim, ControlCarnet, "")
+        Cedula = Replace(Cedula, "CTPP", "")
         Dim Ds As New DataSet
         Dim Valores(), Llave() As FuncionesDB.Campos
         If Len(Cedula) > 0 Then
@@ -106,9 +109,11 @@ Public Class FrmRecarga
                     If Ds.Tables(0).Rows(0)!CodTipo = 1 Then
                         TipoUsuario = "ESTUDIANTE"
                         Precio = PrecioEstudiante
+                        TipoUsuarioCod = 1
                     Else
                         TipoUsuario = "PROFESOR"
                         Precio = PrecioDocente
+                        TipoUsuarioCod = 2
                     End If
                     If Ds.Tables(0).Rows(0)!activo = False Then
                         MsgBox("El usuario ingresado esta inactivo, no puede realizar recargas", MsgBoxStyle.Critical)
@@ -206,7 +211,9 @@ Public Class FrmRecarga
                 Cls.ArmaValor(Valores, "TipoPago", 1)
                 Cls.ArmaValor(Valores, "Beca", 9)
                 Cls.ArmaValor(Valores, "Precio", Precio)
+                Cls.ArmaValor(Valores, "TipoUsuario", TipoUsuarioCod)
                 Cls.ArmaValor(Valores, "Cantidad", Val(sen(TxtRecarga.Text)))
+
 
                 Cls.Insert("RegistroComedor", Valores, Cn, pTransac)
 

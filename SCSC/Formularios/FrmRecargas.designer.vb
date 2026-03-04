@@ -328,7 +328,7 @@ Partial Class FrmRecarga
         Me.txtCedula.BackColor = System.Drawing.Color.FromArgb(CType(CType(240, Byte), Integer), CType(CType(240, Byte), Integer), CType(CType(240, Byte), Integer))
         Me.txtCedula.Font = New System.Drawing.Font("Calibri", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.txtCedula.Location = New System.Drawing.Point(133, 38)
-        Me.txtCedula.MaxLength = 14
+        Me.txtCedula.MaxLength = 50
         Me.txtCedula.Name = "txtCedula"
         Me.txtCedula.Size = New System.Drawing.Size(120, 30)
         Me.txtCedula.TabIndex = 39

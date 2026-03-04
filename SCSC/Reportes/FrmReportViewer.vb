@@ -20,10 +20,17 @@
                     Else
                         Rep = New RptRuta_general
                     End If
-                Case "FrmBecadosComedor".ToLower
-                    Rep = New RptBecadosTransporte
+                Case "FrmBecados".ToLower
+                    If gSession.TipoReporte = "FrmBecadosTransporteGeneral" Then
+                        Rep = New RptBecadosTransporte
+                    ElseIf gSession.TipoReporte = "FrmBecadosTansporteDetallado" Then
+                        Rep = New RptBecadosTransporteDetallado
+                    ElseIf gSession.TipoReporte = "BecadosComedor" Then
+                        Rep = New RptBecadosComedor
+                    End If
                 Case Else
                     MsgBox("Error interno asignar reporte, comuniquese con el administrador del sistema.!!", MsgBoxStyle.Critical)
+                    Me.Dispose()
             End Select
             '***********************************
             '****** Datos para el reporte ******
