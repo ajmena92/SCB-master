@@ -2,11 +2,6 @@
 Imports System.Linq
 
 Public Class FrmEstudiantes
-    Implements DPFP.Capture.EventHandler
-    Private Capturer As DPFP.Capture.Capture
-    Private Enroller As DPFP.Processing.Enrollment
-    'Private Data As AppData
-    Public Event OnTemplate(ByVal template)
     Dim DsRutas As New DataSet
     Dim DsBecas As New DataSet
     Dim ActivaEdicion As Boolean = False
@@ -19,7 +14,6 @@ Public Class FrmEstudiantes
             CargaBecas(CBBeca)
             CargaGenero(CBGenero)
             CargaPermiso(CBPermisoSalida)
-            Init()
         Catch ex As Exception
             If Cn.State = ConnectionState.Open Then
                 Cls.CerrarConexion(Cn)
@@ -107,11 +101,6 @@ Public Class FrmEstudiantes
         End If
         Picture.Image = Nothing
         Picture.BackgroundImage = Nothing
-        Try
-            StopCapture()
-        Catch ex As Exception
-            MsgBox(ex.Message, MsgBoxStyle.Critical)
-        End Try
     End Sub
 
     Private Sub Buscar_Click(sender As Object, e As EventArgs) Handles Buscar.Click
@@ -238,8 +227,6 @@ Public Class FrmEstudiantes
                     End If
                     TxtCedula.Tag = Ds.Tables(0).Rows(0)!IdUsuario
                     LblCantTiques.Text = Ds.Tables(0).Rows(0)!CantidadTiquetes & " Tiquetes"
-                    ''Lector 
-                    StartCapture()
                 Else
                     LimpiarPantalla()
                     MsgBox("Usuario no ingresado en el sistema", MsgBoxStyle.Information)
@@ -272,12 +259,6 @@ Public Class FrmEstudiantes
             If (TxtTipoUsuario.Text = "PROFESOR" And CBBeca.SelectedIndex <> 0) Then
                 MsgBox("Al usuario tipo (PROFESOR) no se puede activar el beneficio de la BECA.", MsgBoxStyle.Exclamation)
             Else
-                If ActivaEdicion Then
-                    If Enroller.TemplateStatus <> DPFP.Processing.Enrollment.Status.Ready Then
-                        MsgBox("Debe Completar las marcas para guardar los datos.", MsgBoxStyle.Critical)
-                        Exit Sub
-                    End If
-                End If
                 Valores = Cls.InicializarArray
                 Llave = Cls.InicializarArray
                 Cls.ArmaValor(Llave, "IdUsuario", TxtCedula.Tag)
@@ -287,12 +268,6 @@ Public Class FrmEstudiantes
                 Cls.ArmaValor(Valores, "PendienteBecaTransporte", CBRutaPendiente.Checked)
                 Cls.ArmaValor(Valores, "PermisoSalida", CBPermisoSalida.SelectedIndex)
                 Cls.ArmaValor(Valores, "Activo", True)
-                If ActivaEdicion Then
-                    Dim str As New MemoryStream
-                    Enroller.Template.Serialize(str)
-                    Dim serializedTemplate As Byte() = str.ToArray()
-                    Cls.ArmaValor(Valores, "HuellaDactilar", serializedTemplate)
-                End If
                 Cls.Update("Usuario", Valores, Llave, Cn)
                 BtnCancelar_Click(sender, e)
             End If
@@ -306,175 +281,6 @@ Public Class FrmEstudiantes
         LimpiarPantalla()
         TxtCedula.Clear()
         TxtCedula.Focus()
-        Init()
-    End Sub
-
-    Protected Sub Init()
-        Try
-            Capturer = New DPFP.Capture.Capture()                   ' Create a capture operation.
-
-            If (Not Capturer Is Nothing) Then
-                Capturer.EventHandler = Me                              ' Subscribe for capturing events.
-            Else
-                MsgBox("No se puede iniciar la captura de la huella", MsgBoxStyle.Critical)
-                SetPrompt("Can't initiate capture operation!")
-            End If
-            Enroller = New DPFP.Processing.Enrollment()         ' Create an enrollment.            
-            UpdateStatus()
-        Catch ex As Exception
-            MessageBox.Show("Can't initiate capture operation!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
-        End Try
-    End Sub
-
-    Protected Sub Process(ByVal Sample As DPFP.Sample)
-        DrawPicture(ConvertSampleToBitmap(Sample))
-
-        ' Process the sample and create a feature set for the enrollment purpose.
-        Dim features As DPFP.FeatureSet = ExtractFeatures(Sample, DPFP.Processing.DataPurpose.Enrollment)
-
-        ' Check quality of the sample and add to enroller if it's good
-        If (Not features Is Nothing) Then
-            Try
-                MakeReport("The fingerprint feature set was created.")
-                Enroller.AddFeatures(features)              ' Add feature set to template.
-            Finally
-                UpdateStatus()
-                ' Check if template has been created.
-                Select Case Enroller.TemplateStatus
-                    Case DPFP.Processing.Enrollment.Status.Ready        ' Report success and stop capturing
-                        RaiseEvent OnTemplate(Enroller.Template)
-                        SetPrompt("Click Close, and then click Fingerprint Verification.")
-                        StopCapture()
-                        ActivaEdicion = True
-                    Case DPFP.Processing.Enrollment.Status.Failed       ' Report failure and restart capturing
-                        Enroller.Clear()
-                        StopCapture()
-                        RaiseEvent OnTemplate(Nothing)
-                        StartCapture()
-                    Case DPFP.Processing.Enrollment.Status.Insufficient
-                        ActivaEdicion = True
-                End Select
-            End Try
-        End If
-    End Sub
-
-    Protected Sub UpdateStatus()
-        ' Show number of samples needed.
-        SetStatus(String.Format("Coloque su dedo, {0} veces para ingresar registro de huella.", Enroller.FeaturesNeeded))
-    End Sub
-    Protected Function ConvertSampleToBitmap(ByVal Sample As DPFP.Sample) As Bitmap
-        Dim convertor As New DPFP.Capture.SampleConversion()    ' Create a sample convertor.
-        Dim bitmap As Bitmap = Nothing                          ' TODO: the size doesn't matter
-        convertor.ConvertToPicture(Sample, bitmap)              ' TODO: return bitmap as a result
-        Return bitmap
-    End Function
-
-    Protected Function ExtractFeatures(ByVal Sample As DPFP.Sample, ByVal Purpose As DPFP.Processing.DataPurpose) As DPFP.FeatureSet
-        Dim extractor As New DPFP.Processing.FeatureExtraction()        ' Create a feature extractor
-        Dim feedback As DPFP.Capture.CaptureFeedback = DPFP.Capture.CaptureFeedback.None
-        Dim features As New DPFP.FeatureSet()
-        extractor.CreateFeatureSet(Sample, Purpose, feedback, features) ' TODO: return features as a result?
-        If (feedback = DPFP.Capture.CaptureFeedback.Good) Then
-            Return features
-        Else
-            Return Nothing
-        End If
-    End Function
-
-    Protected Sub StartCapture()
-        If (Not Capturer Is Nothing) Then
-            Try
-                Capturer.StartCapture()
-                SetPrompt("Using the fingerprint reader, scan your fingerprint.")
-            Catch ex As Exception
-                SetPrompt("Can't initiate capture!")
-            End Try
-        End If
-    End Sub
-
-    Protected Sub StopCapture()
-        If (Not Capturer Is Nothing) Then
-            Try
-                Capturer.StopCapture()
-            Catch ex As Exception
-                SetPrompt("Can't terminate capture!")
-            End Try
-        End If
-    End Sub
-
-    Private Sub CaptureForm_FormClosed(ByVal sender As System.Object, ByVal e As System.Windows.Forms.FormClosedEventArgs) Handles MyBase.FormClosed
-        Try
-            If Cn.State = ConnectionState.Open Then
-                Cls.CerrarConexion(Cn)
-            End If
-            StopCapture()
-        Catch ex As Exception
-            ''Se cierre el formulario            
-        End Try
-        Me.Dispose()
-    End Sub
-
-    Sub OnComplete(ByVal Capture As Object, ByVal ReaderSerialNumber As String, ByVal Sample As DPFP.Sample) Implements DPFP.Capture.EventHandler.OnComplete
-        MakeReport("The fingerprint sample was captured.")
-        SetPrompt("Scan the same fingerprint again.")
-        Process(Sample)
-    End Sub
-
-    Sub OnFingerGone(ByVal Capture As Object, ByVal ReaderSerialNumber As String) Implements DPFP.Capture.EventHandler.OnFingerGone
-        MakeReport("The finger was removed from the fingerprint reader.")
-    End Sub
-
-    Sub OnFingerTouch(ByVal Capture As Object, ByVal ReaderSerialNumber As String) Implements DPFP.Capture.EventHandler.OnFingerTouch
-        MakeReport("The fingerprint reader was touched.")
-    End Sub
-
-    Sub OnReaderConnect(ByVal Capture As Object, ByVal ReaderSerialNumber As String) Implements DPFP.Capture.EventHandler.OnReaderConnect
-        MakeReport("The fingerprint reader was connected.")
-    End Sub
-
-    Sub OnReaderDisconnect(ByVal Capture As Object, ByVal ReaderSerialNumber As String) Implements DPFP.Capture.EventHandler.OnReaderDisconnect
-        MakeReport("The fingerprint reader was disconnected.")
-    End Sub
-
-    Sub OnSampleQuality(ByVal Capture As Object, ByVal ReaderSerialNumber As String, ByVal CaptureFeedback As DPFP.Capture.CaptureFeedback) Implements DPFP.Capture.EventHandler.OnSampleQuality
-        If CaptureFeedback = DPFP.Capture.CaptureFeedback.Good Then
-            MakeReport("The quality of the fingerprint sample is good.")
-        Else
-            MakeReport("The quality of the fingerprint sample is poor.")
-            MsgBox("Error al capturar la Huella, reintente", MsgBoxStyle.Critical)
-        End If
-    End Sub
-
-    Protected Sub SetStatus(ByVal status)
-        Invoke(New FunctionCall(AddressOf _SetStatus), status)
-    End Sub
-
-    Private Sub _SetStatus(ByVal status)
-        StatusLine.Text = status
-    End Sub
-
-    Protected Sub SetPrompt(ByVal text)
-        Invoke(New FunctionCall(AddressOf _SetPrompt), text)
-    End Sub
-
-    Private Sub _SetPrompt(ByVal text)
-        Prompt.Text = text
-    End Sub
-
-    Protected Sub MakeReport(ByVal status)
-        Invoke(New FunctionCall(AddressOf _MakeReport), status)
-    End Sub
-
-    Private Sub _MakeReport(ByVal status)
-        StatusText.AppendText(status + Chr(13) + Chr(10))
-    End Sub
-
-    Protected Sub DrawPicture(ByVal bmp)
-        Invoke(New FunctionCall(AddressOf _DrawPicture), bmp)
-    End Sub
-
-    Private Sub _DrawPicture(ByVal bmp)
-        Picture.Image = New Bitmap(bmp, Picture.Size)
     End Sub
 
     Private Sub CBRuta_SelectedIndexChanged(sender As Object, e As EventArgs) Handles CBRuta.SelectedIndexChanged
@@ -490,5 +296,15 @@ Public Class FrmEstudiantes
 
     Private Sub Label16_Click(sender As Object, e As EventArgs) Handles Label16.Click
 
+    End Sub
+
+    Private Sub FrmEstudiantes_FormClosed(sender As Object, e As FormClosedEventArgs) Handles MyBase.FormClosed
+        Try
+            If Cn.State = ConnectionState.Open Then
+                Cls.CerrarConexion(Cn)
+            End If
+        Catch ex As Exception
+            MsgBox(ex.Message, MsgBoxStyle.Critical)
+        End Try
     End Sub
 End Class

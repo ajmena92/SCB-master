@@ -7,7 +7,7 @@ Public Class AppData
 	Public IsEventHandlerSucceeds As Boolean = True
 	Public IsFeatureSetMatched As Boolean = False
 	Public FalseAcceptRate As Integer = 0
-	Public Templates(MaxFingers - 1) As DPFP.Template
+	Public Templates(MaxFingers - 1) As Object
 
 	Public Sub Update()
 		RaiseEvent OnChange()
