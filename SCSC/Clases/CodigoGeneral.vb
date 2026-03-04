@@ -42,7 +42,7 @@
     Public gSession As stSession
 
     Public Function KeyAscii(ByVal UserKeyArgument As KeyPressEventArgs) As Short
-        KeyAscii = Asc(UserKeyArgument.KeyChar)
+        KeyAscii = CShort(Asc(UserKeyArgument.KeyChar))
     End Function
 
     ' ************************************************
@@ -131,10 +131,10 @@
         Dim largo As Integer = 0
         Dim a As Integer = 0
         'Super Evaluador Numérico
-        Dim pto As Short
-        If Len(Valor) Then
+        Dim pto As Integer
+        If Len(Valor) > 0 Then
             'Le Quita el Signo de Colones
-            If InStr(Valor, "¢") Then
+            If InStr(Valor, "¢") > 0 Then
                 a = InStr(Valor, "¢")
                 If a = 1 Then
                     Valor = Mid(Valor, 2)

@@ -54,15 +54,15 @@ Namespace Seguridad
             Randomize()
 
             'MiValor = Int((50 * Rnd()) + 10)   ' Genera un valor aleatorio entre 1 y 6.
-            MiValor = Int((Factor * Rnd()) + 10)   ' Genera un valor aleatorio entre 1 y Factor.
+            MiValor = CInt(Math.Floor((CDbl(Factor) * CDbl(Rnd())) + 10.0R))   ' Genera un valor aleatorio entre 1 y Factor.
 
-            Clave1 = MiValor
+            Clave1 = CByte(MiValor)
             StrClave1 = Mid(Str(MiValor), 2, 2)
 
             'MiValor = Int((50 * Rnd()) + 10)   ' Genera un valor aleatorio entre 1 y 6.
-            MiValor = Int((Factor * Rnd()) + 10)   ' Genera un valor aleatorio entre 1 y Factor.
+            MiValor = CInt(Math.Floor((CDbl(Factor) * CDbl(Rnd())) + 10.0R))   ' Genera un valor aleatorio entre 1 y Factor.
 
-            Clave2 = MiValor
+            Clave2 = CByte(MiValor)
             StrClave2 = Mid(Str(MiValor), 2, 2)
 
             If Clave1 > Clave2 Then
@@ -92,11 +92,11 @@ Namespace Seguridad
 
             StrClave1 = Mid(Texto, 1, 2)
             StrClave1 = Chr(Asc(Mid(StrClave1, 1, 1)) - 5) & Chr(Asc(Mid(StrClave1, 2, 1)) - 5)
-            Clave1 = Val(StrClave1)
+            Clave1 = CByte(Val(StrClave1))
 
             StrClave2 = Mid(Texto, Len(Texto) - 1, 2)
             StrClave2 = Chr(Asc(Mid(StrClave2, 1, 1)) - 5) & Chr(Asc(Mid(StrClave2, 2, 1)) - 5)
-            Clave2 = Val(StrClave2)
+            Clave2 = CByte(Val(StrClave2))
 
             If Clave1 > Clave2 Then
                 Clave3 = Clave1 - Clave2
@@ -145,7 +145,7 @@ Namespace Seguridad
                 Info.TipoActivacion = Secur.M_DesEncriptar(oSW.ReadLine)
                 Info.FechaVence = Secur.M_DesEncriptar(oSW.ReadLine)
                 Info.FechaActivacion = Secur.M_DesEncriptar(oSW.ReadLine)
-                Info.CantUsos = Secur.M_DesEncriptar(oSW.ReadLine)
+                Info.CantUsos = CInt(Val(Secur.M_DesEncriptar(oSW.ReadLine)))
                 Info.Estado = Secur.M_DesEncriptar(oSW.ReadLine)
 
 
@@ -174,7 +174,7 @@ Namespace Seguridad
                 'Dim Linea As String = "Línea de texto " & vbNewLine & "Otra linea de texto"
 
                 Info.Estado = Secur2.M_DesEncriptar(oSW2.ReadLine)
-                Info.CantUsos = Secur2.M_DesEncriptar(oSW2.ReadLine)
+                Info.CantUsos = CInt(Val(Secur2.M_DesEncriptar(oSW2.ReadLine)))
                 Info.FechaActivacion = Secur2.M_DesEncriptar(oSW2.ReadLine)
                 Info.RazonSocial = Secur2.M_DesEncriptar(oSW2.ReadLine)
                 Info.DenominacionSocial = Secur2.M_DesEncriptar(oSW2.ReadLine)
@@ -228,7 +228,7 @@ Namespace Seguridad
             oSW.WriteLine(Secur.M_Encriptar(Info.TipoActivacion, 30))
             oSW.WriteLine(Secur.M_Encriptar(Info.FechaVence, 30))
             oSW.WriteLine(Secur.M_Encriptar(Info.FechaActivacion, 30))
-            oSW.WriteLine(Secur.M_Encriptar(Info.CantUsos, 30))
+            oSW.WriteLine(Secur.M_Encriptar(CStr(Info.CantUsos), 30))
             oSW.WriteLine(Secur.M_Encriptar(Info.Estado, 30))
             oSW.Flush()
             oSW.Close()
@@ -254,7 +254,7 @@ Namespace Seguridad
             'Dim Linea As String = "Línea de texto " & vbNewLine & "Otra linea de texto"
 
             oSW.WriteLine(Secur.M_Encriptar(Info.Estado, 30))
-            oSW.WriteLine(Secur.M_Encriptar(Info.CantUsos, 30))
+            oSW.WriteLine(Secur.M_Encriptar(CStr(Info.CantUsos), 30))
             oSW.WriteLine(Secur.M_Encriptar(Info.FechaActivacion, 30))
             oSW.WriteLine(Secur.M_Encriptar(Info.RazonSocial, 30))
             oSW.WriteLine(Secur.M_Encriptar(Info.DenominacionSocial, 30))
@@ -301,7 +301,7 @@ Namespace Seguridad
 
             If NumRango = 32 Then NumRango = CInt(28 * Rnd() + 1)
 
-            Dim NumRandoSTR As String = NumRango.ToString.PadLeft(2, "0")
+            Dim NumRandoSTR As String = NumRango.ToString().PadLeft(2, "0"c)
 
             ' se suma minimo 17, para que 0 sea = A. Solo en codigo de descifrado.
             Info.RazonSocial = Info.RazonSocial.ToUpper
@@ -335,4 +335,3 @@ Namespace Seguridad
 
     End Class
 End Namespace
-

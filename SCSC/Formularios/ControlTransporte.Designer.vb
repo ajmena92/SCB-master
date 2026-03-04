@@ -32,8 +32,7 @@ Partial Class ControlTransporte
         Me.TxtSeccion = New System.Windows.Forms.TextBox()
         Me.StatusText = New System.Windows.Forms.TextBox()
         Me.lblProcesando = New System.Windows.Forms.Label()
-        Me.BunifuElipse1 = New Bunifu.Framework.UI.BunifuElipse(Me.components)
-        Me.BunifuGradientPanel1 = New Bunifu.Framework.UI.BunifuGradientPanel()
+        Me.BunifuGradientPanel1 = New System.Windows.Forms.Panel()
         Me.LblFecha = New System.Windows.Forms.Label()
         Me.GbDatos = New System.Windows.Forms.GroupBox()
         Me.TxtPermisoSalida = New System.Windows.Forms.TextBox()
@@ -162,12 +161,6 @@ Partial Class ControlTransporte
         Me.lblProcesando.TabIndex = 27
         Me.lblProcesando.Text = "Por favor, coloque su identificador digital en el dispositivo"
         Me.lblProcesando.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
-        '
-        'BunifuElipse1
-        '
-        Me.BunifuElipse1.ElipseRadius = 1
-        Me.BunifuElipse1.TargetControl = Me
-        '
         'BunifuGradientPanel1
         '
         Me.BunifuGradientPanel1.BackColor = System.Drawing.Color.FromArgb(CType(CType(41, Byte), Integer), CType(CType(51, Byte), Integer), CType(CType(65, Byte), Integer))
@@ -178,13 +171,8 @@ Partial Class ControlTransporte
         Me.BunifuGradientPanel1.Controls.Add(Me.Picture)
         Me.BunifuGradientPanel1.Controls.Add(Me.TxtCedula)
         Me.BunifuGradientPanel1.Dock = System.Windows.Forms.DockStyle.Left
-        Me.BunifuGradientPanel1.GradientBottomLeft = System.Drawing.Color.FromArgb(CType(CType(41, Byte), Integer), CType(CType(51, Byte), Integer), CType(CType(65, Byte), Integer))
-        Me.BunifuGradientPanel1.GradientBottomRight = System.Drawing.Color.FromArgb(CType(CType(41, Byte), Integer), CType(CType(51, Byte), Integer), CType(CType(65, Byte), Integer))
-        Me.BunifuGradientPanel1.GradientTopLeft = System.Drawing.Color.FromArgb(CType(CType(41, Byte), Integer), CType(CType(51, Byte), Integer), CType(CType(65, Byte), Integer))
-        Me.BunifuGradientPanel1.GradientTopRight = System.Drawing.Color.FromArgb(CType(CType(41, Byte), Integer), CType(CType(51, Byte), Integer), CType(CType(65, Byte), Integer))
         Me.BunifuGradientPanel1.Location = New System.Drawing.Point(0, 0)
         Me.BunifuGradientPanel1.Name = "BunifuGradientPanel1"
-        Me.BunifuGradientPanel1.Quality = 10
         Me.BunifuGradientPanel1.Size = New System.Drawing.Size(447, 784)
         Me.BunifuGradientPanel1.TabIndex = 30
         '
@@ -480,8 +468,7 @@ Partial Class ControlTransporte
     Friend WithEvents TxtRuta As TextBox
     Friend WithEvents Label6 As Label
     Friend WithEvents LblRuta As Label
-    Friend WithEvents BunifuGradientPanel1 As Bunifu.Framework.UI.BunifuGradientPanel
-    Friend WithEvents BunifuElipse1 As Bunifu.Framework.UI.BunifuElipse
+    Friend WithEvents BunifuGradientPanel1 As System.Windows.Forms.Panel
     Friend WithEvents TReloj As Timer
     Friend WithEvents PanelResult As Panel
     Friend WithEvents Panel1 As Panel

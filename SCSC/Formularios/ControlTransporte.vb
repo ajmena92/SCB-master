@@ -28,6 +28,8 @@ Public Class ControlTransporte
 
     Private Sub ControlTransporte_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Try
+            UIThemeManagerV2.Apply(Me, "operativo")
+            ApplyModernOperationalLayout()
             Cls.AbrirConexion(Cn, False)
             DsUsuarios = TransporteSvc.CargarUsuariosActivos(Cn)
             DsRutas = TransporteSvc.CargarRutas(Cn)
@@ -148,6 +150,37 @@ Public Class ControlTransporte
     Private Sub TxtTipo_TextChanged(sender As Object, e As EventArgs) Handles TxtTipo.TextChanged
 
     End Sub
+
+    Private Sub ApplyModernOperationalLayout()
+        Me.BackColor = UIConstants.AppBackground
+        Me.Font = UIConstants.FontBody()
+
+        PanelResult.BackColor = UIConstants.SurfaceAlt
+        PanelResult.BorderStyle = BorderStyle.FixedSingle
+
+        LblTitulo.Font = New Font("Segoe UI", 24.0!, FontStyle.Bold)
+        LblTitulo.ForeColor = UIConstants.TextPrimary
+        LblTitulo.Text = "Control de Marcas - Transporte"
+
+        lblProcesando.Font = New Font("Segoe UI", 16.0!, FontStyle.Bold)
+        lblProcesando.ForeColor = UIConstants.TextPrimary
+        lblProcesando.Text = "Esperando identificador"
+
+        LblFecha.Font = UIConstants.FontSubtitle()
+        LblFecha.ForeColor = Color.White
+
+        TxtCedula.Font = New Font("Segoe UI", 18.0!, FontStyle.Bold)
+        TxtCedula.BorderStyle = BorderStyle.FixedSingle
+        TxtUsuario.Font = UIConstants.FontBodyStrong()
+        TxtTipo.Font = UIConstants.FontBodyStrong()
+        TxtRuta.Font = UIConstants.FontBodyStrong()
+        TxtSeccion.Font = UIConstants.FontBodyStrong()
+        TxtPermisoSalida.Font = UIConstants.FontBodyStrong()
+
+        BtnCerrar.BackColor = UIConstants.Danger
+        BtnCerrar.BackgroundImage = Nothing
+        BtnCerrar.SizeMode = PictureBoxSizeMode.StretchImage
+    End Sub
     Private Sub _MensajeVisual(ByVal TipoImagen As Int16)
         Try
 
@@ -158,14 +191,14 @@ Public Class ControlTransporte
                     LblTitulo.ForeColor = Color.White
                     Imgprocess.Image = My.Resources.Verificado2
                     '   PictResult.Image = My.Resources.Verificado
-                    PanelResult.BackColor = Color.Green
+                    PanelResult.BackColor = UIConstants.Success
                 Case 1
                     'PictResult.Image = My.Resources.ErrorAcceso
                     lblProcesando.Text = "Error, al verificar el usuario"
                     lblProcesando.ForeColor = Color.White
                     LblTitulo.ForeColor = Color.White
                     Imgprocess.Image = My.Resources.Error2
-                    PanelResult.BackColor = Color.Red
+                    PanelResult.BackColor = UIConstants.Danger
                     LblCedula.Clear()
                     TxtTipo.Clear()
                     TxtSeccion.Clear()
@@ -178,25 +211,25 @@ Public Class ControlTransporte
                     lblProcesando.ForeColor = Color.Black
                     LblTitulo.ForeColor = Color.Black
                     Imgprocess.Image = My.Resources.Gif_cargando
-                    PanelResult.BackColor = Color.Gainsboro
+                    PanelResult.BackColor = UIConstants.SurfaceAlt
                     ''PictResult.Image = My.Resources.Procesado
                 Case 3
                     lblProcesando.Text = "Se detecto doble verificación"
                     lblProcesando.ForeColor = Color.White
                     LblTitulo.ForeColor = Color.White
                     Imgprocess.Image = My.Resources.Double_check
-                    PanelResult.BackColor = Color.Blue
+                    PanelResult.BackColor = UIConstants.Accent
                 Case 4
 
                     Imgprocess.Image = My.Resources.Error2
                     lblProcesando.Text = "No tiene tiquetes disponibles."
                     lblProcesando.ForeColor = Color.White
                     LblTitulo.ForeColor = Color.White
-                    PanelResult.BackColor = Color.Orange
+                    PanelResult.BackColor = UIConstants.Warning
                 Case Else
                     lblProcesando.Text = ""
                     Imgprocess.Image = My.Resources.Gif_cargando
-                    PanelResult.BackColor = Color.Gainsboro
+                    PanelResult.BackColor = UIConstants.SurfaceAlt
             End Select
 
         Catch ex As Exception

@@ -28,6 +28,8 @@ Public Class ControlComedor
 
     Private Sub ControlComedor_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Try
+            UIThemeManagerV2.Apply(Me, "operativo")
+            ApplyModernOperationalLayout()
             Cls.AbrirConexion(Cn, False)
             Ds = ComedorSvc.CargarUsuariosConMarcaTransporte(Cn, FechaServer)
             DsBeca = ComedorSvc.CargarBecas(Cn)
@@ -159,6 +161,37 @@ Public Class ControlComedor
 
     End Sub
 
+    Private Sub ApplyModernOperationalLayout()
+        Me.BackColor = UIConstants.AppBackground
+        Me.Font = UIConstants.FontBody()
+
+        PanelResult.BackColor = UIConstants.SurfaceAlt
+        PanelResult.BorderStyle = BorderStyle.FixedSingle
+
+        LblTitulo.Font = New Font("Segoe UI", 24.0!, FontStyle.Bold)
+        LblTitulo.ForeColor = UIConstants.TextPrimary
+        LblTitulo.Text = "Control de Marcas - Comedor"
+
+        lblProcesando.Font = New Font("Segoe UI", 16.0!, FontStyle.Bold)
+        lblProcesando.ForeColor = UIConstants.TextPrimary
+        lblProcesando.Text = "Esperando identificador"
+
+        LblFecha.Font = UIConstants.FontSubtitle()
+        LblFecha.ForeColor = Color.White
+
+        TxtCedula.Font = New Font("Segoe UI", 18.0!, FontStyle.Bold)
+        TxtCedula.BorderStyle = BorderStyle.FixedSingle
+        TxtUsuario.Font = UIConstants.FontBodyStrong()
+        TxtTipo.Font = UIConstants.FontBodyStrong()
+        TxtTiquetes.Font = New Font("Segoe UI", 22.0!, FontStyle.Bold)
+
+        GbDatos.Font = UIConstants.FontBodyStrong()
+        BtnSalir.BackColor = UIConstants.Danger
+        BtnSalir.ForeColor = Color.White
+        BtnSalir.FlatStyle = FlatStyle.Flat
+        BtnSalir.FlatAppearance.BorderSize = 0
+    End Sub
+
     Private Sub _MensajeVisual(ByVal TipoImagen As Int16)
         Try
 
@@ -169,51 +202,51 @@ Public Class ControlComedor
                     LblTitulo.ForeColor = Color.White
                     Imgprocess.Image = My.Resources.Verificado2
                     '   PictResult.Image = My.Resources.Verificado
-                    PanelResult.BackColor = Color.Green
+                    PanelResult.BackColor = UIConstants.Success
                 Case 1
                     'PictResult.Image = My.Resources.ErrorAcceso
                     lblProcesando.Text = "Error, al verificar el usuario"
                     lblProcesando.ForeColor = Color.White
                     LblTitulo.ForeColor = Color.White
                     Imgprocess.Image = My.Resources.Error2
-                    PanelResult.BackColor = Color.Red
+                    PanelResult.BackColor = UIConstants.Danger
 
                 Case 2
                     lblProcesando.Text = "Procesando, por favor espere"
                     lblProcesando.ForeColor = Color.Black
                     LblTitulo.ForeColor = Color.Black
                     Imgprocess.Image = My.Resources.Gif_cargando
-                    PanelResult.BackColor = Color.Gainsboro
+                    PanelResult.BackColor = UIConstants.SurfaceAlt
                     ''PictResult.Image = My.Resources.Procesado
                 Case 3
                     lblProcesando.Text = "Se detecto doble verificación."
                     lblProcesando.ForeColor = Color.White
                     LblTitulo.ForeColor = Color.White
                     Imgprocess.Image = My.Resources.Double_check
-                    PanelResult.BackColor = Color.Blue
+                    PanelResult.BackColor = UIConstants.Accent
                 Case 4
 
                     Imgprocess.Image = My.Resources.Error2
                     lblProcesando.Text = "No tiene tiquetes disponibles."
                     lblProcesando.ForeColor = Color.White
                     LblTitulo.ForeColor = Color.White
-                    PanelResult.BackColor = Color.Orange
+                    PanelResult.BackColor = UIConstants.Warning
                 Case 5
                     Imgprocess.Image = My.Resources.Error2
                     lblProcesando.Text = "El estudiante no registro marca de ingreso."
                     lblProcesando.ForeColor = Color.White
                     LblTitulo.ForeColor = Color.White
-                    PanelResult.BackColor = Color.Coral
+                    PanelResult.BackColor = UIConstants.Warning
                 Case 6
                     Imgprocess.Image = My.Resources.Error2
                     lblProcesando.Text = "El estudiante marco fuera de la hora límite para el control de asistencia."
                     lblProcesando.ForeColor = Color.White
                     LblTitulo.ForeColor = Color.White
-                    PanelResult.BackColor = Color.Orange
+                    PanelResult.BackColor = UIConstants.Warning
                 Case Else
                     lblProcesando.Text = ""
                     Imgprocess.Image = My.Resources.Gif_cargando
-                    PanelResult.BackColor = Color.Gainsboro
+                    PanelResult.BackColor = UIConstants.SurfaceAlt
             End Select
 
         Catch ex As Exception

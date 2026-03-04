@@ -1,6 +1,7 @@
 ﻿Public Class FrmReportViewer
     Private Sub FrmReportViewer_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Try
+            UIThemeManagerV2.Apply(Me, "reporte")
             Dim lUsuario, lPwd, NombreServidor, NombreBaseDatos As String
             Dim Rep As Object
             Dim Cn As String = GetAppConfig("Conexion")

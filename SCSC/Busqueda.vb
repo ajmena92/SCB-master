@@ -41,7 +41,7 @@
                 GridConsulta.Columns(I).DefaultCellStyle.Format = gSession.Valores(I).Formato
                 If gSession.Valores(I).Nombre = "" Then
                 Else
-                    GridConsulta.Columns(I).HeaderText = gSession.Valores(I).Valor
+                    GridConsulta.Columns(I).HeaderText = Convert.ToString(gSession.Valores(I).Valor)
                 End If
             Next
             If GridConsulta.Rows.Count > 0 Then
@@ -84,9 +84,9 @@
     Private Sub GridConsulta_ColumnHeaderMouseClick(ByVal sender As Object, ByVal e As System.Windows.Forms.DataGridViewCellMouseEventArgs) Handles GridConsulta.ColumnHeaderMouseClick
         gSession.Valor5 = GridConsulta.Columns(e.ColumnIndex).Name
         LblFiltrado.Text = "Filtrado x " & GridConsulta.Columns(e.ColumnIndex).HeaderText
-        For I As Short = 0 To UBound(gSession.Valores)
+        For I As Integer = 0 To UBound(gSession.Valores)
             If InStr(gSession.Valores(I).Nombre, gSession.Valor5) > 0 Then
-                If gSession.Valores(I).Valor = "" Then
+                If String.IsNullOrEmpty(Convert.ToString(gSession.Valores(I).Valor)) Then
 
                 Else
                     gSession.Valor5 = gSession.Valores(I).Nombre
@@ -115,7 +115,7 @@
                     End If
 
                     ReDim Preserve gSession.Resultado(UBound(gSession.Resultado) + 1)
-                    gSession.Resultado(UBound(gSession.Resultado)) = GridConsulta.Rows(RegistroSeleccionado).Cells(Parametro).Value
+                    gSession.Resultado(UBound(gSession.Resultado)) = Convert.ToString(GridConsulta.Rows(RegistroSeleccionado).Cells(Parametro).Value)
                 Loop Until PosComa <= 0
 
                 'gSession.Resultado = GridConsulta.Rows(RegistroSeleccionado).Cells(gSession.Valor3).Value
@@ -159,6 +159,8 @@
 
     Private Sub Busqueda_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Try
+            UIThemeManagerV2.Apply(Me, "dialogo")
+            ApplyModernSearchLayout()
             LblTitulo.Text = gSession.Titulo
             LblFiltrado.Text = "Filtrado x " & "Nombre o Descripción (Búsqueda x Omisión)"
             CargarGrid()
@@ -184,5 +186,37 @@
 
     Private Sub LblTitulo_Click(sender As Object, e As EventArgs) Handles LblTitulo.Click
 
+    End Sub
+
+    Private Sub ApplyModernSearchLayout()
+        Me.BackgroundImage = Nothing
+        Me.FormBorderStyle = FormBorderStyle.FixedSingle
+
+        LblTitulo.ForeColor = UIConstants.TextPrimary
+        LblFiltrado.ForeColor = UIConstants.TextSecondary
+        LblMensajes.ForeColor = UIConstants.TextSecondary
+        LblSeleccion.ForeColor = UIConstants.TextSecondary
+
+        TxtFiltro.BackColor = UIConstants.Surface
+        TxtFiltro.ForeColor = UIConstants.TextPrimary
+        TxtFiltro.BorderStyle = BorderStyle.FixedSingle
+
+        BtnFiltro.BackColor = UIConstants.Surface
+        BtnFiltro.ForeColor = UIConstants.TextPrimary
+        BtnFiltro.FlatStyle = FlatStyle.Flat
+        BtnFiltro.FlatAppearance.BorderColor = UIConstants.Border
+        BtnFiltro.FlatAppearance.BorderSize = 1
+        BtnFiltro.FlatAppearance.MouseOverBackColor = UIConstants.SurfaceAlt
+        BtnFiltro.FlatAppearance.MouseDownBackColor = UIConstants.SurfaceAlt
+
+        For Each actionButton As Button In New Button() {Guardar, Cancelar}
+            actionButton.BackColor = UIConstants.Surface
+            actionButton.ForeColor = UIConstants.TextPrimary
+            actionButton.FlatStyle = FlatStyle.Flat
+            actionButton.FlatAppearance.BorderColor = UIConstants.Border
+            actionButton.FlatAppearance.BorderSize = 1
+            actionButton.FlatAppearance.MouseOverBackColor = UIConstants.SurfaceAlt
+            actionButton.FlatAppearance.MouseDownBackColor = UIConstants.SurfaceAlt
+        Next
     End Sub
 End Class

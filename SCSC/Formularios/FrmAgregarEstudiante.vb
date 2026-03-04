@@ -7,6 +7,8 @@ Public Class FrmAgregarEstudiante
     Dim Cls As New FuncionesDB
     Private Sub FrmEstudiantes_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Try
+            UIThemeManagerV2.Apply(Me, "dialogo")
+            ApplyModernFormStyle()
             Cls.AbrirConexion(Cn, False)
             TxtFecNac.Value = Now.Date
             CargaHorarios(CBHorario)
@@ -19,6 +21,44 @@ Public Class FrmAgregarEstudiante
             Me.Dispose()  'Cierro el formulario
         End Try
         TxtCedula.Focus()
+    End Sub
+
+    Private Sub ApplyModernFormStyle()
+        Me.BackColor = UIConstants.AppBackground
+        Me.BackgroundImage = Nothing
+        Me.Font = UIConstants.FontBody()
+
+        NormalizeSurface(Me)
+        StyleButtons(Me)
+    End Sub
+
+    Private Sub NormalizeSurface(ByVal root As Control)
+        For Each ctrl As Control In root.Controls
+            ctrl.BackgroundImage = Nothing
+            If TypeOf ctrl Is Panel OrElse TypeOf ctrl Is GroupBox Then
+                ctrl.BackColor = UIConstants.Surface
+            End If
+            If ctrl.HasChildren Then
+                NormalizeSurface(ctrl)
+            End If
+        Next
+    End Sub
+
+    Private Sub StyleButtons(ByVal root As Control)
+        For Each ctrl As Control In root.Controls
+            If TypeOf ctrl Is Button Then
+                Dim btn As Button = DirectCast(ctrl, Button)
+                btn.FlatStyle = FlatStyle.Flat
+                btn.FlatAppearance.BorderSize = 1
+                btn.FlatAppearance.BorderColor = UIConstants.Border
+                btn.BackColor = UIConstants.Surface
+                btn.ForeColor = UIConstants.TextPrimary
+                btn.Font = UIConstants.FontBodyStrong()
+            End If
+            If ctrl.HasChildren Then
+                StyleButtons(ctrl)
+            End If
+        Next
     End Sub
 
     Sub CargaEspecialidad(ByRef Combo As ComboBox)

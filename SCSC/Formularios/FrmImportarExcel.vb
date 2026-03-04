@@ -110,11 +110,54 @@ Public Class FrmImportarExcel
 
     Private Sub FrmImportarExcel_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Try
+            UIThemeManagerV2.Apply(Me, "operativo")
+            ApplyModernImportLayout()
             CargaHorarios(CBHorario)
         Catch ex As Exception
             MsgBox("Error al acarga el forumlario" + ex.Message)
             Me.Dispose()
         End Try
+    End Sub
+
+    Private Sub ApplyModernImportLayout()
+        Me.BackColor = UIConstants.AppBackground
+        Me.BackgroundImage = Nothing
+        Me.Font = UIConstants.FontBody()
+
+        Panel4.BackColor = UIConstants.Surface
+        Panel4.BorderStyle = BorderStyle.FixedSingle
+
+        Label1.Font = New Font("Segoe UI", 20.0!, FontStyle.Bold)
+        Label1.ForeColor = UIConstants.TextPrimary
+        Label1.Text = "Importación de listas (Excel)"
+
+        GroupBox1.BackColor = UIConstants.Surface
+        GroupBox1.ForeColor = UIConstants.TextPrimary
+        GroupBox1.Font = UIConstants.FontBodyStrong()
+
+        CBHorario.BackColor = UIConstants.Surface
+        CBHorario.FlatStyle = FlatStyle.Flat
+
+        BtnGuardar.FlatStyle = FlatStyle.Flat
+        BtnGuardar.FlatAppearance.BorderSize = 0
+        BtnGuardar.BackColor = UIConstants.Accent
+        BtnGuardar.ForeColor = Color.White
+        BtnGuardar.Text = "Importar"
+
+        BtnCancelar.FlatStyle = FlatStyle.Flat
+        BtnCancelar.FlatAppearance.BorderColor = UIConstants.Border
+        BtnCancelar.FlatAppearance.BorderSize = 1
+        BtnCancelar.BackColor = UIConstants.Surface
+        BtnCancelar.Text = "Limpiar"
+
+        BtnRegresar.FlatStyle = FlatStyle.Flat
+        BtnRegresar.FlatAppearance.BorderColor = UIConstants.Border
+        BtnRegresar.FlatAppearance.BorderSize = 1
+        BtnRegresar.BackColor = UIConstants.Surface
+        BtnRegresar.Text = "Cerrar"
+
+        LblEstado.ForeColor = UIConstants.TextSecondary
+        LblEstado.Font = UIConstants.FontBodyStrong()
     End Sub
 
     Private Sub BtnGuardar_Click(sender As Object, e As EventArgs) Handles BtnGuardar.Click

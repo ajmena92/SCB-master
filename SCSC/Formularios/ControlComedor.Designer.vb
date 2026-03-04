@@ -43,7 +43,7 @@ Partial Class ControlComedor
         Me.PictureBox1 = New System.Windows.Forms.PictureBox()
         Me.PanelResult = New System.Windows.Forms.Panel()
         Me.LblTitulo = New System.Windows.Forms.Label()
-        Me.BunifuGradientPanel1 = New Bunifu.Framework.UI.BunifuGradientPanel()
+        Me.BunifuGradientPanel1 = New System.Windows.Forms.Panel()
         Me.TxtCedula = New System.Windows.Forms.TextBox()
         Me.lblProcesando = New System.Windows.Forms.Label()
         Me.TextBox1 = New System.Windows.Forms.TextBox()
@@ -321,13 +321,8 @@ Partial Class ControlComedor
         Me.BunifuGradientPanel1.Controls.Add(Me.LblFecha)
         Me.BunifuGradientPanel1.Controls.Add(Me.GbDatos)
         Me.BunifuGradientPanel1.Dock = System.Windows.Forms.DockStyle.Left
-        Me.BunifuGradientPanel1.GradientBottomLeft = System.Drawing.Color.FromArgb(CType(CType(41, Byte), Integer), CType(CType(51, Byte), Integer), CType(CType(65, Byte), Integer))
-        Me.BunifuGradientPanel1.GradientBottomRight = System.Drawing.Color.FromArgb(CType(CType(41, Byte), Integer), CType(CType(51, Byte), Integer), CType(CType(65, Byte), Integer))
-        Me.BunifuGradientPanel1.GradientTopLeft = System.Drawing.Color.FromArgb(CType(CType(41, Byte), Integer), CType(CType(51, Byte), Integer), CType(CType(65, Byte), Integer))
-        Me.BunifuGradientPanel1.GradientTopRight = System.Drawing.Color.FromArgb(CType(CType(41, Byte), Integer), CType(CType(51, Byte), Integer), CType(CType(65, Byte), Integer))
         Me.BunifuGradientPanel1.Location = New System.Drawing.Point(0, 0)
         Me.BunifuGradientPanel1.Name = "BunifuGradientPanel1"
-        Me.BunifuGradientPanel1.Quality = 10
         Me.BunifuGradientPanel1.Size = New System.Drawing.Size(447, 763)
         Me.BunifuGradientPanel1.TabIndex = 56
         '
@@ -435,7 +430,7 @@ Partial Class ControlComedor
     Friend WithEvents lblProcesando As Label
     Private WithEvents TextBox1 As TextBox
     Friend WithEvents LblRuta As Label
-    Friend WithEvents BunifuGradientPanel1 As Bunifu.Framework.UI.BunifuGradientPanel
+    Friend WithEvents BunifuGradientPanel1 As System.Windows.Forms.Panel
     Friend WithEvents LblTitulo As Label
     Friend WithEvents TxtCedula As TextBox
 End Class

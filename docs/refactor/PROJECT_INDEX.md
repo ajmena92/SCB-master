@@ -8,6 +8,11 @@
 - Métodos/Subs/Functions detectados (total): 369
 - Métodos/Subs/Functions (sin designer): 330
 
+## Estándares Operativos Activos
+- Modo UI WinForms: `Designer-first`.
+- Guía oficial: `docs/refactor/DESIGNER_FIRST_GUIDE.md`.
+- Estandar visual oficial 2026 (hibrido): `docs/refactor/UI_HYBRID_STANDARD_2026.md`.
+
 ## Estructura de Carpetas Relevante
 - `SCSC/Clases`: utilidades, acceso a datos, encriptación, variables globales.
 - `SCSC/Formularios`: pantallas operativas (comedor, transporte, estudiantes, importación).
@@ -495,4 +500,3 @@
 - Línea 195:    Private Sub ClavePaso_KeyDown_1(sender As Object, e As KeyEventArgs) Handles ClavePaso.KeyDown
 - Línea 202:    Private Sub ClavePaso_ParentChanged(sender As Object, e As EventArgs) Handles ClavePaso.ParentChanged
 - Línea 206:    Private Sub CodUsuario_KeyPress(sender As Object, e As KeyEventArgs) Handles CodUsuario.KeyDown
-

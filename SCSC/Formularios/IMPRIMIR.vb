@@ -19,6 +19,32 @@ Public Class IMPRIMIR
     Private ImpresoraActual As New Printing.PrinterSettings
     Private Lector As StreamReader
 
+    Private Sub IMPRIMIR_Load(ByVal sender As Object, ByVal e As EventArgs) Handles MyBase.Load
+        UIThemeManagerV2.Apply(Me, "dialogo")
+        ApplyModernFormStyle()
+    End Sub
+
+    Private Sub ApplyModernFormStyle()
+        Me.BackColor = UIConstants.AppBackground
+        Me.BackgroundImage = Nothing
+        Me.Font = UIConstants.FontBody()
+        For Each ctrl As Control In Me.Controls
+            If TypeOf ctrl Is Button Then
+                Dim btn As Button = DirectCast(ctrl, Button)
+                btn.FlatStyle = FlatStyle.Flat
+                btn.FlatAppearance.BorderSize = 1
+                btn.FlatAppearance.BorderColor = UIConstants.Border
+                btn.BackColor = UIConstants.Surface
+                btn.ForeColor = UIConstants.TextPrimary
+                btn.Font = UIConstants.FontBodyStrong()
+            ElseIf TypeOf ctrl Is TextBox Then
+                Dim tb As TextBox = DirectCast(ctrl, TextBox)
+                tb.BorderStyle = BorderStyle.FixedSingle
+                tb.BackColor = UIConstants.Surface
+            End If
+        Next
+    End Sub
+
     Private Sub btnCrear_Click(ByVal sender As System.Object, _
 ByVal e As System.EventArgs) Handles btnCrear.Click
         Dim TamañoPersonal As Printing.PaperSize

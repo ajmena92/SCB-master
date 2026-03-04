@@ -1,6 +1,8 @@
 ﻿Public NotInheritable Class FrmAyuda
 
     Private Sub FrmAyuda_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
+        UIThemeManagerV2.Apply(Me, "dialogo")
+        ApplyModernFormStyle()
         ' Set the title of the form.
         Dim ApplicationTitle As String
         If My.Application.Info.Title <> "" Then
@@ -17,6 +19,24 @@
         Me.LabelCopyright.Text = My.Application.Info.Copyright
         Me.LabelCompanyName.Text = My.Application.Info.CompanyName
         Me.TextBoxDescription.Text = My.Application.Info.Description
+    End Sub
+
+    Private Sub ApplyModernFormStyle()
+        Me.BackColor = UIConstants.AppBackground
+        Me.BackgroundImage = Nothing
+        Me.Font = UIConstants.FontBody()
+        LabelProductName.Font = UIConstants.FontSubtitle()
+        LabelVersion.Font = UIConstants.FontBodyStrong()
+        LabelCompanyName.Font = UIConstants.FontBodyStrong()
+        LabelCopyright.Font = UIConstants.FontBody()
+        TextBoxDescription.BackColor = UIConstants.Surface
+        TextBoxDescription.BorderStyle = BorderStyle.FixedSingle
+        OKButton.FlatStyle = FlatStyle.Flat
+        OKButton.FlatAppearance.BorderSize = 1
+        OKButton.FlatAppearance.BorderColor = UIConstants.Border
+        OKButton.BackColor = UIConstants.Surface
+        OKButton.ForeColor = UIConstants.TextPrimary
+        OKButton.Font = UIConstants.FontBodyStrong()
     End Sub
 
     Private Sub OKButton_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles OKButton.Click
