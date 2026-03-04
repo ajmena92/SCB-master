@@ -18,6 +18,7 @@
 - Se aplica `UIThemeManagerV2.Apply(Me, "dialogo")` en `Load`.
 - Estilo visual adicional encapsulado en `ApplyVisualStandard2026()`.
 - No se crean controles estructurales en runtime.
+- Se desactivaron ajustes estructurales en eventos `Load/Shown/Resize/SelectedIndexChanged` para evitar superposición de grilla/fila 0 y desalineación de botones.
 
 ### 3) Paleta/Tipografía
 - Uso de `UIConstants` para colores y fuentes.

@@ -16,5 +16,6 @@
     Public ControlCarnet As String
     Public PrecioEstudiante As Decimal
     Public PrecioDocente As Decimal
+    Public PermitirSinMarcaTransporte As Boolean = False
 
 End Module

@@ -49,7 +49,6 @@ Partial Class ControlTransporte
         Me.Picture = New System.Windows.Forms.PictureBox()
         Me.TxtCedula = New System.Windows.Forms.TextBox()
         Me.Imgprocess = New System.Windows.Forms.PictureBox()
-        Me.TReloj = New System.Windows.Forms.Timer(Me.components)
         Me.PanelResult = New System.Windows.Forms.Panel()
         Me.BtnCerrar = New System.Windows.Forms.PictureBox()
         Me.Panel1 = New System.Windows.Forms.Panel()
@@ -371,11 +370,6 @@ Partial Class ControlTransporte
         Me.Imgprocess.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage
         Me.Imgprocess.TabIndex = 24
         Me.Imgprocess.TabStop = False
-        '
-        'TReloj
-        '
-        Me.TReloj.Enabled = True
-        '
         'PanelResult
         '
         Me.PanelResult.BackColor = System.Drawing.Color.Gainsboro
@@ -469,7 +463,6 @@ Partial Class ControlTransporte
     Friend WithEvents Label6 As Label
     Friend WithEvents LblRuta As Label
     Friend WithEvents BunifuGradientPanel1 As System.Windows.Forms.Panel
-    Friend WithEvents TReloj As Timer
     Friend WithEvents PanelResult As Panel
     Friend WithEvents Panel1 As Panel
     Friend WithEvents BtnCerrar As PictureBox

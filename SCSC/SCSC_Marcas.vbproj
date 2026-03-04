@@ -139,10 +139,12 @@
     <Compile Include="Clases\LBItem.vb" />
     <Compile Include="Clases\FunccionesDB.vb" />
     <Compile Include="Clases\Servicios\ComedorDataService.vb" />
+    <Compile Include="Clases\Servicios\ComedorOperacionService.vb" />
     <Compile Include="Clases\Servicios\DashboardDataService.vb" />
     <Compile Include="Clases\Servicios\ImportacionExcelService.vb" />
     <Compile Include="Clases\Servicios\SeguridadRbacService.vb" />
     <Compile Include="Clases\Servicios\TransporteDataService.vb" />
+    <Compile Include="Clases\Servicios\TransporteOperacionService.vb" />
     <Compile Include="Formularios\ControlTransporte.Designer.vb">
       <DependentUpon>ControlTransporte.vb</DependentUpon>
     </Compile>
@@ -482,9 +484,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="favicon.ico" />
-    <Content Include="Resources\Logo.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="Resources\LogoHero.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -509,10 +508,7 @@
     <None Include="Resources\Procesado.jpg" />
     <None Include="Resources\ErrorAcceso.jpg" />
     <None Include="Resources\DOBLEVERIFICACION.jpg" />
-    <None Include="Resources\Graduado-Birrete-83978.gif" />
-    <None Include="Resources\Estudiantes.jpg" />
     <None Include="Resources\huella_dactilar.jpg" />
-    <None Include="Resources\Comedor.jpg" />
   </ItemGroup>
   <ItemGroup>
     <COMReference Include="Microsoft.Office.Core">

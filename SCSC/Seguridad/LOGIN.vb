@@ -123,6 +123,7 @@ Partial Friend Class Login
             Cls.ArmaValor(Valores, "ControlCarnet")
             Cls.ArmaValor(Valores, "PrecioDocente")
             Cls.ArmaValor(Valores, "PrecioEstudiante")
+            Cls.ArmaValor(Valores, "PermitirSinMarcaTransporte")
             Cls.ArmaValor(Valores, "Getdate() as Fecha")
             DsParametro = Cls.Consultar("Parametro", Valores, Llave, Cn)
             If DsParametro.Tables(0).Rows.Count > 0 Then
@@ -135,6 +136,11 @@ Partial Friend Class Login
                 ControlCarnet = DsParametro.Tables(0).Rows(0)!ControlCarnet
                 PrecioDocente = DsParametro.Tables(0).Rows(0)!PrecioDocente
                 PrecioEstudiante = DsParametro.Tables(0).Rows(0)!PrecioEstudiante
+                If IsDBNull(DsParametro.Tables(0).Rows(0)!PermitirSinMarcaTransporte) Then
+                    PermitirSinMarcaTransporte = False
+                Else
+                    PermitirSinMarcaTransporte = CBool(DsParametro.Tables(0).Rows(0)!PermitirSinMarcaTransporte)
+                End If
                 Version.Text = CodVersion
                 LblInstitucion.Text = NomColegio
                 LbFecha.Text = Format(DsParametro.Tables(0).Rows(0)!Fecha, "dd/MMM/yyyy")

@@ -164,9 +164,6 @@
   <data name="Verificado" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Verificado.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="Comedor" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Comedor.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="Users" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Users.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
@@ -196,9 +193,6 @@
   </data>
   <data name="FlechaIzquierdaDoble" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\FlechaIzquierdaDoble.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="Estudiantes" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Estudiantes.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="Guardar2" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Guardar2.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>

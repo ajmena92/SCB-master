@@ -22,6 +22,7 @@ Partial Class ControlComedor
         Me.lblProcesando = New System.Windows.Forms.Label()
         Me.Imgprocess = New System.Windows.Forms.PictureBox()
         Me.LblTitulo = New System.Windows.Forms.Label()
+        Me.PicBrandHeader = New System.Windows.Forms.PictureBox()
         Me.BunifuGradientPanel1 = New System.Windows.Forms.Panel()
         Me.LblScanHint = New System.Windows.Forms.Label()
         Me.TxtCedula = New System.Windows.Forms.TextBox()
@@ -33,6 +34,7 @@ Partial Class ControlComedor
         Me.TxtUsuario = New System.Windows.Forms.TextBox()
         Me.Label2 = New System.Windows.Forms.Label()
         Me.LblCedula = New System.Windows.Forms.TextBox()
+        Me.LblRegistroError = New System.Windows.Forms.Label()
         Me.Label4 = New System.Windows.Forms.Label()
         Me.Picture = New System.Windows.Forms.PictureBox()
         Me.LblFecha = New System.Windows.Forms.Label()
@@ -40,6 +42,7 @@ Partial Class ControlComedor
         Me.PanelResult.SuspendLayout()
         Me.PanelMainStatus.SuspendLayout()
         CType(Me.Imgprocess, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.PicBrandHeader, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.BunifuGradientPanel1.SuspendLayout()
         Me.GbDatos.SuspendLayout()
         CType(Me.Picture, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -50,6 +53,7 @@ Partial Class ControlComedor
         Me.PanelResult.BackColor = System.Drawing.Color.FromArgb(CType(CType(243, Byte), Integer), CType(CType(246, Byte), Integer), CType(CType(251, Byte), Integer))
         Me.PanelResult.Controls.Add(Me.PanelMainStatus)
         Me.PanelResult.Controls.Add(Me.LblTitulo)
+        Me.PanelResult.Controls.Add(Me.PicBrandHeader)
         Me.PanelResult.Controls.Add(Me.BunifuGradientPanel1)
         Me.PanelResult.Dock = System.Windows.Forms.DockStyle.Fill
         Me.PanelResult.Location = New System.Drawing.Point(0, 0)
@@ -74,7 +78,7 @@ Partial Class ControlComedor
         '
         Me.lblProcesando.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.lblProcesando.Font = New System.Drawing.Font("Segoe UI Semibold", 30.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.lblProcesando.Font = New System.Drawing.Font("Segoe UI Semibold", 24.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.lblProcesando.ForeColor = System.Drawing.Color.FromArgb(CType(CType(23, Byte), Integer), CType(CType(32, Byte), Integer), CType(CType(51, Byte), Integer))
         Me.lblProcesando.Location = New System.Drawing.Point(52, 68)
         Me.lblProcesando.Name = "lblProcesando"
@@ -89,10 +93,10 @@ Partial Class ControlComedor
             Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.Imgprocess.BackColor = System.Drawing.Color.Transparent
-        Me.Imgprocess.Image = Global.SCSC.My.Resources.Resources.Ingreso
+        Me.Imgprocess.Image = Global.SCSC.My.Resources.Resources.Info
         Me.Imgprocess.Location = New System.Drawing.Point(218, 249)
         Me.Imgprocess.Name = "Imgprocess"
-        Me.Imgprocess.Size = New System.Drawing.Size(620, 448)
+        Me.Imgprocess.Size = New System.Drawing.Size(220, 220)
         Me.Imgprocess.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom
         Me.Imgprocess.TabIndex = 0
         Me.Imgprocess.TabStop = False
@@ -101,7 +105,7 @@ Partial Class ControlComedor
         '
         Me.LblTitulo.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.LblTitulo.Font = New System.Drawing.Font("Segoe UI Semibold", 34.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LblTitulo.Font = New System.Drawing.Font("Segoe UI Semibold", 28.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.LblTitulo.ForeColor = System.Drawing.Color.FromArgb(CType(CType(17, Byte), Integer), CType(CType(33, Byte), Integer), CType(CType(59, Byte), Integer))
         Me.LblTitulo.Location = New System.Drawing.Point(520, 20)
         Me.LblTitulo.Name = "LblTitulo"
@@ -109,6 +113,18 @@ Partial Class ControlComedor
         Me.LblTitulo.TabIndex = 1
         Me.LblTitulo.Text = "Control de Marcas - Comedor"
         Me.LblTitulo.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        '
+        'PicBrandHeader
+        '
+        Me.PicBrandHeader.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.PicBrandHeader.BackColor = System.Drawing.Color.Transparent
+        Me.PicBrandHeader.Image = Nothing
+        Me.PicBrandHeader.Location = New System.Drawing.Point(1285, 23)
+        Me.PicBrandHeader.Name = "PicBrandHeader"
+        Me.PicBrandHeader.Size = New System.Drawing.Size(290, 72)
+        Me.PicBrandHeader.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom
+        Me.PicBrandHeader.TabIndex = 3
+        Me.PicBrandHeader.TabStop = False
         '
         'BunifuGradientPanel1
         '
@@ -122,7 +138,7 @@ Partial Class ControlComedor
         Me.BunifuGradientPanel1.Dock = System.Windows.Forms.DockStyle.Left
         Me.BunifuGradientPanel1.Location = New System.Drawing.Point(0, 0)
         Me.BunifuGradientPanel1.Name = "BunifuGradientPanel1"
-        Me.BunifuGradientPanel1.Size = New System.Drawing.Size(500, 900)
+        Me.BunifuGradientPanel1.Size = New System.Drawing.Size(420, 900)
         Me.BunifuGradientPanel1.TabIndex = 0
         '
         'LblScanHint
@@ -159,6 +175,7 @@ Partial Class ControlComedor
         Me.GbDatos.Controls.Add(Me.TxtUsuario)
         Me.GbDatos.Controls.Add(Me.Label2)
         Me.GbDatos.Controls.Add(Me.LblCedula)
+        Me.GbDatos.Controls.Add(Me.LblRegistroError)
         Me.GbDatos.Controls.Add(Me.Label4)
         Me.GbDatos.Font = New System.Drawing.Font("Segoe UI", 12.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.GbDatos.ForeColor = System.Drawing.Color.FromArgb(CType(CType(188, Byte), Integer), CType(CType(202, Byte), Integer), CType(CType(225, Byte), Integer))
@@ -248,6 +265,15 @@ Partial Class ControlComedor
         Me.LblCedula.Size = New System.Drawing.Size(417, 41)
         Me.LblCedula.TabIndex = 1
         '
+        'LblRegistroError
+        '
+        Me.LblRegistroError.ForeColor = System.Drawing.Color.FromArgb(CType(CType(161, Byte), Integer), CType(CType(47, Byte), Integer), CType(CType(65, Byte), Integer))
+        Me.LblRegistroError.Location = New System.Drawing.Point(17, 392)
+        Me.LblRegistroError.Name = "LblRegistroError"
+        Me.LblRegistroError.Size = New System.Drawing.Size(417, 46)
+        Me.LblRegistroError.TabIndex = 8
+        Me.LblRegistroError.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        '
         'Label4
         '
         Me.Label4.AutoSize = True
@@ -263,7 +289,7 @@ Partial Class ControlComedor
         '
         Me.Picture.BackColor = System.Drawing.Color.FromArgb(CType(CType(230, Byte), Integer), CType(CType(236, Byte), Integer), CType(CType(246, Byte), Integer))
         Me.Picture.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.Picture.Image = Global.SCSC.My.Resources.Resources.LogoIcon
+        Me.Picture.Image = Global.SCSC.My.Resources.Resources.Login
         Me.Picture.Location = New System.Drawing.Point(127, 68)
         Me.Picture.Name = "Picture"
         Me.Picture.Size = New System.Drawing.Size(246, 185)
@@ -314,6 +340,7 @@ Partial Class ControlComedor
         Me.PanelResult.ResumeLayout(False)
         Me.PanelMainStatus.ResumeLayout(False)
         CType(Me.Imgprocess, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.PicBrandHeader, System.ComponentModel.ISupportInitialize).EndInit()
         Me.BunifuGradientPanel1.ResumeLayout(False)
         Me.BunifuGradientPanel1.PerformLayout()
         Me.GbDatos.ResumeLayout(False)
@@ -335,10 +362,12 @@ Partial Class ControlComedor
     Friend WithEvents TxtUsuario As TextBox
     Friend WithEvents Label2 As Label
     Friend WithEvents LblCedula As TextBox
+    Friend WithEvents LblRegistroError As Label
     Friend WithEvents Label4 As Label
     Friend WithEvents TxtCedula As TextBox
     Friend WithEvents BtnSalir As Button
     Friend WithEvents LblTitulo As Label
+    Friend WithEvents PicBrandHeader As PictureBox
     Friend WithEvents PanelMainStatus As Panel
     Friend WithEvents lblProcesando As Label
     Friend WithEvents Imgprocess As PictureBox

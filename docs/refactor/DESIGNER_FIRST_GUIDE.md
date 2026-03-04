@@ -14,6 +14,16 @@ Este documento establece el estándar obligatorio para cambios UI WinForms en SC
 2. Los cambios de controles/propiedades visuales se hacen primero en Designer.
 3. El code-behind (`Form.vb`) solo aplica estilo/comportamiento runtime, sin romper diseño.
 
+## Regla operativa estricta (2026-03-04)
+Para formularios críticos (`LOGIN`, `FrmSeguridadRBAC`) se aplica modo estricto:
+1. Prohibido crear/reubicar contenedores estructurales en runtime (`SplitContainer`, paneles de cabecera, redistribución de filas/columnas).
+2. Prohibido recalcular geometría estructural en `Load/Shown/Resize/SelectedIndexChanged`.
+3. En runtime solo se permite:
+   - Aplicar tema visual (color, fuente, borde, estados de botón).
+   - Cargar datos y enlazar grillas/combos.
+   - Lógica funcional de eventos.
+4. Si un ajuste visual requiere mover controles, se hace exclusivamente en Designer y se valida reabriendo Designer antes de probar runtime.
+
 ## Reglas obligatorias
 1. No mezclar migraciones de controles legacy con lógica funcional en el mismo commit.
 2. No dejar en `*.resx` metadata de componentes eliminados (ej. `BunifuElipse1.*`).
