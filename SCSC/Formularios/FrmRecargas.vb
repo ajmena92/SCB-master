@@ -17,7 +17,7 @@
         TxtNombre.Clear()
         TxtRecarga.Clear()
         LblCantTiques.Text = ("0 Tiquetes")
-        LblTotal.Text = 0
+        LblTotal.Text = "0"
         txtCedula.Focus()
     End Sub
 
@@ -36,6 +36,7 @@
         Try
             UIThemeManagerV2.Apply(Me, "dialogo")
             ApplyModernFormStyle()
+            UIThemeManagerV2.ApplyCrudModuleChrome(Me)
             Cls.AbrirConexion(Cn, False)
             DsBeca = Cls.ConsultarTSQL("Becas", "Select IdBeca,DiasBeca,Descripcion From TipoBeca", Cn:=Cn)
         Catch ex As Exception
@@ -110,7 +111,7 @@
             gSession.Llave = Llave
             Dim F As New Busqueda
             F.ShowDialog()
-            txtCedula.Text = (gSession.Resultado(0))
+            txtCedula.Text = CStr(gSession.Resultado(0))
             TxtCedula_Validated(sender, e)
         Catch ex As Exception
             'MsgBox(MSJ.Mensajes.ErrorBusqueda)
@@ -123,7 +124,7 @@
         Cedula = Replace(Cedula, "CTPP", "")
         Dim Ds As New DataSet
         Dim Valores(), Llave() As FuncionesDB.Campos
-        If Len(Cedula) > 0 Then
+        If Cedula.Trim().Length > 0 Then
             Try
                 Valores = Cls.InicializarArray
                 Llave = Cls.InicializarArray
@@ -139,10 +140,11 @@
                 DiaSemana = Weekday(Now)
                 Ds = Cls.Consultar("Usuario", Valores, Llave, Cn)
                 If Ds.Tables(0).Rows.Count > 0 Then
-                    TxtNombre.Text = Ds.Tables(0).Rows(0)!Nombre
-                    TxtPrimerApellido.Text = Ds.Tables(0).Rows(0)!PrimerApellido
-                    TxtSegundoApellido.Text = Ds.Tables(0).Rows(0)!SegundoApellido
-                    If Ds.Tables(0).Rows(0)!CodTipo = 1 Then
+                    Dim row As DataRow = Ds.Tables(0).Rows(0)
+                    TxtNombre.Text = CStr(row("Nombre"))
+                    TxtPrimerApellido.Text = CStr(row("PrimerApellido"))
+                    TxtSegundoApellido.Text = CStr(row("SegundoApellido"))
+                    If CInt(row("CodTipo")) = 1 Then
                         TipoUsuario = "ESTUDIANTE"
                         Precio = PrecioEstudiante
                         TipoUsuarioCod = 1
@@ -151,20 +153,20 @@
                         Precio = PrecioDocente
                         TipoUsuarioCod = 2
                     End If
-                    If Ds.Tables(0).Rows(0)!activo = False Then
+                    If Not CBool(row("Activo")) Then
                         MsgBox("El usuario ingresado esta inactivo, no puede realizar recargas", MsgBoxStyle.Critical)
                         LimpiarPantalla()
                         Exit Sub
                     End If
                     For Each Beca As DataRow In DsBeca.Tables(0).Rows
-                        If Beca!IdBeca = Ds.Tables(0).Rows(0)!TipoBeca Then
-                            LblTipoBeca.Text = Beca!Descripcion
+                        If CInt(Beca("IdBeca")) = CInt(row("TipoBeca")) Then
+                            LblTipoBeca.Text = CStr(Beca("Descripcion"))
                             Exit For
                         End If
                     Next
                     LblTipoUsuario.Text = TipoUsuario
-                    txtCedula.Tag = Ds.Tables(0).Rows(0)!IdUsuario
-                    LblCantTiques.Text = Ds.Tables(0).Rows(0)!CantidadTiquetes & " Disponibles "
+                    txtCedula.Tag = CInt(row("IdUsuario"))
+                    LblCantTiques.Text = CInt(row("CantidadTiquetes")).ToString() & " Disponibles "
                 Else
                     LimpiarPantalla()
                     MsgBox("Usuario no ingresado en el sistema", MsgBoxStyle.Information)
@@ -189,7 +191,7 @@
     End Sub
 
     Private Sub TxtRecarga_Validated(sender As Object, e As EventArgs) Handles TxtRecarga.Validated
-        Dim Cantidad As Integer = Val(sen(TxtRecarga.Text))
+        Dim Cantidad As Integer = ObtenerCantidadRecarga()
         LblTotal.Text = Format(CType(Cantidad * Precio, Decimal), "#,##0.00")
 
     End Sub
@@ -206,20 +208,27 @@
         End If
     End Sub
 
-    Function Validacion() As Boolean
-        Validacion = False
-        If Len(txtCedula.Text) = 0 Then
+    Private Function Validacion() As Boolean
+        If txtCedula.Text.Trim().Length = 0 Then
             MsgBox("Ingrese el numero de cedula", MsgBoxStyle.Critical)
             txtCedula.Focus()
-            Exit Function
-        ElseIf Val(TxtRecarga.Text) < 1 Then
+            Return False
+        ElseIf ObtenerCantidadRecarga() < 1 Then
             MsgBox("Ingrese la cantidad de tiquetes a ingresar", MsgBoxStyle.Critical)
             TxtRecarga.Focus()
-            Exit Function
-        Else
-            Return True
+            Return False
         End If
 
+        Return True
+    End Function
+
+    Private Function ObtenerCantidadRecarga() As Integer
+        Dim raw As String = sen(TxtRecarga.Text)
+        Dim cantidad As Integer
+        If Integer.TryParse(raw, cantidad) Then
+            Return cantidad
+        End If
+        Return 0
     End Function
 
     Private Sub BtnGuardar_Click(sender As Object, e As EventArgs) Handles BtnGuardar.Click
@@ -229,16 +238,17 @@
             Dim Valores(), Llave() As FuncionesDB.Campos
             Dim Ds As New DataSet
 
-            Dim pTransac As SqlClient.SqlTransaction
+            Dim pTransac As SqlClient.SqlTransaction = Nothing
 
-            Dim Cmd As String
+            Dim Cmd As String = String.Empty
             Try
+                Dim recargaCantidad As Integer = ObtenerCantidadRecarga()
                 Cls.IniciaSQL(Cn, pTransac)
                 'Valores = Cls.InicializarArray
                 Llave = Cls.InicializarArray
                 Cls.ArmaValor(Llave, "IdUsuario", txtCedula.Tag)
                 'Cls.ArmaValor(Valores, "Recarga", Val(sen(TxtRecarga.Text)))                  
-                Cmd = "UPDATE Usuario set CantidadTiquetes = CantidadTiquetes + " & Val(sen(TxtRecarga.Text)) & " WHERE IdUsuario = @IdUsuario"
+                Cmd = "UPDATE Usuario set CantidadTiquetes = CantidadTiquetes + " & recargaCantidad.ToString() & " WHERE IdUsuario = @IdUsuario"
                 ''Suma los tiquetes en usuarios
                 Cls.AplicaSQL(Cmd, Cn, pTransac, Llave)
                 ''Inserta la nueva trasaccion
@@ -248,7 +258,7 @@
                 Cls.ArmaValor(Valores, "Beca", 9)
                 Cls.ArmaValor(Valores, "Precio", Precio)
                 Cls.ArmaValor(Valores, "TipoUsuario", TipoUsuarioCod)
-                Cls.ArmaValor(Valores, "Cantidad", Val(sen(TxtRecarga.Text)))
+                Cls.ArmaValor(Valores, "Cantidad", recargaCantidad)
 
 
                 Cls.Insert("RegistroComedor", Valores, Cn, pTransac)
@@ -264,12 +274,12 @@
                 Cls.ArmaValor(Valores, "IdUsuario")
                 Cls.ArmaValor(Valores, "CantidadTiquetes")
                 Ds = Cls.Consultar("Usuario", Valores, Llave, Cn)
-                LblCantTiques.Text = Ds.Tables(0).Rows(0)!CantidadTiquetes & " Disponibles "
+                LblCantTiques.Text = CInt(Ds.Tables(0).Rows(0)("CantidadTiquetes")).ToString() & " Disponibles "
 
 
 
                 TxtRecarga.Clear()
-                LblTotal.Text = 0
+                LblTotal.Text = "0"
                 txtCedula.Focus()
                 'BtnCancelar_Click(sender, e)
             Catch ex As Exception

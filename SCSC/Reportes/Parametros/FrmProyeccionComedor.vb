@@ -15,7 +15,7 @@
                 CbHorario.Items.Clear()
                 CbHorario.Items.Add(New LBItem("", "---- TODOS ----"))
                 For I As Integer = 0 To Ds.Tables(0).Rows.Count - 1
-                    CbHorario.Items.Add(New LBItem(Ds.Tables(0).Rows(I)("IdHorario"), Ds.Tables(0).Rows(I)("Descripcion")))
+                    CbHorario.Items.Add(New LBItem(CStr(Ds.Tables(0).Rows(I)("IdHorario")), CStr(Ds.Tables(0).Rows(I)("Descripcion"))))
                 Next
                 CbHorario.SelectedIndex = 0
             End If
@@ -25,7 +25,7 @@
                 CbBeca.Items.Clear()
                 CbBeca.Items.Add(New LBItem("", "---- TODOS ----"))
                 For I As Integer = 0 To Ds.Tables(0).Rows.Count - 1
-                    CbBeca.Items.Add(New LBItem(Ds.Tables(0).Rows(I)("IdBeca"), Ds.Tables(0).Rows(I)("Descripcion")))
+                    CbBeca.Items.Add(New LBItem(CStr(Ds.Tables(0).Rows(I)("IdBeca")), CStr(Ds.Tables(0).Rows(I)("Descripcion"))))
                 Next
                 CbBeca.SelectedIndex = 0
             End If
@@ -103,9 +103,8 @@
         End If
     End Sub
 
-    Function ArmaReporte() As Boolean
-        ArmaReporte = False
-        Dim Criterio As String
+    Private Function ArmaReporte() As Boolean
+        Dim Criterio As String = String.Empty
         LimpiarSession()
 
         If Not IsDate(FecIni.Value) Then
@@ -115,23 +114,21 @@
 
             ' todo bien, se saca reporte.
             'Arma el Criterio de la Consulta
-            Criterio = ArmaFechaReporte("{RegistroTransporte.Fecha}", CDate(FecIni.Text), CDate(FecIni.Text))
+            Criterio = ArmaFechaReporte("{RegistroTransporte.Fecha}", FecIni.Value.Date, FecIni.Value.Date)
             gSession.RangoDeFecha = "Fecha: " & FecIni.Value
             If CbBeca.SelectedIndex > 0 Then
-                Criterio = Criterio + " and {TipoBeca.IdBeca}=" & CbBeca.Items(CbBeca.SelectedIndex).valor
+                Criterio = Criterio + " and {TipoBeca.IdBeca}=" & DirectCast(CbBeca.Items(CbBeca.SelectedIndex), LBItem).Valor
             End If
             If CbHorario.SelectedIndex > 0 Then
-                Criterio = Criterio + " and {RegistroTransporte.IdHorario}=" & CbHorario.Items(CbHorario.SelectedIndex).valor
+                Criterio = Criterio + " and {RegistroTransporte.IdHorario}=" & DirectCast(CbHorario.Items(CbHorario.SelectedIndex), LBItem).Valor
                 gSession.Valor1 = "Horario: " + CbHorario.Text
-            End If
-            If CbBeca.SelectedIndex > 0 Then
-                Criterio = Criterio + " and {TipoBeca.IdBeca}=" & CbBeca.Items(CbBeca.SelectedIndex).valor
             End If
             Criterio = Criterio + " and {Usuario.CodTipo}=1"
             gSession.Criterio = Criterio
             gSession.Titulo = "Reporte Proyección Asistencia Servicio Comedor"
             gSession.Reporte = "FrmProyeccionComedor"
+            Return True
         End If
-        Return True
+        Return False
     End Function
 End Class

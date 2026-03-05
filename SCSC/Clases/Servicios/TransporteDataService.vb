@@ -23,17 +23,19 @@ Public Class TransporteDataService
 
     Public Sub RegistrarMarca(ByVal usuario As DataRow, ByVal cn As SqlConnection, ByVal fechaServer As Date)
         Dim valores() As FuncionesDB.Campos = _cls.InicializarArray
-        _cls.ArmaValor(valores, "IdUsuario", usuario!IdUsuario)
-        _cls.ArmaValor(valores, "IdHorario", usuario!IdHorario)
+        Dim idUsuario As Integer = CInt(usuario("IdUsuario"))
+        Dim idHorario As Integer = CInt(usuario("IdHorario"))
+        _cls.ArmaValor(valores, "IdUsuario", idUsuario)
+        _cls.ArmaValor(valores, "IdHorario", idHorario)
 
-        If (usuario!CodTipo = 1) Then
-            _cls.ArmaValor(valores, "IdRuta", usuario!IdRuta)
+        If CInt(usuario("CodTipo")) = 1 Then
+            _cls.ArmaValor(valores, "IdRuta", CInt(usuario("IdRuta")))
             _cls.Insert("RegistroTransporte", valores, cn)
             Exit Sub
         End If
 
         Dim ds As DataSet = _cls.ConsultarTSQL("RegistroTransporte",
-                                               "Select IdTransaccion From RegistroDocentes Where IdUsuario = " & usuario!IdUsuario & " and " & ArmaFechaQueryHora("Fecha", fechaServer, fechaServer),
+                                               "Select IdTransaccion From RegistroDocentes Where IdUsuario = " & idUsuario & " and " & ArmaFechaQueryHora("Fecha", fechaServer, fechaServer),
                                                Cn:=cn)
         If ds.Tables(0).Rows.Count > 0 Then
             _cls.ArmaValor(valores, "TipoMarca", 2)
@@ -47,11 +49,14 @@ Public Class TransporteDataService
                                            ByVal cn As SqlConnection,
                                            ByVal fechaServer As Date,
                                            ByVal tx As SqlTransaction)
-        If CShort(usuario!CodTipo) = 1S Then
+        Dim idUsuario As Integer = CInt(usuario("IdUsuario"))
+        Dim idHorario As Integer = CInt(usuario("IdHorario"))
+        Dim codTipo As Short = CShort(usuario("CodTipo"))
+        If codTipo = 1S Then
             Using cmd As New SqlCommand("INSERT INTO RegistroTransporte (IdUsuario, IdHorario, IdRuta) VALUES (@IdUsuario, @IdHorario, @IdRuta);", cn, tx)
-                cmd.Parameters.AddWithValue("@IdUsuario", CInt(usuario!IdUsuario))
-                cmd.Parameters.AddWithValue("@IdHorario", CInt(usuario!IdHorario))
-                cmd.Parameters.AddWithValue("@IdRuta", CInt(usuario!IdRuta))
+                cmd.Parameters.AddWithValue("@IdUsuario", idUsuario)
+                cmd.Parameters.AddWithValue("@IdHorario", idHorario)
+                cmd.Parameters.AddWithValue("@IdRuta", CInt(usuario("IdRuta")))
                 cmd.ExecuteNonQuery()
             End Using
             Exit Sub
@@ -59,7 +64,7 @@ Public Class TransporteDataService
 
         Dim existeHoy As Boolean = False
         Using cmdCheck As New SqlCommand("SELECT TOP 1 IdTransaccion FROM RegistroDocentes WHERE IdUsuario = @IdUsuario AND CAST(Fecha AS date) = CAST(@Fecha AS date);", cn, tx)
-            cmdCheck.Parameters.AddWithValue("@IdUsuario", CInt(usuario!IdUsuario))
+            cmdCheck.Parameters.AddWithValue("@IdUsuario", idUsuario)
             cmdCheck.Parameters.AddWithValue("@Fecha", fechaServer)
             Using reader As SqlDataReader = cmdCheck.ExecuteReader()
                 existeHoy = reader.Read()
@@ -67,8 +72,8 @@ Public Class TransporteDataService
         End Using
 
         Using cmd As New SqlCommand("INSERT INTO RegistroDocentes (IdUsuario, IdHorario, TipoMarca) VALUES (@IdUsuario, @IdHorario, @TipoMarca);", cn, tx)
-            cmd.Parameters.AddWithValue("@IdUsuario", CInt(usuario!IdUsuario))
-            cmd.Parameters.AddWithValue("@IdHorario", CInt(usuario!IdHorario))
+            cmd.Parameters.AddWithValue("@IdUsuario", idUsuario)
+            cmd.Parameters.AddWithValue("@IdHorario", idHorario)
             cmd.Parameters.AddWithValue("@TipoMarca", If(existeHoy, 2, 1))
             cmd.ExecuteNonQuery()
         End Using

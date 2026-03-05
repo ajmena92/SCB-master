@@ -28,21 +28,39 @@ Public Class IMPRIMIR
         Me.BackColor = UIConstants.AppBackground
         Me.BackgroundImage = Nothing
         Me.Font = UIConstants.FontBody()
-        For Each ctrl As Control In Me.Controls
-            If TypeOf ctrl Is Button Then
-                Dim btn As Button = DirectCast(ctrl, Button)
-                btn.FlatStyle = FlatStyle.Flat
-                btn.FlatAppearance.BorderSize = 1
-                btn.FlatAppearance.BorderColor = UIConstants.Border
-                btn.BackColor = UIConstants.Surface
-                btn.ForeColor = UIConstants.TextPrimary
-                btn.Font = UIConstants.FontBodyStrong()
-            ElseIf TypeOf ctrl Is TextBox Then
-                Dim tb As TextBox = DirectCast(ctrl, TextBox)
-                tb.BorderStyle = BorderStyle.FixedSingle
-                tb.BackColor = UIConstants.Surface
-            End If
-        Next
+        Me.MinimumSize = New Size(560, 340)
+        Me.Size = New Size(640, 380)
+
+        Label1.ForeColor = UIConstants.TextSecondary
+        Label2.ForeColor = UIConstants.TextSecondary
+        Label3.ForeColor = UIConstants.TextSecondary
+        lblImpresoraActual.ForeColor = UIConstants.TextPrimary
+        lblImpresoraActual.Font = UIConstants.FontBodyStrong()
+
+        txtNombre.BorderStyle = BorderStyle.FixedSingle
+        txtAncho.BorderStyle = BorderStyle.FixedSingle
+        txtAlto.BorderStyle = BorderStyle.FixedSingle
+        txtNombre.BackColor = UIConstants.Surface
+        txtAncho.BackColor = UIConstants.Surface
+        txtAlto.BackColor = UIConstants.Surface
+        txtNombre.Font = New Font("Segoe UI", 10.0!, FontStyle.Regular)
+        txtAncho.Font = New Font("Segoe UI", 10.0!, FontStyle.Regular)
+        txtAlto.Font = New Font("Segoe UI", 10.0!, FontStyle.Regular)
+
+        StyleActionButton(btnSeleccionarImpresora, "Impresora", UIConstants.Accent)
+        StyleActionButton(btnCrear, "Guardar", Color.FromArgb(16, 163, 127))
+        StyleActionButton(btnVer, "Vista previa", Color.FromArgb(100, 116, 139))
+        StyleActionButton(btncerrar, "Salir", Color.FromArgb(71, 85, 105))
+    End Sub
+
+    Private Sub StyleActionButton(ByVal btn As Button, ByVal text As String, ByVal color As Color)
+        btn.Text = text
+        btn.FlatStyle = FlatStyle.Flat
+        btn.FlatAppearance.BorderSize = 0
+        btn.BackColor = color
+        btn.ForeColor = Color.White
+        btn.Font = New Font("Segoe UI", 9.0!, FontStyle.Bold)
+        btn.Cursor = Cursors.Hand
     End Sub
 
     Private Sub btnCrear_Click(ByVal sender As System.Object, _

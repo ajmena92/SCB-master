@@ -2,37 +2,44 @@
     Private Sub FrmReportViewer_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Try
             UIThemeManagerV2.Apply(Me, "reporte")
-            Dim lUsuario, lPwd, NombreServidor, NombreBaseDatos As String
-            Dim Rep As Object
-            Dim Cn As String = GetAppConfig("Conexion")
+            Dim lUsuario As String
+            Dim lPwd As String
+            Dim NombreServidor As String
+            Dim NombreBaseDatos As String
+            Dim rep As CrystalDecisions.CrystalReports.Engine.ReportDocument = Nothing
 
             Select Case gSession.Reporte.ToLower
                 Case "FrmReporteMarcas".ToLower
                     If gSession.TipoReporte = "DETALLADO" Then
-                        Rep = New RptFechaComedor
+                        rep = New RptFechaComedor
                     Else
-                        Rep = New RptFechaComedor
+                        rep = New RptFechaComedor
                     End If
                 Case "FrmProyeccionComedor".ToLower
-                    Rep = New RptProyecionComedor
+                    rep = New RptProyecionComedor
                 Case "FrmReporteRutas".ToLower
                     If gSession.TipoReporte = "DETALLADO" Then
-                        Rep = New RptRuta_detallado
+                        rep = New RptRuta_detallado
                     Else
-                        Rep = New RptRuta_general
+                        rep = New RptRuta_general
                     End If
                 Case "FrmBecados".ToLower
                     If gSession.TipoReporte = "FrmBecadosTransporteGeneral" Then
-                        Rep = New RptBecadosTransporte
+                        rep = New RptBecadosTransporte
                     ElseIf gSession.TipoReporte = "FrmBecadosTansporteDetallado" Then
-                        Rep = New RptBecadosTransporteDetallado
+                        rep = New RptBecadosTransporteDetallado
                     ElseIf gSession.TipoReporte = "BecadosComedor" Then
-                        Rep = New RptBecadosComedor
+                        rep = New RptBecadosComedor
                     End If
                 Case Else
                     MsgBox("Error interno asignar reporte, comuniquese con el administrador del sistema.!!", MsgBoxStyle.Critical)
                     Me.Dispose()
             End Select
+            If rep Is Nothing Then
+                MsgBox("No se pudo inicializar el reporte solicitado.", MsgBoxStyle.Critical)
+                Me.Dispose()
+                Return
+            End If
             '***********************************
             '****** Datos para el reporte ******
             '***********************************
@@ -41,17 +48,17 @@
             NombreServidor = ObtenerValorParametroConexion("server", "Server")
             NombreBaseDatos = ObtenerValorParametroConexion("database", "Database")
 
-            Rep.DataSourceConnections(0).SetConnection(NombreServidor, NombreBaseDatos, lUsuario, lPwd)
+            rep.DataSourceConnections(0).SetConnection(NombreServidor, NombreBaseDatos, lUsuario, lPwd)
 
-            Rep.RecordSelectionFormula = gSession.Criterio
-            Rep.SetParameterValue("Compania", IIf(NomColegio = Nothing, "COLEGIO", NomColegio))
-            Rep.SetParameterValue("Titulo", IIf(gSession.Titulo = Nothing, "COLEGIO", gSession.Titulo))
-            Rep.SetParameterValue("RangodeFechas", IIf(gSession.RangoDeFecha = Nothing, "", gSession.RangoDeFecha))
-            Rep.SetParameterValue("Leyenda", IIf(Leyenda = Nothing, "", Leyenda))
-            Rep.SetParameterValue("Ubicacion", IIf(Ubicacion = Nothing, "", Ubicacion))
-            Rep.SetParameterValue("Horario", IIf(gSession.Valor1 = Nothing, "", gSession.Valor1))
+            rep.RecordSelectionFormula = gSession.Criterio
+            rep.SetParameterValue("Compania", If(String.IsNullOrEmpty(NomColegio), "COLEGIO", NomColegio))
+            rep.SetParameterValue("Titulo", If(String.IsNullOrEmpty(gSession.Titulo), "COLEGIO", gSession.Titulo))
+            rep.SetParameterValue("RangodeFechas", If(String.IsNullOrEmpty(gSession.RangoDeFecha), "", gSession.RangoDeFecha))
+            rep.SetParameterValue("Leyenda", If(String.IsNullOrEmpty(Leyenda), "", Leyenda))
+            rep.SetParameterValue("Ubicacion", If(String.IsNullOrEmpty(Ubicacion), "", Ubicacion))
+            rep.SetParameterValue("Horario", If(String.IsNullOrEmpty(gSession.Valor1), "", gSession.Valor1))
 
-            ReportViewer.ReportSource = Rep
+            ReportViewer.ReportSource = rep
         Catch ex As Exception
             MsgBox(ex.Message, MsgBoxStyle.Critical)
         End Try

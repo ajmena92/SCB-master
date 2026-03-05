@@ -108,6 +108,9 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
   </ItemGroup>
@@ -135,6 +138,7 @@
     <Compile Include="Clases\UIComponentFactory.vb" />
     <Compile Include="Clases\UIThemeManagerV2.vb" />
     <Compile Include="Clases\UIShellHost.vb" />
+    <Compile Include="Clases\UIShellHost.Refresh.vb" />
     <Compile Include="Clases\Encriptacion64.vb" />
     <Compile Include="Clases\LBItem.vb" />
     <Compile Include="Clases\FunccionesDB.vb" />
@@ -142,6 +146,7 @@
     <Compile Include="Clases\Servicios\ComedorOperacionService.vb" />
     <Compile Include="Clases\Servicios\DashboardDataService.vb" />
     <Compile Include="Clases\Servicios\ImportacionExcelService.vb" />
+    <Compile Include="Clases\Servicios\ParametroSistemaService.vb" />
     <Compile Include="Clases\Servicios\SeguridadRbacService.vb" />
     <Compile Include="Clases\Servicios\TransporteDataService.vb" />
     <Compile Include="Clases\Servicios\TransporteOperacionService.vb" />
@@ -181,6 +186,12 @@
     <Compile Include="Formularios\FrmImportarExcel.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Formularios\FrmParametrosSistema.Designer.vb">
+      <DependentUpon>FrmParametrosSistema.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Formularios\FrmParametrosSistema.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Formularios\FrmBecas.designer.vb">
       <DependentUpon>FrmBecas.vb</DependentUpon>
     </Compile>
@@ -215,6 +226,9 @@
       <DependentUpon>FrmPrincipal.vb</DependentUpon>
     </Compile>
     <Compile Include="FrmPrincipal.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmPrincipal.DashboardRefresh.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="My Project\AssemblyInfo.vb" />

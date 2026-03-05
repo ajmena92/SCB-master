@@ -25,18 +25,25 @@
         Me.BackColor = UIConstants.AppBackground
         Me.BackgroundImage = Nothing
         Me.Font = UIConstants.FontBody()
+        Me.MinimumSize = New Size(860, 420)
+        Me.Size = New Size(980, 520)
         LabelProductName.Font = UIConstants.FontSubtitle()
+        LabelProductName.ForeColor = UIConstants.TextPrimary
         LabelVersion.Font = UIConstants.FontBodyStrong()
+        LabelVersion.ForeColor = UIConstants.TextSecondary
         LabelCompanyName.Font = UIConstants.FontBodyStrong()
+        LabelCompanyName.ForeColor = UIConstants.TextSecondary
         LabelCopyright.Font = UIConstants.FontBody()
+        LabelCopyright.ForeColor = UIConstants.TextSecondary
         TextBoxDescription.BackColor = UIConstants.Surface
         TextBoxDescription.BorderStyle = BorderStyle.FixedSingle
+        TextBoxDescription.ForeColor = UIConstants.TextPrimary
         OKButton.FlatStyle = FlatStyle.Flat
-        OKButton.FlatAppearance.BorderSize = 1
-        OKButton.FlatAppearance.BorderColor = UIConstants.Border
-        OKButton.BackColor = UIConstants.Surface
-        OKButton.ForeColor = UIConstants.TextPrimary
+        OKButton.FlatAppearance.BorderSize = 0
+        OKButton.BackColor = UIConstants.Accent
+        OKButton.ForeColor = Color.White
         OKButton.Font = UIConstants.FontBodyStrong()
+        OKButton.Text = "Cerrar"
     End Sub
 
     Private Sub OKButton_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles OKButton.Click

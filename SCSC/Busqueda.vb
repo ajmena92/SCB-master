@@ -85,7 +85,7 @@
         gSession.Valor5 = GridConsulta.Columns(e.ColumnIndex).Name
         LblFiltrado.Text = "Filtrado x " & GridConsulta.Columns(e.ColumnIndex).HeaderText
         For I As Integer = 0 To UBound(gSession.Valores)
-            If InStr(gSession.Valores(I).Nombre, gSession.Valor5) > 0 Then
+            If String.Equals(gSession.Valores(I).Nombre, gSession.Valor5, StringComparison.OrdinalIgnoreCase) Then
                 If String.IsNullOrEmpty(Convert.ToString(gSession.Valores(I).Valor)) Then
 
                 Else
@@ -100,22 +100,25 @@
         Try
             If RegistroSeleccionado >= 0 And GridConsulta.Rows.Count - 1 >= RegistroSeleccionado Then
                 'GridConsulta.Select()
-                Dim PosComa As Int32 = 0, Parametro As String = ""
+                Dim PosComa As Integer = 0
+                Dim Parametro As String = String.Empty
+                Dim camposSeleccion As String = gSession.Valor3
                 ' revisar ciclo, se estaq enciclando.
                 Do
-                    PosComa = InStr(gSession.Valor3, ",")
+                    PosComa = InStr(camposSeleccion, ",")
                     If PosComa > 0 Then
                         ' vienen varios parametros
-                        Parametro = Mid(gSession.Valor3, 1, PosComa - 1)
-                        gSession.Valor3 = gSession.Valor3.Replace(Parametro & ",", "")
+                        Parametro = Mid(camposSeleccion, 1, PosComa - 1)
+                        camposSeleccion = camposSeleccion.Replace(Parametro & ",", "")
 
                     Else
                         ' No hay mas parametros.
-                        Parametro = gSession.Valor3
+                        Parametro = camposSeleccion
                     End If
 
                     ReDim Preserve gSession.Resultado(UBound(gSession.Resultado) + 1)
-                    gSession.Resultado(UBound(gSession.Resultado)) = Convert.ToString(GridConsulta.Rows(RegistroSeleccionado).Cells(Parametro).Value)
+                    Dim cellValue As Object = GridConsulta.Rows(RegistroSeleccionado).Cells(Parametro).Value
+                    gSession.Resultado(UBound(gSession.Resultado)) = If(cellValue Is Nothing OrElse IsDBNull(cellValue), String.Empty, CStr(cellValue))
                 Loop Until PosComa <= 0
 
                 'gSession.Resultado = GridConsulta.Rows(RegistroSeleccionado).Cells(gSession.Valor3).Value

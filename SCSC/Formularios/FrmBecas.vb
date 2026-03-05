@@ -6,7 +6,7 @@ Public Class FrmBecas
     Dim Cls As New FuncionesDB
     Sub LimpiarPantalla()
         txtCodBeca.Clear()
-        txtCodBeca.Tag = ""
+        txtCodBeca.Tag = 0
         TxtDescripcion.Clear()
         CkActivo.Checked = False
         LimpiarChek()
@@ -36,6 +36,7 @@ Public Class FrmBecas
         Try
             UIThemeManagerV2.Apply(Me, "dialogo")
             ApplyModernFormStyle()
+            UIThemeManagerV2.ApplyCrudModuleChrome(Me)
             Cls.AbrirConexion(Cn, False)
             CkActivo.Checked = False
             LimpiarChek()
@@ -110,7 +111,7 @@ Public Class FrmBecas
             gSession.Llave = Llave
             Dim F As New Busqueda
             F.ShowDialog()
-            txtCodBeca.Text = (gSession.Resultado(0))
+            txtCodBeca.Text = CStr(gSession.Resultado(0))
             txtCodRuta_Validated(sender, e)
         Catch ex As Exception
             'MsgBox(ex.Message, MsgBoxStyle.Critical)
@@ -122,7 +123,7 @@ Public Class FrmBecas
         Dim Codigo As String = Replace(txtCodBeca.Text.Trim, ControlCarnet, "")
         Dim Ds As New DataSet
         Dim Valores(), Llave() As FuncionesDB.Campos
-        If Len(Codigo) > 0 Then
+        If Codigo.Trim().Length > 0 Then
             Try
                 Valores = Cls.InicializarArray
                 Llave = Cls.InicializarArray
@@ -134,11 +135,13 @@ Public Class FrmBecas
                 Ds = Cls.Consultar("TipoBeca", Valores, Llave, Cn)
                 LimpiarChek()
                 If Ds.Tables(0).Rows.Count > 0 Then
-                    TxtDescripcion.Text = Ds.Tables(0).Rows(0)!Descripcion
-                    CkActivo.Checked = Ds.Tables(0).Rows(0)!Activo
-                    txtCodBeca.Tag = Ds.Tables(0).Rows(0)!IdBeca
+                    Dim row As DataRow = Ds.Tables(0).Rows(0)
+                    TxtDescripcion.Text = CStr(row("Descripcion"))
+                    CkActivo.Checked = CBool(row("Activo"))
+                    txtCodBeca.Tag = CInt(row("IdBeca"))
+                    Dim diasBeca As String = CStr(row("DiasBeca"))
                     For dia As Integer = 2 To 6
-                        If InStr(Ds.Tables(0).Rows(0)!DiasBeca, dia) > 0 Then
+                        If InStr(diasBeca, dia.ToString()) > 0 Then
                             Select Case dia
                                 Case 2
                                     Ck2.Checked = True
@@ -182,29 +185,24 @@ Public Class FrmBecas
         End If
     End Sub
 
-    Function Validacion() As Boolean
-        Validacion = False
-        If Len(TxtDescripcion.Text) <= 5 Then
+    Private Function Validacion() As Boolean
+        If TxtDescripcion.Text.Trim().Length <= 5 Then
             MsgBox("La descripción no es valida, no cumple con el minimo necesario", MsgBoxStyle.Critical)
             TxtDescripcion.Focus()
-            Exit Function
-        ElseIf txtCodBeca.text = "1" Then
+            Return False
+        ElseIf txtCodBeca.Text = "1" Then
             MsgBox("El código 'SIN BECA' no puede ser editada", MsgBoxStyle.Critical)
             Buscar.Focus()
-            Exit Function
-        Else
-            Return True
+            Return False
         End If
 
+        Return True
     End Function
 
     Private Sub BtnGuardar_Click(sender As Object, e As EventArgs) Handles BtnGuardar.Click
         If Validacion() Then
-            Dim DiasBecados As String
+            Dim DiasBecados As String = String.Empty
             Dim Valores(), Llave() As FuncionesDB.Campos
-            Dim Ds As New DataSet
-            Dim pTransac As SqlClient.SqlTransaction
-            Dim Cmd As String
             Try
                 Valores = Cls.InicializarArray
                 Llave = Cls.InicializarArray
@@ -213,12 +211,11 @@ Public Class FrmBecas
                 Cls.ArmaValor(Valores, "Activo", CkActivo.Checked)
                 For Each c As Control In Me.GpDiasBeca.Controls
                     If TypeOf c Is CheckBox Then
-                        Dim chk As CheckBox
-                        chk = c
-                        If chk.Checked = True Then
-                            DiasBecados = DiasBecados & chk.Tag
+                        Dim chk As CheckBox = DirectCast(c, CheckBox)
+                        If chk.Checked Then
+                            DiasBecados &= CStr(chk.Tag)
                         Else
-                            DiasBecados = DiasBecados & 0
+                            DiasBecados &= "0"
                         End If
                     End If
                 Next c
@@ -253,12 +250,12 @@ Public Class FrmBecas
 
     Private Sub BtnEliminar_Click(sender As Object, e As EventArgs) Handles BtnEliminar.Click
         Try
-            If Len(txtCodBeca.Text) > 0 Then
+            If txtCodBeca.Text.Trim().Length > 0 Then
                 If txtCodBeca.Text = "1" Then
                     Throw New Exception("El código 'SIN BECA' no puede ser editada")
                 End If
-                Dim resp As Integer = MsgBox("Desea eliminar la Ruta ?", 33)
-                If resp = 2 Then
+                Dim resp As MsgBoxResult = MsgBox("Desea eliminar la Ruta ?", MsgBoxStyle.OkCancel Or MsgBoxStyle.Question)
+                If resp = MsgBoxResult.Cancel Then
                     Exit Sub
                 End If
                 Dim Llave() As FuncionesDB.Campos
@@ -283,10 +280,11 @@ Public Class FrmBecas
     End Sub
 
     Private Sub dia_CheckedChanged(sender As Object, e As EventArgs) Handles Ck2.CheckedChanged, Ck3.CheckedChanged, Ck4.CheckedChanged, Ck5.CheckedChanged, Ck6.CheckedChanged
-        If (sender.Checked = True) Then
-            sender.ForeColor = Color.Green
+        Dim chk As CheckBox = DirectCast(sender, CheckBox)
+        If chk.Checked Then
+            chk.ForeColor = Color.Green
         Else
-            sender.ForeColor = Color.Red
+            chk.ForeColor = Color.Red
         End If
     End Sub
 End Class

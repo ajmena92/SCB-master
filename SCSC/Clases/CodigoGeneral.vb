@@ -96,7 +96,7 @@
                 End If
             Next
         Catch ex As Exception
-            Throw ex
+            Throw
         End Try
     End Sub
 
@@ -132,7 +132,7 @@
         Dim a As Integer = 0
         'Super Evaluador Numérico
         Dim pto As Integer
-        If Len(Valor) > 0 Then
+        If Valor.Length > 0 Then
             'Le Quita el Signo de Colones
             If InStr(Valor, "¢") > 0 Then
                 a = InStr(Valor, "¢")
@@ -143,7 +143,7 @@
                 End If
             End If
 
-            largo = Len(Valor)
+            largo = Valor.Length
             Do While 1 < 2
                 pto = InStr(Valor, ",")
                 'Elimina las Comas
@@ -153,19 +153,19 @@
                     Exit Do
                 End If
             Loop
-            sen = Valor
+            Return Valor
         Else
-            sen = "0"
+            Return "0"
         End If
     End Function
-    Function ArmaFechaQueryHora(ByVal Campo As String, ByVal FechaInicial As Date, ByVal FechaFinal As Date)
-        ArmaFechaQueryHora = Campo & ">=CONVERT(DATETIME," & SCM(Format(FechaInicial, "yyyy/MM/dd HH:mm:ss")) & " , 102) And " & Campo & "<=CONVERT(DATETIME," & SCM(Format(FechaFinal, "yyyy/MM/dd") & " 23:59:59") & ", 102)"
+    Function ArmaFechaQueryHora(ByVal Campo As String, ByVal FechaInicial As Date, ByVal FechaFinal As Date) As String
+        Return Campo & ">=CONVERT(DATETIME," & SCM(Format(FechaInicial, "yyyy/MM/dd HH:mm:ss")) & " , 102) And " & Campo & "<=CONVERT(DATETIME," & SCM(Format(FechaFinal, "yyyy/MM/dd") & " 23:59:59") & ", 102)"
     End Function
-    Function ArmaFechaQuery(ByVal Campo As String, ByVal FechaInicial As Date, ByVal FechaFinal As Date)
-        ArmaFechaQuery = Campo & ">=CONVERT(DATETIME," & SCM(Format(FechaInicial, "yyyy/MM/dd")) & " , 102) And " & Campo & "<=CONVERT(DATETIME," & SCM(Format(FechaFinal, "yyyy/MM/dd")) & ", 102)"
+    Function ArmaFechaQuery(ByVal Campo As String, ByVal FechaInicial As Date, ByVal FechaFinal As Date) As String
+        Return Campo & ">=CONVERT(DATETIME," & SCM(Format(FechaInicial, "yyyy/MM/dd")) & " , 102) And " & Campo & "<=CONVERT(DATETIME," & SCM(Format(FechaFinal, "yyyy/MM/dd")) & ", 102)"
     End Function
-    Function ConvertDate(ByVal Campo As String, ByVal signo As String, ByVal Fecha As Date)
-        ConvertDate = Campo & signo & "CONVERT(DATETIME," & SCM(Format(Fecha, "yyyy/MM/dd")) & " , 102)"
+    Function ConvertDate(ByVal Campo As String, ByVal signo As String, ByVal Fecha As Date) As String
+        Return Campo & signo & "CONVERT(DATETIME," & SCM(Format(Fecha, "yyyy/MM/dd")) & " , 102)"
     End Function
 
     Function ObtenerParametroConexion(ByVal pBuscar As String, Optional ByVal pBuscarAuxiliar As String = ".") As String

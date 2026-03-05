@@ -1,0 +1,2 @@
+﻿
+vbc : error BC2001: file 'C:\Dev\SCB-master\SCSC\Clases\Servicios\MicrosoftGraphAuthService.vb' could not be found [C:\Dev\SCB-master\SCSC\SCSC_Marcas.vbproj]

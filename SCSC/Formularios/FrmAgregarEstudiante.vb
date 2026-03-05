@@ -9,6 +9,7 @@ Public Class FrmAgregarEstudiante
         Try
             UIThemeManagerV2.Apply(Me, "dialogo")
             ApplyModernFormStyle()
+            UIThemeManagerV2.ApplyCrudModuleChrome(Me)
             Cls.AbrirConexion(Cn, False)
             TxtFecNac.Value = Now.Date
             CargaHorarios(CBHorario)
@@ -140,7 +141,7 @@ Public Class FrmAgregarEstudiante
             gSession.Llave = Llave
             Dim F As New Busqueda
             F.ShowDialog()
-            TxtCedula.Text = (gSession.Resultado(0))
+            TxtCedula.Text = CStr(gSession.Resultado(0))
             TxtCedula_Validated(sender, e)
             BtnGuardar.Select()
         Catch ex As Exception
@@ -154,7 +155,7 @@ Public Class FrmAgregarEstudiante
         Dim Cedula As String = Replace(TxtCedula.Text.Trim, ControlCarnet, "")
         Dim Ds As New DataSet
         Dim Valores(), Llave() As FuncionesDB.Campos
-        If Len(Cedula) > 0 Then
+        If Cedula.Trim().Length > 0 Then
             Try
                 Valores = Cls.InicializarArray
                 Llave = Cls.InicializarArray
@@ -167,24 +168,23 @@ Public Class FrmAgregarEstudiante
                 Cls.ArmaValor(Valores, "Seccion")
                 Cls.ArmaValor(Valores, "Telefono")
                 Cls.ArmaValor(Valores, "FechaNac")
-                Cls.ArmaValor(Valores, "Especialidad")
-                Cls.ArmaValor(Valores, "FechaNac")
                 Cls.ArmaValor(Valores, "IdHorario")
                 Cls.ArmaValor(Valores, "Especialidad")
                 Ds = Cls.Consultar("Usuario", Valores, Llave, Cn)
                 If Ds.Tables(0).Rows.Count > 0 Then
-                    TxtCedula.Tag = (Ds.Tables(0).Rows(0)!IdUsuario)
-                    TxtNombre.Text = CType((Ds.Tables(0).Rows(0)!Nombre), String)
-                    TxtApe1.Text = CType((Ds.Tables(0).Rows(0)!PrimerApellido), String)
-                    TxtApe2.Text = CType((Ds.Tables(0).Rows(0)!SegundoApellido), String)
-                    TxtFecNac.Value = Ds.Tables(0).Rows(0)!FechaNac
-                    TxtTelefono.Text = Convert.ToString(Ds.Tables(0).Rows(0)!Telefono)
-                    TxtSeccion.Text = Convert.ToString(Ds.Tables(0).Rows(0)!Seccion)
-                    CBHorario.SelectedValue = Ds.Tables(0).Rows(0)!IdHorario
-                    CBEspecialidad.SelectedValue = Convert.ToString(Ds.Tables(0).Rows(0)!Especialidad)
+                    Dim row As DataRow = Ds.Tables(0).Rows(0)
+                    TxtCedula.Tag = CInt(row("IdUsuario"))
+                    TxtNombre.Text = CStr(row("Nombre"))
+                    TxtApe1.Text = CStr(row("PrimerApellido"))
+                    TxtApe2.Text = CStr(row("SegundoApellido"))
+                    TxtFecNac.Value = CDate(row("FechaNac"))
+                    TxtTelefono.Text = Convert.ToString(row("Telefono"))
+                    TxtSeccion.Text = Convert.ToString(row("Seccion"))
+                    CBHorario.SelectedValue = CInt(row("IdHorario"))
+                    CBEspecialidad.SelectedValue = Convert.ToString(row("Especialidad"))
                 Else
-                    Dim resp As Integer = MsgBox("Usuario no ingresado en el sistema. Desea agregar el estudiante ?", 33)
-                    If resp = 2 Then
+                    Dim resp As MsgBoxResult = MsgBox("Usuario no ingresado en el sistema. Desea agregar el estudiante ?", MsgBoxStyle.OkCancel Or MsgBoxStyle.Question)
+                    If resp = MsgBoxResult.Cancel Then
                         BtnCancelar_Click(sender, e)
                     Else
                         LimpiarPantalla(False)
@@ -217,6 +217,8 @@ Public Class FrmAgregarEstudiante
     Private Sub BtnGuardar_Click(sender As Object, e As EventArgs) Handles BtnGuardar.Click
         Dim Valores(), Llave() As FuncionesDB.Campos
         Try
+            Dim especialidad As String = If(CBEspecialidad.SelectedValue Is Nothing, String.Empty, CStr(CBEspecialidad.SelectedValue))
+            Dim idHorario As Integer = If(CBHorario.SelectedValue Is Nothing, 0, CInt(CBHorario.SelectedValue))
             Valores = Cls.InicializarArray
             Llave = Cls.InicializarArray
             Cls.ArmaValor(Llave, "Cedula", TxtCedula.Text.Trim)
@@ -228,8 +230,8 @@ Public Class FrmAgregarEstudiante
             Cls.ArmaValor(Valores, "Seccion", TxtSeccion.Text.Trim.ToUpper)
             Cls.ArmaValor(Valores, "Telefono", TxtTelefono.Text.Trim)
             Cls.ArmaValor(Valores, "FechaNac", TxtFecNac.Value)
-            Cls.ArmaValor(Valores, "Especialidad", CBEspecialidad.SelectedValue)
-            Cls.ArmaValor(Valores, "IdHorario", CBHorario.SelectedValue)
+            Cls.ArmaValor(Valores, "Especialidad", especialidad)
+            Cls.ArmaValor(Valores, "IdHorario", idHorario)
             Cls.ArmaValor(Valores, "Actualizado", True)
             Cls.ArmaValor(Valores, "Activo", True)
 
@@ -249,9 +251,9 @@ Public Class FrmAgregarEstudiante
     Private Sub BtnEliminar_Click(sender As Object, e As EventArgs) Handles BtnEliminar.Click
         Dim Llave() As FuncionesDB.Campos
         Try
-            If Len(TxtCedula.Text) > 0 Then
-                Dim resp As Integer = MsgBox("Desea eliminar el estudiante ?", 33)
-                If resp = 2 Then
+            If TxtCedula.Text.Trim().Length > 0 Then
+                Dim resp As MsgBoxResult = MsgBox("Desea eliminar el estudiante ?", MsgBoxStyle.OkCancel Or MsgBoxStyle.Question)
+                If resp = MsgBoxResult.Cancel Then
                     Exit Sub
                 End If
 
@@ -265,8 +267,8 @@ Public Class FrmAgregarEstudiante
                 TxtCedula.Focus()
             End If
         Catch ex As Exception
-            Dim resp As Integer = MsgBox("No se puede borrar el usuario porque tiene marcas asociadas. Desea desactivarlo del sistema ?", 33)
-            If resp = 2 Then
+            Dim resp As MsgBoxResult = MsgBox("No se puede borrar el usuario porque tiene marcas asociadas. Desea desactivarlo del sistema ?", MsgBoxStyle.OkCancel Or MsgBoxStyle.Question)
+            If resp = MsgBoxResult.Cancel Then
                 BtnCancelar_Click(sender, e)
                 Exit Try
             End If

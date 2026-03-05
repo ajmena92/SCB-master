@@ -25,6 +25,7 @@ Partial Friend Class Login
     Private Cn As SqlClient.SqlConnection
     Private DsParametro As DataSet
     Private SeguridadService As SeguridadRbacService
+    Private ParametroService As ParametroSistemaService
 
     Private Verificado As Boolean = False
     Private LoginStartTime As DateTime
@@ -66,16 +67,16 @@ Partial Friend Class Login
         SetFieldFocusState(SeparatorUsuario, False)
         EnsureRuntimeState()
         CodUsuario.Text = CodUsuario.Text.Trim()
-        If Len(CodUsuario.Text.Trim()) = 0 Then
+        If CodUsuario.Text.Trim().Length = 0 Then
             ApplyUserPlaceholder()
             Exit Sub
         End If
 
-        If Len(CodUsuario.Text.Trim()) <> 0 Then
+        If CodUsuario.Text.Trim().Length > 0 Then
             Try
                 Dim dsFecha As DataSet = Cls.ConsultarTSQL("Fecha", "Select GETDATE() as Fecha")
                 If dsFecha.Tables(0).Rows.Count > 0 Then
-                    FechaServer = CDate(dsFecha.Tables(0).Rows(0)!Fecha).Date
+                    FechaServer = CDate(dsFecha.Tables(0).Rows(0)("Fecha")).Date
                 End If
             Catch ex As Exception
                 ErrorLogger.LogException("Login.CodUsuario_Leave", ex)
@@ -90,6 +91,9 @@ Partial Friend Class Login
         End If
 
         EnsureRuntimeState()
+        If ParametroService Is Nothing Then
+            ParametroService = New ParametroSistemaService()
+        End If
         LoginStartTime = DateTime.Now
         ErrorLogger.LogInfo("Login_Load", "Iniciando carga de Login.")
         UIThemeManagerV2.Apply(Me, "login")
@@ -112,6 +116,9 @@ Partial Friend Class Login
 
         Try
             Cls.AbrirConexion(Cn, False)
+            ParametroService.AsegurarEsquema(Cn)
+            ParametroService.CrearFila1(Cn)
+            ParametroService.MigrarDesdeAppConfigSiCorresponde(Cn)
             Dim Valores(), Llave() As FuncionesDB.Campos
             Valores = Cls.InicializarArray
             Llave = Cls.InicializarArray
@@ -127,25 +134,26 @@ Partial Friend Class Login
             Cls.ArmaValor(Valores, "Getdate() as Fecha")
             DsParametro = Cls.Consultar("Parametro", Valores, Llave, Cn)
             If DsParametro.Tables(0).Rows.Count > 0 Then
+                Dim row As DataRow = DsParametro.Tables(0).Rows(0)
                 CodVersion = My.Application.Info.Version.ToString
                 LlaveIncriptacion = GetAppConfig("LlaveEncriptacion")
-                NomColegio = DsParametro.Tables(0).Rows(0)!Institucion
-                CodColegio = DsParametro.Tables(0).Rows(0)!CodPresupuestario
-                Ubicacion = DsParametro.Tables(0).Rows(0)!Ubicacion
-                Leyenda = DsParametro.Tables(0).Rows(0)!Leyenda.Replace("{CODIGO}", CodColegio)
-                ControlCarnet = DsParametro.Tables(0).Rows(0)!ControlCarnet
-                PrecioDocente = DsParametro.Tables(0).Rows(0)!PrecioDocente
-                PrecioEstudiante = DsParametro.Tables(0).Rows(0)!PrecioEstudiante
-                If IsDBNull(DsParametro.Tables(0).Rows(0)!PermitirSinMarcaTransporte) Then
+                NomColegio = CStr(row("Institucion"))
+                CodColegio = CStr(row("CodPresupuestario"))
+                Ubicacion = CStr(row("Ubicacion"))
+                Leyenda = CStr(row("Leyenda")).Replace("{CODIGO}", CodColegio)
+                ControlCarnet = CStr(row("ControlCarnet"))
+                PrecioDocente = CDec(row("PrecioDocente"))
+                PrecioEstudiante = CDec(row("PrecioEstudiante"))
+                If IsDBNull(row("PermitirSinMarcaTransporte")) Then
                     PermitirSinMarcaTransporte = False
                 Else
-                    PermitirSinMarcaTransporte = CBool(DsParametro.Tables(0).Rows(0)!PermitirSinMarcaTransporte)
+                    PermitirSinMarcaTransporte = CBool(row("PermitirSinMarcaTransporte"))
                 End If
                 Version.Text = CodVersion
                 LblInstitucion.Text = NomColegio
-                LbFecha.Text = Format(DsParametro.Tables(0).Rows(0)!Fecha, "dd/MMM/yyyy")
+                LbFecha.Text = Format(CDate(row("Fecha")), "dd/MMM/yyyy")
                 ApplyResponsiveRightBlockLayout()
-                DiaSemana = Weekday(DsParametro.Tables(0).Rows(0)!Fecha).ToString
+                DiaSemana = Weekday(CDate(row("Fecha"))).ToString()
             Else
                 Throw New Exception("No se encontarón los parametros de la aplicación. Imposible Iniciar !0x000020")
             End If
@@ -185,13 +193,13 @@ Partial Friend Class Login
             Exit Sub
         End If
 
-        If Len(usuarioIngreso) = 0 Then
+        If usuarioIngreso.Length = 0 Then
             MsgBox("Debe indicar el usuario.", MsgBoxStyle.Exclamation)
             CodUsuario.Focus()
             Exit Sub
         End If
 
-        If Len(GetPasswordInputValue()) = 0 Then
+        If GetPasswordInputValue().Length = 0 Then
             MsgBox("Debe indicar la contraseña.", MsgBoxStyle.Exclamation)
             ClavePaso.Focus()
             Exit Sub
@@ -385,7 +393,7 @@ Partial Friend Class Login
     End Sub
 
     Private Sub UpdateLoginButtonState()
-        Dim canLogin As Boolean = (Len(GetUserInputValue()) > 0 AndAlso Len(GetPasswordInputValue()) > 0) OrElse ChkOpen.Checked
+        Dim canLogin As Boolean = (GetUserInputValue().Length > 0 AndAlso GetPasswordInputValue().Length > 0) OrElse ChkOpen.Checked
         BtnLogin.Enabled = canLogin
         If canLogin Then
             BtnLogin.BackColor = Color.FromArgb(24, 119, 242)

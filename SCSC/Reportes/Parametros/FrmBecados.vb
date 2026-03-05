@@ -15,7 +15,7 @@
                 CbHorario.Items.Clear()
                 CbHorario.Items.Add(New LBItem("", "---- TODOS ----"))
                 For I As Integer = 0 To Ds.Tables(0).Rows.Count - 1
-                    CbHorario.Items.Add(New LBItem(Ds.Tables(0).Rows(I)("IdHorario"), Ds.Tables(0).Rows(I)("Descripcion")))
+                    CbHorario.Items.Add(New LBItem(CStr(Ds.Tables(0).Rows(I)("IdHorario")), CStr(Ds.Tables(0).Rows(I)("Descripcion"))))
                 Next
                 CbHorario.SelectedIndex = 0
             End If
@@ -92,9 +92,8 @@
         End If
     End Sub
 
-    Function ArmaReporte() As Boolean
-        ArmaReporte = False
-        Dim Criterio As String
+    Private Function ArmaReporte() As Boolean
+        Dim Criterio As String = String.Empty
         LimpiarSession()
 
         If (RbBecaComedor.Checked = False And RbBecaTransporte.Checked = False And RbPermisoSalida.Checked = False) Then
@@ -121,13 +120,14 @@
                 Criterio = Criterio + " and {Usuario.PermisoSalida}=1"
             End If
             If CbHorario.SelectedIndex > 0 Then
-                Criterio = Criterio + " and {Usuario.IdHorario}=" & CbHorario.Items(CbHorario.SelectedIndex).valor
+                Criterio = Criterio + " and {Usuario.IdHorario}=" & DirectCast(CbHorario.Items(CbHorario.SelectedIndex), LBItem).Valor
                 gSession.Valor1 = "Horario: " + CbHorario.Text
             End If
             gSession.Reporte = "FrmBecados"
             gSession.Criterio = Criterio
             Return True
-            End If
+        End If
+        Return False
     End Function
 
     Private Sub RbGeneral_CheckedChanged(sender As Object, e As EventArgs) Handles RbGeneral.CheckedChanged

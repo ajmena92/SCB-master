@@ -14,7 +14,7 @@
                 CbTipoUsuario.Items.Clear()
                 CbTipoUsuario.Items.Add(New LBItem("", "---- TODOS ----"))
                 For I As Integer = 0 To Ds.Tables(0).Rows.Count - 1
-                    CbTipoUsuario.Items.Add(New LBItem(Ds.Tables(0).Rows(I)("IdRuta"), Ds.Tables(0).Rows(I)("Descripcion")))
+                    CbTipoUsuario.Items.Add(New LBItem(CStr(Ds.Tables(0).Rows(I)("IdRuta")), CStr(Ds.Tables(0).Rows(I)("Descripcion"))))
                 Next
                 CbTipoUsuario.SelectedIndex = 0
             End If
@@ -24,7 +24,7 @@
                 CbHorario.Items.Clear()
                 CbHorario.Items.Add(New LBItem("", "---- TODOS ----"))
                 For I As Integer = 0 To Ds.Tables(0).Rows.Count - 1
-                    CbHorario.Items.Add(New LBItem(Ds.Tables(0).Rows(I)("IdHorario"), Ds.Tables(0).Rows(I)("Descripcion")))
+                    CbHorario.Items.Add(New LBItem(CStr(Ds.Tables(0).Rows(I)("IdHorario")), CStr(Ds.Tables(0).Rows(I)("Descripcion"))))
                 Next
                 CbHorario.SelectedIndex = 0
             End If
@@ -97,9 +97,8 @@
         End If
     End Sub
 
-    Function ArmaReporte() As Boolean
-        ArmaReporte = False
-        Dim Criterio As String
+    Private Function ArmaReporte() As Boolean
+        Dim Criterio As String = String.Empty
         LimpiarSession()
 
         If Not IsDate(FecIni.Value) Then
@@ -114,13 +113,13 @@
 
             ' todo bien, se saca reporte.
             'Arma el Criterio de la Consulta
-            Criterio = ArmaFechaReporte("Date({V_RutaEstudiante_x_Fecha.Fecha})", (FecIni.Text), (FecFinal.Text))
+            Criterio = ArmaFechaReporte("Date({V_RutaEstudiante_x_Fecha.Fecha})", FecIni.Value.Date, FecFinal.Value.Date)
             gSession.RangoDeFecha = "Desde: " & FecIni.Value & "  " & "Hasta: " & FecFinal.Value
             If CbTipoUsuario.SelectedIndex > 0 Then
-                Criterio = Criterio + " and {V_RutaEstudiante_x_Fecha.IdRuta}=" & CbTipoUsuario.Items(CbTipoUsuario.SelectedIndex).valor
+                Criterio = Criterio + " and {V_RutaEstudiante_x_Fecha.IdRuta}=" & DirectCast(CbTipoUsuario.Items(CbTipoUsuario.SelectedIndex), LBItem).Valor
             End If
             If CbHorario.SelectedIndex > 0 Then
-                Criterio = Criterio + " and {V_RutaEstudiante_x_Fecha.IdHorario}=" & CbHorario.Items(CbHorario.SelectedIndex).valor
+                Criterio = Criterio + " and {V_RutaEstudiante_x_Fecha.IdHorario}=" & DirectCast(CbHorario.Items(CbHorario.SelectedIndex), LBItem).Valor
                 gSession.Valor1 = "Horario: " + CbHorario.Text
             End If
 
@@ -134,7 +133,8 @@
                 gSession.Titulo = "Reporte Servicio de Transporte Detallado"
             End If
             gSession.Reporte = "FrmReporteRutas"
+            Return True
         End If
-        Return True
+        Return False
     End Function
 End Class

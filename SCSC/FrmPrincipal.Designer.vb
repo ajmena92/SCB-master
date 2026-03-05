@@ -28,6 +28,7 @@ Partial Class FrmPrincipal
         Me.UsuariosToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.GestiónRutasToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.GestiónBecasToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ParametrosSistemaToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.UtilitariosToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ControlDeMarcasToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ImportarDatosListaPIADToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
@@ -70,13 +71,13 @@ Partial Class FrmPrincipal
         Me.MenuStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.MantenimientoToolStripMenuItem, Me.UtilitariosToolStripMenuItem, Me.ReportesToolStripMenuItem, Me.AyudaToolStripMenuItem, Me.ImprimirToolStripMenuItem})
         Me.MenuStrip1.Location = New System.Drawing.Point(0, 0)
         Me.MenuStrip1.Name = "MenuStrip1"
-        Me.MenuStrip1.Size = New System.Drawing.Size(1278, 32)
+        Me.MenuStrip1.Size = New System.Drawing.Size(1440, 32)
         Me.MenuStrip1.TabIndex = 1
         Me.MenuStrip1.Text = "MenuStrip1"
         '
         'MantenimientoToolStripMenuItem
         '
-        Me.MantenimientoToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.UsuariosToolStripMenuItem, Me.GestiónRutasToolStripMenuItem, Me.GestiónBecasToolStripMenuItem})
+        Me.MantenimientoToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.UsuariosToolStripMenuItem, Me.GestiónRutasToolStripMenuItem, Me.GestiónBecasToolStripMenuItem, Me.ParametrosSistemaToolStripMenuItem})
         Me.MantenimientoToolStripMenuItem.ForeColor = System.Drawing.SystemColors.Desktop
         Me.MantenimientoToolStripMenuItem.Name = "MantenimientoToolStripMenuItem"
         Me.MantenimientoToolStripMenuItem.Size = New System.Drawing.Size(155, 28)
@@ -85,20 +86,26 @@ Partial Class FrmPrincipal
         'UsuariosToolStripMenuItem
         '
         Me.UsuariosToolStripMenuItem.Name = "UsuariosToolStripMenuItem"
-        Me.UsuariosToolStripMenuItem.Size = New System.Drawing.Size(210, 28)
+        Me.UsuariosToolStripMenuItem.Size = New System.Drawing.Size(260, 28)
         Me.UsuariosToolStripMenuItem.Text = "Estudiantes"
         '
         'GestiónRutasToolStripMenuItem
         '
         Me.GestiónRutasToolStripMenuItem.Name = "GestiónRutasToolStripMenuItem"
-        Me.GestiónRutasToolStripMenuItem.Size = New System.Drawing.Size(210, 28)
+        Me.GestiónRutasToolStripMenuItem.Size = New System.Drawing.Size(260, 28)
         Me.GestiónRutasToolStripMenuItem.Text = "Gestión Rutas"
         '
         'GestiónBecasToolStripMenuItem
         '
         Me.GestiónBecasToolStripMenuItem.Name = "GestiónBecasToolStripMenuItem"
-        Me.GestiónBecasToolStripMenuItem.Size = New System.Drawing.Size(210, 28)
+        Me.GestiónBecasToolStripMenuItem.Size = New System.Drawing.Size(260, 28)
         Me.GestiónBecasToolStripMenuItem.Text = "Gestión Becas"
+        '
+        'ParametrosSistemaToolStripMenuItem
+        '
+        Me.ParametrosSistemaToolStripMenuItem.Name = "ParametrosSistemaToolStripMenuItem"
+        Me.ParametrosSistemaToolStripMenuItem.Size = New System.Drawing.Size(260, 28)
+        Me.ParametrosSistemaToolStripMenuItem.Text = "Parámetros Sistema"
         '
         'UtilitariosToolStripMenuItem
         '
@@ -193,7 +200,7 @@ Partial Class FrmPrincipal
         Me.Panel1.Location = New System.Drawing.Point(0, 32)
         Me.Panel1.Margin = New System.Windows.Forms.Padding(4)
         Me.Panel1.Name = "Panel1"
-        Me.Panel1.Size = New System.Drawing.Size(301, 621)
+        Me.Panel1.Size = New System.Drawing.Size(301, 868)
         Me.Panel1.TabIndex = 2
         '
         'BunifuFlatButton3
@@ -294,7 +301,7 @@ Partial Class FrmPrincipal
         Me.Panel2.Location = New System.Drawing.Point(301, 32)
         Me.Panel2.Margin = New System.Windows.Forms.Padding(4)
         Me.Panel2.Name = "Panel2"
-        Me.Panel2.Size = New System.Drawing.Size(977, 70)
+        Me.Panel2.Size = New System.Drawing.Size(1139, 70)
         Me.Panel2.TabIndex = 3
         '
         'PictureBox3
@@ -352,7 +359,7 @@ Partial Class FrmPrincipal
         Me.MaximizeBox = False
         Me.Name = "FrmPrincipal"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
-        Me.Text = "Sistema Control Servicio al Comedor"
+        Me.Text = "procedamos "
         Me.WindowState = System.Windows.Forms.FormWindowState.Maximized
         Me.MenuStrip1.ResumeLayout(False)
         Me.MenuStrip1.PerformLayout()
@@ -398,4 +405,5 @@ Partial Class FrmPrincipal
     Friend WithEvents ReporteProyecciónComedorToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents ReporteEstudiantesBecadosToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents AgregarEstudianteManualToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents ParametrosSistemaToolStripMenuItem As ToolStripMenuItem
 End Class

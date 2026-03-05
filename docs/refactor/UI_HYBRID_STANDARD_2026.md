@@ -122,3 +122,53 @@ Fuente principal de tokens: `SCSC/Clases/UIConstants.vb`.
 ## Notas de Gobierno
 - Cualquier desviacion visual debe quedar documentada como excepcion en PR.
 - Si Designer y runtime no coinciden, prevalece `Designer-first` y se corrige runtime.
+
+## Autobuild estandar (MSBuild local)
+- Script oficial: `scripts/autobuild.ps1`.
+- Objetivo:
+  - Detectar cambios de UI/codigo y compilar automaticamente para validar que Designer/runtime siguen coherentes.
+- Archivos que disparan build:
+  - `.vb`, `.vbproj`, `.resx`, `.config`.
+- Parametros principales:
+  - `-Repo` (default `C:\Dev\SCB-master`)
+  - `-Solution` (default `SCSC_Marcas.sln`)
+  - `-MSBuildPath` (ruta local validada)
+  - `-Configuration` (default `Debug`)
+  - `-Platform` (default `Any CPU`)
+  - `-DebounceSeconds` (default `2`)
+  - `-MaxLogFiles` (default `120`)
+- Ejecucion recomendada:
+  - `powershell -ExecutionPolicy Bypass -File C:\Dev\SCB-master\scripts\autobuild.ps1`
+- Salida esperada:
+  - Consola: `RUNNING`, `OK` o `FAIL`.
+  - Logs en `C:\Dev\SCB-master\logs`:
+    - `build-YYYYMMDD-HHMMSS.txt`
+    - `build-latest.txt`
+    - `build-status.txt`
+- Criterio de control:
+  - Si aparece `FAIL`, revisar primero `build-latest.txt` antes de continuar cambios visuales.
+
+## Estado de adopcion actual (2026-03-04)
+- Baseline completo:
+  - `SCSC/Seguridad/LOGIN.vb`
+- Shell moderno y dashboard:
+  - `SCSC/FrmPrincipal.vb`
+  - `SCSC/Clases/UIShellHost.vb`
+  - Ajuste responsive 2026-03-04: modo ancho/compacto para evitar perdida de graficas en resoluciones menores.
+- Operacion comedor (hibrido con `designer-first` estricto):
+  - `SCSC/Formularios/ControlComedor.vb`
+- Operacion transporte (hibrido con `designer-first` estricto):
+  - `SCSC/Formularios/ControlTransporte.vb`
+- CRUD con cromado estandar (`ApplyCrudModuleChrome`):
+  - `SCSC/Formularios/FrmEstudiantes.vb`
+  - `SCSC/Formularios/FrmBecas.vb`
+  - `SCSC/Formularios/FrmRutas.vb`
+  - `SCSC/Formularios/FrmRecargas.vb`
+  - `SCSC/Formularios/FrmAgregarEstudiante.vb`
+  - `SCSC/Formularios/FrmImportarDatos.vb`
+  - `SCSC/Formularios/FrmImportarExcel.vb`
+- Utilitarios alineados al estandar visual:
+  - `SCSC/Formularios/FrmAyuda.vb`
+  - `SCSC/Formularios/IMPRIMIR.vb`
+- Auditoria de cierre de fase:
+  - `docs/refactor/UI_VISUAL_AUDIT_20260304.md`

@@ -2,6 +2,7 @@ Imports System.Drawing
 Imports System.Linq
 Imports System.Configuration
 Imports System.Media
+Imports System.Globalization
 Imports System.Threading
 Imports System.Threading.Tasks
 
@@ -9,6 +10,8 @@ Public Class ControlComedor
     Private Const PermitirMarcaTardia As Boolean = True
     Private Const PermitirCierreOperador As Boolean = True
     Private Const SegundosInactividadLimpiarRegistro As Integer = 60
+    Private Const SidebarMinWidth As Integer = 420
+    Private Const SidebarMaxWidth As Integer = 520
 
     Private UltimoCarnetProcesado As String
     Private ErrorLecturaDuplicada As Boolean
@@ -41,6 +44,10 @@ Public Class ControlComedor
     Private _lblHistorial As Label
     Private _lstHistorial As ListBox
     Private _btnIncidencia As Button
+    Private _lblHotkeys As Label
+    Private _lblFocusEscaneo As Label
+    Private _lblEstadoChip As Label
+    Private _modoAltoContraste As Boolean
     Private _inicioLectura As DateTime
     Private _acumuladoTiempoAtencionMs As Double
     Private _muestrasTiempoAtencion As Integer
@@ -84,6 +91,12 @@ Public Class ControlComedor
         LateTransportMark = 6
         NotFound = 7
         DeniedByRule = 8
+    End Enum
+
+    Private Enum LayoutMode
+        Compact = 0
+        Standard = 1
+        Wide = 2
     End Enum
 
     Private Sub ControlComedor_Load(sender As Object, e As EventArgs) Handles MyBase.Load
@@ -169,9 +182,7 @@ Public Class ControlComedor
     End Sub
 
     Private Sub BtnSalir_Click(sender As Object, e As EventArgs) Handles BtnSalir.Click
-        If PermitirCierreOperador Then
-            Me.Close()
-        End If
+        'Boton deshabilitado por politica de permisos.
     End Sub
 
     Private Sub TxtCedula_KeyDown(sender As Object, e As KeyEventArgs) Handles TxtCedula.KeyDown
@@ -274,8 +285,8 @@ Public Class ControlComedor
 
     Private Sub RegistrarMarca(ByVal usuario As DataRow)
         Try
-            LblCedula.Text = CStr(usuario!Cedula)
-            TxtUsuario.Text = String.Format("{0} {1} {2}", CStr(usuario!Nombre), CStr(usuario!PrimerApellido), CStr(usuario!SegundoApellido)).Trim()
+            LblCedula.Text = CStr(usuario("Cedula"))
+            TxtUsuario.Text = String.Format("{0} {1} {2}", CStr(usuario("Nombre")), CStr(usuario("PrimerApellido")), CStr(usuario("SegundoApellido"))).Trim()
 
             If EsEstudiante(usuario) Then
                 TxtTipo.Text = "ESTUDIANTE"
@@ -288,7 +299,7 @@ Public Class ControlComedor
             ErrorTiquetes = resultado.ErrorTiquetes
 
             If resultado.RegistroGuardado Then
-                UltimoCarnetProcesado = CStr(usuario!Cedula)
+                UltimoCarnetProcesado = CStr(usuario("Cedula"))
                 EstadoVerificado = True
             End If
         Catch ex As Exception
@@ -304,7 +315,7 @@ Public Class ControlComedor
         End If
 
         For Each row As DataRow In Ds.Tables(0).Rows
-            If String.Equals(CStr(row!Cedula), carnet, StringComparison.OrdinalIgnoreCase) Then
+            If String.Equals(CStr(row("Cedula")), carnet, StringComparison.OrdinalIgnoreCase) Then
                 Return row
             End If
         Next
@@ -313,15 +324,15 @@ Public Class ControlComedor
     End Function
 
     Private Function EsEstudiante(ByVal usuario As DataRow) As Boolean
-        Return CShort(usuario!CodTipo) = 1S
+        Return CShort(usuario("CodTipo")) = 1S
     End Function
 
     Private Function TieneAdvertenciaSinMarcaTransporte(ByVal usuario As DataRow) As Boolean
-        If IsDBNull(usuario!MarcaTransporte) Then
+        If IsDBNull(usuario("MarcaTransporte")) Then
             Return True
         End If
 
-        Return CInt(usuario!MarcaTransporte) = 0
+        Return CInt(usuario("MarcaTransporte")) = 0
     End Function
 
     Private Function TieneAdvertenciaMarcaTardia(ByVal usuario As DataRow) As Boolean
@@ -329,18 +340,62 @@ Public Class ControlComedor
             Return False
         End If
 
-        If IsDBNull(usuario!IdHorario) OrElse IsDBNull(usuario!HoraMarca) Then
+        If IsDBNull(usuario("IdHorario")) OrElse IsDBNull(usuario("HoraMarca")) Then
             Return False
         End If
 
-        Dim horarios() As DataRow = DsHorarios.Tables(0).Select(String.Format("IdHorario = '{0}'", usuario!IdHorario))
+        Dim idHorario As Integer = CInt(usuario("IdHorario"))
+        Dim horarios() As DataRow = DsHorarios.Tables(0).Select("IdHorario = " & idHorario.ToString(CultureInfo.InvariantCulture))
         If horarios Is Nothing OrElse horarios.Length = 0 Then
             Return False
         End If
 
-        Dim horaLimite As TimeSpan = CType(horarios(0).ItemArray(1), TimeSpan)
-        Dim horaMarca As TimeSpan = CType(usuario!HoraMarca, Date).TimeOfDay
+        Dim horaLimite As TimeSpan = ConvertirATimeSpan(horarios(0)("HoraLimite"))
+        Dim horaMarca As TimeSpan = CType(usuario("HoraMarca"), Date).TimeOfDay
         Return horaMarca > horaLimite
+    End Function
+
+    Private Function ConvertirATimeSpan(ByVal raw As Object) As TimeSpan
+        If raw Is Nothing OrElse IsDBNull(raw) Then
+            Return TimeSpan.Zero
+        End If
+
+        If TypeOf raw Is TimeSpan Then
+            Return CType(raw, TimeSpan)
+        End If
+
+        If TypeOf raw Is DateTime Then
+            Return CType(raw, DateTime).TimeOfDay
+        End If
+
+        Dim parsed As TimeSpan
+        If TimeSpan.TryParse(CStr(raw), parsed) Then
+            Return parsed
+        End If
+
+        Return TimeSpan.Zero
+    End Function
+
+    Private Function ConvertirABooleano(ByVal raw As Object) As Boolean
+        If raw Is Nothing OrElse IsDBNull(raw) Then
+            Return False
+        End If
+
+        If TypeOf raw Is Boolean Then
+            Return CBool(raw)
+        End If
+
+        If IsNumeric(raw) Then
+            Return CInt(raw) <> 0
+        End If
+
+        Dim texto As String = CStr(raw).Trim()
+        Dim parsed As Boolean
+        If Boolean.TryParse(texto, parsed) Then
+            Return parsed
+        End If
+
+        Return texto = "1"
     End Function
 
     Private Sub ResetResultFields()
@@ -358,12 +413,28 @@ Public Class ControlComedor
 
     Private Sub EnsureScanFocus(ByVal selectAll As Boolean)
         If Not TxtCedula.CanFocus Then
+            ActualizarIndicadorFoco(False)
             Exit Sub
         End If
 
         TxtCedula.Focus()
         If selectAll Then
             TxtCedula.SelectAll()
+        End If
+        ActualizarIndicadorFoco(TxtCedula.Focused)
+    End Sub
+
+    Private Sub ActualizarIndicadorFoco(ByVal focusActivo As Boolean)
+        If _lblFocusEscaneo Is Nothing Then
+            Exit Sub
+        End If
+
+        If focusActivo Then
+            _lblFocusEscaneo.Text = "Lector listo (foco activo)"
+            _lblFocusEscaneo.ForeColor = Color.FromArgb(157, 230, 170)
+        Else
+            _lblFocusEscaneo.Text = "Atencion: foco fuera del lector (F3 para recuperar)"
+            _lblFocusEscaneo.ForeColor = Color.FromArgb(255, 214, 170)
         End If
     End Sub
 
@@ -389,9 +460,11 @@ Public Class ControlComedor
 
         LblFecha.ForeColor = Color.FromArgb(214, 226, 246)
         LblScanHint.ForeColor = Color.FromArgb(220, 232, 252)
-        LblScanHint.Text = "Escanear carnet (Enter) | Limpiar estado (F2)"
+        LblScanHint.Text = "Escanear carnet (Enter)" & Environment.NewLine & "Limpiar (F2) | Salir (Esc) | Alto contraste (F7)"
+        LblScanHint.AutoSize = False
+        LblScanHint.TextAlign = ContentAlignment.MiddleLeft
         LblFecha.Font = New Font("Segoe UI", 10.0!, FontStyle.Bold)
-        LblScanHint.Font = New Font("Segoe UI", 12.0!, FontStyle.Bold)
+        LblScanHint.Font = New Font("Segoe UI", 11.0!, FontStyle.Bold)
 
         TxtCedula.Font = New Font("Segoe UI Semibold", 21.0!, FontStyle.Bold)
         TxtCedula.BorderStyle = BorderStyle.FixedSingle
@@ -422,11 +495,15 @@ Public Class ControlComedor
         Picture.BackColor = Color.FromArgb(13, 30, 54)
         Picture.SizeMode = PictureBoxSizeMode.Zoom
 
-        BtnSalir.Visible = PermitirCierreOperador
+        BtnSalir.Visible = False
+        BtnSalir.Enabled = False
+        BtnSalir.TabStop = False
         BtnSalir.FlatStyle = FlatStyle.Flat
         BtnSalir.FlatAppearance.BorderSize = 0
         BtnSalir.BackColor = Color.FromArgb(161, 47, 65)
         BtnSalir.ForeColor = Color.White
+        BtnSalir.Font = New Font("Segoe UI", 9.5!, FontStyle.Bold)
+        BtnSalir.Text = String.Empty
 
         GbDatos.Text = "Último registro"
         Label4.Text = "Carnet"
@@ -452,83 +529,198 @@ Public Class ControlComedor
             End If
         End If
 
+        AplicarModoAltoContraste()
         ResetResultFields()
     End Sub
 
     Private Sub ApplyResponsiveLayout()
-        Dim leftWidth As Integer = CInt(Math.Round(Me.ClientSize.Width * 0.32R))
-        leftWidth = Math.Max(380, Math.Min(470, leftWidth))
+        If _lblMeta Is Nothing OrElse _lblHistorial Is Nothing OrElse _lstHistorial Is Nothing Then
+            Exit Sub
+        End If
+
+        Dim mode As LayoutMode = ObtenerModoLayout()
+        Dim leftWidth As Integer = CInt(Math.Round(Me.ClientSize.Width * 0.3R))
+        leftWidth = Math.Max(SidebarMinWidth, Math.Min(SidebarMaxWidth, leftWidth))
 
         BunifuGradientPanel1.Width = leftWidth
 
-        Dim pad As Integer = 18
+        Dim pad As Integer = 20
         Dim contentX As Integer = leftWidth + pad
-        Dim contentWidth As Integer = Math.Max(560, Me.ClientSize.Width - contentX - pad)
+        Dim contentWidth As Integer = Math.Max(560, Me.ClientSize.Width - contentX - pad - 2)
 
-        LblTitulo.SetBounds(contentX + 10, 14, Math.Max(240, contentWidth - 250), 72)
-        PicBrandHeader.SetBounds(contentX + contentWidth - 218, 18, 198, 58)
-        PanelMainStatus.SetBounds(contentX, 90, contentWidth, Math.Max(280, Me.ClientSize.Height - 106))
+        LblTitulo.SetBounds(contentX + 8, 14, Math.Max(240, contentWidth - 220), 72)
+        PicBrandHeader.SetBounds(contentX + contentWidth - 206, 22, 190, 54)
+        PanelMainStatus.SetBounds(contentX, 92, contentWidth, Math.Max(300, Me.ClientSize.Height - 110))
 
         Dim statusWidth As Integer = PanelMainStatus.ClientSize.Width
         Dim statusHeight As Integer = PanelMainStatus.ClientSize.Height
         If _lblResultadoOperacion IsNot Nothing Then
-            _lblResultadoOperacion.SetBounds(24, 10, Math.Max(260, statusWidth - 48), 46)
+            _lblResultadoOperacion.SetBounds(24, 46, Math.Max(260, statusWidth - 48), 52)
+        End If
+        If _lblEstadoChip IsNot Nothing Then
+            _lblEstadoChip.SetBounds((statusWidth \ 2) - 110, 10, 220, 30)
         End If
 
-        lblProcesando.SetBounds(24, 58, Math.Max(260, statusWidth - 48), 76)
+        lblProcesando.SetBounds(28, 108, Math.Max(260, statusWidth - 56), 82)
 
-        Dim iconSize As Integer = Math.Max(120, Math.Min(200, CInt(Math.Round(Math.Min(statusWidth, statusHeight) * 0.25R))))
+        Dim iconSize As Integer = Math.Max(180, Math.Min(280, CInt(Math.Round(Math.Min(statusWidth, statusHeight) * 0.32R))))
         Dim iconX As Integer = Math.Max(0, (statusWidth - iconSize) \ 2)
-        Dim iconY As Integer = Math.Max(128, (statusHeight - iconSize) \ 2 + 24)
+        Dim iconY As Integer = Math.Max(216, (statusHeight - iconSize) \ 2 + 24)
         Imgprocess.SetBounds(iconX, iconY, iconSize, iconSize)
 
-        ApplySidebarLayout(leftWidth)
-        ApplyDynamicOperationalLayout(leftWidth)
+        ApplySidebarLayout(leftWidth, mode)
+        ApplyDynamicOperationalLayout(leftWidth, mode)
     End Sub
 
-    Private Sub ApplySidebarLayout(ByVal leftWidth As Integer)
-        Dim innerX As Integer = 20
-        Dim innerW As Integer = leftWidth - (innerX * 2)
-
-        Picture.SetBounds(innerX + (innerW - 164) \ 2, 56, 164, 108)
-        LblScanHint.SetBounds(innerX, 184, innerW, 28)
-        TxtCedula.SetBounds(innerX, 216, innerW, 50)
-
-        GbDatos.SetBounds(12, 286, leftWidth - 24, Math.Max(300, Me.ClientSize.Height - 298))
-
-        Dim gX As Integer = 14
-        Dim gW As Integer = GbDatos.ClientSize.Width - 28
-        Label4.SetBounds(gX, 34, gW, 24)
-        LblCedula.SetBounds(gX, 58, gW, 36)
-        Label2.SetBounds(gX, 102, gW, 24)
-        TxtUsuario.SetBounds(gX, 126, gW, 36)
-        Label3.SetBounds(gX, 170, gW, 24)
-        TxtTiquetes.SetBounds(gX, 196, gW, 52)
-        LblRegistroError.SetBounds(gX, 252, gW, 38)
-
-        BtnSalir.SetBounds(leftWidth - 140, Me.ClientSize.Height - 52, 126, 36)
-    End Sub
-
-    Private Sub ApplyDynamicOperationalLayout(ByVal leftWidth As Integer)
+    Private Sub ApplySupplementaryMetricsLayout()
         If _lblMeta Is Nothing Then
             Exit Sub
         End If
 
-        _lblMeta.SetBounds(20, 16, leftWidth - 40, 20)
-        _progressMeta.SetBounds(20, 36, leftWidth - 40, 14)
-        _lblConexion.SetBounds(20, Me.ClientSize.Height - 128, leftWidth - 170, 20)
-        _lblKpi.SetBounds(20, Me.ClientSize.Height - 108, leftWidth - 170, 20)
-        _lblCola.SetBounds(20, Me.ClientSize.Height - 88, leftWidth - 170, 20)
-        _lblAlertas.SetBounds(20, Me.ClientSize.Height - 68, leftWidth - 170, 20)
-        _lblRecomendacion.SetBounds(20, Me.ClientSize.Height - 48, leftWidth - 170, 40)
-        _btnIncidencia.SetBounds(leftWidth - 148, Me.ClientSize.Height - 92, 130, 32)
-        _lblUltimaLectura.SetBounds(20, 54, leftWidth - 40, 20)
-        _lblEdadEstado.SetBounds(20, 72, leftWidth - 40, 20)
+        Dim leftWidth As Integer = Math.Max(SidebarMinWidth, BunifuGradientPanel1.ClientSize.Width)
+        Dim leftHeight As Integer = Math.Max(420, BunifuGradientPanel1.ClientSize.Height)
+        Dim statusWidth As Integer = Math.Max(380, PanelMainStatus.ClientSize.Width)
+
+        _lblMeta.SetBounds(20, 14, leftWidth - 40, 22)
+        _progressMeta.SetBounds(20, 38, leftWidth - 40, 14)
+        _lblUltimaLectura.SetBounds(20, 56, leftWidth - 40, 22)
+        _lblEdadEstado.SetBounds(20, 78, leftWidth - 40, 22)
+        _lblConexion.SetBounds(20, leftHeight - 164, leftWidth - 40, 20)
+        _lblKpi.SetBounds(20, leftHeight - 142, leftWidth - 40, 20)
+        _lblCola.SetBounds(20, leftHeight - 120, leftWidth - 40, 20)
+        _lblAlertas.SetBounds(20, leftHeight - 98, leftWidth - 40, 20)
+        _lblRecomendacion.SetBounds(20, leftHeight - 76, leftWidth - 40, 36)
+        _btnIncidencia.SetBounds(20, leftHeight - 232, 188, 36)
+        _lblHotkeys.SetBounds(20, leftHeight - 38, leftWidth - 40, 32)
+
+        _lblResultadoOperacion.SetBounds(24, 46, Math.Max(260, statusWidth - 48), 52)
+        If _lblEstadoChip IsNot Nothing Then
+            _lblEstadoChip.SetBounds((statusWidth \ 2) - 110, 10, 220, 30)
+        End If
+
+        Dim gX As Integer = 12
+        Dim gW As Integer = Math.Max(220, GbDatos.ClientSize.Width - 28)
+        _lblHistorial.SetBounds(gX, 280, gW, 22)
+        _lstHistorial.SetBounds(gX, 304, gW, Math.Max(120, GbDatos.ClientSize.Height - 314))
+    End Sub
+
+    Private Sub ApplySidebarLayout(ByVal leftWidth As Integer, ByVal mode As LayoutMode)
+        If _lblHistorial Is Nothing OrElse _lstHistorial Is Nothing Then
+            Exit Sub
+        End If
+
+        Dim innerX As Integer = 20
+        Dim innerW As Integer = leftWidth - (innerX * 2)
+        Dim topY As Integer = 108
+        Dim sidebarHeight As Integer = Math.Max(600, BunifuGradientPanel1.ClientSize.Height)
+        Dim footerReserve As Integer = If(mode = LayoutMode.Compact, 210, 236)
+
+        Picture.SetBounds(innerX + (innerW - 248) \ 2, topY, 248, 98)
+        LblScanHint.SetBounds(innerX, topY + 108, innerW, 52)
+        TxtCedula.SetBounds(innerX, topY + 164, innerW, 56)
+        If _lblFocusEscaneo IsNot Nothing Then
+            _lblFocusEscaneo.SetBounds(innerX, topY + 224, innerW, 24)
+        End If
+
+        Dim gbTop As Integer = topY + 252
+        Dim gbMaxBottom As Integer = sidebarHeight - footerReserve
+        Dim gbHeight As Integer = gbMaxBottom - gbTop
+        If mode = LayoutMode.Compact Then
+            gbHeight = Math.Max(260, gbHeight)
+        Else
+            gbHeight = Math.Max(300, gbHeight)
+        End If
+        GbDatos.SetBounds(12, gbTop, leftWidth - 24, gbHeight)
 
         Dim gX As Integer = 14
         Dim gW As Integer = GbDatos.ClientSize.Width - 28
-        _lblHistorial.SetBounds(gX, 294, gW, 20)
-        _lstHistorial.SetBounds(gX, 316, gW, Math.Max(80, GbDatos.ClientSize.Height - 326))
+        Label4.SetBounds(gX, 30, gW, 22)
+        LblCedula.SetBounds(gX, 54, gW, 42)
+        Label2.SetBounds(gX, 104, gW, 22)
+        TxtUsuario.SetBounds(gX, 128, gW, 42)
+        Label3.SetBounds(gX, 178, gW, 22)
+        TxtTiquetes.SetBounds(gX, 202, gW, 56)
+        LblRegistroError.SetBounds(gX, 262, gW, 34)
+
+        _lblHistorial.SetBounds(gX, 302, gW, 22)
+        _lstHistorial.SetBounds(gX, 326, gW, Math.Max(52, GbDatos.ClientSize.Height - 336))
+
+        BtnSalir.SetBounds(0, 0, 0, 0)
+    End Sub
+
+    Private Sub ApplyDynamicOperationalLayout(ByVal leftWidth As Integer, ByVal mode As LayoutMode)
+        If _lblMeta Is Nothing OrElse _lblHistorial Is Nothing OrElse _lstHistorial Is Nothing Then
+            Exit Sub
+        End If
+
+        Dim sidebarHeight As Integer = Math.Max(600, BunifuGradientPanel1.ClientSize.Height)
+        Dim hotkeysTop As Integer = sidebarHeight - 34
+        Dim infoBottom As Integer = hotkeysTop - 4
+        Dim recomendacionTop As Integer = infoBottom - 34
+        Dim alertaTop As Integer = recomendacionTop - 22
+        Dim colaTop As Integer = alertaTop - 22
+        Dim kpiTop As Integer = colaTop - 22
+        Dim conexionTop As Integer = kpiTop - 22
+        Dim incidenciaTop As Integer = Math.Max(GbDatos.Bottom + 8, conexionTop - 44)
+
+        _lblMeta.SetBounds(20, 14, leftWidth - 40, 22)
+        _progressMeta.SetBounds(20, 38, leftWidth - 40, 14)
+        _lblUltimaLectura.SetBounds(20, 56, leftWidth - 40, 22)
+        _lblEdadEstado.SetBounds(20, 78, leftWidth - 40, 22)
+        _btnIncidencia.SetBounds(20, incidenciaTop, 188, 36)
+        _lblConexion.SetBounds(20, conexionTop, leftWidth - 40, 20)
+        _lblKpi.SetBounds(20, kpiTop, leftWidth - 40, 20)
+        _lblCola.SetBounds(20, colaTop, leftWidth - 40, 20)
+        _lblAlertas.SetBounds(20, alertaTop, leftWidth - 40, 20)
+        _lblRecomendacion.SetBounds(20, recomendacionTop, leftWidth - 40, 34)
+        _lblHotkeys.SetBounds(20, hotkeysTop, leftWidth - 40, 30)
+
+        Dim gX As Integer = 12
+        Dim gW As Integer = GbDatos.ClientSize.Width - 28
+        _lblHistorial.SetBounds(gX, 302, gW, 22)
+        _lstHistorial.SetBounds(gX, 326, gW, Math.Max(52, GbDatos.ClientSize.Height - 336))
+
+        If mode = LayoutMode.Compact Then
+            LblScanHint.Font = New Font("Segoe UI", 10.0!, FontStyle.Bold)
+        Else
+            LblScanHint.Font = New Font("Segoe UI", 11.0!, FontStyle.Bold)
+        End If
+    End Sub
+
+    Private Function ObtenerModoLayout() As LayoutMode
+        If Me.ClientSize.Width < 1480 OrElse Me.ClientSize.Height < 820 Then
+            Return LayoutMode.Compact
+        End If
+        If Me.ClientSize.Width >= 1820 Then
+            Return LayoutMode.Wide
+        End If
+        Return LayoutMode.Standard
+    End Function
+
+    Private Sub AplicarModoAltoContraste()
+        If _modoAltoContraste Then
+            PanelResult.BackColor = Color.Black
+            PanelMainStatus.BackColor = Color.Black
+            PanelMainStatus.BorderStyle = BorderStyle.Fixed3D
+            lblProcesando.ForeColor = Color.White
+            LblTitulo.ForeColor = Color.White
+            LblScanHint.ForeColor = Color.White
+            TxtCedula.BackColor = Color.Black
+            TxtCedula.ForeColor = Color.White
+            TxtCedula.BorderStyle = BorderStyle.Fixed3D
+            If _lblResultadoOperacion IsNot Nothing Then
+                _lblResultadoOperacion.ForeColor = Color.White
+            End If
+            If _lblEstadoChip IsNot Nothing Then
+                _lblEstadoChip.BackColor = Color.Gold
+                _lblEstadoChip.ForeColor = Color.Black
+            End If
+        Else
+            PanelMainStatus.BorderStyle = BorderStyle.FixedSingle
+            TxtCedula.BorderStyle = BorderStyle.FixedSingle
+            TxtCedula.BackColor = Color.White
+            TxtCedula.ForeColor = Color.FromArgb(17, 33, 59)
+        End If
     End Sub
 
     Private Sub InicializarControlInactividad()
@@ -587,6 +779,7 @@ Public Class ControlComedor
         LblFecha.Text = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss")
         ActualizarEstadoConexion()
         ActualizarIndicadoresEstadoInfo()
+        ActualizarIndicadorFoco(TxtCedula.Focused)
 
         If _limpiezaAplicadaPorInactividad Then
             Exit Sub
@@ -633,9 +826,7 @@ Public Class ControlComedor
             Dim permitido As Boolean = False
             If dsParam IsNot Nothing AndAlso dsParam.Tables.Count > 0 AndAlso dsParam.Tables(0).Rows.Count > 0 Then
                 Dim raw As Object = dsParam.Tables(0).Rows(0)!PermitirSinMarcaTransporte
-                If raw IsNot Nothing AndAlso Not IsDBNull(raw) Then
-                    permitido = CBool(raw)
-                End If
+                permitido = ConvertirABooleano(raw)
             End If
 
             PermitirSinMarcaTransporte = permitido
@@ -739,7 +930,7 @@ Public Class ControlComedor
         _lblMeta = New Label()
         _lblMeta.AutoSize = False
         _lblMeta.ForeColor = Color.FromArgb(220, 232, 252)
-        _lblMeta.Font = New Font("Segoe UI", 9.0!, FontStyle.Bold)
+        _lblMeta.Font = New Font("Segoe UI", 10.0!, FontStyle.Bold)
 
         _progressMeta = New ProgressBar()
         _progressMeta.Minimum = 0
@@ -749,62 +940,85 @@ Public Class ControlComedor
         _lblConexion = New Label()
         _lblConexion.AutoSize = False
         _lblConexion.ForeColor = Color.FromArgb(220, 232, 252)
-        _lblConexion.Font = New Font("Segoe UI", 8.5!, FontStyle.Bold)
+        _lblConexion.Font = New Font("Segoe UI", 9.0!, FontStyle.Bold)
         _lblConexion.Text = "Conexion DB: verificando..."
 
         _lblKpi = New Label()
         _lblKpi.AutoSize = False
         _lblKpi.ForeColor = Color.FromArgb(220, 232, 252)
-        _lblKpi.Font = New Font("Segoe UI", 8.5!, FontStyle.Bold)
+        _lblKpi.Font = New Font("Segoe UI", 9.0!, FontStyle.Bold)
 
         _lblCola = New Label()
         _lblCola.AutoSize = False
         _lblCola.ForeColor = Color.FromArgb(220, 232, 252)
-        _lblCola.Font = New Font("Segoe UI", 8.5!, FontStyle.Bold)
+        _lblCola.Font = New Font("Segoe UI", 9.0!, FontStyle.Bold)
         _lblCola.Text = "Antifila: calculando..."
 
         _lblAlertas = New Label()
         _lblAlertas.AutoSize = False
         _lblAlertas.ForeColor = Color.FromArgb(255, 215, 155)
-        _lblAlertas.Font = New Font("Segoe UI", 8.5!, FontStyle.Bold)
+        _lblAlertas.Font = New Font("Segoe UI", 9.0!, FontStyle.Bold)
         _lblAlertas.Text = "Alertas: sin incidencias"
 
         _lblRecomendacion = New Label()
         _lblRecomendacion.AutoSize = False
         _lblRecomendacion.ForeColor = Color.FromArgb(220, 232, 252)
-        _lblRecomendacion.Font = New Font("Segoe UI", 8.0!, FontStyle.Italic)
+        _lblRecomendacion.Font = New Font("Segoe UI", 8.5!, FontStyle.Italic)
         _lblRecomendacion.Text = "Recomendacion: mantener flujo de escaneo continuo."
 
         _lblUltimaLectura = New Label()
         _lblUltimaLectura.AutoSize = False
         _lblUltimaLectura.ForeColor = Color.FromArgb(220, 232, 252)
-        _lblUltimaLectura.Font = New Font("Segoe UI", 8.5!, FontStyle.Bold)
+        _lblUltimaLectura.Font = New Font("Segoe UI", 10.0!, FontStyle.Bold)
         _lblUltimaLectura.Text = "Ultima lectura: --"
 
         _lblEdadEstado = New Label()
         _lblEdadEstado.AutoSize = False
         _lblEdadEstado.ForeColor = Color.FromArgb(255, 224, 171)
-        _lblEdadEstado.Font = New Font("Segoe UI", 8.5!, FontStyle.Bold)
+        _lblEdadEstado.Font = New Font("Segoe UI", 10.0!, FontStyle.Bold)
         _lblEdadEstado.Text = "Estado visible: sin evento"
 
         _lblResultadoOperacion = New Label()
         _lblResultadoOperacion.AutoSize = False
         _lblResultadoOperacion.ForeColor = Color.FromArgb(17, 33, 59)
         _lblResultadoOperacion.BackColor = Color.Transparent
-        _lblResultadoOperacion.Font = New Font("Segoe UI Semibold", 16.0!, FontStyle.Bold)
+        _lblResultadoOperacion.Font = New Font("Segoe UI Semibold", 22.0!, FontStyle.Bold)
         _lblResultadoOperacion.TextAlign = ContentAlignment.MiddleCenter
         _lblResultadoOperacion.Text = "SIN LECTURA"
 
+        _lblEstadoChip = New Label()
+        _lblEstadoChip.AutoSize = False
+        _lblEstadoChip.Font = New Font("Segoe UI", 9.0!, FontStyle.Bold)
+        _lblEstadoChip.ForeColor = Color.White
+        _lblEstadoChip.BackColor = Color.FromArgb(51, 65, 85)
+        _lblEstadoChip.TextAlign = ContentAlignment.MiddleCenter
+        _lblEstadoChip.Text = "EN ESPERA"
+
         _lblHistorial = New Label()
         _lblHistorial.AutoSize = False
-        _lblHistorial.Font = New Font("Segoe UI", 8.5!, FontStyle.Bold)
+        _lblHistorial.Font = New Font("Segoe UI", 9.5!, FontStyle.Bold)
         _lblHistorial.ForeColor = Color.FromArgb(76, 90, 112)
         _lblHistorial.Text = "Ultimos 10 eventos"
 
         _lstHistorial = New ListBox()
-        _lstHistorial.Font = New Font("Segoe UI", 8.5!, FontStyle.Regular)
+        _lstHistorial.Font = New Font("Segoe UI", 9.5!, FontStyle.Regular)
         _lstHistorial.HorizontalScrollbar = True
         _lstHistorial.IntegralHeight = False
+        _lstHistorial.BorderStyle = BorderStyle.FixedSingle
+
+        _lblFocusEscaneo = New Label()
+        _lblFocusEscaneo.AutoSize = False
+        _lblFocusEscaneo.TextAlign = ContentAlignment.MiddleLeft
+        _lblFocusEscaneo.Font = New Font("Segoe UI", 9.0!, FontStyle.Bold)
+        _lblFocusEscaneo.ForeColor = Color.FromArgb(157, 230, 170)
+        _lblFocusEscaneo.Text = "Lector listo (foco activo)"
+
+        _lblHotkeys = New Label()
+        _lblHotkeys.AutoSize = False
+        _lblHotkeys.TextAlign = ContentAlignment.MiddleLeft
+        _lblHotkeys.Font = New Font("Segoe UI", 8.5!, FontStyle.Bold)
+        _lblHotkeys.ForeColor = Color.FromArgb(194, 214, 243)
+        _lblHotkeys.Text = "Esc salir | F2 limpiar | F3 foco | F4 historial | F6 supervisor | F7 contraste"
 
         _btnIncidencia = New Button()
         _btnIncidencia.Text = "Incidencia Rapida"
@@ -812,7 +1026,7 @@ Public Class ControlComedor
         _btnIncidencia.FlatAppearance.BorderSize = 0
         _btnIncidencia.BackColor = Color.FromArgb(209, 143, 36)
         _btnIncidencia.ForeColor = Color.White
-        _btnIncidencia.Font = New Font("Segoe UI", 8.5!, FontStyle.Bold)
+        _btnIncidencia.Font = New Font("Segoe UI", 9.0!, FontStyle.Bold)
         AddHandler _btnIncidencia.Click, AddressOf BtnIncidencia_Click
 
         BunifuGradientPanel1.Controls.Add(_lblMeta)
@@ -824,7 +1038,10 @@ Public Class ControlComedor
         BunifuGradientPanel1.Controls.Add(_lblRecomendacion)
         BunifuGradientPanel1.Controls.Add(_lblUltimaLectura)
         BunifuGradientPanel1.Controls.Add(_lblEdadEstado)
+        BunifuGradientPanel1.Controls.Add(_lblFocusEscaneo)
+        BunifuGradientPanel1.Controls.Add(_lblHotkeys)
         PanelMainStatus.Controls.Add(_lblResultadoOperacion)
+        PanelMainStatus.Controls.Add(_lblEstadoChip)
         GbDatos.Controls.Add(_lblHistorial)
         GbDatos.Controls.Add(_lstHistorial)
         _lblMeta.BringToFront()
@@ -837,6 +1054,7 @@ Public Class ControlComedor
         _lblUltimaLectura.BringToFront()
         _lblEdadEstado.BringToFront()
         _lblResultadoOperacion.BringToFront()
+        _lblEstadoChip.BringToFront()
         _lblHistorial.BringToFront()
         _lstHistorial.BringToFront()
         BunifuGradientPanel1.Controls.Add(_btnIncidencia)
@@ -890,7 +1108,8 @@ Public Class ControlComedor
             Exit Sub
         End If
 
-        _lblMeta.Text = "Meta diaria: " & _lecturasExitosas.ToString("N0") & "/" & _metaDiaria.ToString("N0")
+        Dim avancePct As Double = (_lecturasExitosas / CDbl(Math.Max(1, _metaDiaria))) * 100.0R
+        _lblMeta.Text = "Meta diaria: " & _lecturasExitosas.ToString("N0") & "/" & _metaDiaria.ToString("N0") & " (" & avancePct.ToString("0") & "%)"
         _progressMeta.Maximum = Math.Max(1, _metaDiaria)
         _progressMeta.Value = Math.Min(_progressMeta.Maximum, Math.Max(0, _lecturasExitosas))
 
@@ -973,10 +1192,10 @@ Public Class ControlComedor
             Dim dt As DataTable = OperacionSvc.ListarUltimosEventos(Cn, 10)
             _lstHistorial.Items.Clear()
             For Each row As DataRow In dt.Rows
-                Dim fechaStr As String = CDate(row!FechaEvento).ToString("HH:mm:ss")
-                Dim estado As String = CStr(row!Estado)
-                Dim cedula As String = CStr(row!Cedula)
-                Dim motivo As String = CStr(row!Motivo)
+                Dim fechaStr As String = CDate(row("FechaEvento")).ToString("HH:mm:ss")
+                Dim estado As String = CStr(row("Estado"))
+                Dim cedula As String = CStr(row("Cedula"))
+                Dim motivo As String = CStr(row("Motivo"))
                 Dim detalle As String = If(String.IsNullOrWhiteSpace(motivo), cedula, motivo)
                 _lstHistorial.Items.Add(fechaStr & " | " & estado & " | " & detalle)
             Next
@@ -1139,7 +1358,7 @@ Public Class ControlComedor
             Exit Sub
         End If
 
-        Dim item As String = DateTime.Now.ToString("HH:mm:ss") & " | " & state.ToString() & " | " & detalle
+        Dim item As String = DateTime.Now.ToString("HH:mm:ss") & "  |  " & state.ToString() & "  |  " & detalle
         _lstHistorial.Items.Insert(0, item)
         While _lstHistorial.Items.Count > 10
             _lstHistorial.Items.RemoveAt(_lstHistorial.Items.Count - 1)
@@ -1446,6 +1665,7 @@ Public Class ControlComedor
                 _lblResultadoOperacion.ForeColor = Color.FromArgb(31, 41, 55)
             End If
         End If
+        ActualizarChipEstado(state)
         ActualizarIndicadoresEstadoInfo()
 
         If state <> EstadoVisual.Idle AndAlso state <> EstadoVisual.Processing Then
@@ -1453,6 +1673,35 @@ Public Class ControlComedor
             RegistrarHistorial(state, TxtCedula.Text.Trim())
             RegistrarEventoPersistente(state, LblRegistroError.Text)
         End If
+    End Sub
+
+    Private Sub ActualizarChipEstado(ByVal state As EstadoVisual)
+        If _lblEstadoChip Is Nothing Then
+            Exit Sub
+        End If
+
+        Select Case state
+            Case EstadoVisual.Success
+                _lblEstadoChip.Text = "ESTADO: OK"
+                _lblEstadoChip.BackColor = Color.FromArgb(21, 128, 61)
+                _lblEstadoChip.ForeColor = Color.White
+            Case EstadoVisual.Processing
+                _lblEstadoChip.Text = "ESTADO: PROCESANDO"
+                _lblEstadoChip.BackColor = Color.FromArgb(37, 99, 235)
+                _lblEstadoChip.ForeColor = Color.White
+            Case EstadoVisual.Duplicate, EstadoVisual.NoTransportMark, EstadoVisual.LateTransportMark
+                _lblEstadoChip.Text = "ESTADO: ADVERTENCIA"
+                _lblEstadoChip.BackColor = Color.FromArgb(202, 138, 4)
+                _lblEstadoChip.ForeColor = Color.White
+            Case EstadoVisual.NoTickets, EstadoVisual.NotFound, EstadoVisual.DeniedByRule
+                _lblEstadoChip.Text = "ESTADO: ERROR"
+                _lblEstadoChip.BackColor = Color.FromArgb(185, 28, 28)
+                _lblEstadoChip.ForeColor = Color.White
+            Case Else
+                _lblEstadoChip.Text = "ESTADO: EN ESPERA"
+                _lblEstadoChip.BackColor = Color.FromArgb(51, 65, 85)
+                _lblEstadoChip.ForeColor = Color.White
+        End Select
     End Sub
 
     Protected Overrides Function ProcessCmdKey(ByRef msg As Message, keyData As Keys) As Boolean
@@ -1476,6 +1725,13 @@ Public Class ControlComedor
         If keyData = Keys.F6 Then
             _mostrarVistaSupervisor = Not _mostrarVistaSupervisor
             ActualizarKpisOperacion()
+            Return True
+        End If
+        If keyData = Keys.F7 Then
+            _modoAltoContraste = Not _modoAltoContraste
+            ApplyModernOperationalLayout()
+            ApplyResponsiveLayout()
+            UpdateVisualState(_estadoVisualActual)
             Return True
         End If
 

@@ -85,6 +85,8 @@ Para formularios críticos (`LOGIN`, `FrmSeguridadRBAC`) se aplica modo estricto
 - Evitar abrir Designer inmediatamente despues de cambios grandes en `*.designer.vb`/`*.vbproj`.
 - Hacer `Rebuild` antes de abrir Designer cuando se toquen formularios críticos (`LOGIN`, `FrmPrincipal`).
 - Mantener `Inherits System.Windows.Forms.Form` estándar en `*.designer.vb` y no usar variaciones manuales.
+- En clases parciales de formularios, declarar `Inherits` solo en `*.designer.vb` para evitar inconsistencias del diseñador.
+- Evitar lógica de ventana en constructor durante diseño (usar guarda `LicenseManager.UsageMode = Designtime`).
 
 ## Alcance
 Este modo aplica a:

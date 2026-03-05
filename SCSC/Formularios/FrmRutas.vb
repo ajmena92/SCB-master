@@ -1,12 +1,12 @@
 ﻿Public Class FrmRutas
     Dim Cn As New SqlClient.SqlConnection
     Dim Cls As New FuncionesDB
-    Sub LimpiarPantalla(Optional PCodigo = True)
+    Sub LimpiarPantalla(Optional ByVal PCodigo As Boolean = True)
         TxtDescripcion.Clear()
         CkActivo.Checked = False
         If PCodigo Then
             txtCodRuta.Clear()
-            txtCodRuta.Tag = ""
+            txtCodRuta.Tag = 0
             txtCodRuta.Focus()
         End If
 
@@ -27,6 +27,7 @@
         Try
             UIThemeManagerV2.Apply(Me, "dialogo")
             ApplyModernFormStyle()
+            UIThemeManagerV2.ApplyCrudModuleChrome(Me)
             Cls.AbrirConexion(Cn, False)
             CkActivo.Checked = False
             txtCodRuta.Focus()
@@ -100,7 +101,7 @@
             gSession.Llave = Llave
             Dim F As New Busqueda
             F.ShowDialog()
-            txtCodRuta.Text = (gSession.Resultado(0))
+            txtCodRuta.Text = CStr(gSession.Resultado(0))
             txtCodRuta_Validated(sender, e)
         Catch ex As Exception
             'MsgBox(ex.Message, MsgBoxStyle.Critical)
@@ -112,7 +113,7 @@
         Dim Cedula As String = Replace(txtCodRuta.Text.Trim, ControlCarnet, "")
         Dim Ds As New DataSet
         Dim Valores(), Llave() As FuncionesDB.Campos
-        If Len(Cedula) > 0 Then
+        If Cedula.Trim().Length > 0 Then
             Try
                 Valores = Cls.InicializarArray
                 Llave = Cls.InicializarArray
@@ -122,12 +123,13 @@
                 Cls.ArmaValor(Valores, "Activo")
                 Ds = Cls.Consultar("Ruta", Valores, Llave, Cn)
                 If Ds.Tables(0).Rows.Count > 0 Then
-                    TxtDescripcion.Text = Ds.Tables(0).Rows(0)!Descripcion
-                    CkActivo.Checked = Ds.Tables(0).Rows(0)!Activo
-                    txtCodRuta.Tag = Ds.Tables(0).Rows(0)!IdRuta
+                    Dim row As DataRow = Ds.Tables(0).Rows(0)
+                    TxtDescripcion.Text = CStr(row("Descripcion"))
+                    CkActivo.Checked = CBool(row("Activo"))
+                    txtCodRuta.Tag = CInt(row("IdRuta"))
                 Else
                     LimpiarPantalla(False)
-                    txtCodRuta.Tag = Val(txtCodRuta.Text)
+                    txtCodRuta.Tag = ObtenerIdRutaDesdeTag()
                     TxtDescripcion.Focus()
                 End If
             Catch ex As Exception
@@ -162,37 +164,32 @@
         End If
     End Sub
 
-    Function Validacion() As Boolean
-        Validacion = False
-        If Len(txtCodRuta.Text) = 0 Then
+    Private Function Validacion() As Boolean
+        If txtCodRuta.Text.Trim().Length = 0 Then
             MsgBox("Ingrese el numero de ruta", MsgBoxStyle.Critical)
             txtCodRuta.Focus()
-            Exit Function
-        ElseIf Len(TxtDescripcion.Text) <= 5 Then
+            Return False
+        ElseIf TxtDescripcion.Text.Trim().Length <= 5 Then
             MsgBox("La descripción no es valida, no cumple con el minimo necesario", MsgBoxStyle.Critical)
             TxtDescripcion.Focus()
-            Exit Function
-        ElseIf txtCodRuta.Tag = "1" Then
+            Return False
+        ElseIf ObtenerIdRutaDesdeTag() = 1 Then
             MsgBox("La ruta 0 no puede ser editada", MsgBoxStyle.Critical)
             txtCodRuta.Focus()
-            Exit Function
-        Else
-            Return True
+            Return False
         End If
 
+        Return True
     End Function
 
     Private Sub BtnGuardar_Click(sender As Object, e As EventArgs) Handles BtnGuardar.Click
         If Validacion() Then
             Dim Valores(), Llave() As FuncionesDB.Campos
-            Dim Ds As New DataSet
-            Dim pTransac As SqlClient.SqlTransaction
-            Dim Cmd As String
             Try
                 Valores = Cls.InicializarArray
                 Llave = Cls.InicializarArray
-                Cls.ArmaValor(Llave, "IdRuta", txtCodRuta.Tag)
-                    Cls.ArmaValor(Valores, "Codigo", txtCodRuta.Text)
+                Cls.ArmaValor(Llave, "IdRuta", ObtenerIdRutaDesdeTag())
+                Cls.ArmaValor(Valores, "Codigo", txtCodRuta.Text)
                 Cls.ArmaValor(Valores, "Descripcion", TxtDescripcion.Text.ToUpper.Trim)
                 Cls.ArmaValor(Valores, "Activo", CkActivo.Checked)
                 Cls.GuardarActualizar("Ruta", Valores, Llave, Cn)
@@ -225,17 +222,17 @@
 
     Private Sub BtnEliminar_Click(sender As Object, e As EventArgs) Handles BtnEliminar.Click
         Try
-            If Len(txtCodRuta.Text) > 0 Then
-                If txtCodRuta.Tag = "1" Then
+            If txtCodRuta.Text.Trim().Length > 0 Then
+                If ObtenerIdRutaDesdeTag() = 1 Then
                     Throw New Exception("La ruta 0 no puede ser editada")
                 End If
-                Dim resp As Integer = MsgBox("Desea eliminar la Ruta ?", 33)
-                If resp = 2 Then
+                Dim resp As MsgBoxResult = MsgBox("Desea eliminar la Ruta ?", MsgBoxStyle.OkCancel Or MsgBoxStyle.Question)
+                If resp = MsgBoxResult.Cancel Then
                     Exit Sub
                 End If
                 Dim Llave() As FuncionesDB.Campos
                 Llave = Cls.InicializarArray
-                Cls.ArmaValor(Llave, "IdRuta", txtCodRuta.Tag)
+                Cls.ArmaValor(Llave, "IdRuta", ObtenerIdRutaDesdeTag())
                 Cls.Delete("Ruta", Llave, Cn)
                 MsgBox("Registro eliminado correctamente", MsgBoxStyle.Information)
                 BtnCancelar.PerformClick()
@@ -247,4 +244,16 @@
             MsgBox(ex.Message, MsgBoxStyle.Critical)
         End Try
     End Sub
+
+    Private Function ObtenerIdRutaDesdeTag() As Integer
+        Dim rawTag As String = Convert.ToString(txtCodRuta.Tag)
+        Dim parsed As Integer
+        If Integer.TryParse(rawTag, parsed) Then
+            Return parsed
+        End If
+        If Integer.TryParse(txtCodRuta.Text.Trim(), parsed) Then
+            Return parsed
+        End If
+        Return 0
+    End Function
 End Class

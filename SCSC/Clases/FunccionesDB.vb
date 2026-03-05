@@ -18,20 +18,26 @@ Public Class FuncionesDB
         Public Valor As Object ' puede ser texto o numero, date, etc.
         Public Formato As String
     End Structure
-    Function Redondear(ValorNumero)
+
+    Private Function EsValorSqlNull(ByVal valor As Object) As Boolean
+        Return String.Equals(Convert.ToString(valor), "NULL", StringComparison.OrdinalIgnoreCase)
+    End Function
+
+    Function Redondear(ByVal ValorNumero As Object) As Double
         'Función para el Redondeo de Números
         'A Colones
-        ValorNumero = Val(ValorNumero)
-        Dim Entero, Mult5 As Integer
+        Dim Numero As Double = Val(ValorNumero)
+        Dim Entero As Integer
+        Dim Mult5 As Integer
         Dim Decimales As Double
-        Entero = Int(ValorNumero) 'Extrae la parte entera
-        Decimales = ((ValorNumero - Entero) * 100) + 2.5
-        Mult5 = Int((Decimales / 5))
+        Entero = CInt(Int(Numero)) 'Extrae la parte entera
+        Decimales = ((Numero - Entero) * 100) + 2.5
+        Mult5 = CInt(Int((Decimales / 5)))
         Decimales = Mult5 * 5
         If Decimales >= 100 Then
-            Redondear = Entero + 1
+            Return Entero + 1
         Else
-            Redondear = Entero + (Decimales * 0.01)
+            Return Entero + (Decimales * 0.01)
         End If
     End Function
     'Public Sub AbrirConexion(ByRef pCnMysql As MySqlConnection, ByVal pUsarTransaccion As Boolean, Optional ByRef pTran As MySqlTransaction = Nothing, Optional ByVal Conexion As String = "Cnpiad")
@@ -145,13 +151,13 @@ Public Class FuncionesDB
             Dset = Cls.ConsultarTSQL("Hora", SQL, , , , Conexion)
 
             If Dset.Tables(0).Rows.Count > 0 Then
-                FechaServer = Dset.Tables(0).Rows(0)!FechaServer
+                Return CDate(Dset.Tables(0).Rows(0)!FechaServer)
             Else
                 Throw New Exception("Servidor No ha Devuelto ninguna FECHA.")
             End If
 
         Catch ex As Exception
-            Throw ex
+            Throw
         End Try
     End Function
 
@@ -165,13 +171,13 @@ Public Class FuncionesDB
             Dset = Cls.ConsultarTSQL("FechaSistema", SQL, , , , Conexion)
 
             If Dset.Tables(0).Rows.Count > 0 Then
-                Return Dset.Tables(0).Rows(0)!FechaSistema
+                Return CDate(Dset.Tables(0).Rows(0)!FechaSistema)
             Else
                 Throw New Exception("ERROR, Servidor No Posee los Parametros de configuración.")
             End If
 
         Catch ex As Exception
-            Throw ex
+            Throw
         End Try
     End Function
 
@@ -185,13 +191,13 @@ Public Class FuncionesDB
             Dset = Cls.ConsultarTSQL("FechaCierrePeriodo", SQL, , , , Conexion)
 
             If Dset.Tables(0).Rows.Count > 0 Then
-                Return Dset.Tables(0).Rows(0)!FechaCierrePeriodo
+                Return CDate(Dset.Tables(0).Rows(0)!FechaCierrePeriodo)
             Else
                 Throw New Exception("ERROR, Servidor No Posee los Parametros de configuración.")
             End If
 
         Catch ex As Exception
-            Throw ex
+            Throw
         End Try
     End Function
 
@@ -339,7 +345,7 @@ Public Class FuncionesDB
             Dim SQL As String = "Insert into " & Tabla & " ( " '& Campo & "=@Valor"
 
             For I As Integer = 0 To UBound(Campo)
-                If Campo(I).Valor.ToString.ToUpper = "NULL" Then
+                If EsValorSqlNull(Campo(I).Valor) Then
                 Else
                     SQL &= Campo(I).Nombre & ","
                 End If
@@ -348,7 +354,7 @@ Public Class FuncionesDB
             SQL = SQL.Remove(SQL.Length - 1, 1) & ") Values ("
 
             For I As Integer = 0 To UBound(Campo)
-                If Campo(I).Valor.ToString.ToUpper = "NULL" Then
+                If EsValorSqlNull(Campo(I).Valor) Then
                     ' no se incluyen campos nulos.
                 Else
                     SQL &= "@Valor" & I & ","
@@ -362,7 +368,7 @@ Public Class FuncionesDB
             Cmd.Parameters.Clear()
 
             For I As Integer = 0 To UBound(Campo)
-                If Campo(I).Valor.ToString.ToUpper = "NULL" Then
+                If EsValorSqlNull(Campo(I).Valor) Then
                     ' Cmd.Parameters.AddWithValue("@Valor" & I, DBNull.Value)
                 Else
                     Cmd.Parameters.AddWithValue("@Valor" & I, Campo(I).Valor)
@@ -453,7 +459,7 @@ Public Class FuncionesDB
                 Cmd.Transaction = PTransac
             End If
 
-            Resultado = Cmd.ExecuteScalar
+            Resultado = CInt(Val(Convert.ToString(Cmd.ExecuteScalar())))
 
             '*** si NO se manda CN como parametro, se crea localmente, y se cierra.
             If LocalCN Then
@@ -493,7 +499,7 @@ Public Class FuncionesDB
             Dim SQL As String = "Update " & Tabla & " set "
 
             For I As Integer = 0 To UBound(Campo)
-                If Campo(I).Valor.ToString.ToUpper = "NULL" Then
+                If EsValorSqlNull(Campo(I).Valor) Then
                 Else
                     SQL &= Campo(I).Nombre & "=@Valor" & I & ","
                 End If
@@ -513,7 +519,7 @@ Public Class FuncionesDB
 
             For I As Integer = 0 To UBound(Campo)
 
-                If Campo(I).Valor.ToString.ToUpper = "NULL" Then
+                If EsValorSqlNull(Campo(I).Valor) Then
                 Else
                     Cmd.Parameters.AddWithValue("@Valor" & I, Campo(I).Valor)
                 End If
@@ -658,7 +664,7 @@ Public Class FuncionesDB
                 pSQL += " Having "
                 For I As Integer = 0 To UBound(LlavePrimaria)
                     ' manejar uso de like
-                    If InStr(LlavePrimaria(I).Valor, "%") > 0 Then
+                    If InStr(CStr(LlavePrimaria(I).Valor), "%") > 0 Then
                         ' uso de like
                         pSQL &= LlavePrimaria(I).Nombre & " Like @ValorLlave" & I & pOperador ' " And "
                     Else
@@ -765,13 +771,13 @@ Public Class FuncionesDB
 
             For I As Integer = 0 To UBound(LlavePrimaria)
                 ' manejar uso de like
-                If InStr(LlavePrimaria(I).Valor, "%") > 0 Then
+                If InStr(CStr(LlavePrimaria(I).Valor), "%") > 0 Then
                     ' uso de like
                     SQL &= LlavePrimaria(I).Nombre & " Like @ValorLlave" & I & pOperador ' " And "
                 Else
                     'uso de igual =
-                    If LlavePrimaria(I).Valor.ToString.ToUpper.Trim = "IS NOT NULL" Then ' Nuevo agregado el 30 nov 2010
-                        SQL &= LlavePrimaria(I).Nombre & " " & LlavePrimaria(I).Valor & pOperador ' " And "
+                    If String.Equals(Convert.ToString(LlavePrimaria(I).Valor).Trim(), "IS NOT NULL", StringComparison.OrdinalIgnoreCase) Then ' Nuevo agregado el 30 nov 2010
+                        SQL &= LlavePrimaria(I).Nombre & " " & CStr(LlavePrimaria(I).Valor) & pOperador ' " And "
                     Else
                         SQL &= LlavePrimaria(I).Nombre & "=@ValorLlave" & I & pOperador ' " And "
                     End If
@@ -975,7 +981,7 @@ Public Class FuncionesDB
                 End If
             End If
 
-            pOperadorLogico = pOperadorLogico.PadLeft(5, " ")
+            pOperadorLogico = pOperadorLogico.PadLeft(5, " "c)
             Dim Cmd As New SqlCommand(Sql, Cn)
             Cmd.CommandTimeout = TimeOut
 
@@ -1081,7 +1087,6 @@ Public Class FuncionesDB
     End Function
 
     Function ObtenerUsuarioBaseDatos(ByVal pBuscar As String, Optional ByVal pBuscarAuxiliar As String = ".", Optional ByVal Conexion As String = "Conexion") As String
-        Dim Usr As String = ""
         Dim CadenaConexion As String = GetAppConfig(Conexion)
         Dim Resultado As String = ""
 
@@ -1131,7 +1136,6 @@ Public Class FuncionesDB
     End Function
 
     Function ObtenerUsuarioBaseDatos(ByVal pBuscar As String, Optional ByVal pBuscarAuxiliar As String = ".") As String
-        Dim Usr As String = ""
         Dim CadenaConexion As String = GetAppConfig("Conexion")
         Dim Resultado As String = ""
 
@@ -1181,7 +1185,6 @@ Public Class FuncionesDB
     End Function
 
     Function ObtenerParametroConexion(ByVal pBuscar As String, Optional ByVal pBuscarAuxiliar As String = ".", Optional ByVal CadenaConexion As String = "") As String
-        Dim Usr As String = ""
         'Dim CadenaConexion As String = GetAppConfig("Conexion")
         Dim Resultado As String = ""
 
@@ -1255,7 +1258,7 @@ Public Class FuncionesDB
                 Combo.Items.Clear()
 
                 For I As Integer = 0 To Ds.Tables(0).Rows.Count - 1
-                    Combo.Items.Add(New LBItem(Ds.Tables(0).Rows(I)(pCodigo), Ds.Tables(0).Rows(I)(pNombre).ToUpper()))
+                    Combo.Items.Add(New LBItem(CStr(Ds.Tables(0).Rows(I)(pCodigo)), CStr(Ds.Tables(0).Rows(I)(pNombre)).ToUpper()))
                 Next
             End If
 
@@ -1354,7 +1357,7 @@ Public Class FuncionesDB
 
     Public Function VereficaCarnet(ByRef pCedula As String) As Boolean
         Dim CarnetEstudiante As Integer = InStr(pCedula, ControlCarnet)
-        Dim CarnetProfesor = InStr(pCedula, "CTPP")
+        Dim CarnetProfesor As Integer = InStr(pCedula, "CTPP")
         If CarnetEstudiante > 0 Then
             pCedula = Replace(pCedula, ControlCarnet, "")
             Return True
@@ -1378,7 +1381,4 @@ Public Class FuncionesDB
         End If
     End Function
 End Class
-
-
-
 

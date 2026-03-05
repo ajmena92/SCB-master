@@ -317,11 +317,11 @@ Partial Class ControlComedor
         Me.BtnSalir.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.BtnSalir.Font = New System.Drawing.Font("Segoe UI", 12.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.BtnSalir.ForeColor = System.Drawing.Color.White
-        Me.BtnSalir.Location = New System.Drawing.Point(348, 842)
+        Me.BtnSalir.Location = New System.Drawing.Point(0, 0)
         Me.BtnSalir.Name = "BtnSalir"
-        Me.BtnSalir.Size = New System.Drawing.Size(128, 42)
+        Me.BtnSalir.Size = New System.Drawing.Size(0, 0)
         Me.BtnSalir.TabIndex = 2
-        Me.BtnSalir.Text = "Salir"
+        Me.BtnSalir.Text = ""
         Me.BtnSalir.UseVisualStyleBackColor = False
         Me.BtnSalir.Visible = False
         '

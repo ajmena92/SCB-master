@@ -11,6 +11,7 @@ Public Class FrmEstudiantes
         Try
             UIThemeManagerV2.Apply(Me, "dialogo")
             ApplyModernFormStyle()
+            UIThemeManagerV2.ApplyCrudModuleChrome(Me)
             Cls.AbrirConexion(Cn, False)
             CargaRutas(CBRuta)
             CargaBecas(CBBeca)
@@ -65,13 +66,13 @@ Public Class FrmEstudiantes
     End Sub
 
     Sub CargaGenero(ByRef Combo As ComboBox)
-        Combo.Items.Add(New LBItem(0, "NO INGRESADO"))
-        Combo.Items.Add(New LBItem(1, "MASCULINO"))
-        Combo.Items.Add(New LBItem(2, "FEMENINO"))
+        Combo.Items.Add(New LBItem("0", "NO INGRESADO"))
+        Combo.Items.Add(New LBItem("1", "MASCULINO"))
+        Combo.Items.Add(New LBItem("2", "FEMENINO"))
     End Sub
     Sub CargaPermiso(ByRef Combo As ComboBox)
-        Combo.Items.Add(New LBItem(0, "NO Autorizado"))
-        Combo.Items.Add(New LBItem(1, "SI Autorizado"))
+        Combo.Items.Add(New LBItem("0", "NO Autorizado"))
+        Combo.Items.Add(New LBItem("1", "SI Autorizado"))
         Combo.SelectedIndex = 0
     End Sub
     Sub CargaRutas(ByRef Combo As ComboBox)
@@ -166,7 +167,7 @@ Public Class FrmEstudiantes
             gSession.Llave = Llave
             Dim F As New Busqueda
             F.ShowDialog()
-            TxtCedula.Text = (gSession.Resultado(0))
+            TxtCedula.Text = CStr(gSession.Resultado(0))
             TxtCedula_Validated(sender, e)
             BtnGuardar.Select()
         Catch ex As Exception
@@ -180,7 +181,7 @@ Public Class FrmEstudiantes
         Dim Cedula As String = Replace(TxtCedula.Text.Trim, ControlCarnet, "")
         Dim Ds As New DataSet
         Dim Valores(), Llave() As FuncionesDB.Campos
-        If Len(Cedula) > 0 Then
+        If Cedula.Trim().Length > 0 Then
             Try
                 Valores = Cls.InicializarArray
                 Llave = Cls.InicializarArray
@@ -204,69 +205,66 @@ Public Class FrmEstudiantes
 
                 Ds = Cls.Consultar("Usuario", Valores, Llave, Cn)
                 If Ds.Tables(0).Rows.Count > 0 Then
-                    TxtNombre.Text = CType((Ds.Tables(0).Rows(0)!Nombre), String)
-                    TxtApe1.Text = CType((Ds.Tables(0).Rows(0)!PrimerApellido), String)
-                    TxtApe2.Text = CType((Ds.Tables(0).Rows(0)!SegundoApellido), String)
-                    TxtFecNac.Text = Convert.ToString(Ds.Tables(0).Rows(0)!FechaNac)
-                    TxtTelefono.Text = Convert.ToString(Ds.Tables(0).Rows(0)!Telefono)
-                    TxtSeccion.Text = Convert.ToString(Ds.Tables(0).Rows(0)!Seccion)
+                    Dim row As DataRow = Ds.Tables(0).Rows(0)
+                    TxtNombre.Text = CStr(row("Nombre"))
+                    TxtApe1.Text = CStr(row("PrimerApellido"))
+                    TxtApe2.Text = CStr(row("SegundoApellido"))
+                    TxtFecNac.Text = Convert.ToString(row("FechaNac"))
+                    TxtTelefono.Text = Convert.ToString(row("Telefono"))
+                    TxtSeccion.Text = Convert.ToString(row("Seccion"))
 
-                    If IsDBNull(Ds.Tables(0).Rows(0)!PendienteBecaTransporte) Then
+                    If IsDBNull(row("PendienteBecaTransporte")) Then
                         CBRutaPendiente.Checked = False
                     Else
-                        If (Ds.Tables(0).Rows(0)!PendienteBecaTransporte) Then
-                            CBRutaPendiente.Checked = True
-                        Else
-                            CBRutaPendiente.Checked = False
-                        End If
+                        CBRutaPendiente.Checked = CBool(row("PendienteBecaTransporte"))
                     End If
 
-                    If IsDBNull(Ds.Tables(0).Rows(0)!PermisoSalida) Then
+                    If IsDBNull(row("PermisoSalida")) Then
                         CBPermisoSalida.SelectedIndex = 0
                     Else
-                        If (Ds.Tables(0).Rows(0)!PermisoSalida) Then
+                        If CBool(row("PermisoSalida")) Then
                             CBPermisoSalida.SelectedIndex = 1
                         Else
                             CBPermisoSalida.SelectedIndex = 0
                         End If
                     End If
 
-                    If IsDBNull(Ds.Tables(0).Rows(0)!Sexo) Then
+                    If IsDBNull(row("Sexo")) Then
                         CBGenero.SelectedIndex = 0
                     Else
-                        If (Ds.Tables(0).Rows(0)!Sexo = 1) Then
+                        If CInt(row("Sexo")) = 1 Then
                             CBGenero.SelectedIndex = 1
-                        ElseIf (Ds.Tables(0).Rows(0)!Sexo = 2) Then
+                        ElseIf CInt(row("Sexo")) = 2 Then
                             CBGenero.SelectedIndex = 2
                         Else
                             CBGenero.SelectedIndex = 0
                         End If
                     End If
 
-                    If IsDBNull(Ds.Tables(0).Rows(0)!IdRuta) Then
+                    If IsDBNull(row("IdRuta")) Then
                         CBRuta.SelectedIndex = 0
                     Else
-                        CBRuta.SelectedValue = Ds.Tables(0).Rows(0)!IdRuta
+                        CBRuta.SelectedValue = CInt(row("IdRuta"))
                     End If
 
-                    If IsDBNull(Ds.Tables(0).Rows(0)!TipoBeca) Then
+                    If IsDBNull(row("TipoBeca")) Then
                         CBBeca.SelectedIndex = 0
                     Else
-                        CBBeca.SelectedValue = Ds.Tables(0).Rows(0)!TipoBeca
+                        CBBeca.SelectedValue = CInt(row("TipoBeca"))
                     End If
 
-                    If (Ds.Tables(0).Rows(0)!CodTipo = 1) Then
+                    If CInt(row("CodTipo")) = 1 Then
                         TxtTipoUsuario.Text = "ESTUDIANTE"
                     Else
                         TxtTipoUsuario.Text = "PROFESOR"
                     End If
-                    If IsDBNull(Ds.Tables(0).Rows(0)!HuellaDactilar) Then
+                    If IsDBNull(row("HuellaDactilar")) Then
                         Picture.BackgroundImage = Nothing
                     Else
                         Picture.BackgroundImage = My.Resources.huella_dactilar
                     End If
-                    TxtCedula.Tag = Ds.Tables(0).Rows(0)!IdUsuario
-                    LblCantTiques.Text = Ds.Tables(0).Rows(0)!CantidadTiquetes & " Tiquetes"
+                    TxtCedula.Tag = CInt(row("IdUsuario"))
+                    LblCantTiques.Text = CInt(row("CantidadTiquetes")).ToString() & " Tiquetes"
                 Else
                     LimpiarPantalla()
                     MsgBox("Usuario no ingresado en el sistema", MsgBoxStyle.Information)
@@ -296,14 +294,16 @@ Public Class FrmEstudiantes
     Private Sub BtnGuardar_Click(sender As Object, e As EventArgs) Handles BtnGuardar.Click
         Dim Valores(), Llave() As FuncionesDB.Campos
         Try
+            Dim tipoBeca As Integer = If(CBBeca.SelectedValue Is Nothing, 0, CInt(CBBeca.SelectedValue))
+            Dim idRuta As Integer = If(CBRuta.SelectedValue Is Nothing, 0, CInt(CBRuta.SelectedValue))
             If (TxtTipoUsuario.Text = "PROFESOR" And CBBeca.SelectedIndex <> 0) Then
                 MsgBox("Al usuario tipo (PROFESOR) no se puede activar el beneficio de la BECA.", MsgBoxStyle.Exclamation)
             Else
                 Valores = Cls.InicializarArray
                 Llave = Cls.InicializarArray
                 Cls.ArmaValor(Llave, "IdUsuario", TxtCedula.Tag)
-                Cls.ArmaValor(Valores, "TipoBeca", CBBeca.SelectedValue)
-                Cls.ArmaValor(Valores, "IdRuta", CBRuta.SelectedValue)
+                Cls.ArmaValor(Valores, "TipoBeca", tipoBeca)
+                Cls.ArmaValor(Valores, "IdRuta", idRuta)
                 Cls.ArmaValor(Valores, "Sexo", CBGenero.SelectedIndex)
                 Cls.ArmaValor(Valores, "PendienteBecaTransporte", CBRutaPendiente.Checked)
                 Cls.ArmaValor(Valores, "PermisoSalida", CBPermisoSalida.SelectedIndex)
@@ -328,10 +328,14 @@ Public Class FrmEstudiantes
         If CBRuta.SelectedIndex = 0 Then
             pIdRuta = 1
         Else
-            pIdRuta = CBRuta.SelectedValue
+            pIdRuta = CInt(CBRuta.SelectedValue)
         End If
-        Dim result = (From cust In DsRutas.Tables(0).Select("IdRuta = " & pIdRuta)).SingleOrDefault()
-        LblRuta.Text = result!Codigo
+        Dim result As DataRow = (From cust As DataRow In DsRutas.Tables(0).Select("IdRuta = " & pIdRuta.ToString())).SingleOrDefault()
+        If result IsNot Nothing Then
+            LblRuta.Text = CStr(result("Codigo"))
+        Else
+            LblRuta.Text = String.Empty
+        End If
     End Sub
 
     Private Sub Label16_Click(sender As Object, e As EventArgs) Handles Label16.Click

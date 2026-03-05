@@ -35,7 +35,6 @@ Namespace Seguridad
         Public Function encryptQueryString(ByVal strQueryString As String, ByVal pkey As String) As String
             Dim oES As New Encriptacion64
             Return oES.Encrypt(strQueryString, pkey)
-            oES = Nothing
         End Function
 
 
@@ -50,6 +49,7 @@ Namespace Seguridad
             Dim Clave3 As Integer, i As Integer
             Dim Encriptar As String
             Dim MiValor As Integer
+            Dim textoLength As Integer = Texto.Length
 
             Randomize()
 
@@ -74,7 +74,7 @@ Namespace Seguridad
             End If
 
             Encriptar = Chr(Asc(Mid(StrClave1, 1, 1)) + 5) & Chr(Asc(Mid(StrClave1, 2, 1)) + 5)
-            For i = 1 To Len(Texto)
+            For i = 1 To textoLength
                 Encriptar = Encriptar & Chr(Asc(Mid(Texto, i, 1)) + Clave3)
             Next i
 
@@ -89,14 +89,24 @@ Namespace Seguridad
             Dim Clave2 As Byte, StrClave2 As String
             Dim Clave3 As Integer, i As Integer
             Dim Encriptar As String
+            Dim textoLength As Integer = Texto.Length
+            Dim parsedClave As Integer
 
             StrClave1 = Mid(Texto, 1, 2)
             StrClave1 = Chr(Asc(Mid(StrClave1, 1, 1)) - 5) & Chr(Asc(Mid(StrClave1, 2, 1)) - 5)
-            Clave1 = CByte(Val(StrClave1))
+            If Integer.TryParse(StrClave1, parsedClave) Then
+                Clave1 = CByte(parsedClave)
+            Else
+                Clave1 = 0
+            End If
 
-            StrClave2 = Mid(Texto, Len(Texto) - 1, 2)
+            StrClave2 = Mid(Texto, textoLength - 1, 2)
             StrClave2 = Chr(Asc(Mid(StrClave2, 1, 1)) - 5) & Chr(Asc(Mid(StrClave2, 2, 1)) - 5)
-            Clave2 = CByte(Val(StrClave2))
+            If Integer.TryParse(StrClave2, parsedClave) Then
+                Clave2 = CByte(parsedClave)
+            Else
+                Clave2 = 0
+            End If
 
             If Clave1 > Clave2 Then
                 Clave3 = Clave1 - Clave2
@@ -107,7 +117,7 @@ Namespace Seguridad
             End If
 
             Encriptar = ""
-            For i = 3 To Len(Texto) - 2
+            For i = 3 To textoLength - 2
                 Encriptar = Encriptar & Chr(Asc(Mid(Texto, i, 1)) - Clave3)
             Next i
 
@@ -135,22 +145,18 @@ Namespace Seguridad
             Try
                 Dim Info As New SysFile
 
-                Dim oSW As New StreamReader(lArchivo1)
-                Dim Secur As New Seguridad.Encriptacion64
-                'Dim Linea As String = "Línea de texto " & vbNewLine & "Otra linea de texto"
-                Info.MachineName = Secur.M_DesEncriptar(oSW.ReadLine)
-                Info.RazonSocial = Secur.M_DesEncriptar(oSW.ReadLine)
-                Info.DenominacionSocial = Secur.M_DesEncriptar(oSW.ReadLine)
-                Info.TipoServicio = Secur.M_DesEncriptar(oSW.ReadLine)
-                Info.TipoActivacion = Secur.M_DesEncriptar(oSW.ReadLine)
-                Info.FechaVence = Secur.M_DesEncriptar(oSW.ReadLine)
-                Info.FechaActivacion = Secur.M_DesEncriptar(oSW.ReadLine)
-                Info.CantUsos = CInt(Val(Secur.M_DesEncriptar(oSW.ReadLine)))
-                Info.Estado = Secur.M_DesEncriptar(oSW.ReadLine)
-
-
-                oSW.Close()
-                oSW.Dispose()
+                Using oSW As New StreamReader(lArchivo1)
+                    Dim Secur As New Seguridad.Encriptacion64
+                    Info.MachineName = Secur.M_DesEncriptar(oSW.ReadLine)
+                    Info.RazonSocial = Secur.M_DesEncriptar(oSW.ReadLine)
+                    Info.DenominacionSocial = Secur.M_DesEncriptar(oSW.ReadLine)
+                    Info.TipoServicio = Secur.M_DesEncriptar(oSW.ReadLine)
+                    Info.TipoActivacion = Secur.M_DesEncriptar(oSW.ReadLine)
+                    Info.FechaVence = Secur.M_DesEncriptar(oSW.ReadLine)
+                    Info.FechaActivacion = Secur.M_DesEncriptar(oSW.ReadLine)
+                    Info.CantUsos = CInt(Val(Secur.M_DesEncriptar(oSW.ReadLine)))
+                    Info.Estado = Secur.M_DesEncriptar(oSW.ReadLine)
+                End Using
 
                 Return Info
                 ' error
@@ -169,22 +175,18 @@ Namespace Seguridad
                 '*************************************************************
                 '*** 2do archivo.
                 '*************************************************************
-                Dim oSW2 As New StreamReader(lArchivo2)
-                Dim Secur2 As New Seguridad.Encriptacion64
-                'Dim Linea As String = "Línea de texto " & vbNewLine & "Otra linea de texto"
-
-                Info.Estado = Secur2.M_DesEncriptar(oSW2.ReadLine)
-                Info.CantUsos = CInt(Val(Secur2.M_DesEncriptar(oSW2.ReadLine)))
-                Info.FechaActivacion = Secur2.M_DesEncriptar(oSW2.ReadLine)
-                Info.RazonSocial = Secur2.M_DesEncriptar(oSW2.ReadLine)
-                Info.DenominacionSocial = Secur2.M_DesEncriptar(oSW2.ReadLine)
-                Info.TipoServicio = Secur2.M_DesEncriptar(oSW2.ReadLine)
-                Info.FechaVence = Secur2.M_DesEncriptar(oSW2.ReadLine)
-                Info.TipoActivacion = Secur2.M_DesEncriptar(oSW2.ReadLine)
-                Info.MachineName = Secur2.M_DesEncriptar(oSW2.ReadLine)
-
-                oSW2.Close()
-                oSW2.Dispose()
+                Using oSW2 As New StreamReader(lArchivo2)
+                    Dim Secur2 As New Seguridad.Encriptacion64
+                    Info.Estado = Secur2.M_DesEncriptar(oSW2.ReadLine)
+                    Info.CantUsos = CInt(Val(Secur2.M_DesEncriptar(oSW2.ReadLine)))
+                    Info.FechaActivacion = Secur2.M_DesEncriptar(oSW2.ReadLine)
+                    Info.RazonSocial = Secur2.M_DesEncriptar(oSW2.ReadLine)
+                    Info.DenominacionSocial = Secur2.M_DesEncriptar(oSW2.ReadLine)
+                    Info.TipoServicio = Secur2.M_DesEncriptar(oSW2.ReadLine)
+                    Info.FechaVence = Secur2.M_DesEncriptar(oSW2.ReadLine)
+                    Info.TipoActivacion = Secur2.M_DesEncriptar(oSW2.ReadLine)
+                    Info.MachineName = Secur2.M_DesEncriptar(oSW2.ReadLine)
+                End Using
 
                 Return Info
                 ' error
@@ -217,21 +219,18 @@ Namespace Seguridad
                 System.IO.File.Delete(lArchivo1)
             End If
 
-            Dim oSW As New StreamWriter(lArchivo1)
-
-            'Dim Linea As String = "Línea de texto " & vbNewLine & "Otra linea de texto"
-
-            oSW.WriteLine(Secur.M_Encriptar(Info.MachineName, 30))
-            oSW.WriteLine(Secur.M_Encriptar(Info.RazonSocial, 30))
-            oSW.WriteLine(Secur.M_Encriptar(Info.DenominacionSocial, 30))
-            oSW.WriteLine(Secur.M_Encriptar(Info.TipoServicio, 30))
-            oSW.WriteLine(Secur.M_Encriptar(Info.TipoActivacion, 30))
-            oSW.WriteLine(Secur.M_Encriptar(Info.FechaVence, 30))
-            oSW.WriteLine(Secur.M_Encriptar(Info.FechaActivacion, 30))
-            oSW.WriteLine(Secur.M_Encriptar(CStr(Info.CantUsos), 30))
-            oSW.WriteLine(Secur.M_Encriptar(Info.Estado, 30))
-            oSW.Flush()
-            oSW.Close()
+            Using oSW As New StreamWriter(lArchivo1)
+                oSW.WriteLine(Secur.M_Encriptar(Info.MachineName, 30))
+                oSW.WriteLine(Secur.M_Encriptar(Info.RazonSocial, 30))
+                oSW.WriteLine(Secur.M_Encriptar(Info.DenominacionSocial, 30))
+                oSW.WriteLine(Secur.M_Encriptar(Info.TipoServicio, 30))
+                oSW.WriteLine(Secur.M_Encriptar(Info.TipoActivacion, 30))
+                oSW.WriteLine(Secur.M_Encriptar(Info.FechaVence, 30))
+                oSW.WriteLine(Secur.M_Encriptar(Info.FechaActivacion, 30))
+                oSW.WriteLine(Secur.M_Encriptar(CStr(Info.CantUsos), 30))
+                oSW.WriteLine(Secur.M_Encriptar(Info.Estado, 30))
+                oSW.Flush()
+            End Using
 
         End Sub
 
@@ -249,29 +248,26 @@ Namespace Seguridad
                 System.IO.File.Delete(lArchivo2)
             End If
 
-            Dim oSW As New StreamWriter(lArchivo2)
-
-            'Dim Linea As String = "Línea de texto " & vbNewLine & "Otra linea de texto"
-
-            oSW.WriteLine(Secur.M_Encriptar(Info.Estado, 30))
-            oSW.WriteLine(Secur.M_Encriptar(CStr(Info.CantUsos), 30))
-            oSW.WriteLine(Secur.M_Encriptar(Info.FechaActivacion, 30))
-            oSW.WriteLine(Secur.M_Encriptar(Info.RazonSocial, 30))
-            oSW.WriteLine(Secur.M_Encriptar(Info.DenominacionSocial, 30))
-            oSW.WriteLine(Secur.M_Encriptar(Info.TipoServicio, 30))
-            oSW.WriteLine(Secur.M_Encriptar(Info.FechaVence, 30))
-            oSW.WriteLine(Secur.M_Encriptar(Info.TipoActivacion, 30))
-            oSW.WriteLine(Secur.M_Encriptar(Info.MachineName, 30))
-
-            oSW.Flush()
-            oSW.Close()
+            Using oSW As New StreamWriter(lArchivo2)
+                oSW.WriteLine(Secur.M_Encriptar(Info.Estado, 30))
+                oSW.WriteLine(Secur.M_Encriptar(CStr(Info.CantUsos), 30))
+                oSW.WriteLine(Secur.M_Encriptar(Info.FechaActivacion, 30))
+                oSW.WriteLine(Secur.M_Encriptar(Info.RazonSocial, 30))
+                oSW.WriteLine(Secur.M_Encriptar(Info.DenominacionSocial, 30))
+                oSW.WriteLine(Secur.M_Encriptar(Info.TipoServicio, 30))
+                oSW.WriteLine(Secur.M_Encriptar(Info.FechaVence, 30))
+                oSW.WriteLine(Secur.M_Encriptar(Info.TipoActivacion, 30))
+                oSW.WriteLine(Secur.M_Encriptar(Info.MachineName, 30))
+                oSW.Flush()
+            End Using
 
         End Sub
 
         Function CreaArchivos(ByVal Info As SysFile) As Boolean
             Try
                 Dim lTrue As Boolean = True
-                Dim Info1, Info2 As Seguridad.Encriptacion64.SysFile
+                Dim Info1 As Seguridad.Encriptacion64.SysFile
+                Dim Info2 As Seguridad.Encriptacion64.SysFile
                 Dim Sec As New Seguridad.Encriptacion64
                 While lTrue
                     CreaArchivo1(Info)

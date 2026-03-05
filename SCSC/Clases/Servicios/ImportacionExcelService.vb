@@ -78,4 +78,52 @@ Public Class ImportacionExcelService
 
         _cls.GuardarActualizar("Usuario", valores, llave, cn, pTransac)
     End Sub
+
+    Public Sub GuardarUsuarioNormalizado(ByVal row As DataRow,
+                                         ByVal tipoUsuario As Integer,
+                                         ByVal idHorario As Integer,
+                                         ByVal cn As SqlConnection,
+                                         ByVal pTransac As SqlTransaction)
+        Dim valores() As FuncionesDB.Campos = _cls.InicializarArray
+        Dim llave() As FuncionesDB.Campos = _cls.InicializarArray
+
+        Dim ced As String = Convert.ToString(row("Cedula")).Replace("-", String.Empty).Trim()
+        If String.IsNullOrWhiteSpace(ced) Then
+            Throw New InvalidOperationException("La fila no contiene una cédula válida.")
+        End If
+
+        _cls.ArmaValor(llave, "cedula", ced)
+        _cls.ArmaValor(valores, "cedula", ced)
+        _cls.ArmaValor(valores, "PrimerApellido", Convert.ToString(row("PrimerApellido")).Trim())
+        _cls.ArmaValor(valores, "SegundoApellido", Convert.ToString(row("SegundoApellido")).Trim())
+        _cls.ArmaValor(valores, "Nombre", Convert.ToString(row("Nombre")).Trim())
+        _cls.ArmaValor(valores, "IdHorario", idHorario)
+        _cls.ArmaValor(valores, "CodTipo", tipoUsuario)
+        _cls.ArmaValor(valores, "Actualizado", 1)
+        _cls.ArmaValor(valores, "Activo", 1)
+
+        If tipoUsuario = 1 Then
+            _cls.ArmaValor(valores, "Seccion", Convert.ToString(row("Seccion")).Trim())
+
+            Dim especialidad As String = Convert.ToString(row("Especialidad")).Trim()
+            If especialidad.Length > 0 Then
+                _cls.ArmaValor(valores, "Especialidad", especialidad.ToUpperInvariant())
+            Else
+                _cls.ArmaValor(valores, "Especialidad", "III CICLO")
+            End If
+
+            Dim fechaNac As Date = Now.Date
+            Try
+                fechaNac = Convert.ToDateTime(row("FechaNac"))
+            Catch
+            End Try
+            _cls.ArmaValor(valores, "FechaNac", fechaNac)
+            _cls.ArmaValor(valores, "Telefono", Convert.ToString(row("Telefono")).Trim())
+        Else
+            _cls.ArmaValor(valores, "Seccion", "NA")
+            _cls.ArmaValor(valores, "Especialidad", "NA")
+        End If
+
+        _cls.GuardarActualizar("Usuario", valores, llave, cn, pTransac)
+    End Sub
 End Class

@@ -29,12 +29,13 @@ Public Class ComedorDataService
         dsUsuarios.Tables(0).Columns.Add("HoraMarca", GetType(DateTime))
 
         For Each iRow As DataRow In dsUsuarios.Tables(0).Rows
-            Dim marca() As DataRow = dsMarcasEntrada.Tables(0).Select(String.Format("IdUsuario = '{0}'", iRow!IdUsuario))
+            Dim idUsuario As Integer = CInt(iRow("IdUsuario"))
+            Dim marca() As DataRow = dsMarcasEntrada.Tables(0).Select(String.Format("IdUsuario = '{0}'", idUsuario))
             If marca.Length > 0 Then
-                iRow!MarcaTransporte = 1
-                iRow!HoraMarca = marca(0).ItemArray(1)
+                iRow("MarcaTransporte") = 1
+                iRow("HoraMarca") = CDate(marca(0)("Fecha"))
             Else
-                iRow!MarcaTransporte = 0
+                iRow("MarcaTransporte") = 0
             End If
         Next
 
@@ -61,28 +62,30 @@ Public Class ComedorDataService
             Dim cantTiquetes As Integer = 0
             Dim valores() As FuncionesDB.Campos
             Dim becado As Integer = 0
+            Dim tipoBecaUsuario As Integer = CInt(usuario("TipoBeca"))
 
             For Each beca As DataRow In dsBeca.Tables(0).Rows
-                If beca!IdBeca = usuario!TipoBeca Then
-                    becado = InStr(beca!DiasBeca, diaSemana)
+                If CInt(beca("IdBeca")) = tipoBecaUsuario Then
+                    becado = InStr(CStr(beca("DiasBeca")), diaSemana)
                     Exit For
                 End If
             Next
 
             _cls.IniciaSQL(cn, pTransac)
             valores = _cls.InicializarArray
-            _cls.ArmaValor(valores, "IdUsuario", usuario!IdUsuario)
+            _cls.ArmaValor(valores, "IdUsuario", CInt(usuario("IdUsuario")))
 
             If becado > 0 Then
                 resultado.TextoTiquetes = " Usuario Becado"
                 _cls.ArmaValor(valores, "Beca", 1)
             Else
                 Dim data As DataSet = _cls.ConsultarTSQL("Usuario", "SELECT CantidadTiquetes FROM Usuario WHERE IdUsuario = @IdUsuario", valores, cn, pTransac)
-                If data.Tables(0).Rows(0)!CantidadTiquetes < 1 Then
+                Dim cantidadTiquetesActual As Integer = CInt(data.Tables(0).Rows(0)("CantidadTiquetes"))
+                If cantidadTiquetesActual < 1 Then
                     guardarTransaccion = False
                     resultado.ErrorTiquetes = True
                 Else
-                    cantTiquetes = data.Tables(0).Rows(0)!CantidadTiquetes - 1
+                    cantTiquetes = cantidadTiquetesActual - 1
                     _cls.AplicaSQL("UPDATE Usuario set CantidadTiquetes = CantidadTiquetes - 1 WHERE IdUsuario = @IdUsuario", cn, pTransac, valores)
                 End If
                 resultado.TextoTiquetes = cantTiquetes & " Tiquetes"
@@ -91,7 +94,7 @@ Public Class ComedorDataService
 
             _cls.ArmaValor(valores, "TipoPago", 2)
             _cls.ArmaValor(valores, "Cantidad", 1)
-            _cls.ArmaValor(valores, "TipoUsuario", usuario!CodTipo)
+            _cls.ArmaValor(valores, "TipoUsuario", CInt(usuario("CodTipo")))
             If guardarTransaccion Then
                 _cls.Insert("RegistroComedor", valores, cn, pTransac)
                 resultado.RegistroGuardado = True

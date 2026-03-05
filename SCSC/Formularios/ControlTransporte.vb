@@ -6,8 +6,11 @@ Imports System.Threading
 Imports System.Threading.Tasks
 
 Public Class ControlTransporte
+    Private Const DesignerFirstStrict As Boolean = True
     Private Const SegundosInactividadLimpiarRegistro As Integer = 60
     Private Const PermitirCierreOperador As Boolean = True
+    Private Const SidebarMinWidth As Integer = 420
+    Private Const SidebarMaxWidth As Integer = 520
 
     Private Ulthuella As String
     Private ErrUltHuella As Boolean
@@ -60,6 +63,10 @@ Public Class ControlTransporte
     Private _btnIncidencia As Button
     Private _lblScanHint As Label
     Private _btnSalirOperador As Button
+    Private _lblFocusEscaneo As Label
+    Private _lblHotkeys As Label
+    Private _lblEstadoChip As Label
+    Private _modoAltoContraste As Boolean
 
     Private ReadOnly Cls As New FuncionesDB
     Private ReadOnly TransporteSvc As New TransporteDataService(Cls)
@@ -79,6 +86,12 @@ Public Class ControlTransporte
         Duplicate = 4
         ErrorGeneral = 5
         NotFound = 6
+    End Enum
+
+    Private Enum LayoutMode
+        Compact = 0
+        Standard = 1
+        Wide = 2
     End Enum
 
     Private Delegate Sub BoolCall(ByVal value As Boolean)
@@ -243,7 +256,7 @@ Public Class ControlTransporte
         End If
 
         For Each row As DataRow In DsUsuarios.Tables(0).Rows
-            If String.Equals(CStr(row!Cedula), cedula, StringComparison.OrdinalIgnoreCase) Then
+            If String.Equals(CStr(row("Cedula")), cedula, StringComparison.OrdinalIgnoreCase) Then
                 Return row
             End If
         Next
@@ -252,10 +265,32 @@ Public Class ControlTransporte
     End Function
 
     Private Function TieneAdvertenciaPermisoSalida(ByVal usuario As DataRow) As Boolean
-        If usuario Is Nothing OrElse IsDBNull(usuario!PermisoSalida) Then
+        If usuario Is Nothing OrElse IsDBNull(usuario("PermisoSalida")) Then
             Return True
         End If
-        Return Not CBool(usuario!PermisoSalida)
+        Return Not ConvertirABooleano(usuario("PermisoSalida"))
+    End Function
+
+    Private Function ConvertirABooleano(ByVal raw As Object) As Boolean
+        If raw Is Nothing OrElse IsDBNull(raw) Then
+            Return False
+        End If
+
+        If TypeOf raw Is Boolean Then
+            Return CBool(raw)
+        End If
+
+        If IsNumeric(raw) Then
+            Return CInt(raw) <> 0
+        End If
+
+        Dim texto As String = CStr(raw).Trim()
+        Dim parsed As Boolean
+        If Boolean.TryParse(texto, parsed) Then
+            Return parsed
+        End If
+
+        Return texto = "1"
     End Function
 
     Protected Sub ProcesarMarca(ByVal usuario As DataRow)
@@ -265,28 +300,28 @@ Public Class ControlTransporte
         End If
 
         Try
-            LblCedula.Text = CStr(usuario!Cedula)
-            TxtUsuario.Text = String.Format("{0} {1} {2}", CStr(usuario!Nombre), CStr(usuario!PrimerApellido), CStr(usuario!SegundoApellido)).Trim()
-            TxtSeccion.Text = CStr(usuario!Seccion)
+            LblCedula.Text = CStr(usuario("Cedula"))
+            TxtUsuario.Text = String.Format("{0} {1} {2}", CStr(usuario("Nombre")), CStr(usuario("PrimerApellido")), CStr(usuario("SegundoApellido"))).Trim()
+            TxtSeccion.Text = CStr(usuario("Seccion"))
             TxtRuta.Text = String.Empty
             LblRuta.Text = String.Empty
 
             For Each rut As DataRow In DsRutas.Tables(0).Rows
-                If CInt(rut!IdRuta) = CInt(usuario!IdRuta) Then
-                    TxtRuta.Text = CStr(rut!Codigo)
-                    LblRuta.Text = CStr(rut!Descripcion) & ": " & TxtUsuario.Text
+                If CInt(rut("IdRuta")) = CInt(usuario("IdRuta")) Then
+                    TxtRuta.Text = CStr(rut("Codigo"))
+                    LblRuta.Text = CStr(rut("Descripcion")) & ": " & TxtUsuario.Text
                     Exit For
                 End If
             Next
 
-            If Not IsDBNull(usuario!PermisoSalida) AndAlso CBool(usuario!PermisoSalida) Then
+            If ConvertirABooleano(usuario("PermisoSalida")) Then
                 TxtPermisoSalida.Text = "SI Autorizado"
             Else
                 TxtPermisoSalida.Text = "NO Autorizado"
             End If
 
             Ulthuella = CStr(LblCedula.Text)
-            If CShort(usuario!CodTipo) = 1S Then
+            If CShort(usuario("CodTipo")) = 1S Then
                 TxtTipo.Text = "ESTUDIANTE"
                 LblTitulo.Text = "ESTUDIANTE: " & TxtUsuario.Text
             Else
@@ -300,7 +335,7 @@ Public Class ControlTransporte
                 OperacionSvc.RegistrarEvento(
                     Cn,
                     DateTime.Now,
-                    CStr(usuario!Cedula),
+                    CStr(usuario("Cedula")),
                     ObtenerCodigoEstado(estadoEventoTx),
                     If(estadoEventoTx = EstadoVisual.Warning, "PERMITIDO_CON_ADVERTENCIA", "ACCESO_PERMITIDO"),
                     Nothing,
@@ -354,11 +389,27 @@ Public Class ControlTransporte
 
     Private Sub EnsureScanFocus(ByVal selectAll As Boolean)
         If Not TxtCedula.CanFocus Then
+            ActualizarIndicadorFoco(False)
             Exit Sub
         End If
         TxtCedula.Focus()
         If selectAll Then
             TxtCedula.SelectAll()
+        End If
+        ActualizarIndicadorFoco(TxtCedula.Focused)
+    End Sub
+
+    Private Sub ActualizarIndicadorFoco(ByVal focusActivo As Boolean)
+        If _lblFocusEscaneo Is Nothing Then
+            Exit Sub
+        End If
+
+        If focusActivo Then
+            _lblFocusEscaneo.Text = "Lector listo (foco activo)"
+            _lblFocusEscaneo.ForeColor = Color.FromArgb(157, 230, 170)
+        Else
+            _lblFocusEscaneo.Text = "Atencion: foco fuera del lector (F3 para recuperar)"
+            _lblFocusEscaneo.ForeColor = Color.FromArgb(255, 214, 170)
         End If
     End Sub
 
@@ -366,18 +417,22 @@ Public Class ControlTransporte
         Me.BackColor = UIConstants.AppBackground
         Me.Font = UIConstants.FontBody()
         Me.KeyPreview = True
-        Me.WindowState = FormWindowState.Maximized
-        Me.FormBorderStyle = FormBorderStyle.None
-        Me.ControlBox = False
-        Me.StartPosition = FormStartPosition.CenterScreen
+        If Not DesignerFirstStrict Then
+            Me.WindowState = FormWindowState.Maximized
+            Me.FormBorderStyle = FormBorderStyle.None
+            Me.ControlBox = False
+            Me.StartPosition = FormStartPosition.CenterScreen
+        End If
 
         PanelResult.BackColor = Color.FromArgb(242, 246, 252)
-        PanelResult.BorderStyle = BorderStyle.FixedSingle
-        PanelResult.Dock = DockStyle.None
-        Panel1.Dock = DockStyle.None
-        BunifuGradientPanel1.Dock = DockStyle.None
-        Panel1.Visible = False
-        BtnCerrar.Visible = False
+        If Not DesignerFirstStrict Then
+            PanelResult.BorderStyle = BorderStyle.FixedSingle
+            PanelResult.Dock = DockStyle.None
+            Panel1.Dock = DockStyle.None
+            BunifuGradientPanel1.Dock = DockStyle.None
+            Panel1.Visible = False
+            BtnCerrar.Visible = False
+        End If
 
         LblTitulo.Font = New Font("Segoe UI Semibold", 28.0!, FontStyle.Bold)
         LblTitulo.ForeColor = Color.FromArgb(17, 33, 59)
@@ -413,12 +468,22 @@ Public Class ControlTransporte
         TxtCedula.Visible = True
         TxtCedula.BringToFront()
         EnsureSidebarKioskControls()
+        _lblScanHint.Text = "Escanear carnet (Enter)" & Environment.NewLine & "Limpiar (F2) | Salir (Esc) | Alto contraste (F7)"
+        _lblScanHint.AutoSize = False
+        _lblScanHint.TextAlign = ContentAlignment.MiddleLeft
+        _lblScanHint.Font = New Font("Segoe UI", 11.0!, FontStyle.Bold)
 
         LblRuta.BackColor = Color.Transparent
         LblRuta.ForeColor = Color.White
+        AplicarModoAltoContraste()
     End Sub
 
     Private Sub ApplyResponsiveLayout()
+        If DesignerFirstStrict Then
+            ApplySupplementaryOperationalLayout()
+            Return
+        End If
+
         Dim leftWidth As Integer = CInt(Math.Round(Me.ClientSize.Width * 0.32R))
         leftWidth = Math.Max(380, Math.Min(470, leftWidth))
 
@@ -445,7 +510,7 @@ Public Class ControlTransporte
         TxtCedula.SetBounds(innerX, 216, innerW, 44)
         GbDatos.SetBounds(12, 286, leftWidth - 24, Math.Max(250, Me.ClientSize.Height - 298))
         If _btnSalirOperador IsNot Nothing Then
-            _btnSalirOperador.SetBounds(leftWidth - 140, Me.ClientSize.Height - 52, 126, 36)
+            _btnSalirOperador.SetBounds(leftWidth - 204, Me.ClientSize.Height - 52, 190, 36)
         End If
 
         Dim gX As Integer = 14
@@ -493,25 +558,59 @@ Public Class ControlTransporte
         End If
     End Sub
 
+    Private Sub ApplySupplementaryOperationalLayout()
+        EnsureSidebarKioskControls()
+
+        Dim leftWidth As Integer = Math.Max(300, BunifuGradientPanel1.ClientSize.Width)
+        Dim leftHeight As Integer = Math.Max(420, BunifuGradientPanel1.ClientSize.Height)
+        Dim statusW As Integer = Math.Max(320, PanelResult.ClientSize.Width)
+        Dim statusH As Integer = Math.Max(280, PanelResult.ClientSize.Height)
+
+        If _lblScanHint IsNot Nothing Then
+            _lblScanHint.SetBounds(20, 184, leftWidth - 40, 28)
+        End If
+        If _btnSalirOperador IsNot Nothing Then
+            _btnSalirOperador.SetBounds(leftWidth - 204, leftHeight - 52, 190, 36)
+        End If
+
+        If _lblHistorial IsNot Nothing Then
+            Dim gX As Integer = 14
+            Dim gW As Integer = Math.Max(220, GbDatos.ClientSize.Width - 28)
+            _lblHistorial.SetBounds(gX, 426, gW, 20)
+            _lstHistorial.SetBounds(gX, 448, gW, Math.Max(60, GbDatos.ClientSize.Height - 458))
+        End If
+
+        If _lblResultadoOperacion IsNot Nothing Then
+            _lblResultadoOperacion.SetBounds(24, 170, Math.Max(260, statusW - 48), 44)
+        End If
+        If _lblConexion IsNot Nothing Then
+            _lblConexion.SetBounds(20, statusH - 96, statusW - 40, 20)
+            _lblKpi.SetBounds(20, statusH - 74, statusW - 40, 20)
+            _lblUltimaLectura.SetBounds(20, statusH - 52, statusW - 40, 20)
+            _lblEdadEstado.SetBounds(20, statusH - 30, statusW - 40, 20)
+            _btnIncidencia.SetBounds(Math.Max(20, statusW - 160), 14, 140, 30)
+        End If
+    End Sub
+
     Private Sub EnsureSidebarKioskControls()
         If _lblScanHint Is Nothing Then
             _lblScanHint = New Label()
             _lblScanHint.AutoSize = False
             _lblScanHint.ForeColor = Color.FromArgb(220, 232, 252)
             _lblScanHint.Font = New Font("Segoe UI", 12.0!, FontStyle.Bold)
-            _lblScanHint.Text = "Escanear carnet (Enter) | Limpiar estado (F2)"
+            _lblScanHint.Text = "Escanear carnet (Enter) | Limpiar (F2) | Salir (Esc)"
             BunifuGradientPanel1.Controls.Add(_lblScanHint)
             _lblScanHint.BringToFront()
         End If
 
         If _btnSalirOperador Is Nothing Then
             _btnSalirOperador = New Button()
-            _btnSalirOperador.Text = "Salir"
+            _btnSalirOperador.Text = "Volver al dashboard"
             _btnSalirOperador.FlatStyle = FlatStyle.Flat
             _btnSalirOperador.FlatAppearance.BorderSize = 0
             _btnSalirOperador.BackColor = Color.FromArgb(161, 47, 65)
             _btnSalirOperador.ForeColor = Color.White
-            _btnSalirOperador.Font = New Font("Segoe UI", 10.0!, FontStyle.Bold)
+            _btnSalirOperador.Font = New Font("Segoe UI", 9.5!, FontStyle.Bold)
             _btnSalirOperador.Visible = PermitirCierreOperador
             AddHandler _btnSalirOperador.Click, AddressOf BtnSalirOperador_Click
             BunifuGradientPanel1.Controls.Add(_btnSalirOperador)
@@ -822,10 +921,10 @@ Public Class ControlTransporte
             End If
 
             For Each row As DataRow In dt.Rows
-                Dim fechaStr As String = CDate(row!FechaEvento).ToString("HH:mm:ss")
-                Dim estado As String = CStr(row!Estado)
-                Dim cedula As String = CStr(row!Cedula)
-                Dim motivo As String = CStr(row!Motivo)
+                Dim fechaStr As String = CDate(row("FechaEvento")).ToString("HH:mm:ss")
+                Dim estado As String = CStr(row("Estado"))
+                Dim cedula As String = CStr(row("Cedula"))
+                Dim motivo As String = CStr(row("Motivo"))
                 Dim detalle As String = If(String.IsNullOrWhiteSpace(motivo), cedula, motivo)
                 _lstHistorial.Items.Add(fechaStr & " | " & estado & " | " & detalle)
             Next

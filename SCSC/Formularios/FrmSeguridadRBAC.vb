@@ -8,7 +8,6 @@ Imports System.Drawing
 Imports System.Windows.Forms
 
 Partial Friend Class FrmSeguridadRBAC
-    Inherits System.Windows.Forms.Form
 
     Private ReadOnly _service As New SeguridadRbacService()
     Private _layoutReady As Boolean = False
@@ -26,6 +25,9 @@ Partial Friend Class FrmSeguridadRBAC
 
     Public Sub New()
         InitializeComponent()
+        If LicenseManager.UsageMode = LicenseUsageMode.Designtime Then
+            Return
+        End If
         Me.StartPosition = FormStartPosition.CenterParent
         Me.MinimumSize = New Size(1220, 780)
         Me.Size = New Size(1320, 860)
@@ -41,6 +43,7 @@ Partial Friend Class FrmSeguridadRBAC
             Me.KeyPreview = True
             UIThemeManagerV2.Apply(Me, "dialogo")
             ApplyVisualStandard2026()
+            EnsureCrudRuntimeLayout()
             PanelFooter.BringToFront()
             _btnSalir.BringToFront()
 
@@ -61,6 +64,9 @@ Partial Friend Class FrmSeguridadRBAC
     End Sub
 
     Private Sub FrmSeguridadRBAC_Shown(sender As Object, e As EventArgs) Handles MyBase.Shown
+        If Not IsInDesignMode() Then
+            EnsureCrudRuntimeLayout()
+        End If
         PanelFooter.Visible = True
         PanelFooter.BringToFront()
         _btnSalir.Visible = True
@@ -68,6 +74,9 @@ Partial Friend Class FrmSeguridadRBAC
     End Sub
 
     Private Sub FrmSeguridadRBAC_Resize(sender As Object, e As EventArgs) Handles MyBase.Resize
+        If Not IsInDesignMode() Then
+            EnsureCrudRuntimeLayout()
+        End If
         PanelFooter.BringToFront()
         _btnSalir.BringToFront()
     End Sub
@@ -447,6 +456,54 @@ Partial Friend Class FrmSeguridadRBAC
     Private Sub ApplyVisualGuards()
         ' Modo designer-first estricto:
         ' evitar ajustes de geometría en runtime para no desalinear el diseño.
+    End Sub
+
+    Private Sub EnsureCrudRuntimeLayout()
+        If IsInDesignMode() Then
+            Exit Sub
+        End If
+
+        ConfigureCrudLayoutTables()
+        ConfigureCrudFlow(FlowUsuariosBotones)
+        ConfigureCrudFlow(FlowRolesBotones)
+        ConfigureCrudFlow(FlowPermisosBotones)
+
+        ConfigureTabSplit(TabUsuarios, _gridUsuarios, PanelUsuariosBottom, "SplitUsuarios", 0.46R)
+        ConfigureTabSplit(TabRoles, _gridRoles, PanelRolesBottom, "SplitRoles", 0.46R)
+        ConfigureTabSplit(TabPermisos, _gridPermisos, PanelPermisosBottom, "SplitPermisos", 0.46R)
+
+        EnsureActionRowVisible(FlowUsuariosBotones)
+        EnsureActionRowVisible(FlowRolesBotones)
+        EnsureActionRowVisible(FlowPermisosBotones)
+
+        FlowUsuariosBotones.BringToFront()
+        FlowRolesBotones.BringToFront()
+        FlowPermisosBotones.BringToFront()
+
+        EnsureButtonsVisible(
+            _btnCrearUsuario, _btnActualizarUsuario, _btnEliminarUsuario, _btnCambiarClave, _btnAsignarRolUsuario, _btnRevocarRolUsuario,
+            _btnCrearRol, _btnActualizarRol, _btnEliminarRol, _btnAsignarPermisoRol, _btnRevocarPermisoRol,
+            _btnCrearPermiso, _btnActualizarPermiso, _btnEliminarPermiso)
+
+        EnsureSplitDistance(TabUsuarios, "SplitUsuarios", 0.46R)
+        EnsureSplitDistance(TabRoles, "SplitRoles", 0.46R)
+        EnsureSplitDistance(TabPermisos, "SplitPermisos", 0.46R)
+
+        _layoutReady = True
+    End Sub
+
+    Private Sub EnsureButtonsVisible(ByVal ParamArray buttons() As Button)
+        If buttons Is Nothing Then
+            Exit Sub
+        End If
+
+        For Each btn As Button In buttons
+            If btn Is Nothing Then
+                Continue For
+            End If
+            btn.Visible = True
+            btn.BringToFront()
+        Next
     End Sub
 
     Private Sub EnsureHeaderReserve(ByVal splitName As String)

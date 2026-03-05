@@ -24,6 +24,7 @@ Public Class FrmImportarDatos
         Try
             UIThemeManagerV2.Apply(Me, "dialogo")
             ApplyModernFormStyle()
+            UIThemeManagerV2.ApplyCrudModuleChrome(Me)
             Cls.AbrirConexion(CnPiad, False)
             Dim Ds As New DataSet
 
@@ -100,23 +101,21 @@ Public Class FrmImportarDatos
         LimpiarPantalla()
     End Sub
 
-    Function Validaciion() As Boolean
-        Validaciion = False
+    Private Function Validaciion() As Boolean
         If CbCursoLectivo.SelectedIndex < 0 Then
             MsgBox("Ingrese el curso lectivo a importar", MsgBoxStyle.Critical)
             CbCursoLectivo.Focus()
-            Exit Function
-        Else
-            Return True
+            Return False
         End If
 
+        Return True
     End Function
 
     Private Sub BtnGuardar_Click(sender As Object, e As EventArgs) Handles BtnGuardar.Click
         If Validaciion() Then
             ''Conexiones a base de datos local
             Dim cn As New SqlClient.SqlConnection
-            Dim pTransac As SqlClient.SqlTransaction
+            Dim pTransac As SqlClient.SqlTransaction = Nothing
             Dim Valores(), Llave() As FuncionesDB.Campos
             Dim Cmd As String
             Dim Ds As New DataSet
@@ -128,7 +127,11 @@ Public Class FrmImportarDatos
                 If RdEst.Checked Then
                     TipoUsuario = 1
                     Llave = Cls.InicializarArray
-                    Cls.ArmaValor(Llave, "codCursoLectivo", CbCursoLectivo.SelectedItem.valor)
+                    Dim curso As LBItem = TryCast(CbCursoLectivo.SelectedItem, LBItem)
+                    If curso Is Nothing Then
+                        Throw New InvalidOperationException("Debe seleccionar un curso lectivo valido.")
+                    End If
+                    Cls.ArmaValor(Llave, "codCursoLectivo", CInt(curso.valor))
                     Cmd = " SELECT  M.cedEstudiante as cedula, P.Nombre, P.PrimerApellido, P.SegundoApellido, P.sexo FROM tpersona as P INNER JOIN " & _
                             "tmatricula as M ON P.cedula = M.cedEstudiante WHERE codCursoLectivo = @codCursoLectivo order by cedEstudiante"
                     ''Suma los tiquetes en usuarios
@@ -148,13 +151,13 @@ Public Class FrmImportarDatos
                 For Each Row As DataRow In Ds.Tables(0).Rows
                     Llave = Cls.InicializarArray
                     Valores = Cls.InicializarArray
-                    Ced = Replace(Row!cedula, "-", "")
+                    Ced = CStr(Row("cedula")).Replace("-", String.Empty)
                     Cls.ArmaValor(Llave, "cedula", Ced)
                     Cls.ArmaValor(Valores, "cedula", Ced)
-                    Cls.ArmaValor(Valores, "Nombre", Row!Nombre)
-                    Cls.ArmaValor(Valores, "PrimerApellido", Row!PrimerApellido)
-                    Cls.ArmaValor(Valores, "SegundoApellido", Row!SegundoApellido)
-                    Cls.ArmaValor(Valores, "Sexo", Row!Sexo)
+                    Cls.ArmaValor(Valores, "Nombre", CStr(Row("Nombre")))
+                    Cls.ArmaValor(Valores, "PrimerApellido", CStr(Row("PrimerApellido")))
+                    Cls.ArmaValor(Valores, "SegundoApellido", CStr(Row("SegundoApellido")))
+                    Cls.ArmaValor(Valores, "Sexo", CStr(Row("sexo")))
                     Cls.ArmaValor(Valores, "CodTipo", TipoUsuario)
                     Cls.ArmaValor(Valores, "Actualizado", 1)
                     Cls.ArmaValor(Valores, "Activo", 1)
@@ -168,7 +171,16 @@ Public Class FrmImportarDatos
                 Progreso.Value = 100
                 MsgBox("Importacion de datos concluyo con exitó..", MsgBoxStyle.Information)
                 Me.Dispose()
-            Catch ex As Exception 
+            Catch ex As Exception
+                If pTransac IsNot Nothing Then
+                    Try
+                        pTransac.Rollback()
+                    Catch
+                    End Try
+                End If
+                If cn.State = ConnectionState.Open Then
+                    Cls.CerrarConexion(cn)
+                End If
                 Progreso.Step = 0
                 MsgBox("Error al actulizar: " & ex.Message, MsgBoxStyle.Critical)
             End Try
