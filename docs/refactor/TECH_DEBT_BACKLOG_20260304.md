@@ -197,3 +197,15 @@ Cerrar primero estabilidad de Designer/compilacion y luego terminar la estandari
 - Resultado:
   - Referencias runtime actualizadas en `ApplyModernFormStyle`.
   - Eliminados identificadores genericos de labels en el modulo de impresion.
+
+## Avance aplicado (2026-03-05 cierre bloque 5)
+- Renombrado semantico en importacion legacy (`FrmImportarDatos`):
+  - `SCSC/Formularios/FrmImportarDatos.designer.vb`:
+    - `Panel4` -> `PanelAcciones`
+    - `Label1` -> `LblTituloModulo`
+    - `GroupBox1` -> `GroupConfiguracionImportacion`
+    - `Label2` -> `LblCursoLectivoCaption`
+  - `SCSC/Formularios/FrmImportarDatos.vb`:
+    - referencias y handler actualizados (`LblTituloModulo_Click`).
+- Resultado:
+  - Consistencia con naming semantico ya aplicado en `FrmImportarExcel`.

@@ -23,33 +23,33 @@ Partial Class FrmImportarDatos
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(FrmImportarDatos))
-        Me.Panel4 = New System.Windows.Forms.Panel()
+        Me.PanelAcciones = New System.Windows.Forms.Panel()
         Me.BtnRegresar = New System.Windows.Forms.Button()
         Me.BtnCancelar = New System.Windows.Forms.Button()
         Me.BtnGuardar = New System.Windows.Forms.Button()
-        Me.Label1 = New System.Windows.Forms.Label()
-        Me.GroupBox1 = New System.Windows.Forms.GroupBox()
-        Me.Label2 = New System.Windows.Forms.Label()
+        Me.LblTituloModulo = New System.Windows.Forms.Label()
+        Me.GroupConfiguracionImportacion = New System.Windows.Forms.GroupBox()
+        Me.LblCursoLectivoCaption = New System.Windows.Forms.Label()
         Me.CbCursoLectivo = New System.Windows.Forms.ComboBox()
         Me.RbDocentes = New System.Windows.Forms.RadioButton()
         Me.RdEst = New System.Windows.Forms.RadioButton()
         Me.Progreso = New System.Windows.Forms.ProgressBar()
         Me.LblEstado = New System.Windows.Forms.Label()
-        Me.Panel4.SuspendLayout()
-        Me.GroupBox1.SuspendLayout()
+        Me.PanelAcciones.SuspendLayout()
+        Me.GroupConfiguracionImportacion.SuspendLayout()
         Me.SuspendLayout()
         '
-        'Panel4
+        'PanelAcciones
         '
-        Me.Panel4.BackColor = System.Drawing.Color.Transparent
-        Me.Panel4.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.Panel4.Controls.Add(Me.BtnRegresar)
-        Me.Panel4.Controls.Add(Me.BtnCancelar)
-        Me.Panel4.Controls.Add(Me.BtnGuardar)
-        Me.Panel4.Location = New System.Drawing.Point(301, 292)
-        Me.Panel4.Name = "Panel4"
-        Me.Panel4.Size = New System.Drawing.Size(198, 66)
-        Me.Panel4.TabIndex = 19
+        Me.PanelAcciones.BackColor = System.Drawing.Color.Transparent
+        Me.PanelAcciones.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
+        Me.PanelAcciones.Controls.Add(Me.BtnRegresar)
+        Me.PanelAcciones.Controls.Add(Me.BtnCancelar)
+        Me.PanelAcciones.Controls.Add(Me.BtnGuardar)
+        Me.PanelAcciones.Location = New System.Drawing.Point(301, 292)
+        Me.PanelAcciones.Name = "PanelAcciones"
+        Me.PanelAcciones.Size = New System.Drawing.Size(198, 66)
+        Me.PanelAcciones.TabIndex = 19
         '
         'BtnRegresar
         '
@@ -82,45 +82,45 @@ Partial Class FrmImportarDatos
         Me.BtnGuardar.TabIndex = 0
         Me.BtnGuardar.UseVisualStyleBackColor = True
         '
-        'Label1
+        'LblTituloModulo
         '
-        Me.Label1.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
+        Me.LblTituloModulo.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
             Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.Label1.AutoSize = True
-        Me.Label1.BackColor = System.Drawing.Color.Transparent
-        Me.Label1.Font = New System.Drawing.Font("Calibri", 18.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label1.ForeColor = System.Drawing.Color.Black
-        Me.Label1.Location = New System.Drawing.Point(148, 9)
-        Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(220, 29)
-        Me.Label1.TabIndex = 20
-        Me.Label1.Text = "Importar Datos PIAD"
-        Me.Label1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        Me.LblTituloModulo.AutoSize = True
+        Me.LblTituloModulo.BackColor = System.Drawing.Color.Transparent
+        Me.LblTituloModulo.Font = New System.Drawing.Font("Calibri", 18.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LblTituloModulo.ForeColor = System.Drawing.Color.Black
+        Me.LblTituloModulo.Location = New System.Drawing.Point(148, 9)
+        Me.LblTituloModulo.Name = "LblTituloModulo"
+        Me.LblTituloModulo.Size = New System.Drawing.Size(220, 29)
+        Me.LblTituloModulo.TabIndex = 20
+        Me.LblTituloModulo.Text = "Importar Datos PIAD"
+        Me.LblTituloModulo.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
-        'GroupBox1
+        'GroupConfiguracionImportacion
         '
-        Me.GroupBox1.BackColor = System.Drawing.Color.Transparent
-        Me.GroupBox1.Controls.Add(Me.Label2)
-        Me.GroupBox1.Controls.Add(Me.CbCursoLectivo)
-        Me.GroupBox1.Controls.Add(Me.RbDocentes)
-        Me.GroupBox1.Controls.Add(Me.RdEst)
-        Me.GroupBox1.Location = New System.Drawing.Point(31, 67)
-        Me.GroupBox1.Name = "GroupBox1"
-        Me.GroupBox1.Size = New System.Drawing.Size(468, 127)
-        Me.GroupBox1.TabIndex = 21
-        Me.GroupBox1.TabStop = False
-        Me.GroupBox1.Text = "Tipo de Datos "
+        Me.GroupConfiguracionImportacion.BackColor = System.Drawing.Color.Transparent
+        Me.GroupConfiguracionImportacion.Controls.Add(Me.LblCursoLectivoCaption)
+        Me.GroupConfiguracionImportacion.Controls.Add(Me.CbCursoLectivo)
+        Me.GroupConfiguracionImportacion.Controls.Add(Me.RbDocentes)
+        Me.GroupConfiguracionImportacion.Controls.Add(Me.RdEst)
+        Me.GroupConfiguracionImportacion.Location = New System.Drawing.Point(31, 67)
+        Me.GroupConfiguracionImportacion.Name = "GroupConfiguracionImportacion"
+        Me.GroupConfiguracionImportacion.Size = New System.Drawing.Size(468, 127)
+        Me.GroupConfiguracionImportacion.TabIndex = 21
+        Me.GroupConfiguracionImportacion.TabStop = False
+        Me.GroupConfiguracionImportacion.Text = "Tipo de Datos "
         '
-        'Label2
+        'LblCursoLectivoCaption
         '
-        Me.Label2.AutoSize = True
-        Me.Label2.BackColor = System.Drawing.Color.Transparent
-        Me.Label2.Location = New System.Drawing.Point(260, 46)
-        Me.Label2.Name = "Label2"
-        Me.Label2.Size = New System.Drawing.Size(96, 19)
-        Me.Label2.TabIndex = 23
-        Me.Label2.Text = "Curso Lectivo"
+        Me.LblCursoLectivoCaption.AutoSize = True
+        Me.LblCursoLectivoCaption.BackColor = System.Drawing.Color.Transparent
+        Me.LblCursoLectivoCaption.Location = New System.Drawing.Point(260, 46)
+        Me.LblCursoLectivoCaption.Name = "LblCursoLectivoCaption"
+        Me.LblCursoLectivoCaption.Size = New System.Drawing.Size(96, 19)
+        Me.LblCursoLectivoCaption.TabIndex = 23
+        Me.LblCursoLectivoCaption.Text = "Curso Lectivo"
         '
         'CbCursoLectivo
         '
@@ -183,9 +183,9 @@ Partial Class FrmImportarDatos
         Me.ClientSize = New System.Drawing.Size(515, 381)
         Me.Controls.Add(Me.LblEstado)
         Me.Controls.Add(Me.Progreso)
-        Me.Controls.Add(Me.GroupBox1)
-        Me.Controls.Add(Me.Panel4)
-        Me.Controls.Add(Me.Label1)
+        Me.Controls.Add(Me.GroupConfiguracionImportacion)
+        Me.Controls.Add(Me.PanelAcciones)
+        Me.Controls.Add(Me.LblTituloModulo)
         Me.Font = New System.Drawing.Font("Calibri", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog
         Me.Margin = New System.Windows.Forms.Padding(4)
@@ -194,20 +194,20 @@ Partial Class FrmImportarDatos
         Me.Name = "FrmImportarDatos"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "Conexion Inteligente"
-        Me.Panel4.ResumeLayout(False)
-        Me.GroupBox1.ResumeLayout(False)
-        Me.GroupBox1.PerformLayout()
+        Me.PanelAcciones.ResumeLayout(False)
+        Me.GroupConfiguracionImportacion.ResumeLayout(False)
+        Me.GroupConfiguracionImportacion.PerformLayout()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
     End Sub
-    Friend WithEvents Panel4 As System.Windows.Forms.Panel
+    Friend WithEvents PanelAcciones As System.Windows.Forms.Panel
     Friend WithEvents BtnCancelar As System.Windows.Forms.Button
     Friend WithEvents BtnGuardar As System.Windows.Forms.Button
-    Friend WithEvents Label1 As System.Windows.Forms.Label
+    Friend WithEvents LblTituloModulo As System.Windows.Forms.Label
     Friend WithEvents BtnRegresar As System.Windows.Forms.Button
-    Friend WithEvents GroupBox1 As System.Windows.Forms.GroupBox
-    Friend WithEvents Label2 As System.Windows.Forms.Label
+    Friend WithEvents GroupConfiguracionImportacion As System.Windows.Forms.GroupBox
+    Friend WithEvents LblCursoLectivoCaption As System.Windows.Forms.Label
     Friend WithEvents CbCursoLectivo As System.Windows.Forms.ComboBox
     Friend WithEvents RbDocentes As System.Windows.Forms.RadioButton
     Friend WithEvents RdEst As System.Windows.Forms.RadioButton

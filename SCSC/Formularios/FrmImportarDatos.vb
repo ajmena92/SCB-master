@@ -169,7 +169,7 @@ Public Class FrmImportarDatos
 
     End Sub
 
-    Private Sub Label1_Click(sender As Object, e As EventArgs) Handles LblTituloModulo.Click
+    Private Sub LblTituloModulo_Click(sender As Object, e As EventArgs) Handles LblTituloModulo.Click
 
     End Sub
 End Class
