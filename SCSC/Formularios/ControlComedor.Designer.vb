@@ -28,14 +28,14 @@ Partial Class ControlComedor
         Me.TxtCedula = New System.Windows.Forms.TextBox()
         Me.GbDatos = New System.Windows.Forms.GroupBox()
         Me.TxtTiquetes = New System.Windows.Forms.TextBox()
-        Me.Label3 = New System.Windows.Forms.Label()
+        Me.LblTiquetesCaption = New System.Windows.Forms.Label()
         Me.TxtTipo = New System.Windows.Forms.TextBox()
-        Me.Label5 = New System.Windows.Forms.Label()
+        Me.LblTipoCaption = New System.Windows.Forms.Label()
         Me.TxtUsuario = New System.Windows.Forms.TextBox()
-        Me.Label2 = New System.Windows.Forms.Label()
+        Me.LblUsuarioCaption = New System.Windows.Forms.Label()
         Me.LblCedula = New System.Windows.Forms.TextBox()
         Me.LblRegistroError = New System.Windows.Forms.Label()
-        Me.Label4 = New System.Windows.Forms.Label()
+        Me.LblCarnetCaption = New System.Windows.Forms.Label()
         Me.Picture = New System.Windows.Forms.PictureBox()
         Me.LblFecha = New System.Windows.Forms.Label()
         Me.BtnSalir = New System.Windows.Forms.Button()
@@ -169,14 +169,14 @@ Partial Class ControlComedor
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.GbDatos.BackColor = System.Drawing.Color.FromArgb(CType(CType(28, Byte), Integer), CType(CType(42, Byte), Integer), CType(CType(68, Byte), Integer))
         Me.GbDatos.Controls.Add(Me.TxtTiquetes)
-        Me.GbDatos.Controls.Add(Me.Label3)
+        Me.GbDatos.Controls.Add(Me.LblTiquetesCaption)
         Me.GbDatos.Controls.Add(Me.TxtTipo)
-        Me.GbDatos.Controls.Add(Me.Label5)
+        Me.GbDatos.Controls.Add(Me.LblTipoCaption)
         Me.GbDatos.Controls.Add(Me.TxtUsuario)
-        Me.GbDatos.Controls.Add(Me.Label2)
+        Me.GbDatos.Controls.Add(Me.LblUsuarioCaption)
         Me.GbDatos.Controls.Add(Me.LblCedula)
         Me.GbDatos.Controls.Add(Me.LblRegistroError)
-        Me.GbDatos.Controls.Add(Me.Label4)
+        Me.GbDatos.Controls.Add(Me.LblCarnetCaption)
         Me.GbDatos.Font = New System.Drawing.Font("Segoe UI", 12.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.GbDatos.ForeColor = System.Drawing.Color.FromArgb(CType(CType(188, Byte), Integer), CType(CType(202, Byte), Integer), CType(CType(225, Byte), Integer))
         Me.GbDatos.Location = New System.Drawing.Point(22, 381)
@@ -199,16 +199,16 @@ Partial Class ControlComedor
         Me.TxtTiquetes.TabIndex = 7
         Me.TxtTiquetes.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
         '
-        'Label3
+        'LblTiquetesCaption
         '
-        Me.Label3.AutoSize = True
-        Me.Label3.Font = New System.Drawing.Font("Segoe UI", 14.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label3.ForeColor = System.Drawing.Color.White
-        Me.Label3.Location = New System.Drawing.Point(13, 330)
-        Me.Label3.Name = "Label3"
-        Me.Label3.Size = New System.Drawing.Size(105, 32)
-        Me.Label3.TabIndex = 6
-        Me.Label3.Text = "Tiquetes"
+        Me.LblTiquetesCaption.AutoSize = True
+        Me.LblTiquetesCaption.Font = New System.Drawing.Font("Segoe UI", 14.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LblTiquetesCaption.ForeColor = System.Drawing.Color.White
+        Me.LblTiquetesCaption.Location = New System.Drawing.Point(13, 330)
+        Me.LblTiquetesCaption.Name = "LblTiquetesCaption"
+        Me.LblTiquetesCaption.Size = New System.Drawing.Size(105, 32)
+        Me.LblTiquetesCaption.TabIndex = 6
+        Me.LblTiquetesCaption.Text = "Tiquetes"
         '
         'TxtTipo
         '
@@ -221,16 +221,16 @@ Partial Class ControlComedor
         Me.TxtTipo.Size = New System.Drawing.Size(417, 43)
         Me.TxtTipo.TabIndex = 5
         '
-        'Label5
+        'LblTipoCaption
         '
-        Me.Label5.AutoSize = True
-        Me.Label5.Font = New System.Drawing.Font("Segoe UI", 13.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label5.ForeColor = System.Drawing.Color.White
-        Me.Label5.Location = New System.Drawing.Point(13, 239)
-        Me.Label5.Name = "Label5"
-        Me.Label5.Size = New System.Drawing.Size(56, 30)
-        Me.Label5.TabIndex = 4
-        Me.Label5.Text = "Tipo"
+        Me.LblTipoCaption.AutoSize = True
+        Me.LblTipoCaption.Font = New System.Drawing.Font("Segoe UI", 13.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LblTipoCaption.ForeColor = System.Drawing.Color.White
+        Me.LblTipoCaption.Location = New System.Drawing.Point(13, 239)
+        Me.LblTipoCaption.Name = "LblTipoCaption"
+        Me.LblTipoCaption.Size = New System.Drawing.Size(56, 30)
+        Me.LblTipoCaption.TabIndex = 4
+        Me.LblTipoCaption.Text = "Tipo"
         '
         'TxtUsuario
         '
@@ -243,16 +243,16 @@ Partial Class ControlComedor
         Me.TxtUsuario.Size = New System.Drawing.Size(417, 41)
         Me.TxtUsuario.TabIndex = 3
         '
-        'Label2
+        'LblUsuarioCaption
         '
-        Me.Label2.AutoSize = True
-        Me.Label2.Font = New System.Drawing.Font("Segoe UI", 13.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label2.ForeColor = System.Drawing.Color.White
-        Me.Label2.Location = New System.Drawing.Point(13, 142)
-        Me.Label2.Name = "Label2"
-        Me.Label2.Size = New System.Drawing.Size(88, 30)
-        Me.Label2.TabIndex = 2
-        Me.Label2.Text = "Usuario"
+        Me.LblUsuarioCaption.AutoSize = True
+        Me.LblUsuarioCaption.Font = New System.Drawing.Font("Segoe UI", 13.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LblUsuarioCaption.ForeColor = System.Drawing.Color.White
+        Me.LblUsuarioCaption.Location = New System.Drawing.Point(13, 142)
+        Me.LblUsuarioCaption.Name = "LblUsuarioCaption"
+        Me.LblUsuarioCaption.Size = New System.Drawing.Size(88, 30)
+        Me.LblUsuarioCaption.TabIndex = 2
+        Me.LblUsuarioCaption.Text = "Usuario"
         '
         'LblCedula
         '
@@ -274,16 +274,16 @@ Partial Class ControlComedor
         Me.LblRegistroError.TabIndex = 8
         Me.LblRegistroError.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
-        'Label4
+        'LblCarnetCaption
         '
-        Me.Label4.AutoSize = True
-        Me.Label4.Font = New System.Drawing.Font("Segoe UI", 13.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label4.ForeColor = System.Drawing.Color.White
-        Me.Label4.Location = New System.Drawing.Point(13, 47)
-        Me.Label4.Name = "Label4"
-        Me.Label4.Size = New System.Drawing.Size(80, 30)
-        Me.Label4.TabIndex = 0
-        Me.Label4.Text = "Cédula"
+        Me.LblCarnetCaption.AutoSize = True
+        Me.LblCarnetCaption.Font = New System.Drawing.Font("Segoe UI", 13.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LblCarnetCaption.ForeColor = System.Drawing.Color.White
+        Me.LblCarnetCaption.Location = New System.Drawing.Point(13, 47)
+        Me.LblCarnetCaption.Name = "LblCarnetCaption"
+        Me.LblCarnetCaption.Size = New System.Drawing.Size(80, 30)
+        Me.LblCarnetCaption.TabIndex = 0
+        Me.LblCarnetCaption.Text = "Cédula"
         '
         'Picture
         '
@@ -356,14 +356,14 @@ Partial Class ControlComedor
     Friend WithEvents Picture As PictureBox
     Friend WithEvents GbDatos As GroupBox
     Friend WithEvents TxtTiquetes As TextBox
-    Friend WithEvents Label3 As Label
+    Friend WithEvents LblTiquetesCaption As Label
     Friend WithEvents TxtTipo As TextBox
-    Friend WithEvents Label5 As Label
+    Friend WithEvents LblTipoCaption As Label
     Friend WithEvents TxtUsuario As TextBox
-    Friend WithEvents Label2 As Label
+    Friend WithEvents LblUsuarioCaption As Label
     Friend WithEvents LblCedula As TextBox
     Friend WithEvents LblRegistroError As Label
-    Friend WithEvents Label4 As Label
+    Friend WithEvents LblCarnetCaption As Label
     Friend WithEvents TxtCedula As TextBox
     Friend WithEvents BtnSalir As Button
     Friend WithEvents LblTitulo As Label

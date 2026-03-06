@@ -42,24 +42,24 @@ Partial Class FrmPrincipal
         Me.ReporteProyecciónComedorToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.AyudaToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ImprimirToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.Panel1 = New System.Windows.Forms.Panel()
-        Me.BunifuFlatButton3 = New System.Windows.Forms.Button()
-        Me.BunifuFlatButton2 = New System.Windows.Forms.Button()
-        Me.BunifuFlatButton1 = New System.Windows.Forms.Button()
-        Me.BtnMantenimiento = New System.Windows.Forms.Button()
-        Me.Panel3 = New System.Windows.Forms.Panel()
-        Me.PictureBox1 = New System.Windows.Forms.PictureBox()
-        Me.Label1 = New System.Windows.Forms.Label()
-        Me.Panel2 = New System.Windows.Forms.Panel()
-        Me.PictureBox3 = New System.Windows.Forms.PictureBox()
-        Me.Label2 = New System.Windows.Forms.Label()
+        Me.PanelMenuLateral = New System.Windows.Forms.Panel()
+        Me.BtnMenuDashboard = New System.Windows.Forms.Button()
+        Me.BtnMenuReportes = New System.Windows.Forms.Button()
+        Me.BtnMenuUtilitarios = New System.Windows.Forms.Button()
+        Me.BtnMenuMantenimientos = New System.Windows.Forms.Button()
+        Me.PanelSidebarHeader = New System.Windows.Forms.Panel()
+        Me.PicSidebarLogo = New System.Windows.Forms.PictureBox()
+        Me.LblSidebarTitulo = New System.Windows.Forms.Label()
+        Me.PanelCabeceraModulo = New System.Windows.Forms.Panel()
+        Me.PicDashboardIcon = New System.Windows.Forms.PictureBox()
+        Me.LblDashboardTitulo = New System.Windows.Forms.Label()
         Me.BtnCerrar = New System.Windows.Forms.PictureBox()
         Me.MenuStrip1.SuspendLayout()
-        Me.Panel1.SuspendLayout()
-        Me.Panel3.SuspendLayout()
-        CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).BeginInit()
-        Me.Panel2.SuspendLayout()
-        CType(Me.PictureBox3, System.ComponentModel.ISupportInitialize).BeginInit()
+        Me.PanelMenuLateral.SuspendLayout()
+        Me.PanelSidebarHeader.SuspendLayout()
+        CType(Me.PicSidebarLogo, System.ComponentModel.ISupportInitialize).BeginInit()
+        Me.PanelCabeceraModulo.SuspendLayout()
+        CType(Me.PicDashboardIcon, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.BtnCerrar, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
@@ -188,147 +188,147 @@ Partial Class FrmPrincipal
         Me.ImprimirToolStripMenuItem.Size = New System.Drawing.Size(96, 28)
         Me.ImprimirToolStripMenuItem.Text = "Imprimir"
         '
-        'Panel1
+        'PanelMenuLateral
         '
-        Me.Panel1.BackColor = System.Drawing.Color.FromArgb(CType(CType(41, Byte), Integer), CType(CType(51, Byte), Integer), CType(CType(65, Byte), Integer))
-        Me.Panel1.Controls.Add(Me.BunifuFlatButton3)
-        Me.Panel1.Controls.Add(Me.BunifuFlatButton2)
-        Me.Panel1.Controls.Add(Me.BunifuFlatButton1)
-        Me.Panel1.Controls.Add(Me.BtnMantenimiento)
-        Me.Panel1.Controls.Add(Me.Panel3)
-        Me.Panel1.Dock = System.Windows.Forms.DockStyle.Left
-        Me.Panel1.Location = New System.Drawing.Point(0, 32)
-        Me.Panel1.Margin = New System.Windows.Forms.Padding(4)
-        Me.Panel1.Name = "Panel1"
-        Me.Panel1.Size = New System.Drawing.Size(301, 868)
-        Me.Panel1.TabIndex = 2
+        Me.PanelMenuLateral.BackColor = System.Drawing.Color.FromArgb(CType(CType(41, Byte), Integer), CType(CType(51, Byte), Integer), CType(CType(65, Byte), Integer))
+        Me.PanelMenuLateral.Controls.Add(Me.BtnMenuDashboard)
+        Me.PanelMenuLateral.Controls.Add(Me.BtnMenuReportes)
+        Me.PanelMenuLateral.Controls.Add(Me.BtnMenuUtilitarios)
+        Me.PanelMenuLateral.Controls.Add(Me.BtnMenuMantenimientos)
+        Me.PanelMenuLateral.Controls.Add(Me.PanelSidebarHeader)
+        Me.PanelMenuLateral.Dock = System.Windows.Forms.DockStyle.Left
+        Me.PanelMenuLateral.Location = New System.Drawing.Point(0, 32)
+        Me.PanelMenuLateral.Margin = New System.Windows.Forms.Padding(4)
+        Me.PanelMenuLateral.Name = "PanelMenuLateral"
+        Me.PanelMenuLateral.Size = New System.Drawing.Size(301, 868)
+        Me.PanelMenuLateral.TabIndex = 2
         '
-        'BunifuFlatButton3
+        'BtnMenuDashboard
         '
-        Me.BunifuFlatButton3.BackColor = System.Drawing.Color.FromArgb(CType(CType(41, Byte), Integer), CType(CType(53, Byte), Integer), CType(CType(65, Byte), Integer))
-        Me.BunifuFlatButton3.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.BunifuFlatButton3.Cursor = System.Windows.Forms.Cursors.Hand
-        Me.BunifuFlatButton3.Location = New System.Drawing.Point(0, 70)
-        Me.BunifuFlatButton3.Margin = New System.Windows.Forms.Padding(5)
-        Me.BunifuFlatButton3.Name = "BunifuFlatButton3"
-        Me.BunifuFlatButton3.Size = New System.Drawing.Size(301, 59)
-        Me.BunifuFlatButton3.TabIndex = 4
-        Me.BunifuFlatButton3.Text = "Dashboard"
-        Me.BunifuFlatButton3.UseVisualStyleBackColor = False
+        Me.BtnMenuDashboard.BackColor = System.Drawing.Color.FromArgb(CType(CType(41, Byte), Integer), CType(CType(53, Byte), Integer), CType(CType(65, Byte), Integer))
+        Me.BtnMenuDashboard.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
+        Me.BtnMenuDashboard.Cursor = System.Windows.Forms.Cursors.Hand
+        Me.BtnMenuDashboard.Location = New System.Drawing.Point(0, 70)
+        Me.BtnMenuDashboard.Margin = New System.Windows.Forms.Padding(5)
+        Me.BtnMenuDashboard.Name = "BtnMenuDashboard"
+        Me.BtnMenuDashboard.Size = New System.Drawing.Size(301, 59)
+        Me.BtnMenuDashboard.TabIndex = 4
+        Me.BtnMenuDashboard.Text = "Dashboard"
+        Me.BtnMenuDashboard.UseVisualStyleBackColor = False
         '
-        'BunifuFlatButton2
+        'BtnMenuReportes
         '
-        Me.BunifuFlatButton2.BackColor = System.Drawing.Color.FromArgb(CType(CType(41, Byte), Integer), CType(CType(53, Byte), Integer), CType(CType(65, Byte), Integer))
-        Me.BunifuFlatButton2.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.BunifuFlatButton2.Cursor = System.Windows.Forms.Cursors.Hand
-        Me.BunifuFlatButton2.Location = New System.Drawing.Point(0, 244)
-        Me.BunifuFlatButton2.Margin = New System.Windows.Forms.Padding(5)
-        Me.BunifuFlatButton2.Name = "BunifuFlatButton2"
-        Me.BunifuFlatButton2.Size = New System.Drawing.Size(301, 59)
-        Me.BunifuFlatButton2.TabIndex = 3
-        Me.BunifuFlatButton2.Text = "Reportes"
-        Me.BunifuFlatButton2.UseVisualStyleBackColor = False
+        Me.BtnMenuReportes.BackColor = System.Drawing.Color.FromArgb(CType(CType(41, Byte), Integer), CType(CType(53, Byte), Integer), CType(CType(65, Byte), Integer))
+        Me.BtnMenuReportes.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
+        Me.BtnMenuReportes.Cursor = System.Windows.Forms.Cursors.Hand
+        Me.BtnMenuReportes.Location = New System.Drawing.Point(0, 244)
+        Me.BtnMenuReportes.Margin = New System.Windows.Forms.Padding(5)
+        Me.BtnMenuReportes.Name = "BtnMenuReportes"
+        Me.BtnMenuReportes.Size = New System.Drawing.Size(301, 59)
+        Me.BtnMenuReportes.TabIndex = 3
+        Me.BtnMenuReportes.Text = "Reportes"
+        Me.BtnMenuReportes.UseVisualStyleBackColor = False
         '
-        'BunifuFlatButton1
+        'BtnMenuUtilitarios
         '
-        Me.BunifuFlatButton1.BackColor = System.Drawing.Color.FromArgb(CType(CType(41, Byte), Integer), CType(CType(53, Byte), Integer), CType(CType(65, Byte), Integer))
-        Me.BunifuFlatButton1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.BunifuFlatButton1.Cursor = System.Windows.Forms.Cursors.Hand
-        Me.BunifuFlatButton1.Location = New System.Drawing.Point(0, 186)
-        Me.BunifuFlatButton1.Margin = New System.Windows.Forms.Padding(5)
-        Me.BunifuFlatButton1.Name = "BunifuFlatButton1"
-        Me.BunifuFlatButton1.Size = New System.Drawing.Size(301, 59)
-        Me.BunifuFlatButton1.TabIndex = 2
-        Me.BunifuFlatButton1.Text = "Utilitarios"
-        Me.BunifuFlatButton1.UseVisualStyleBackColor = False
+        Me.BtnMenuUtilitarios.BackColor = System.Drawing.Color.FromArgb(CType(CType(41, Byte), Integer), CType(CType(53, Byte), Integer), CType(CType(65, Byte), Integer))
+        Me.BtnMenuUtilitarios.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
+        Me.BtnMenuUtilitarios.Cursor = System.Windows.Forms.Cursors.Hand
+        Me.BtnMenuUtilitarios.Location = New System.Drawing.Point(0, 186)
+        Me.BtnMenuUtilitarios.Margin = New System.Windows.Forms.Padding(5)
+        Me.BtnMenuUtilitarios.Name = "BtnMenuUtilitarios"
+        Me.BtnMenuUtilitarios.Size = New System.Drawing.Size(301, 59)
+        Me.BtnMenuUtilitarios.TabIndex = 2
+        Me.BtnMenuUtilitarios.Text = "Utilitarios"
+        Me.BtnMenuUtilitarios.UseVisualStyleBackColor = False
         '
-        'BtnMantenimiento
+        'BtnMenuMantenimientos
         '
-        Me.BtnMantenimiento.BackColor = System.Drawing.Color.FromArgb(CType(CType(41, Byte), Integer), CType(CType(53, Byte), Integer), CType(CType(65, Byte), Integer))
-        Me.BtnMantenimiento.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.BtnMantenimiento.Cursor = System.Windows.Forms.Cursors.Hand
-        Me.BtnMantenimiento.Location = New System.Drawing.Point(0, 128)
-        Me.BtnMantenimiento.Margin = New System.Windows.Forms.Padding(5)
-        Me.BtnMantenimiento.Name = "BtnMantenimiento"
-        Me.BtnMantenimiento.Size = New System.Drawing.Size(301, 59)
-        Me.BtnMantenimiento.TabIndex = 1
-        Me.BtnMantenimiento.Text = "Mantenimientos"
-        Me.BtnMantenimiento.UseVisualStyleBackColor = False
+        Me.BtnMenuMantenimientos.BackColor = System.Drawing.Color.FromArgb(CType(CType(41, Byte), Integer), CType(CType(53, Byte), Integer), CType(CType(65, Byte), Integer))
+        Me.BtnMenuMantenimientos.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
+        Me.BtnMenuMantenimientos.Cursor = System.Windows.Forms.Cursors.Hand
+        Me.BtnMenuMantenimientos.Location = New System.Drawing.Point(0, 128)
+        Me.BtnMenuMantenimientos.Margin = New System.Windows.Forms.Padding(5)
+        Me.BtnMenuMantenimientos.Name = "BtnMenuMantenimientos"
+        Me.BtnMenuMantenimientos.Size = New System.Drawing.Size(301, 59)
+        Me.BtnMenuMantenimientos.TabIndex = 1
+        Me.BtnMenuMantenimientos.Text = "Mantenimientos"
+        Me.BtnMenuMantenimientos.UseVisualStyleBackColor = False
         '
-        'Panel3
+        'PanelSidebarHeader
         '
-        Me.Panel3.BackColor = System.Drawing.Color.FromArgb(CType(CType(214, Byte), Integer), CType(CType(219, Byte), Integer), CType(CType(233, Byte), Integer))
-        Me.Panel3.Controls.Add(Me.PictureBox1)
-        Me.Panel3.Controls.Add(Me.Label1)
-        Me.Panel3.Dock = System.Windows.Forms.DockStyle.Top
-        Me.Panel3.Location = New System.Drawing.Point(0, 0)
-        Me.Panel3.Margin = New System.Windows.Forms.Padding(4)
-        Me.Panel3.Name = "Panel3"
-        Me.Panel3.Size = New System.Drawing.Size(301, 70)
-        Me.Panel3.TabIndex = 0
+        Me.PanelSidebarHeader.BackColor = System.Drawing.Color.FromArgb(CType(CType(214, Byte), Integer), CType(CType(219, Byte), Integer), CType(CType(233, Byte), Integer))
+        Me.PanelSidebarHeader.Controls.Add(Me.PicSidebarLogo)
+        Me.PanelSidebarHeader.Controls.Add(Me.LblSidebarTitulo)
+        Me.PanelSidebarHeader.Dock = System.Windows.Forms.DockStyle.Top
+        Me.PanelSidebarHeader.Location = New System.Drawing.Point(0, 0)
+        Me.PanelSidebarHeader.Margin = New System.Windows.Forms.Padding(4)
+        Me.PanelSidebarHeader.Name = "PanelSidebarHeader"
+        Me.PanelSidebarHeader.Size = New System.Drawing.Size(301, 70)
+        Me.PanelSidebarHeader.TabIndex = 0
         '
-        'PictureBox1
+        'PicSidebarLogo
         '
-        Me.PictureBox1.BackColor = System.Drawing.Color.Transparent
-        Me.PictureBox1.BackgroundImage = CType(resources.GetObject("PictureBox1.BackgroundImage"), System.Drawing.Image)
-        Me.PictureBox1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.PictureBox1.Location = New System.Drawing.Point(29, 15)
-        Me.PictureBox1.Margin = New System.Windows.Forms.Padding(4)
-        Me.PictureBox1.Name = "PictureBox1"
-        Me.PictureBox1.Size = New System.Drawing.Size(63, 48)
-        Me.PictureBox1.TabIndex = 1
-        Me.PictureBox1.TabStop = False
+        Me.PicSidebarLogo.BackColor = System.Drawing.Color.Transparent
+        Me.PicSidebarLogo.BackgroundImage = CType(resources.GetObject("PicSidebarLogo.BackgroundImage"), System.Drawing.Image)
+        Me.PicSidebarLogo.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
+        Me.PicSidebarLogo.Location = New System.Drawing.Point(29, 15)
+        Me.PicSidebarLogo.Margin = New System.Windows.Forms.Padding(4)
+        Me.PicSidebarLogo.Name = "PicSidebarLogo"
+        Me.PicSidebarLogo.Size = New System.Drawing.Size(63, 48)
+        Me.PicSidebarLogo.TabIndex = 1
+        Me.PicSidebarLogo.TabStop = False
         '
-        'Label1
+        'LblSidebarTitulo
         '
-        Me.Label1.AutoSize = True
-        Me.Label1.BackColor = System.Drawing.Color.Transparent
-        Me.Label1.Font = New System.Drawing.Font("Century Gothic", 15.75!, CType((System.Drawing.FontStyle.Bold Or System.Drawing.FontStyle.Italic), System.Drawing.FontStyle), System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label1.ForeColor = System.Drawing.Color.White
-        Me.Label1.Location = New System.Drawing.Point(117, 21)
-        Me.Label1.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
-        Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(143, 33)
-        Me.Label1.TabIndex = 0
-        Me.Label1.Text = "SCEscolar"
+        Me.LblSidebarTitulo.AutoSize = True
+        Me.LblSidebarTitulo.BackColor = System.Drawing.Color.Transparent
+        Me.LblSidebarTitulo.Font = New System.Drawing.Font("Century Gothic", 15.75!, CType((System.Drawing.FontStyle.Bold Or System.Drawing.FontStyle.Italic), System.Drawing.FontStyle), System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LblSidebarTitulo.ForeColor = System.Drawing.Color.White
+        Me.LblSidebarTitulo.Location = New System.Drawing.Point(117, 21)
+        Me.LblSidebarTitulo.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.LblSidebarTitulo.Name = "LblSidebarTitulo"
+        Me.LblSidebarTitulo.Size = New System.Drawing.Size(143, 33)
+        Me.LblSidebarTitulo.TabIndex = 0
+        Me.LblSidebarTitulo.Text = "SCEscolar"
         '
-        'Panel2
+        'PanelCabeceraModulo
         '
-        Me.Panel2.BackColor = System.Drawing.Color.FromArgb(CType(CType(214, Byte), Integer), CType(CType(219, Byte), Integer), CType(CType(233, Byte), Integer))
-        Me.Panel2.Controls.Add(Me.PictureBox3)
-        Me.Panel2.Controls.Add(Me.Label2)
-        Me.Panel2.Dock = System.Windows.Forms.DockStyle.Top
-        Me.Panel2.Location = New System.Drawing.Point(301, 32)
-        Me.Panel2.Margin = New System.Windows.Forms.Padding(4)
-        Me.Panel2.Name = "Panel2"
-        Me.Panel2.Size = New System.Drawing.Size(1139, 70)
-        Me.Panel2.TabIndex = 3
+        Me.PanelCabeceraModulo.BackColor = System.Drawing.Color.FromArgb(CType(CType(214, Byte), Integer), CType(CType(219, Byte), Integer), CType(CType(233, Byte), Integer))
+        Me.PanelCabeceraModulo.Controls.Add(Me.PicDashboardIcon)
+        Me.PanelCabeceraModulo.Controls.Add(Me.LblDashboardTitulo)
+        Me.PanelCabeceraModulo.Dock = System.Windows.Forms.DockStyle.Top
+        Me.PanelCabeceraModulo.Location = New System.Drawing.Point(301, 32)
+        Me.PanelCabeceraModulo.Margin = New System.Windows.Forms.Padding(4)
+        Me.PanelCabeceraModulo.Name = "PanelCabeceraModulo"
+        Me.PanelCabeceraModulo.Size = New System.Drawing.Size(1139, 70)
+        Me.PanelCabeceraModulo.TabIndex = 3
         '
-        'PictureBox3
+        'PicDashboardIcon
         '
-        Me.PictureBox3.BackColor = System.Drawing.Color.Transparent
-        Me.PictureBox3.BackgroundImage = CType(resources.GetObject("PictureBox3.BackgroundImage"), System.Drawing.Image)
-        Me.PictureBox3.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.PictureBox3.Location = New System.Drawing.Point(8, 21)
-        Me.PictureBox3.Margin = New System.Windows.Forms.Padding(4)
-        Me.PictureBox3.Name = "PictureBox3"
-        Me.PictureBox3.Size = New System.Drawing.Size(33, 31)
-        Me.PictureBox3.TabIndex = 3
-        Me.PictureBox3.TabStop = False
-        Me.PictureBox3.Visible = False
+        Me.PicDashboardIcon.BackColor = System.Drawing.Color.Transparent
+        Me.PicDashboardIcon.BackgroundImage = CType(resources.GetObject("PicDashboardIcon.BackgroundImage"), System.Drawing.Image)
+        Me.PicDashboardIcon.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
+        Me.PicDashboardIcon.Location = New System.Drawing.Point(8, 21)
+        Me.PicDashboardIcon.Margin = New System.Windows.Forms.Padding(4)
+        Me.PicDashboardIcon.Name = "PicDashboardIcon"
+        Me.PicDashboardIcon.Size = New System.Drawing.Size(33, 31)
+        Me.PicDashboardIcon.TabIndex = 3
+        Me.PicDashboardIcon.TabStop = False
+        Me.PicDashboardIcon.Visible = False
         '
-        'Label2
+        'LblDashboardTitulo
         '
-        Me.Label2.AutoSize = True
-        Me.Label2.Font = New System.Drawing.Font("Century Gothic", 15.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label2.ForeColor = System.Drawing.Color.DimGray
-        Me.Label2.Location = New System.Drawing.Point(49, 22)
-        Me.Label2.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
-        Me.Label2.Name = "Label2"
-        Me.Label2.Size = New System.Drawing.Size(160, 33)
-        Me.Label2.TabIndex = 1
-        Me.Label2.Text = "Dashboard"
-        Me.Label2.Visible = False
+        Me.LblDashboardTitulo.AutoSize = True
+        Me.LblDashboardTitulo.Font = New System.Drawing.Font("Century Gothic", 15.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LblDashboardTitulo.ForeColor = System.Drawing.Color.DimGray
+        Me.LblDashboardTitulo.Location = New System.Drawing.Point(49, 22)
+        Me.LblDashboardTitulo.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.LblDashboardTitulo.Name = "LblDashboardTitulo"
+        Me.LblDashboardTitulo.Size = New System.Drawing.Size(160, 33)
+        Me.LblDashboardTitulo.TabIndex = 1
+        Me.LblDashboardTitulo.Text = "Dashboard"
+        Me.LblDashboardTitulo.Visible = False
         '
         'BtnCerrar
         '
@@ -349,9 +349,9 @@ Partial Class FrmPrincipal
         Me.BackColor = System.Drawing.Color.White
         Me.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
         Me.ClientSize = New System.Drawing.Size(1440, 900)
-        Me.Controls.Add(Me.Panel2)
+        Me.Controls.Add(Me.PanelCabeceraModulo)
         Me.Controls.Add(Me.BtnCerrar)
-        Me.Controls.Add(Me.Panel1)
+        Me.Controls.Add(Me.PanelMenuLateral)
         Me.Controls.Add(Me.MenuStrip1)
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
@@ -363,13 +363,13 @@ Partial Class FrmPrincipal
         Me.WindowState = System.Windows.Forms.FormWindowState.Maximized
         Me.MenuStrip1.ResumeLayout(False)
         Me.MenuStrip1.PerformLayout()
-        Me.Panel1.ResumeLayout(False)
-        Me.Panel3.ResumeLayout(False)
-        Me.Panel3.PerformLayout()
-        CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).EndInit()
-        Me.Panel2.ResumeLayout(False)
-        Me.Panel2.PerformLayout()
-        CType(Me.PictureBox3, System.ComponentModel.ISupportInitialize).EndInit()
+        Me.PanelMenuLateral.ResumeLayout(False)
+        Me.PanelSidebarHeader.ResumeLayout(False)
+        Me.PanelSidebarHeader.PerformLayout()
+        CType(Me.PicSidebarLogo, System.ComponentModel.ISupportInitialize).EndInit()
+        Me.PanelCabeceraModulo.ResumeLayout(False)
+        Me.PanelCabeceraModulo.PerformLayout()
+        CType(Me.PicDashboardIcon, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.BtnCerrar, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
         Me.PerformLayout()
@@ -386,17 +386,17 @@ Partial Class FrmPrincipal
     Friend WithEvents ImportarDatosPIADToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents ImprimirToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents ImportarDatosListaPIADToolStripMenuItem As ToolStripMenuItem
-    Friend WithEvents Panel1 As Panel
-    Friend WithEvents PictureBox1 As PictureBox
-    Friend WithEvents Label1 As Label
-    Friend WithEvents Panel2 As Panel
-    Friend WithEvents BtnMantenimiento As System.Windows.Forms.Button
-    Friend WithEvents BunifuFlatButton3 As System.Windows.Forms.Button
-    Friend WithEvents BunifuFlatButton2 As System.Windows.Forms.Button
-    Friend WithEvents BunifuFlatButton1 As System.Windows.Forms.Button
-    Friend WithEvents Label2 As Label
-    Friend WithEvents Panel3 As Panel
-    Friend WithEvents PictureBox3 As PictureBox
+    Friend WithEvents PanelMenuLateral As Panel
+    Friend WithEvents PicSidebarLogo As PictureBox
+    Friend WithEvents LblSidebarTitulo As Label
+    Friend WithEvents PanelCabeceraModulo As Panel
+    Friend WithEvents BtnMenuMantenimientos As System.Windows.Forms.Button
+    Friend WithEvents BtnMenuDashboard As System.Windows.Forms.Button
+    Friend WithEvents BtnMenuReportes As System.Windows.Forms.Button
+    Friend WithEvents BtnMenuUtilitarios As System.Windows.Forms.Button
+    Friend WithEvents LblDashboardTitulo As Label
+    Friend WithEvents PanelSidebarHeader As Panel
+    Friend WithEvents PicDashboardIcon As PictureBox
     Friend WithEvents BtnCerrar As PictureBox
     Friend WithEvents ReporteDeServicioTransporteToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents GestiónRutasToolStripMenuItem As ToolStripMenuItem

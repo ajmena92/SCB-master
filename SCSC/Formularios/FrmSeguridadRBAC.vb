@@ -29,9 +29,9 @@ Partial Friend Class FrmSeguridadRBAC
             Return
         End If
         Me.StartPosition = FormStartPosition.CenterParent
-        Me.MinimumSize = New Size(1220, 780)
-        Me.Size = New Size(1320, 860)
-        Me.WindowState = FormWindowState.Maximized
+        Me.MinimumSize = New Size(1100, 700)
+        Me.Size = New Size(1240, 800)
+        Me.WindowState = FormWindowState.Normal
     End Sub
 
     Private Sub FrmSeguridadRBAC_Load(sender As Object, e As EventArgs) Handles MyBase.Load
@@ -41,7 +41,7 @@ Partial Friend Class FrmSeguridadRBAC
 
         Try
             Me.KeyPreview = True
-            UIThemeManagerV2.Apply(Me, "dialogo")
+            CrudVisualHelper.ApplyCrudStandard(Me, "dialogo")
             ApplyVisualStandard2026()
             EnsureCrudRuntimeLayout()
             PanelFooter.BringToFront()
@@ -228,7 +228,7 @@ Partial Friend Class FrmSeguridadRBAC
             LayoutUsuarios.RowStyles(2).SizeType = SizeType.Percent
             LayoutUsuarios.RowStyles(2).Height = 100
             LayoutUsuarios.RowStyles(3).SizeType = SizeType.Absolute
-            LayoutUsuarios.RowStyles(3).Height = 48
+            LayoutUsuarios.RowStyles(3).Height = 56
         End If
 
         If LayoutRoles.RowStyles.Count >= 4 Then
@@ -239,16 +239,16 @@ Partial Friend Class FrmSeguridadRBAC
             LayoutRoles.RowStyles(2).SizeType = SizeType.Percent
             LayoutRoles.RowStyles(2).Height = 100
             LayoutRoles.RowStyles(3).SizeType = SizeType.Absolute
-            LayoutRoles.RowStyles(3).Height = 48
+            LayoutRoles.RowStyles(3).Height = 56
         End If
 
         If LayoutPermisos.RowStyles.Count >= 3 Then
             LayoutPermisos.RowStyles(0).SizeType = SizeType.Absolute
             LayoutPermisos.RowStyles(0).Height = 40
-            LayoutPermisos.RowStyles(1).SizeType = SizeType.Absolute
-            LayoutPermisos.RowStyles(1).Height = 40
+            LayoutPermisos.RowStyles(1).SizeType = SizeType.Percent
+            LayoutPermisos.RowStyles(1).Height = 100
             LayoutPermisos.RowStyles(2).SizeType = SizeType.Absolute
-            LayoutPermisos.RowStyles(2).Height = 48
+            LayoutPermisos.RowStyles(2).Height = 56
         End If
     End Sub
 
@@ -258,8 +258,8 @@ Partial Friend Class FrmSeguridadRBAC
         flow.Dock = DockStyle.Top
         flow.FlowDirection = FlowDirection.LeftToRight
         flow.AutoScroll = True
-        flow.Height = 38
-        flow.Padding = New Padding(0, 2, 0, 2)
+        flow.Height = 42
+        flow.Padding = New Padding(0, 3, 0, 3)
         flow.Margin = New Padding(0, 2, 0, 0)
     End Sub
 
@@ -283,72 +283,12 @@ Partial Friend Class FrmSeguridadRBAC
         End Try
     End Sub
 
-    Private Sub ConfigureTabSplit(ByVal host As TabPage, ByVal grid As DataGridView, ByVal editorPanel As Panel, ByVal splitName As String, ByVal topRatio As Double)
-        Dim split As SplitContainer = TryCast(host.Controls.Find(splitName, False).FirstOrDefault(), SplitContainer)
-        If split Is Nothing Then
-            split = New SplitContainer()
-            split.Name = splitName
-            split.Dock = DockStyle.Fill
-            split.Orientation = Orientation.Horizontal
-            split.IsSplitterFixed = False
-            split.FixedPanel = FixedPanel.None
-            split.Panel1MinSize = 120
-            split.Panel2MinSize = 120
-            split.SplitterWidth = 6
-            split.BackColor = Color.FromArgb(223, 229, 238)
-
-            host.Controls.Remove(grid)
-            host.Controls.Remove(editorPanel)
-            split.Panel1.Controls.Add(grid)
-            split.Panel2.Controls.Add(editorPanel)
-            host.Controls.Add(split)
-            split.BringToFront()
-        End If
-
-        grid.Dock = DockStyle.Fill
-        editorPanel.Dock = DockStyle.Fill
-        editorPanel.Padding = New Padding(10, 10, 10, 18)
-        EnsureSplitDistance(host, splitName, topRatio)
-    End Sub
-
-    Private Sub EnsureSplitDistance(ByVal host As TabPage, ByVal splitName As String, ByVal topRatio As Double)
-        Dim split As SplitContainer = TryCast(host.Controls.Find(splitName, False).FirstOrDefault(), SplitContainer)
-        If split Is Nothing Then
-            Exit Sub
-        End If
-
-        If Not split.IsHandleCreated Then
-            Exit Sub
-        End If
-
-        Dim available As Integer = split.ClientSize.Height - split.SplitterWidth
-        If available <= 0 Then
-            Exit Sub
-        End If
-
-        Dim minDistance As Integer = Math.Max(0, split.Panel1MinSize)
-        Dim maxDistance As Integer = available - Math.Max(0, split.Panel2MinSize)
-
-        If maxDistance < minDistance Then
-            ' En tamaños transitorios (carga inicial / resize extremo) no hay rango válido aún.
-            Exit Sub
-        End If
-
-        Dim target As Integer = CInt(Math.Round(available * topRatio))
-        target = Math.Max(minDistance, target)
-        target = Math.Min(maxDistance, target)
-
-        If target >= minDistance AndAlso target <= maxDistance Then
-            split.SplitterDistance = target
-        End If
-    End Sub
-
     Private Sub ApplyVisualStandard2026()
         Me.BackColor = UIConstants.AppBackground
         Me.FormBorderStyle = FormBorderStyle.Sizable
-        Me.ControlBox = True
-        Me.MaximizeBox = True
-        Me.MinimizeBox = True
+        Me.ControlBox = False
+        Me.MaximizeBox = False
+        Me.MinimizeBox = False
         Me.Font = New Font("Segoe UI", 10.0!, FontStyle.Regular)
         TabsPrincipal.Font = New Font("Segoe UI Semibold", 10.5!, FontStyle.Bold)
         TabsPrincipal.Padding = New Point(18, 8)
@@ -445,8 +385,8 @@ Partial Friend Class FrmSeguridadRBAC
         ConfigureActionRowButtons(FlowPermisosBotones, _btnCrearPermiso, _btnActualizarPermiso, _btnEliminarPermiso)
         _btnSalir.Width = 118
         _btnSalir.Height = 34
-        PanelFooter.Height = 46
-        PanelFooter.Padding = New Padding(8, 6, 8, 6)
+        PanelFooter.Height = 54
+        PanelFooter.Padding = New Padding(8, 8, 8, 8)
         PanelFooter.BackColor = Color.FromArgb(240, 244, 250)
         _btnSalir.BackColor = Color.FromArgb(52, 74, 104)
         _btnSalir.FlatAppearance.MouseOverBackColor = Color.FromArgb(67, 92, 126)
@@ -467,10 +407,10 @@ Partial Friend Class FrmSeguridadRBAC
         ConfigureCrudFlow(FlowUsuariosBotones)
         ConfigureCrudFlow(FlowRolesBotones)
         ConfigureCrudFlow(FlowPermisosBotones)
-
-        ConfigureTabSplit(TabUsuarios, _gridUsuarios, PanelUsuariosBottom, "SplitUsuarios", 0.46R)
-        ConfigureTabSplit(TabRoles, _gridRoles, PanelRolesBottom, "SplitRoles", 0.46R)
-        ConfigureTabSplit(TabPermisos, _gridPermisos, PanelPermisosBottom, "SplitPermisos", 0.46R)
+        EnsureDesignerTabLayout(TabUsuarios, _gridUsuarios, PanelUsuariosBottom)
+        EnsureDesignerTabLayout(TabRoles, _gridRoles, PanelRolesBottom)
+        EnsureDesignerTabLayout(TabPermisos, _gridPermisos, PanelPermisosBottom)
+        AdjustCrudGridHeights()
 
         EnsureActionRowVisible(FlowUsuariosBotones)
         EnsureActionRowVisible(FlowRolesBotones)
@@ -485,11 +425,46 @@ Partial Friend Class FrmSeguridadRBAC
             _btnCrearRol, _btnActualizarRol, _btnEliminarRol, _btnAsignarPermisoRol, _btnRevocarPermisoRol,
             _btnCrearPermiso, _btnActualizarPermiso, _btnEliminarPermiso)
 
-        EnsureSplitDistance(TabUsuarios, "SplitUsuarios", 0.46R)
-        EnsureSplitDistance(TabRoles, "SplitRoles", 0.46R)
-        EnsureSplitDistance(TabPermisos, "SplitPermisos", 0.46R)
-
         _layoutReady = True
+    End Sub
+
+    Private Sub EnsureDesignerTabLayout(ByVal host As TabPage, ByVal grid As DataGridView, ByVal editorPanel As Panel)
+        If host Is Nothing OrElse grid Is Nothing OrElse editorPanel Is Nothing Then
+            Exit Sub
+        End If
+
+        host.SuspendLayout()
+        Try
+            host.Controls.Remove(editorPanel)
+            host.Controls.Remove(grid)
+
+            editorPanel.Dock = DockStyle.Fill
+            editorPanel.Padding = New Padding(8)
+            grid.Dock = DockStyle.Top
+
+            host.Controls.Add(editorPanel)
+            host.Controls.Add(grid)
+        Finally
+            host.ResumeLayout()
+        End Try
+    End Sub
+
+    Private Sub AdjustCrudGridHeights()
+        AjustarAlturaGridEnTab(TabUsuarios, _gridUsuarios, 0.44R, 190, 340)
+        AjustarAlturaGridEnTab(TabRoles, _gridRoles, 0.44R, 190, 340)
+        AjustarAlturaGridEnTab(TabPermisos, _gridPermisos, 0.42R, 180, 320)
+    End Sub
+
+    Private Sub AjustarAlturaGridEnTab(ByVal tab As TabPage, ByVal grid As DataGridView, ByVal ratio As Double, ByVal minimo As Integer, ByVal maximo As Integer)
+        If tab Is Nothing OrElse grid Is Nothing Then
+            Exit Sub
+        End If
+
+        Dim available As Integer = Math.Max(200, tab.ClientSize.Height - 16)
+        Dim objetivo As Integer = CInt(Math.Round(available * ratio))
+        objetivo = Math.Max(minimo, objetivo)
+        objetivo = Math.Min(maximo, objetivo)
+        grid.Height = objetivo
     End Sub
 
     Private Sub EnsureButtonsVisible(ByVal ParamArray buttons() As Button)
@@ -506,34 +481,15 @@ Partial Friend Class FrmSeguridadRBAC
         Next
     End Sub
 
-    Private Sub EnsureHeaderReserve(ByVal splitName As String)
-        Dim tab As TabPage = Nothing
-        Select Case splitName
-            Case "SplitUsuarios" : tab = TabUsuarios
-            Case "SplitRoles" : tab = TabRoles
-            Case "SplitPermisos" : tab = TabPermisos
-        End Select
-        If tab Is Nothing Then
-            Exit Sub
-        End If
-
-        Dim split As SplitContainer = TryCast(tab.Controls.Find(splitName, False).FirstOrDefault(), SplitContainer)
-        If split Is Nothing Then
-            Exit Sub
-        End If
-
-        split.Panel1.Padding = New Padding(0, 66, 0, 0)
-    End Sub
-
     Private Sub EnsureActionRowVisible(ByVal flow As FlowLayoutPanel)
         If flow Is Nothing Then
             Exit Sub
         End If
         flow.Dock = DockStyle.Top
-        flow.Height = 38
+        flow.Height = 42
         flow.WrapContents = False
         flow.AutoScroll = True
-        flow.Padding = New Padding(0, 2, 0, 2)
+        flow.Padding = New Padding(0, 3, 0, 3)
         flow.Margin = New Padding(0, 2, 0, 0)
     End Sub
 
@@ -752,6 +708,7 @@ Partial Friend Class FrmSeguridadRBAC
     End Sub
 
     Private Sub TabsPrincipal_SelectedIndexChanged(sender As Object, e As EventArgs) Handles TabsPrincipal.SelectedIndexChanged
+        AdjustCrudGridHeights()
         UpdateActionStates()
     End Sub
 
@@ -842,6 +799,9 @@ Partial Friend Class FrmSeguridadRBAC
     Private Sub BtnEliminarUsuario_Click(sender As Object, e As EventArgs) Handles _btnEliminarUsuario.Click
         Try
             Dim idUsuario As Integer = ObtenerIdSeleccionado(_gridUsuarios, "IdUsuario")
+            If Not CrudOperationHelper.ConfirmarEliminacion("el usuario seleccionado") Then
+                Exit Sub
+            End If
             _service.EliminarUsuario(idUsuario)
             CargarUsuarios()
             CargarCombos()
@@ -876,6 +836,9 @@ Partial Friend Class FrmSeguridadRBAC
             Dim idUsuario As Integer = ObtenerIdSeleccionado(_gridUsuarios, "IdUsuario")
             If _lstRolesUsuario.SelectedValue Is Nothing Then
                 Throw New Exception("Seleccione el rol a revocar del listado de roles del usuario.")
+            End If
+            If Not CrudOperationHelper.ConfirmarEliminacion("la asignacion de rol del usuario") Then
+                Exit Sub
             End If
             Dim idRol As Integer = Convert.ToInt32(_lstRolesUsuario.SelectedValue)
             _service.RevocarRolAUsuario(idUsuario, idRol)
@@ -922,6 +885,9 @@ Partial Friend Class FrmSeguridadRBAC
     Private Sub BtnEliminarRol_Click(sender As Object, e As EventArgs) Handles _btnEliminarRol.Click
         Try
             Dim idRol As Integer = ObtenerIdSeleccionado(_gridRoles, "IdRol")
+            If Not CrudOperationHelper.ConfirmarEliminacion("el rol seleccionado") Then
+                Exit Sub
+            End If
             _service.EliminarRol(idRol)
             CargarRoles()
             CargarCombos()
@@ -955,6 +921,9 @@ Partial Friend Class FrmSeguridadRBAC
             Dim idRol As Integer = ObtenerIdSeleccionado(_gridRoles, "IdRol")
             If _lstPermisosRol.SelectedValue Is Nothing Then
                 Throw New Exception("Seleccione el permiso a revocar del listado de permisos del rol.")
+            End If
+            If Not CrudOperationHelper.ConfirmarEliminacion("la asignacion de permiso del rol") Then
+                Exit Sub
             End If
             Dim idPermiso As Integer = Convert.ToInt32(_lstPermisosRol.SelectedValue)
             _service.RevocarPermisoARol(idRol, idPermiso)
@@ -1000,6 +969,9 @@ Partial Friend Class FrmSeguridadRBAC
     Private Sub BtnEliminarPermiso_Click(sender As Object, e As EventArgs) Handles _btnEliminarPermiso.Click
         Try
             Dim idPermiso As Integer = ObtenerIdSeleccionado(_gridPermisos, "IdPermiso")
+            If Not CrudOperationHelper.ConfirmarEliminacion("el permiso seleccionado") Then
+                Exit Sub
+            End If
             _service.EliminarPermiso(idPermiso)
             CargarPermisos()
             CargarCombos()

@@ -23,13 +23,13 @@ Partial Class FrmEstudiantes
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(FrmEstudiantes))
-        Me.GroupBox1 = New System.Windows.Forms.GroupBox()
+        Me.GroupDatosEstudiante = New System.Windows.Forms.GroupBox()
         Me.Label16 = New System.Windows.Forms.Label()
         Me.CBPermisoSalida = New System.Windows.Forms.ComboBox()
         Me.Label15 = New System.Windows.Forms.Label()
         Me.CBRutaPendiente = New System.Windows.Forms.CheckBox()
         Me.CBBeca = New System.Windows.Forms.ComboBox()
-        Me.Panel4 = New System.Windows.Forms.Panel()
+        Me.PanelAcciones = New System.Windows.Forms.Panel()
         Me.BtnRegresar = New System.Windows.Forms.Button()
         Me.BtnCancelar = New System.Windows.Forms.Button()
         Me.BtnGuardar = New System.Windows.Forms.Button()
@@ -55,64 +55,64 @@ Partial Class FrmEstudiantes
         Me.TxtApe2 = New System.Windows.Forms.TextBox()
         Me.Label5 = New System.Windows.Forms.Label()
         Me.TxtNombre = New System.Windows.Forms.TextBox()
-        Me.Label3 = New System.Windows.Forms.Label()
-        Me.Label1 = New System.Windows.Forms.Label()
-        Me.GroupBox2 = New System.Windows.Forms.GroupBox()
+        Me.LblNombre = New System.Windows.Forms.Label()
+        Me.LblTituloModulo = New System.Windows.Forms.Label()
+        Me.GroupBusquedaEstudiante = New System.Windows.Forms.GroupBox()
         Me.StatusLine = New System.Windows.Forms.Label()
         Me.Picture = New System.Windows.Forms.PictureBox()
         Me.TxtCedula = New System.Windows.Forms.TextBox()
         Me.Buscar = New System.Windows.Forms.Button()
-        Me.Label4 = New System.Windows.Forms.Label()
+        Me.LblCedulaBusqueda = New System.Windows.Forms.Label()
         Me.StatusText = New System.Windows.Forms.TextBox()
         Me.Prompt = New System.Windows.Forms.TextBox()
         Me.PictureBox1 = New System.Windows.Forms.PictureBox()
-        Me.GroupBox1.SuspendLayout()
-        Me.Panel4.SuspendLayout()
-        Me.GroupBox2.SuspendLayout()
+        Me.GroupDatosEstudiante.SuspendLayout()
+        Me.PanelAcciones.SuspendLayout()
+        Me.GroupBusquedaEstudiante.SuspendLayout()
         CType(Me.Picture, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
-        'GroupBox1
+        'GroupDatosEstudiante
         '
-        Me.GroupBox1.BackColor = System.Drawing.Color.Transparent
-        Me.GroupBox1.Controls.Add(Me.Label16)
-        Me.GroupBox1.Controls.Add(Me.CBPermisoSalida)
-        Me.GroupBox1.Controls.Add(Me.Label15)
-        Me.GroupBox1.Controls.Add(Me.CBRutaPendiente)
-        Me.GroupBox1.Controls.Add(Me.CBBeca)
-        Me.GroupBox1.Controls.Add(Me.Panel4)
-        Me.GroupBox1.Controls.Add(Me.Label14)
-        Me.GroupBox1.Controls.Add(Me.CBGenero)
-        Me.GroupBox1.Controls.Add(Me.Label13)
-        Me.GroupBox1.Controls.Add(Me.TxtSeccion)
-        Me.GroupBox1.Controls.Add(Me.Label10)
-        Me.GroupBox1.Controls.Add(Me.TxtTelefono)
-        Me.GroupBox1.Controls.Add(Me.Label12)
-        Me.GroupBox1.Controls.Add(Me.CBRuta)
-        Me.GroupBox1.Controls.Add(Me.Label11)
-        Me.GroupBox1.Controls.Add(Me.LblRuta)
-        Me.GroupBox1.Controls.Add(Me.Label9)
-        Me.GroupBox1.Controls.Add(Me.TxtTipoUsuario)
-        Me.GroupBox1.Controls.Add(Me.LblCantTiques)
-        Me.GroupBox1.Controls.Add(Me.Label8)
-        Me.GroupBox1.Controls.Add(Me.Label2)
-        Me.GroupBox1.Controls.Add(Me.TxtFecNac)
-        Me.GroupBox1.Controls.Add(Me.Label7)
-        Me.GroupBox1.Controls.Add(Me.TxtApe1)
-        Me.GroupBox1.Controls.Add(Me.Label6)
-        Me.GroupBox1.Controls.Add(Me.TxtApe2)
-        Me.GroupBox1.Controls.Add(Me.Label5)
-        Me.GroupBox1.Controls.Add(Me.TxtNombre)
-        Me.GroupBox1.Controls.Add(Me.Label3)
-        Me.GroupBox1.Font = New System.Drawing.Font("Calibri", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.GroupBox1.ForeColor = System.Drawing.Color.Black
-        Me.GroupBox1.Location = New System.Drawing.Point(12, 258)
-        Me.GroupBox1.Name = "GroupBox1"
-        Me.GroupBox1.Size = New System.Drawing.Size(912, 390)
-        Me.GroupBox1.TabIndex = 21
-        Me.GroupBox1.TabStop = False
-        Me.GroupBox1.Text = "Datos del Estudiante"
+        Me.GroupDatosEstudiante.BackColor = System.Drawing.Color.Transparent
+        Me.GroupDatosEstudiante.Controls.Add(Me.Label16)
+        Me.GroupDatosEstudiante.Controls.Add(Me.CBPermisoSalida)
+        Me.GroupDatosEstudiante.Controls.Add(Me.Label15)
+        Me.GroupDatosEstudiante.Controls.Add(Me.CBRutaPendiente)
+        Me.GroupDatosEstudiante.Controls.Add(Me.CBBeca)
+        Me.GroupDatosEstudiante.Controls.Add(Me.PanelAcciones)
+        Me.GroupDatosEstudiante.Controls.Add(Me.Label14)
+        Me.GroupDatosEstudiante.Controls.Add(Me.CBGenero)
+        Me.GroupDatosEstudiante.Controls.Add(Me.Label13)
+        Me.GroupDatosEstudiante.Controls.Add(Me.TxtSeccion)
+        Me.GroupDatosEstudiante.Controls.Add(Me.Label10)
+        Me.GroupDatosEstudiante.Controls.Add(Me.TxtTelefono)
+        Me.GroupDatosEstudiante.Controls.Add(Me.Label12)
+        Me.GroupDatosEstudiante.Controls.Add(Me.CBRuta)
+        Me.GroupDatosEstudiante.Controls.Add(Me.Label11)
+        Me.GroupDatosEstudiante.Controls.Add(Me.LblRuta)
+        Me.GroupDatosEstudiante.Controls.Add(Me.Label9)
+        Me.GroupDatosEstudiante.Controls.Add(Me.TxtTipoUsuario)
+        Me.GroupDatosEstudiante.Controls.Add(Me.LblCantTiques)
+        Me.GroupDatosEstudiante.Controls.Add(Me.Label8)
+        Me.GroupDatosEstudiante.Controls.Add(Me.Label2)
+        Me.GroupDatosEstudiante.Controls.Add(Me.TxtFecNac)
+        Me.GroupDatosEstudiante.Controls.Add(Me.Label7)
+        Me.GroupDatosEstudiante.Controls.Add(Me.TxtApe1)
+        Me.GroupDatosEstudiante.Controls.Add(Me.Label6)
+        Me.GroupDatosEstudiante.Controls.Add(Me.TxtApe2)
+        Me.GroupDatosEstudiante.Controls.Add(Me.Label5)
+        Me.GroupDatosEstudiante.Controls.Add(Me.TxtNombre)
+        Me.GroupDatosEstudiante.Controls.Add(Me.LblNombre)
+        Me.GroupDatosEstudiante.Font = New System.Drawing.Font("Calibri", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.GroupDatosEstudiante.ForeColor = System.Drawing.Color.Black
+        Me.GroupDatosEstudiante.Location = New System.Drawing.Point(12, 258)
+        Me.GroupDatosEstudiante.Name = "GroupDatosEstudiante"
+        Me.GroupDatosEstudiante.Size = New System.Drawing.Size(912, 390)
+        Me.GroupDatosEstudiante.TabIndex = 21
+        Me.GroupDatosEstudiante.TabStop = False
+        Me.GroupDatosEstudiante.Text = "Datos del Estudiante"
         '
         'Label16
         '
@@ -167,17 +167,17 @@ Partial Class FrmEstudiantes
         Me.CBBeca.Size = New System.Drawing.Size(185, 36)
         Me.CBBeca.TabIndex = 65
         '
-        'Panel4
+        'PanelAcciones
         '
-        Me.Panel4.BackColor = System.Drawing.Color.Transparent
-        Me.Panel4.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.Panel4.Controls.Add(Me.BtnRegresar)
-        Me.Panel4.Controls.Add(Me.BtnCancelar)
-        Me.Panel4.Controls.Add(Me.BtnGuardar)
-        Me.Panel4.Location = New System.Drawing.Point(663, 305)
-        Me.Panel4.Name = "Panel4"
-        Me.Panel4.Size = New System.Drawing.Size(225, 66)
-        Me.Panel4.TabIndex = 19
+        Me.PanelAcciones.BackColor = System.Drawing.Color.Transparent
+        Me.PanelAcciones.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
+        Me.PanelAcciones.Controls.Add(Me.BtnRegresar)
+        Me.PanelAcciones.Controls.Add(Me.BtnCancelar)
+        Me.PanelAcciones.Controls.Add(Me.BtnGuardar)
+        Me.PanelAcciones.Location = New System.Drawing.Point(663, 305)
+        Me.PanelAcciones.Name = "PanelAcciones"
+        Me.PanelAcciones.Size = New System.Drawing.Size(225, 66)
+        Me.PanelAcciones.TabIndex = 19
         '
         'BtnRegresar
         '
@@ -464,49 +464,49 @@ Partial Class FrmEstudiantes
         Me.TxtNombre.Size = New System.Drawing.Size(158, 30)
         Me.TxtNombre.TabIndex = 41
         '
-        'Label3
+        'LblNombre
         '
-        Me.Label3.AutoSize = True
-        Me.Label3.BackColor = System.Drawing.Color.Transparent
-        Me.Label3.FlatStyle = System.Windows.Forms.FlatStyle.Popup
-        Me.Label3.Font = New System.Drawing.Font("Calibri", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label3.Location = New System.Drawing.Point(89, 150)
-        Me.Label3.Name = "Label3"
-        Me.Label3.Size = New System.Drawing.Size(83, 24)
-        Me.Label3.TabIndex = 42
-        Me.Label3.Text = "Nombre:"
+        Me.LblNombre.AutoSize = True
+        Me.LblNombre.BackColor = System.Drawing.Color.Transparent
+        Me.LblNombre.FlatStyle = System.Windows.Forms.FlatStyle.Popup
+        Me.LblNombre.Font = New System.Drawing.Font("Calibri", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LblNombre.Location = New System.Drawing.Point(89, 150)
+        Me.LblNombre.Name = "LblNombre"
+        Me.LblNombre.Size = New System.Drawing.Size(83, 24)
+        Me.LblNombre.TabIndex = 42
+        Me.LblNombre.Text = "Nombre:"
         '
-        'Label1
+        'LblTituloModulo
         '
-        Me.Label1.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
+        Me.LblTituloModulo.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
             Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.Label1.AutoSize = True
-        Me.Label1.BackColor = System.Drawing.Color.Transparent
-        Me.Label1.Font = New System.Drawing.Font("Arial Narrow", 21.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label1.ForeColor = System.Drawing.Color.Black
-        Me.Label1.Location = New System.Drawing.Point(285, 35)
-        Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(426, 43)
-        Me.Label1.TabIndex = 20
-        Me.Label1.Text = "Mantenimiento de Estudiantes"
-        Me.Label1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        Me.LblTituloModulo.AutoSize = True
+        Me.LblTituloModulo.BackColor = System.Drawing.Color.Transparent
+        Me.LblTituloModulo.Font = New System.Drawing.Font("Arial Narrow", 21.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LblTituloModulo.ForeColor = System.Drawing.Color.Black
+        Me.LblTituloModulo.Location = New System.Drawing.Point(285, 35)
+        Me.LblTituloModulo.Name = "LblTituloModulo"
+        Me.LblTituloModulo.Size = New System.Drawing.Size(426, 43)
+        Me.LblTituloModulo.TabIndex = 20
+        Me.LblTituloModulo.Text = "Mantenimiento de Estudiantes"
+        Me.LblTituloModulo.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
-        'GroupBox2
+        'GroupBusquedaEstudiante
         '
-        Me.GroupBox2.BackColor = System.Drawing.Color.Transparent
-        Me.GroupBox2.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.GroupBox2.Controls.Add(Me.StatusLine)
-        Me.GroupBox2.Controls.Add(Me.Picture)
-        Me.GroupBox2.Controls.Add(Me.TxtCedula)
-        Me.GroupBox2.Controls.Add(Me.Buscar)
-        Me.GroupBox2.Controls.Add(Me.Label4)
-        Me.GroupBox2.Location = New System.Drawing.Point(18, 81)
-        Me.GroupBox2.Name = "GroupBox2"
-        Me.GroupBox2.Size = New System.Drawing.Size(906, 171)
-        Me.GroupBox2.TabIndex = 0
-        Me.GroupBox2.TabStop = False
-        Me.GroupBox2.Text = "Estudiante"
+        Me.GroupBusquedaEstudiante.BackColor = System.Drawing.Color.Transparent
+        Me.GroupBusquedaEstudiante.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
+        Me.GroupBusquedaEstudiante.Controls.Add(Me.StatusLine)
+        Me.GroupBusquedaEstudiante.Controls.Add(Me.Picture)
+        Me.GroupBusquedaEstudiante.Controls.Add(Me.TxtCedula)
+        Me.GroupBusquedaEstudiante.Controls.Add(Me.Buscar)
+        Me.GroupBusquedaEstudiante.Controls.Add(Me.LblCedulaBusqueda)
+        Me.GroupBusquedaEstudiante.Location = New System.Drawing.Point(18, 81)
+        Me.GroupBusquedaEstudiante.Name = "GroupBusquedaEstudiante"
+        Me.GroupBusquedaEstudiante.Size = New System.Drawing.Size(906, 171)
+        Me.GroupBusquedaEstudiante.TabIndex = 0
+        Me.GroupBusquedaEstudiante.TabStop = False
+        Me.GroupBusquedaEstudiante.Text = "Estudiante"
         '
         'StatusLine
         '
@@ -558,17 +558,17 @@ Partial Class FrmEstudiantes
         Me.Buscar.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText
         Me.Buscar.UseVisualStyleBackColor = False
         '
-        'Label4
+        'LblCedulaBusqueda
         '
-        Me.Label4.AutoSize = True
-        Me.Label4.BackColor = System.Drawing.Color.Transparent
-        Me.Label4.FlatStyle = System.Windows.Forms.FlatStyle.Popup
-        Me.Label4.Font = New System.Drawing.Font("Arial Narrow", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label4.Location = New System.Drawing.Point(45, 57)
-        Me.Label4.Name = "Label4"
-        Me.Label4.Size = New System.Drawing.Size(66, 24)
-        Me.Label4.TabIndex = 40
-        Me.Label4.Text = "Cédula:"
+        Me.LblCedulaBusqueda.AutoSize = True
+        Me.LblCedulaBusqueda.BackColor = System.Drawing.Color.Transparent
+        Me.LblCedulaBusqueda.FlatStyle = System.Windows.Forms.FlatStyle.Popup
+        Me.LblCedulaBusqueda.Font = New System.Drawing.Font("Arial Narrow", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LblCedulaBusqueda.Location = New System.Drawing.Point(45, 57)
+        Me.LblCedulaBusqueda.Name = "LblCedulaBusqueda"
+        Me.LblCedulaBusqueda.Size = New System.Drawing.Size(66, 24)
+        Me.LblCedulaBusqueda.TabIndex = 40
+        Me.LblCedulaBusqueda.Text = "Cédula:"
         '
         'StatusText
         '
@@ -616,9 +616,9 @@ Partial Class FrmEstudiantes
         Me.Controls.Add(Me.PictureBox1)
         Me.Controls.Add(Me.Prompt)
         Me.Controls.Add(Me.StatusText)
-        Me.Controls.Add(Me.GroupBox2)
-        Me.Controls.Add(Me.GroupBox1)
-        Me.Controls.Add(Me.Label1)
+        Me.Controls.Add(Me.GroupBusquedaEstudiante)
+        Me.Controls.Add(Me.GroupDatosEstudiante)
+        Me.Controls.Add(Me.LblTituloModulo)
         Me.Font = New System.Drawing.Font("Calibri", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog
         Me.Margin = New System.Windows.Forms.Padding(4)
@@ -627,34 +627,34 @@ Partial Class FrmEstudiantes
         Me.Name = "FrmEstudiantes"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "Mantenimiento de Estudiantes"
-        Me.GroupBox1.ResumeLayout(False)
-        Me.GroupBox1.PerformLayout()
-        Me.Panel4.ResumeLayout(False)
-        Me.GroupBox2.ResumeLayout(False)
-        Me.GroupBox2.PerformLayout()
+        Me.GroupDatosEstudiante.ResumeLayout(False)
+        Me.GroupDatosEstudiante.PerformLayout()
+        Me.PanelAcciones.ResumeLayout(False)
+        Me.GroupBusquedaEstudiante.ResumeLayout(False)
+        Me.GroupBusquedaEstudiante.PerformLayout()
         CType(Me.Picture, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
     End Sub
-    Friend WithEvents GroupBox1 As System.Windows.Forms.GroupBox
+    Friend WithEvents GroupDatosEstudiante As System.Windows.Forms.GroupBox
     Friend WithEvents Label2 As System.Windows.Forms.Label
-    Friend WithEvents Panel4 As System.Windows.Forms.Panel
+    Friend WithEvents PanelAcciones As System.Windows.Forms.Panel
     Friend WithEvents BtnRegresar As System.Windows.Forms.Button
     Friend WithEvents BtnCancelar As System.Windows.Forms.Button
     Friend WithEvents BtnGuardar As System.Windows.Forms.Button
-    Friend WithEvents Label1 As System.Windows.Forms.Label
-    Friend WithEvents GroupBox2 As System.Windows.Forms.GroupBox
+    Friend WithEvents LblTituloModulo As System.Windows.Forms.Label
+    Friend WithEvents GroupBusquedaEstudiante As System.Windows.Forms.GroupBox
     Friend WithEvents TxtCedula As System.Windows.Forms.TextBox
     Friend WithEvents Buscar As System.Windows.Forms.Button
-    Friend WithEvents Label4 As System.Windows.Forms.Label
+    Friend WithEvents LblCedulaBusqueda As System.Windows.Forms.Label
     Friend WithEvents TxtApe1 As System.Windows.Forms.TextBox
     Friend WithEvents Label6 As System.Windows.Forms.Label
     Friend WithEvents TxtApe2 As System.Windows.Forms.TextBox
     Friend WithEvents Label5 As System.Windows.Forms.Label
     Friend WithEvents TxtNombre As System.Windows.Forms.TextBox
-    Friend WithEvents Label3 As System.Windows.Forms.Label
+    Friend WithEvents LblNombre As System.Windows.Forms.Label
     Friend WithEvents LblCantTiques As System.Windows.Forms.Label
     Friend WithEvents Label8 As System.Windows.Forms.Label
     Friend WithEvents TxtTipoUsuario As System.Windows.Forms.TextBox

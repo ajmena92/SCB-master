@@ -1,2 +1,0 @@
-﻿
-C:\Dev\SCB-master\SCSC\Formularios\ControlTransporte.vb(458,71): error BC30198: ')' expected. [C:\Dev\SCB-master\SCSC\SCSC_Marcas.vbproj]

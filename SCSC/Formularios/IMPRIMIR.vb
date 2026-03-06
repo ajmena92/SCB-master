@@ -1,4 +1,7 @@
-﻿Imports System.IO
+﻿Option Strict On
+Option Explicit On
+
+Imports System.IO
 
 'Imports LibPrintTicket
 'Imports System
@@ -20,7 +23,10 @@ Public Class IMPRIMIR
     Private Lector As StreamReader
 
     Private Sub IMPRIMIR_Load(ByVal sender As Object, ByVal e As EventArgs) Handles MyBase.Load
-        UIThemeManagerV2.Apply(Me, "dialogo")
+        If CrudVisualHelper.IsInDesignMode(Me) Then
+            Return
+        End If
+        CrudVisualHelper.ApplyCrudStandard(Me, "dialogo")
         ApplyModernFormStyle()
     End Sub
 
@@ -31,9 +37,9 @@ Public Class IMPRIMIR
         Me.MinimumSize = New Size(560, 340)
         Me.Size = New Size(640, 380)
 
-        Label1.ForeColor = UIConstants.TextSecondary
-        Label2.ForeColor = UIConstants.TextSecondary
-        Label3.ForeColor = UIConstants.TextSecondary
+        LblNombreCaption.ForeColor = UIConstants.TextSecondary
+        LblAltoCaption.ForeColor = UIConstants.TextSecondary
+        LblAnchoCaption.ForeColor = UIConstants.TextSecondary
         lblImpresoraActual.ForeColor = UIConstants.TextPrimary
         lblImpresoraActual.Font = UIConstants.FontBodyStrong()
 
@@ -103,7 +109,8 @@ ByVal e As System.EventArgs) Handles btnCrear.Click
             Dim Fuente As New Font("Verdana", 8)
 
             ' Calulando el numero de lineas por pagina
-            Dim NroLineasPagina As Integer = e.PageBounds.Height / Fuente.GetHeight(e.Graphics)
+            Dim lineasPorPagina As Single = CSng(e.PageBounds.Height) / Fuente.GetHeight(e.Graphics)
+            Dim NroLineasPagina As Integer = CInt(Math.Truncate(lineasPorPagina))
 
             While NroLineasImpresas < NroLineasPagina
                 linea = Lector.ReadLine()

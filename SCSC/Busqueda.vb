@@ -1,4 +1,7 @@
-﻿Public Class Busqueda
+﻿Option Strict On
+Option Explicit On
+
+Public Class Busqueda
 
     Dim RegistroSeleccionado As Integer = -1
     ' Dim ColumnaSeleccionada As FuncionesDB.Campos
@@ -161,8 +164,11 @@
     End Sub
 
     Private Sub Busqueda_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        If CrudVisualHelper.IsInDesignMode(Me) Then
+            Return
+        End If
         Try
-            UIThemeManagerV2.Apply(Me, "dialogo")
+            CrudVisualHelper.ApplyCrudStandard(Me, "dialogo")
             ApplyModernSearchLayout()
             LblTitulo.Text = gSession.Titulo
             LblFiltrado.Text = "Filtrado x " & "Nombre o Descripción (Búsqueda x Omisión)"

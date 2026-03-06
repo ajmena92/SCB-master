@@ -1,2 +1,0 @@
-﻿
-vbc : error BC2012: can't open 'C:\Dev\SCB-master\SCSC\obj\Debug\SCSC_Marcas.exe' for writing: The process cannot access the file 'C:\Dev\SCB-master\SCSC\obj\Debug\SCSC_Marcas.exe' because it is being used by another process.; file may be locked by 'HP Sure Click Endpoint Service' (5036) [C:\Dev\SCB-master\SCSC\SCSC_Marcas.vbproj]

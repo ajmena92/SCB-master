@@ -27,6 +27,7 @@ Public Partial Class UIShellHost
     Private _suppressRefreshIntervalEvent As Boolean
     Private _activeButton As Button
     Private _contentHost As Panel
+    Private _navScrollHost As Panel
     Private _kpiBecadosComedor As Label
     Private _kpiBecadosTransporte As Label
     Private _kpiMarcasComedor As Label
@@ -120,19 +121,21 @@ Public Partial Class UIShellHost
         _topBar = New Panel()
         _topBar.Name = "ModernTopBar"
         _topBar.Dock = DockStyle.Top
-        _topBar.Height = 92
+        _topBar.Height = 96
         _topBar.BackColor = Color.White
 
         _titleLabel = New Label()
         _titleLabel.Text = "Panel principal"
         _titleLabel.AutoSize = True
-        _titleLabel.Location = New Point(24, 8)
-        _titleLabel.Font = New Font("Segoe UI Semibold", 18.0!, FontStyle.Bold, GraphicsUnit.Point)
+        _titleLabel.Location = New Point(24, 6)
+        _titleLabel.Font = New Font("Segoe UI Semibold", 16.0!, FontStyle.Bold, GraphicsUnit.Point)
+        _titleLabel.MaximumSize = New Size(520, 0)
+        _titleLabel.AutoEllipsis = True
         _titleLabel.ForeColor = Color.FromArgb(23, 32, 51)
         _topBar.Controls.Add(_titleLabel)
 
         _contextLabel = Nothing
-        Dim statusBaseY As Integer = _titleLabel.Bottom + 4
+        Dim statusBaseY As Integer = 44
 
         _lastSuccessBadge = New Label()
         _lastSuccessBadge.AutoSize = False
@@ -304,11 +307,11 @@ Public Partial Class UIShellHost
         footerInner.Padding = New Padding(14, 18, 14, 18)
         footer.Controls.Add(footerInner)
 
-        Dim navScrollHost As New Panel()
-        navScrollHost.Dock = DockStyle.Fill
-        navScrollHost.BackColor = Color.FromArgb(16, 26, 46)
-        navScrollHost.AutoScroll = True
-        navScrollHost.Padding = New Padding(0, 4, 0, 4)
+        _navScrollHost = New Panel()
+        _navScrollHost.Dock = DockStyle.Fill
+        _navScrollHost.BackColor = Color.FromArgb(16, 26, 46)
+        _navScrollHost.AutoScroll = True
+        _navScrollHost.Padding = New Padding(0, 4, 0, 4)
 
         Dim sidebarDivider As New Panel()
         sidebarDivider.Dock = DockStyle.Right
@@ -317,7 +320,7 @@ Public Partial Class UIShellHost
         ' Orden de agregado importante para Dock:
         ' primero Fill, luego Bottom/Top y al final Right.
         ' Asi evitamos que el area de navegacion quede por debajo del header.
-        _sidebar.Controls.Add(navScrollHost)
+        _sidebar.Controls.Add(_navScrollHost)
         _sidebar.Controls.Add(footer)
         _sidebar.Controls.Add(sidebarHeader)
         _sidebar.Controls.Add(sidebarDivider)
@@ -371,7 +374,7 @@ Public Partial Class UIShellHost
                 sectionLabel.AutoSize = False
                 sectionLabel.SetBounds(20, topPos, _sidebar.Width - 40, 20)
                 sectionLabel.Anchor = AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right
-                navScrollHost.Controls.Add(sectionLabel)
+                _navScrollHost.Controls.Add(sectionLabel)
                 topPos += 26
             End If
 
@@ -403,9 +406,10 @@ Public Partial Class UIShellHost
                     ActivateButton(DirectCast(sender, Button), navText, navTagline)
                     SafeNavigate(navKey)
                 End Sub
-            navScrollHost.Controls.Add(btn)
+            _navScrollHost.Controls.Add(btn)
             topPos += 50
         Next
+        _navScrollHost.AutoScrollPosition = New Point(0, 0)
 
         Dim btnSalir As New Button()
         btnSalir.Text = "Salir del sistema"
@@ -501,6 +505,12 @@ Public Partial Class UIShellHost
         _activeButton.ForeColor = Color.White
         _activeButton.Font = New Font("Segoe UI Semibold", 10.0!, FontStyle.Bold, GraphicsUnit.Point)
         _activeButton.Padding = New Padding(18, 0, 10, 0)
+        If _navScrollHost IsNot Nothing Then
+            Try
+                _navScrollHost.ScrollControlIntoView(_activeButton)
+            Catch
+            End Try
+        End If
         SetTitle(title)
         If _contextLabel IsNot Nothing Then
             _contextLabel.Text = tagline

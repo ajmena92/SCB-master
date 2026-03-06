@@ -1,13 +1,18 @@
-﻿Public Class FrmReporteComedor
+﻿Option Strict On
+Option Explicit On
+
+Public Class FrmReporteComedor
     Dim Cls As New FuncionesDB
     Dim Ds As New DataSet
     Dim Cn As New SqlClient.SqlConnection
 
     Private Sub FrmReporteMarcas_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        If CrudVisualHelper.IsInDesignMode(Me) Then
+            Return
+        End If
 
         Try
-            UIThemeManagerV2.Apply(Me, "reporte")
-            ApplyModernReportParamsStyle()
+            CrudVisualHelper.ApplyReportStandard(Me)
             Cls.AbrirConexion(Cn, False)
             Ds = Cls.ConsultarTSQL("TipoUsuario", "Select Codtipo,Descripcion From TipoUsuario Where Activo = 1", Cn:=Cn)
             If Ds.Tables(0).Rows.Count > 0 Then
@@ -55,43 +60,6 @@
 
     End Sub
 
-    Private Sub ApplyModernReportParamsStyle()
-        Me.BackColor = UIConstants.AppBackground
-        Me.BackgroundImage = Nothing
-        Me.Font = UIConstants.FontBody()
-        ApplySurface(Me)
-        StyleButtons(Me)
-    End Sub
-
-    Private Sub ApplySurface(ByVal root As Control)
-        For Each ctrl As Control In root.Controls
-            ctrl.BackgroundImage = Nothing
-            If TypeOf ctrl Is Panel OrElse TypeOf ctrl Is GroupBox Then
-                ctrl.BackColor = UIConstants.Surface
-            End If
-            If ctrl.HasChildren Then
-                ApplySurface(ctrl)
-            End If
-        Next
-    End Sub
-
-    Private Sub StyleButtons(ByVal root As Control)
-        For Each ctrl As Control In root.Controls
-            If TypeOf ctrl Is Button Then
-                Dim btn As Button = DirectCast(ctrl, Button)
-                btn.FlatStyle = FlatStyle.Flat
-                btn.FlatAppearance.BorderSize = 1
-                btn.FlatAppearance.BorderColor = UIConstants.Border
-                btn.BackColor = UIConstants.Surface
-                btn.ForeColor = UIConstants.TextPrimary
-                btn.Font = UIConstants.FontBodyStrong()
-            End If
-            If ctrl.HasChildren Then
-                StyleButtons(ctrl)
-            End If
-        Next
-    End Sub
-
     Private Sub BtnCancelar_Click(sender As Object, e As EventArgs) Handles BtnCancelar.Click
         Limpiar()
     End Sub
@@ -109,8 +77,9 @@
     Private Sub BtnGuardar_Click(sender As Object, e As EventArgs) Handles BtnGuardar.Click
         If ArmaReporte() Then
             Try
-                Dim F As New FrmReportViewer
-                F.ShowDialog()
+                Using frm As New FrmReportViewer()
+                    frm.ShowDialog(Me)
+                End Using
             Catch ex As Exception
                 MsgBox(ex.Message)
             End Try

@@ -1,3 +1,6 @@
+Option Strict On
+Option Explicit On
+
 Imports System.Data
 Imports System.Data.OleDb
 Imports System.Globalization
@@ -17,8 +20,11 @@ Public Class FrmImportarExcel
     Private _archivoExcelSeleccionado As String = String.Empty
 
     Private Sub FrmImportarExcel_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        If CrudVisualHelper.IsInDesignMode(Me) Then
+            Return
+        End If
         Try
-            UIThemeManagerV2.Apply(Me, "operativo")
+            CrudVisualHelper.ApplyCrudStandard(Me, "operativo")
             ApplyModernImportLayout()
             CargaHorarios(CBHorario)
             RecalcularLayoutImportacion()
@@ -48,17 +54,17 @@ Public Class FrmImportarExcel
         Me.StartPosition = FormStartPosition.CenterParent
         Me.Text = "Importación Excel"
 
-        Panel4.BackColor = Color.Transparent
-        Panel4.BorderStyle = BorderStyle.None
+        PanelAcciones.BackColor = Color.Transparent
+        PanelAcciones.BorderStyle = BorderStyle.None
 
-        Label1.Font = New Font("Segoe UI Semibold", 20.0!, FontStyle.Bold)
-        Label1.ForeColor = UIConstants.TextPrimary
-        Label1.Text = "Importación desde Excel"
+        LblTituloModulo.Font = New Font("Segoe UI Semibold", 20.0!, FontStyle.Bold)
+        LblTituloModulo.ForeColor = UIConstants.TextPrimary
+        LblTituloModulo.Text = "Importación desde Excel"
 
-        GroupBox1.BackColor = UIConstants.Surface
-        GroupBox1.ForeColor = UIConstants.TextPrimary
-        GroupBox1.Font = UIConstants.FontBodyStrong()
-        GroupBox1.Text = "Configuración de importación"
+        GroupConfiguracionImportacion.BackColor = UIConstants.Surface
+        GroupConfiguracionImportacion.ForeColor = UIConstants.TextPrimary
+        GroupConfiguracionImportacion.Font = UIConstants.FontBodyStrong()
+        GroupConfiguracionImportacion.Text = "Configuración de importación"
 
         RdEst.Text = "Actualizar estudiantes"
         RbDocentes.Text = "Actualizar docentes"
@@ -80,7 +86,7 @@ Public Class FrmImportarExcel
         Progreso.Style = ProgressBarStyle.Continuous
         Progreso.Value = 0
 
-        ConfigurarGridPreview(DGV1)
+        ConfigurarGridPreview(DgvVistaPrevia)
         ConfigurarSelectorArchivo()
     End Sub
 
@@ -166,11 +172,11 @@ Public Class FrmImportarExcel
 
         AddHandler _btnArchivoExcel.Click, AddressOf BtnArchivoExcel_Click
 
-        GroupBox1.Controls.Add(_lblArchivoExcel)
-        GroupBox1.Controls.Add(_txtArchivoExcel)
-        GroupBox1.Controls.Add(_btnArchivoExcel)
-        GroupBox1.Controls.Add(_lblInfo)
-        GroupBox1.Controls.Add(_lblHorario)
+        GroupConfiguracionImportacion.Controls.Add(_lblArchivoExcel)
+        GroupConfiguracionImportacion.Controls.Add(_txtArchivoExcel)
+        GroupConfiguracionImportacion.Controls.Add(_btnArchivoExcel)
+        GroupConfiguracionImportacion.Controls.Add(_lblInfo)
+        GroupConfiguracionImportacion.Controls.Add(_lblHorario)
     End Sub
 
     Private Sub RecalcularLayoutImportacion()
@@ -181,32 +187,32 @@ Public Class FrmImportarExcel
         Dim margen As Integer = 24
         Dim spacing As Integer = 12
 
-        Label1.SetBounds(margen, 16, Me.ClientSize.Width - (margen * 2), 38)
-        Label1.Anchor = AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right
+        LblTituloModulo.SetBounds(margen, 16, Me.ClientSize.Width - (margen * 2), 38)
+        LblTituloModulo.Anchor = AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right
 
-        GroupBox1.SetBounds(margen, Label1.Bottom + spacing, Me.ClientSize.Width - (margen * 2), 170)
-        GroupBox1.Anchor = AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right
+        GroupConfiguracionImportacion.SetBounds(margen, LblTituloModulo.Bottom + spacing, Me.ClientSize.Width - (margen * 2), 170)
+        GroupConfiguracionImportacion.Anchor = AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right
 
         RecalcularLayoutGrupoConfiguracion()
 
-        LblEstado.SetBounds(margen, GroupBox1.Bottom + 8, Me.ClientSize.Width - (margen * 2), 26)
+        LblEstado.SetBounds(margen, GroupConfiguracionImportacion.Bottom + 8, Me.ClientSize.Width - (margen * 2), 26)
         LblEstado.Anchor = AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right
 
         Progreso.SetBounds(margen, LblEstado.Bottom + 4, Me.ClientSize.Width - (margen * 2), 20)
         Progreso.Anchor = AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right
 
-        Panel4.SetBounds(Me.ClientSize.Width - margen - 366, Me.ClientSize.Height - 56, 366, 38)
-        Panel4.Anchor = AnchorStyles.Bottom Or AnchorStyles.Right
+        PanelAcciones.SetBounds(Me.ClientSize.Width - margen - 366, Me.ClientSize.Height - 56, 366, 38)
+        PanelAcciones.Anchor = AnchorStyles.Bottom Or AnchorStyles.Right
 
         BtnGuardar.SetBounds(0, 0, 146, 38)
         BtnCancelar.SetBounds(154, 0, 102, 38)
         BtnRegresar.SetBounds(264, 0, 102, 38)
 
         Dim topGrid As Integer = Progreso.Bottom + 10
-        Dim bottomGrid As Integer = Panel4.Top - 10
+        Dim bottomGrid As Integer = PanelAcciones.Top - 10
         Dim gridHeight As Integer = Math.Max(140, bottomGrid - topGrid)
-        DGV1.SetBounds(margen, topGrid, Me.ClientSize.Width - (margen * 2), gridHeight)
-        DGV1.Anchor = AnchorStyles.Top Or AnchorStyles.Bottom Or AnchorStyles.Left Or AnchorStyles.Right
+        DgvVistaPrevia.SetBounds(margen, topGrid, Me.ClientSize.Width - (margen * 2), gridHeight)
+        DgvVistaPrevia.Anchor = AnchorStyles.Top Or AnchorStyles.Bottom Or AnchorStyles.Left Or AnchorStyles.Right
     End Sub
 
     Private Sub RecalcularLayoutGrupoConfiguracion()
@@ -216,7 +222,7 @@ Public Class FrmImportarExcel
 
         Dim leftLabel As Integer = 16
         Dim leftControl As Integer = 150
-        Dim groupWidth As Integer = GroupBox1.ClientSize.Width
+        Dim groupWidth As Integer = GroupConfiguracionImportacion.ClientSize.Width
 
         _lblArchivoExcel.Location = New Point(leftLabel, 34)
 
@@ -265,7 +271,7 @@ Public Class FrmImportarExcel
         LblEstado.Text = "Seleccione archivo y horario para iniciar la importación."
         Progreso.Style = ProgressBarStyle.Continuous
         Progreso.Value = 0
-        DGV1.DataSource = Nothing
+        DgvVistaPrevia.DataSource = Nothing
     End Sub
 
     Private Sub BtnCancelar_Click(sender As Object, e As EventArgs) Handles BtnCancelar.Click
@@ -339,7 +345,7 @@ Public Class FrmImportarExcel
 
             Dim tablaExcel As DataTable = LeerTablaExcel(rutaExcel)
             Dim normalizada As DataTable = NormalizarDesdeExcel(tablaExcel)
-            DGV1.DataSource = normalizada
+            DgvVistaPrevia.DataSource = normalizada
             EjecutarImportacion(normalizada)
         Finally
             Progreso.Style = ProgressBarStyle.Continuous

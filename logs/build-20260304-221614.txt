@@ -1,5 +1,0 @@
-﻿
-C:\Dev\SCB-master\SCSC\Clases\Servicios\MicrosoftListsImportService.vb(21,61): error BC30002: Type 'ParametroSistemaService.ParametroSistemaConfig' is not defined. [C:\Dev\SCB-master\SCSC\SCSC_Marcas.vbproj]
-C:\Dev\SCB-master\SCSC\Clases\Servicios\MicrosoftListsImportService.vb(80,95): error BC30002: Type 'ParametroSistemaService.ParametroSistemaConfig' is not defined. [C:\Dev\SCB-master\SCSC\SCSC_Marcas.vbproj]
-C:\Dev\SCB-master\SCSC\Clases\Servicios\MicrosoftListsImportService.vb(132,52): error BC30002: Type 'ParametroSistemaService.ParametroSistemaConfig' is not defined. [C:\Dev\SCB-master\SCSC\SCSC_Marcas.vbproj]
-C:\Dev\SCB-master\SCSC\Formularios\FrmImportarExcel.vb(12,42): error BC30002: Type 'ParametroSistemaService' is not defined. [C:\Dev\SCB-master\SCSC\SCSC_Marcas.vbproj]

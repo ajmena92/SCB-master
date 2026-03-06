@@ -6,9 +6,8 @@ Imports System.Threading
 Imports System.Threading.Tasks
 
 Public Class ControlTransporte
-    Private Const DesignerFirstStrict As Boolean = True
     Private Const SegundosInactividadLimpiarRegistro As Integer = 60
-    Private Const PermitirCierreOperador As Boolean = True
+    Private Const PermitirCierreOperador As Boolean = False
     Private Const SidebarMinWidth As Integer = 420
     Private Const SidebarMaxWidth As Integer = 520
 
@@ -62,7 +61,6 @@ Public Class ControlTransporte
     Private _lstHistorial As ListBox
     Private _btnIncidencia As Button
     Private _lblScanHint As Label
-    Private _btnSalirOperador As Button
     Private _lblFocusEscaneo As Label
     Private _lblHotkeys As Label
     Private _lblEstadoChip As Label
@@ -98,9 +96,7 @@ Public Class ControlTransporte
     Private Delegate Sub RowCall(ByVal row As DataRow)
 
     Private Sub BtnSalir_Click(sender As Object, e As EventArgs) Handles BtnCerrar.Click
-        If PermitirCierreOperador Then
-            Me.Close()
-        End If
+        EnsureScanFocus(False)
     End Sub
 
     Private Sub ControlTransporte_FormClosed(ByVal sender As System.Object, ByVal e As System.Windows.Forms.FormClosedEventArgs) Handles MyBase.FormClosed
@@ -124,10 +120,12 @@ Public Class ControlTransporte
             End If
         Catch
         End Try
-        Me.Dispose()
     End Sub
 
     Private Sub ControlTransporte_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        If CrudVisualHelper.IsInDesignMode(Me) Then
+            Return
+        End If
         Try
             UIThemeManagerV2.Apply(Me, "operativo")
             CargarPreferenciasOperacion()
@@ -157,7 +155,7 @@ Public Class ControlTransporte
             End If
             ErrorLogger.LogException("ControlTransporte_Load", ex)
             MsgBox("Error al cargar el Formulario: " & ex.Message, MsgBoxStyle.Critical)
-            Me.Dispose()
+            Me.Close()
         End Try
     End Sub
 
@@ -168,6 +166,17 @@ Public Class ControlTransporte
 
     Private Sub ControlTransporte_Resize(sender As Object, e As EventArgs) Handles MyBase.Resize
         ApplyResponsiveLayout()
+    End Sub
+
+    Private Sub ControlTransporte_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
+        If PermitirCierreOperador Then
+            Exit Sub
+        End If
+
+        If e.CloseReason = CloseReason.UserClosing Then
+            e.Cancel = True
+            EnsureScanFocus(False)
+        End If
     End Sub
 
     Private Sub TxtCedula_KeyDown(sender As Object, e As KeyEventArgs) Handles TxtCedula.KeyDown
@@ -378,7 +387,6 @@ Public Class ControlTransporte
         TxtTipo.Clear()
         TxtSeccion.Clear()
         TxtRuta.Clear()
-        LblRuta.Text = String.Empty
         TxtUsuario.Clear()
         TxtPermisoSalida.Clear()
         TxtCedula.Clear()
@@ -417,22 +425,18 @@ Public Class ControlTransporte
         Me.BackColor = UIConstants.AppBackground
         Me.Font = UIConstants.FontBody()
         Me.KeyPreview = True
-        If Not DesignerFirstStrict Then
-            Me.WindowState = FormWindowState.Maximized
-            Me.FormBorderStyle = FormBorderStyle.None
-            Me.ControlBox = False
-            Me.StartPosition = FormStartPosition.CenterScreen
-        End If
+        Me.WindowState = FormWindowState.Maximized
+        Me.FormBorderStyle = FormBorderStyle.None
+        Me.ControlBox = False
+        Me.StartPosition = FormStartPosition.CenterScreen
 
         PanelResult.BackColor = Color.FromArgb(242, 246, 252)
-        If Not DesignerFirstStrict Then
-            PanelResult.BorderStyle = BorderStyle.FixedSingle
-            PanelResult.Dock = DockStyle.None
-            Panel1.Dock = DockStyle.None
-            BunifuGradientPanel1.Dock = DockStyle.None
-            Panel1.Visible = False
-            BtnCerrar.Visible = False
-        End If
+        PanelResult.BorderStyle = BorderStyle.FixedSingle
+        PanelResult.Dock = DockStyle.None
+        PanelTopBar.Dock = DockStyle.None
+        BunifuGradientPanel1.Dock = DockStyle.None
+        PanelTopBar.Visible = False
+        BtnCerrar.Visible = False
 
         LblTitulo.Font = New Font("Segoe UI Semibold", 28.0!, FontStyle.Bold)
         LblTitulo.ForeColor = Color.FromArgb(17, 33, 59)
@@ -458,12 +462,12 @@ Public Class ControlTransporte
         GbDatos.BackColor = Color.White
         GbDatos.ForeColor = Color.FromArgb(36, 51, 77)
 
-        Label1.ForeColor = Color.FromArgb(76, 90, 112)
-        Label2.ForeColor = Color.FromArgb(76, 90, 112)
-        Label3.ForeColor = Color.FromArgb(76, 90, 112)
-        Label4.ForeColor = Color.FromArgb(76, 90, 112)
-        Label5.ForeColor = Color.FromArgb(76, 90, 112)
-        Label6.ForeColor = Color.FromArgb(76, 90, 112)
+        LblPermisoSalidaCaption.ForeColor = Color.FromArgb(76, 90, 112)
+        LblUsuarioCaption.ForeColor = Color.FromArgb(76, 90, 112)
+        LblSeccionCaption.ForeColor = Color.FromArgb(76, 90, 112)
+        LblCedulaCaption.ForeColor = Color.FromArgb(76, 90, 112)
+        LblTipoCaption.ForeColor = Color.FromArgb(76, 90, 112)
+        LblRutaCaption.ForeColor = Color.FromArgb(76, 90, 112)
 
         TxtCedula.Visible = True
         TxtCedula.BringToFront()
@@ -491,9 +495,9 @@ Public Class ControlTransporte
         BunifuGradientPanel1.Left = 0
         BunifuGradientPanel1.Top = 0
         BunifuGradientPanel1.Height = Me.ClientSize.Height
-        Panel1.Left = leftWidth
-        Panel1.Top = 0
-        Panel1.Width = Me.ClientSize.Width - leftWidth
+        PanelTopBar.Left = leftWidth
+        PanelTopBar.Top = 0
+        PanelTopBar.Width = Me.ClientSize.Width - leftWidth
         PanelResult.Left = leftWidth
         PanelResult.Top = 0
         PanelResult.Width = Me.ClientSize.Width - leftWidth
@@ -517,23 +521,19 @@ Public Class ControlTransporte
         Dim gbHeight As Integer = Math.Max(250, BunifuGradientPanel1.ClientSize.Height - gbTop - footerReserve)
         GbDatos.SetBounds(12, gbTop, leftWidth - 24, gbHeight)
 
-        If _btnSalirOperador IsNot Nothing Then
-            _btnSalirOperador.SetBounds(0, 0, 0, 0)
-        End If
-
         Dim gX As Integer = 14
         Dim gW As Integer = GbDatos.ClientSize.Width - 28
-        Label4.SetBounds(gX, 24, gW, 20)
+        LblCedulaCaption.SetBounds(gX, 24, gW, 20)
         LblCedula.SetBounds(gX, 46, gW, 42)
-        Label2.SetBounds(gX, 94, gW, 20)
+        LblUsuarioCaption.SetBounds(gX, 94, gW, 20)
         TxtUsuario.SetBounds(gX, 116, gW, 42)
-        Label5.SetBounds(gX, 164, gW, 20)
+        LblTipoCaption.SetBounds(gX, 164, gW, 20)
         TxtTipo.SetBounds(gX, 186, gW, 42)
-        Label3.SetBounds(gX, 234, gW, 20)
+        LblSeccionCaption.SetBounds(gX, 234, gW, 20)
         TxtSeccion.SetBounds(gX, 256, gW, 42)
-        Label6.SetBounds(gX, 304, gW, 20)
+        LblRutaCaption.SetBounds(gX, 304, gW, 20)
         TxtRuta.SetBounds(gX, 326, gW, 42)
-        Label1.SetBounds(gX, 374, gW, 20)
+        LblPermisoSalidaCaption.SetBounds(gX, 374, gW, 20)
         TxtPermisoSalida.SetBounds(gX, 396, gW, 42)
 
         If _lblHistorial IsNot Nothing Then
@@ -576,10 +576,6 @@ Public Class ControlTransporte
         Else
             _lblScanHint.Font = New Font("Segoe UI", 11.0!, FontStyle.Bold)
         End If
-    End Sub
-
-    Private Sub ApplySupplementaryOperationalLayout()
-        ApplyResponsiveLayout()
     End Sub
 
     Private Function ObtenerModoLayout() As LayoutMode
@@ -639,21 +635,6 @@ Public Class ControlTransporte
             _lblFocusEscaneo.BringToFront()
         End If
 
-        If _btnSalirOperador Is Nothing Then
-            _btnSalirOperador = New Button()
-            _btnSalirOperador.Text = String.Empty
-            _btnSalirOperador.FlatStyle = FlatStyle.Flat
-            _btnSalirOperador.FlatAppearance.BorderSize = 0
-            _btnSalirOperador.BackColor = Color.FromArgb(161, 47, 65)
-            _btnSalirOperador.ForeColor = Color.White
-            _btnSalirOperador.Font = New Font("Segoe UI", 9.5!, FontStyle.Bold)
-            _btnSalirOperador.Visible = False
-            _btnSalirOperador.Enabled = False
-            AddHandler _btnSalirOperador.Click, AddressOf BtnSalirOperador_Click
-            BunifuGradientPanel1.Controls.Add(_btnSalirOperador)
-            _btnSalirOperador.BringToFront()
-        End If
-
         If _lblHotkeys Is Nothing Then
             _lblHotkeys = New Label()
             _lblHotkeys.AutoSize = False
@@ -664,10 +645,6 @@ Public Class ControlTransporte
             PanelResult.Controls.Add(_lblHotkeys)
             _lblHotkeys.BringToFront()
         End If
-    End Sub
-
-    Private Sub BtnSalirOperador_Click(ByVal sender As Object, ByVal e As EventArgs)
-        'Boton deshabilitado por politica de permisos.
     End Sub
 
     Private Sub InicializarControlesOperacion()
@@ -754,15 +731,13 @@ Public Class ControlTransporte
     End Sub
 
     Private Sub BtnIncidencia_Click(ByVal sender As Object, ByVal e As EventArgs)
-        Dim detalle As String = InputBox("Describa incidencia de transporte:", "Incidencia rapida", "INCIDENCIA_OPERATIVA")
-        If String.IsNullOrWhiteSpace(detalle) Then
-            Exit Sub
-        End If
-        RegistrarHistorial(EstadoVisual.ErrorGeneral, "INCIDENCIA: " & detalle.Trim())
+        Const codigoIncidencia As String = "INCIDENCIA_OPERATIVA"
+        RegistrarHistorial(EstadoVisual.ErrorGeneral, "INCIDENCIA: " & codigoIncidencia)
         _resultadoOperacionActual = "INCIDENCIA MANUAL"
         _fechaUltimoEstado = DateTime.Now
         RegistrarEventoPersistente(EstadoVisual.ErrorGeneral, True)
-        LblRuta.Text = "Incidencia registrada"
+        LblRuta.Text = "Incidencia registrada: " & codigoIncidencia
+        EnsureScanFocus(True)
     End Sub
 
     Private Sub CargarPreferenciasOperacion()
@@ -1323,7 +1298,11 @@ Public Class ControlTransporte
 
     Protected Overrides Function ProcessCmdKey(ByRef msg As Message, keyData As Keys) As Boolean
         If keyData = Keys.Escape Then
-            Me.Close()
+            If PermitirCierreOperador Then
+                Me.Close()
+            Else
+                EnsureScanFocus(False)
+            End If
             Return True
         End If
         If keyData = Keys.F2 Then
@@ -1350,12 +1329,6 @@ Public Class ControlTransporte
         Return MyBase.ProcessCmdKey(msg, keyData)
     End Function
 
-    Private Sub LblFecha_Click(sender As Object, e As EventArgs) Handles LblFecha.Click
-    End Sub
-
-    Private Sub TxtCedula_TextChanged(sender As Object, e As EventArgs) Handles TxtCedula.TextChanged
-    End Sub
-
     Private Sub LblTitulo_Click(sender As Object, e As EventArgs) Handles LblTitulo.Click
         RegistrarActividad()
         EnsureScanFocus(False)
@@ -1366,6 +1339,4 @@ Public Class ControlTransporte
         EnsureScanFocus(False)
     End Sub
 
-    Private Sub PanelResult_Paint(sender As Object, e As PaintEventArgs) Handles PanelResult.Paint
-    End Sub
 End Class

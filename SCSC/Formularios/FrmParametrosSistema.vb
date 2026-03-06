@@ -1,3 +1,6 @@
+Option Strict On
+Option Explicit On
+
 Imports System.Globalization
 
 Public Class FrmParametrosSistema
@@ -5,9 +8,11 @@ Public Class FrmParametrosSistema
     Private ReadOnly ParametroSvc As New ParametroSistemaService()
 
     Private Sub FrmParametrosSistema_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        If CrudVisualHelper.IsInDesignMode(Me) Then
+            Return
+        End If
         Try
-            UIThemeManagerV2.Apply(Me, "dialogo")
-            UIThemeManagerV2.ApplyCrudModuleChrome(Me)
+            CrudVisualHelper.ApplyCrudStandard(Me, "dialogo")
             ConfigurarEstilo()
             CargarDatos()
         Catch ex As Exception
@@ -87,7 +92,7 @@ Public Class FrmParametrosSistema
     End Sub
 
     Private Sub BtnEliminar_Click(sender As Object, e As EventArgs) Handles BtnEliminar.Click
-        If MsgBox("Se restablecerán los parámetros operativos de la fila 0. ¿Desea continuar?", MsgBoxStyle.YesNo Or MsgBoxStyle.Question) <> MsgBoxResult.Yes Then
+        If Not CrudOperationHelper.ConfirmarEliminacion("la configuracion operativa (restablecer fila 0)") Then
             Exit Sub
         End If
 

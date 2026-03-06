@@ -1,3 +1,0 @@
-﻿
-C:\Dev\SCB-master\SCSC\Formularios\ControlComedor.vb(517,9): error BC30451: 'AplicarModoAltoContraste' is not declared. It may be inaccessible due to its protection level. [C:\Dev\SCB-master\SCSC\SCSC_Marcas.vbproj]
-C:\Dev\SCB-master\SCSC\Formularios\ControlComedor.vb(522,34): error BC30451: 'ObtenerModoLayout' is not declared. It may be inaccessible due to its protection level. [C:\Dev\SCB-master\SCSC\SCSC_Marcas.vbproj]

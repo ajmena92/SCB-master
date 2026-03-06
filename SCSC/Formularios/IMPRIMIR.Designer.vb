@@ -32,9 +32,9 @@ Partial Class IMPRIMIR
         Me.txtAlto = New System.Windows.Forms.TextBox()
         Me.txtAncho = New System.Windows.Forms.TextBox()
         Me.txtNombre = New System.Windows.Forms.TextBox()
-        Me.Label1 = New System.Windows.Forms.Label()
-        Me.Label2 = New System.Windows.Forms.Label()
-        Me.Label3 = New System.Windows.Forms.Label()
+        Me.LblNombreCaption = New System.Windows.Forms.Label()
+        Me.LblAltoCaption = New System.Windows.Forms.Label()
+        Me.LblAnchoCaption = New System.Windows.Forms.Label()
         Me.prdoDocumento = New System.Drawing.Printing.PrintDocument()
         Me.ppdDocumento = New System.Windows.Forms.PrintPreviewDialog()
         Me.SuspendLayout()
@@ -109,32 +109,32 @@ Partial Class IMPRIMIR
         Me.txtNombre.Size = New System.Drawing.Size(100, 20)
         Me.txtNombre.TabIndex = 7
         '
-        'Label1
+        'LblNombreCaption
         '
-        Me.Label1.AutoSize = True
-        Me.Label1.Location = New System.Drawing.Point(49, 69)
-        Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(44, 13)
-        Me.Label1.TabIndex = 8
-        Me.Label1.Text = "Nombre"
+        Me.LblNombreCaption.AutoSize = True
+        Me.LblNombreCaption.Location = New System.Drawing.Point(49, 69)
+        Me.LblNombreCaption.Name = "LblNombreCaption"
+        Me.LblNombreCaption.Size = New System.Drawing.Size(44, 13)
+        Me.LblNombreCaption.TabIndex = 8
+        Me.LblNombreCaption.Text = "Nombre"
         '
-        'Label2
+        'LblAltoCaption
         '
-        Me.Label2.AutoSize = True
-        Me.Label2.Location = New System.Drawing.Point(49, 124)
-        Me.Label2.Name = "Label2"
-        Me.Label2.Size = New System.Drawing.Size(25, 13)
-        Me.Label2.TabIndex = 9
-        Me.Label2.Text = "Alto"
+        Me.LblAltoCaption.AutoSize = True
+        Me.LblAltoCaption.Location = New System.Drawing.Point(49, 124)
+        Me.LblAltoCaption.Name = "LblAltoCaption"
+        Me.LblAltoCaption.Size = New System.Drawing.Size(25, 13)
+        Me.LblAltoCaption.TabIndex = 9
+        Me.LblAltoCaption.Text = "Alto"
         '
-        'Label3
+        'LblAnchoCaption
         '
-        Me.Label3.AutoSize = True
-        Me.Label3.Location = New System.Drawing.Point(49, 95)
-        Me.Label3.Name = "Label3"
-        Me.Label3.Size = New System.Drawing.Size(38, 13)
-        Me.Label3.TabIndex = 10
-        Me.Label3.Text = "Ancho"
+        Me.LblAnchoCaption.AutoSize = True
+        Me.LblAnchoCaption.Location = New System.Drawing.Point(49, 95)
+        Me.LblAnchoCaption.Name = "LblAnchoCaption"
+        Me.LblAnchoCaption.Size = New System.Drawing.Size(38, 13)
+        Me.LblAnchoCaption.TabIndex = 10
+        Me.LblAnchoCaption.Text = "Ancho"
         '
         'prdoDocumento
         '
@@ -154,9 +154,9 @@ Partial Class IMPRIMIR
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(429, 261)
-        Me.Controls.Add(Me.Label3)
-        Me.Controls.Add(Me.Label2)
-        Me.Controls.Add(Me.Label1)
+        Me.Controls.Add(Me.LblAnchoCaption)
+        Me.Controls.Add(Me.LblAltoCaption)
+        Me.Controls.Add(Me.LblNombreCaption)
         Me.Controls.Add(Me.txtNombre)
         Me.Controls.Add(Me.txtAncho)
         Me.Controls.Add(Me.txtAlto)
@@ -180,9 +180,9 @@ Partial Class IMPRIMIR
     Friend WithEvents txtAlto As System.Windows.Forms.TextBox
     Friend WithEvents txtAncho As System.Windows.Forms.TextBox
     Friend WithEvents txtNombre As System.Windows.Forms.TextBox
-    Friend WithEvents Label1 As System.Windows.Forms.Label
-    Friend WithEvents Label2 As System.Windows.Forms.Label
-    Friend WithEvents Label3 As System.Windows.Forms.Label
+    Friend WithEvents LblNombreCaption As System.Windows.Forms.Label
+    Friend WithEvents LblAltoCaption As System.Windows.Forms.Label
+    Friend WithEvents LblAnchoCaption As System.Windows.Forms.Label
     Friend WithEvents prdoDocumento As System.Drawing.Printing.PrintDocument
     Friend WithEvents ppdDocumento As System.Windows.Forms.PrintPreviewDialog
 End Class

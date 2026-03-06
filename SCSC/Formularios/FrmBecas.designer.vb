@@ -24,14 +24,14 @@ Partial Class FrmBecas
     Private Sub InitializeComponent()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(FrmBecas))
         Me.TxtDescripcion = New System.Windows.Forms.TextBox()
-        Me.Label3 = New System.Windows.Forms.Label()
-        Me.Label1 = New System.Windows.Forms.Label()
-        Me.GroupBox2 = New System.Windows.Forms.GroupBox()
+        Me.LblDescripcionBeca = New System.Windows.Forms.Label()
+        Me.LblTituloModulo = New System.Windows.Forms.Label()
+        Me.GroupDatosBeca = New System.Windows.Forms.GroupBox()
         Me.CkActivo = New System.Windows.Forms.CheckBox()
         Me.Buscar = New System.Windows.Forms.Button()
-        Me.Label4 = New System.Windows.Forms.Label()
+        Me.LblBuscarBeca = New System.Windows.Forms.Label()
         Me.txtCodBeca = New System.Windows.Forms.TextBox()
-        Me.Panel4 = New System.Windows.Forms.Panel()
+        Me.PanelAcciones = New System.Windows.Forms.Panel()
         Me.BtnEliminar = New System.Windows.Forms.Button()
         Me.BtnRegresar = New System.Windows.Forms.Button()
         Me.BtnCancelar = New System.Windows.Forms.Button()
@@ -42,8 +42,8 @@ Partial Class FrmBecas
         Me.Ck4 = New System.Windows.Forms.CheckBox()
         Me.Ck3 = New System.Windows.Forms.CheckBox()
         Me.Ck2 = New System.Windows.Forms.CheckBox()
-        Me.GroupBox2.SuspendLayout()
-        Me.Panel4.SuspendLayout()
+        Me.GroupDatosBeca.SuspendLayout()
+        Me.PanelAcciones.SuspendLayout()
         Me.GpDiasBeca.SuspendLayout()
         Me.SuspendLayout()
         '
@@ -57,48 +57,48 @@ Partial Class FrmBecas
         Me.TxtDescripcion.Size = New System.Drawing.Size(422, 36)
         Me.TxtDescripcion.TabIndex = 41
         '
-        'Label3
+        'LblDescripcionBeca
         '
-        Me.Label3.AutoSize = True
-        Me.Label3.BackColor = System.Drawing.Color.Transparent
-        Me.Label3.FlatStyle = System.Windows.Forms.FlatStyle.Popup
-        Me.Label3.Font = New System.Drawing.Font("Arial Narrow", 13.8!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label3.Location = New System.Drawing.Point(28, 113)
-        Me.Label3.Name = "Label3"
-        Me.Label3.Size = New System.Drawing.Size(126, 29)
-        Me.Label3.TabIndex = 42
-        Me.Label3.Text = "Descripción: "
+        Me.LblDescripcionBeca.AutoSize = True
+        Me.LblDescripcionBeca.BackColor = System.Drawing.Color.Transparent
+        Me.LblDescripcionBeca.FlatStyle = System.Windows.Forms.FlatStyle.Popup
+        Me.LblDescripcionBeca.Font = New System.Drawing.Font("Arial Narrow", 13.8!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LblDescripcionBeca.Location = New System.Drawing.Point(28, 113)
+        Me.LblDescripcionBeca.Name = "LblDescripcionBeca"
+        Me.LblDescripcionBeca.Size = New System.Drawing.Size(126, 29)
+        Me.LblDescripcionBeca.TabIndex = 42
+        Me.LblDescripcionBeca.Text = "Descripción: "
         '
-        'Label1
+        'LblTituloModulo
         '
-        Me.Label1.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
+        Me.LblTituloModulo.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
             Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.Label1.AutoSize = True
-        Me.Label1.BackColor = System.Drawing.Color.Transparent
-        Me.Label1.Font = New System.Drawing.Font("Microsoft Sans Serif", 21.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label1.ForeColor = System.Drawing.Color.Black
-        Me.Label1.Location = New System.Drawing.Point(233, 14)
-        Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(256, 42)
-        Me.Label1.TabIndex = 20
-        Me.Label1.Text = "Modulo Becas"
-        Me.Label1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        Me.LblTituloModulo.AutoSize = True
+        Me.LblTituloModulo.BackColor = System.Drawing.Color.Transparent
+        Me.LblTituloModulo.Font = New System.Drawing.Font("Microsoft Sans Serif", 21.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LblTituloModulo.ForeColor = System.Drawing.Color.Black
+        Me.LblTituloModulo.Location = New System.Drawing.Point(233, 14)
+        Me.LblTituloModulo.Name = "LblTituloModulo"
+        Me.LblTituloModulo.Size = New System.Drawing.Size(256, 42)
+        Me.LblTituloModulo.TabIndex = 20
+        Me.LblTituloModulo.Text = "Modulo Becas"
+        Me.LblTituloModulo.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
-        'GroupBox2
+        'GroupDatosBeca
         '
-        Me.GroupBox2.BackColor = System.Drawing.Color.Transparent
-        Me.GroupBox2.Controls.Add(Me.CkActivo)
-        Me.GroupBox2.Controls.Add(Me.Buscar)
-        Me.GroupBox2.Controls.Add(Me.Label4)
-        Me.GroupBox2.Controls.Add(Me.Label3)
-        Me.GroupBox2.Controls.Add(Me.TxtDescripcion)
-        Me.GroupBox2.Location = New System.Drawing.Point(31, 59)
-        Me.GroupBox2.Name = "GroupBox2"
-        Me.GroupBox2.Size = New System.Drawing.Size(598, 242)
-        Me.GroupBox2.TabIndex = 22
-        Me.GroupBox2.TabStop = False
-        Me.GroupBox2.Text = "Datos de Beca"
+        Me.GroupDatosBeca.BackColor = System.Drawing.Color.Transparent
+        Me.GroupDatosBeca.Controls.Add(Me.CkActivo)
+        Me.GroupDatosBeca.Controls.Add(Me.Buscar)
+        Me.GroupDatosBeca.Controls.Add(Me.LblBuscarBeca)
+        Me.GroupDatosBeca.Controls.Add(Me.LblDescripcionBeca)
+        Me.GroupDatosBeca.Controls.Add(Me.TxtDescripcion)
+        Me.GroupDatosBeca.Location = New System.Drawing.Point(31, 59)
+        Me.GroupDatosBeca.Name = "GroupDatosBeca"
+        Me.GroupDatosBeca.Size = New System.Drawing.Size(598, 242)
+        Me.GroupDatosBeca.TabIndex = 22
+        Me.GroupDatosBeca.TabStop = False
+        Me.GroupDatosBeca.Text = "Datos de Beca"
         '
         'CkActivo
         '
@@ -132,17 +132,17 @@ Partial Class FrmBecas
         Me.Buscar.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText
         Me.Buscar.UseVisualStyleBackColor = False
         '
-        'Label4
+        'LblBuscarBeca
         '
-        Me.Label4.AutoSize = True
-        Me.Label4.BackColor = System.Drawing.Color.Transparent
-        Me.Label4.FlatStyle = System.Windows.Forms.FlatStyle.Popup
-        Me.Label4.Font = New System.Drawing.Font("Arial Narrow", 13.8!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label4.Location = New System.Drawing.Point(28, 58)
-        Me.Label4.Name = "Label4"
-        Me.Label4.Size = New System.Drawing.Size(216, 29)
-        Me.Label4.TabIndex = 40
-        Me.Label4.Text = "Buscar Beca Comedor:"
+        Me.LblBuscarBeca.AutoSize = True
+        Me.LblBuscarBeca.BackColor = System.Drawing.Color.Transparent
+        Me.LblBuscarBeca.FlatStyle = System.Windows.Forms.FlatStyle.Popup
+        Me.LblBuscarBeca.Font = New System.Drawing.Font("Arial Narrow", 13.8!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LblBuscarBeca.Location = New System.Drawing.Point(28, 58)
+        Me.LblBuscarBeca.Name = "LblBuscarBeca"
+        Me.LblBuscarBeca.Size = New System.Drawing.Size(216, 29)
+        Me.LblBuscarBeca.TabIndex = 40
+        Me.LblBuscarBeca.Text = "Buscar Beca Comedor:"
         '
         'txtCodBeca
         '
@@ -156,18 +156,18 @@ Partial Class FrmBecas
         Me.txtCodBeca.TabIndex = 39
         Me.txtCodBeca.Visible = False
         '
-        'Panel4
+        'PanelAcciones
         '
-        Me.Panel4.BackColor = System.Drawing.Color.Transparent
-        Me.Panel4.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.Panel4.Controls.Add(Me.BtnEliminar)
-        Me.Panel4.Controls.Add(Me.BtnRegresar)
-        Me.Panel4.Controls.Add(Me.BtnCancelar)
-        Me.Panel4.Controls.Add(Me.BtnGuardar)
-        Me.Panel4.Location = New System.Drawing.Point(372, 451)
-        Me.Panel4.Name = "Panel4"
-        Me.Panel4.Size = New System.Drawing.Size(257, 72)
-        Me.Panel4.TabIndex = 23
+        Me.PanelAcciones.BackColor = System.Drawing.Color.Transparent
+        Me.PanelAcciones.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
+        Me.PanelAcciones.Controls.Add(Me.BtnEliminar)
+        Me.PanelAcciones.Controls.Add(Me.BtnRegresar)
+        Me.PanelAcciones.Controls.Add(Me.BtnCancelar)
+        Me.PanelAcciones.Controls.Add(Me.BtnGuardar)
+        Me.PanelAcciones.Location = New System.Drawing.Point(372, 451)
+        Me.PanelAcciones.Name = "PanelAcciones"
+        Me.PanelAcciones.Size = New System.Drawing.Size(257, 72)
+        Me.PanelAcciones.TabIndex = 23
         '
         'BtnEliminar
         '
@@ -302,9 +302,9 @@ Partial Class FrmBecas
         Me.ClientSize = New System.Drawing.Size(667, 539)
         Me.Controls.Add(Me.GpDiasBeca)
         Me.Controls.Add(Me.txtCodBeca)
-        Me.Controls.Add(Me.Panel4)
-        Me.Controls.Add(Me.GroupBox2)
-        Me.Controls.Add(Me.Label1)
+        Me.Controls.Add(Me.PanelAcciones)
+        Me.Controls.Add(Me.GroupDatosBeca)
+        Me.Controls.Add(Me.LblTituloModulo)
         Me.Font = New System.Drawing.Font("Calibri", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog
         Me.Margin = New System.Windows.Forms.Padding(4)
@@ -313,23 +313,23 @@ Partial Class FrmBecas
         Me.Name = "FrmBecas"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "Mantenimiento de estudiantes "
-        Me.GroupBox2.ResumeLayout(False)
-        Me.GroupBox2.PerformLayout()
-        Me.Panel4.ResumeLayout(False)
+        Me.GroupDatosBeca.ResumeLayout(False)
+        Me.GroupDatosBeca.PerformLayout()
+        Me.PanelAcciones.ResumeLayout(False)
         Me.GpDiasBeca.ResumeLayout(False)
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
     End Sub
-    Friend WithEvents Label1 As System.Windows.Forms.Label
-    Friend WithEvents GroupBox2 As System.Windows.Forms.GroupBox
+    Friend WithEvents LblTituloModulo As System.Windows.Forms.Label
+    Friend WithEvents GroupDatosBeca As System.Windows.Forms.GroupBox
     Friend WithEvents txtCodBeca As System.Windows.Forms.TextBox
     Friend WithEvents Buscar As System.Windows.Forms.Button
-    Friend WithEvents Label4 As System.Windows.Forms.Label
+    Friend WithEvents LblBuscarBeca As System.Windows.Forms.Label
     Friend WithEvents TxtDescripcion As System.Windows.Forms.TextBox
-    Friend WithEvents Label3 As System.Windows.Forms.Label
+    Friend WithEvents LblDescripcionBeca As System.Windows.Forms.Label
     Friend WithEvents CkActivo As CheckBox
-    Friend WithEvents Panel4 As Panel
+    Friend WithEvents PanelAcciones As Panel
     Friend WithEvents BtnEliminar As Button
     Friend WithEvents BtnRegresar As Button
     Friend WithEvents BtnCancelar As Button

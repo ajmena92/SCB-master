@@ -1,4 +1,7 @@
-﻿Imports System.IO
+﻿Option Strict On
+Option Explicit On
+
+Imports System.IO
 Imports System.Linq
 
 Public Class FrmEstudiantes
@@ -8,10 +11,11 @@ Public Class FrmEstudiantes
     Dim Cn As New SqlClient.SqlConnection
     Dim Cls As New FuncionesDB
     Private Sub FrmEstudiantes_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        If CrudVisualHelper.IsInDesignMode(Me) Then
+            Return
+        End If
         Try
-            UIThemeManagerV2.Apply(Me, "dialogo")
-            ApplyModernFormStyle()
-            UIThemeManagerV2.ApplyCrudModuleChrome(Me)
+            CrudVisualHelper.ApplyCrudStandard(Me, "dialogo")
             Cls.AbrirConexion(Cn, False)
             CargaRutas(CBRuta)
             CargaBecas(CBBeca)
@@ -25,44 +29,6 @@ Public Class FrmEstudiantes
             Me.Dispose()  'Cierro el formulario
         End Try
         TxtCedula.Focus()
-    End Sub
-
-    Private Sub ApplyModernFormStyle()
-        Me.BackColor = UIConstants.AppBackground
-        Me.BackgroundImage = Nothing
-        Me.Font = UIConstants.FontBody()
-
-        ApplyLegacyBackgroundCleanup(Me)
-        StyleButtons(Me)
-    End Sub
-
-    Private Sub ApplyLegacyBackgroundCleanup(ByVal root As Control)
-        For Each ctrl As Control In root.Controls
-            If TypeOf ctrl Is Panel OrElse TypeOf ctrl Is GroupBox Then
-                ctrl.BackColor = UIConstants.Surface
-            End If
-            ctrl.BackgroundImage = Nothing
-            If ctrl.HasChildren Then
-                ApplyLegacyBackgroundCleanup(ctrl)
-            End If
-        Next
-    End Sub
-
-    Private Sub StyleButtons(ByVal root As Control)
-        For Each ctrl As Control In root.Controls
-            If TypeOf ctrl Is Button Then
-                Dim btn As Button = DirectCast(ctrl, Button)
-                btn.FlatStyle = FlatStyle.Flat
-                btn.FlatAppearance.BorderSize = 1
-                btn.FlatAppearance.BorderColor = UIConstants.Border
-                btn.BackColor = UIConstants.Surface
-                btn.ForeColor = UIConstants.TextPrimary
-                btn.Font = UIConstants.FontBodyStrong()
-            End If
-            If ctrl.HasChildren Then
-                StyleButtons(ctrl)
-            End If
-        Next
     End Sub
 
     Sub CargaGenero(ByRef Combo As ComboBox)
@@ -165,8 +131,9 @@ Public Class FrmEstudiantes
             Cls.ArmaValor(Llave, "Activo", "1")
             gSession.Valores = Valores
             gSession.Llave = Llave
-            Dim F As New Busqueda
-            F.ShowDialog()
+            Using frm As New Global.SCSC.Busqueda()
+                frm.ShowDialog(Me)
+            End Using
             TxtCedula.Text = CStr(gSession.Resultado(0))
             TxtCedula_Validated(sender, e)
             BtnGuardar.Select()

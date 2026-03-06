@@ -191,10 +191,10 @@ Partial Class FrmPrincipal
         Catch ex As Exception
             ErrorLogger.LogException("FrmPrincipal.ShowLegacyShell.MainMenuStrip", ex)
         End Try
-        SetControlVisibleSafe(Panel1, True)
-        SetDockSafe(Panel1, DockStyle.Left)
-        SetControlVisibleSafe(Panel2, True)
-        SetDockSafe(Panel2, DockStyle.Top)
+        SetControlVisibleSafe(PanelMenuLateral, True)
+        SetDockSafe(PanelMenuLateral, DockStyle.Left)
+        SetControlVisibleSafe(PanelCabeceraModulo, True)
+        SetDockSafe(PanelCabeceraModulo, DockStyle.Top)
         SetControlVisibleSafe(BtnCerrar, True)
     End Sub
 
@@ -216,8 +216,8 @@ Partial Class FrmPrincipal
             Catch ex As Exception
                 ErrorLogger.LogException("FrmPrincipal.BuildModernShell.MainMenuStrip", ex)
             End Try
-            SetControlVisibleSafe(Panel1, False)
-            SetControlVisibleSafe(Panel2, False)
+            SetControlVisibleSafe(PanelMenuLateral, False)
+            SetControlVisibleSafe(PanelCabeceraModulo, False)
             SetControlVisibleSafe(BtnCerrar, False)
             Return True
         Catch ex As Exception

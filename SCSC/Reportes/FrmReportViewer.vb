@@ -1,7 +1,13 @@
-﻿Public Class FrmReportViewer
+﻿Option Strict On
+Option Explicit On
+
+Public Class FrmReportViewer
     Private Sub FrmReportViewer_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        If CrudVisualHelper.IsInDesignMode(Me) Then
+            Return
+        End If
         Try
-            UIThemeManagerV2.Apply(Me, "reporte")
+            CrudVisualHelper.ApplyReportStandard(Me)
             Dim lUsuario As String
             Dim lPwd As String
             Dim NombreServidor As String

@@ -36,22 +36,22 @@ Partial Class ControlTransporte
         Me.LblFecha = New System.Windows.Forms.Label()
         Me.GbDatos = New System.Windows.Forms.GroupBox()
         Me.TxtPermisoSalida = New System.Windows.Forms.TextBox()
-        Me.Label1 = New System.Windows.Forms.Label()
+        Me.LblPermisoSalidaCaption = New System.Windows.Forms.Label()
         Me.TxtTipo = New System.Windows.Forms.TextBox()
         Me.TxtRuta = New System.Windows.Forms.TextBox()
-        Me.Label6 = New System.Windows.Forms.Label()
-        Me.Label5 = New System.Windows.Forms.Label()
+        Me.LblRutaCaption = New System.Windows.Forms.Label()
+        Me.LblTipoCaption = New System.Windows.Forms.Label()
         Me.LblCedula = New System.Windows.Forms.TextBox()
-        Me.Label4 = New System.Windows.Forms.Label()
-        Me.Label3 = New System.Windows.Forms.Label()
+        Me.LblCedulaCaption = New System.Windows.Forms.Label()
+        Me.LblSeccionCaption = New System.Windows.Forms.Label()
         Me.TxtUsuario = New System.Windows.Forms.TextBox()
-        Me.Label2 = New System.Windows.Forms.Label()
+        Me.LblUsuarioCaption = New System.Windows.Forms.Label()
         Me.Picture = New System.Windows.Forms.PictureBox()
         Me.TxtCedula = New System.Windows.Forms.TextBox()
         Me.Imgprocess = New System.Windows.Forms.PictureBox()
         Me.PanelResult = New System.Windows.Forms.Panel()
         Me.BtnCerrar = New System.Windows.Forms.PictureBox()
-        Me.Panel1 = New System.Windows.Forms.Panel()
+        Me.PanelTopBar = New System.Windows.Forms.Panel()
         PromptLabel = New System.Windows.Forms.Label()
         Me.BunifuGradientPanel1.SuspendLayout()
         Me.GbDatos.SuspendLayout()
@@ -59,7 +59,7 @@ Partial Class ControlTransporte
         CType(Me.Imgprocess, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.PanelResult.SuspendLayout()
         CType(Me.BtnCerrar, System.ComponentModel.ISupportInitialize).BeginInit()
-        Me.Panel1.SuspendLayout()
+        Me.PanelTopBar.SuspendLayout()
         Me.SuspendLayout()
         '
         'PromptLabel
@@ -184,7 +184,7 @@ Partial Class ControlTransporte
         Me.LblFecha.Name = "LblFecha"
         Me.LblFecha.Size = New System.Drawing.Size(447, 68)
         Me.LblFecha.TabIndex = 21
-        Me.LblFecha.Text = "Label6"
+        Me.LblFecha.Text = "Fecha"
         Me.LblFecha.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
         'GbDatos
@@ -193,17 +193,17 @@ Partial Class ControlTransporte
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.GbDatos.BackColor = System.Drawing.Color.Transparent
         Me.GbDatos.Controls.Add(Me.TxtPermisoSalida)
-        Me.GbDatos.Controls.Add(Me.Label1)
+        Me.GbDatos.Controls.Add(Me.LblPermisoSalidaCaption)
         Me.GbDatos.Controls.Add(Me.TxtTipo)
         Me.GbDatos.Controls.Add(Me.TxtRuta)
-        Me.GbDatos.Controls.Add(Me.Label6)
-        Me.GbDatos.Controls.Add(Me.Label5)
+        Me.GbDatos.Controls.Add(Me.LblRutaCaption)
+        Me.GbDatos.Controls.Add(Me.LblTipoCaption)
         Me.GbDatos.Controls.Add(Me.LblCedula)
-        Me.GbDatos.Controls.Add(Me.Label4)
-        Me.GbDatos.Controls.Add(Me.Label3)
+        Me.GbDatos.Controls.Add(Me.LblCedulaCaption)
+        Me.GbDatos.Controls.Add(Me.LblSeccionCaption)
         Me.GbDatos.Controls.Add(Me.TxtSeccion)
         Me.GbDatos.Controls.Add(Me.TxtUsuario)
-        Me.GbDatos.Controls.Add(Me.Label2)
+        Me.GbDatos.Controls.Add(Me.LblUsuarioCaption)
         Me.GbDatos.Font = New System.Drawing.Font("Calibri", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.GbDatos.ForeColor = System.Drawing.Color.White
         Me.GbDatos.Location = New System.Drawing.Point(12, 306)
@@ -225,16 +225,16 @@ Partial Class ControlTransporte
         Me.TxtPermisoSalida.Size = New System.Drawing.Size(241, 44)
         Me.TxtPermisoSalida.TabIndex = 59
         '
-        'Label1
+        'LblPermisoSalidaCaption
         '
-        Me.Label1.AutoSize = True
-        Me.Label1.Font = New System.Drawing.Font("Calibri", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label1.ForeColor = System.Drawing.Color.White
-        Me.Label1.Location = New System.Drawing.Point(20, 394)
-        Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(137, 24)
-        Me.Label1.TabIndex = 58
-        Me.Label1.Text = "Permiso Salida:"
+        Me.LblPermisoSalidaCaption.AutoSize = True
+        Me.LblPermisoSalidaCaption.Font = New System.Drawing.Font("Calibri", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LblPermisoSalidaCaption.ForeColor = System.Drawing.Color.White
+        Me.LblPermisoSalidaCaption.Location = New System.Drawing.Point(20, 394)
+        Me.LblPermisoSalidaCaption.Name = "LblPermisoSalidaCaption"
+        Me.LblPermisoSalidaCaption.Size = New System.Drawing.Size(137, 24)
+        Me.LblPermisoSalidaCaption.TabIndex = 58
+        Me.LblPermisoSalidaCaption.Text = "Permiso Salida:"
         '
         'TxtTipo
         '
@@ -261,27 +261,27 @@ Partial Class ControlTransporte
         Me.TxtRuta.Size = New System.Drawing.Size(241, 44)
         Me.TxtRuta.TabIndex = 57
         '
-        'Label6
+        'LblRutaCaption
         '
-        Me.Label6.AutoSize = True
-        Me.Label6.Font = New System.Drawing.Font("Calibri", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label6.ForeColor = System.Drawing.Color.White
-        Me.Label6.Location = New System.Drawing.Point(20, 310)
-        Me.Label6.Name = "Label6"
-        Me.Label6.Size = New System.Drawing.Size(54, 24)
-        Me.Label6.TabIndex = 56
-        Me.Label6.Text = "Ruta:"
+        Me.LblRutaCaption.AutoSize = True
+        Me.LblRutaCaption.Font = New System.Drawing.Font("Calibri", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LblRutaCaption.ForeColor = System.Drawing.Color.White
+        Me.LblRutaCaption.Location = New System.Drawing.Point(20, 310)
+        Me.LblRutaCaption.Name = "LblRutaCaption"
+        Me.LblRutaCaption.Size = New System.Drawing.Size(54, 24)
+        Me.LblRutaCaption.TabIndex = 56
+        Me.LblRutaCaption.Text = "Ruta:"
         '
-        'Label5
+        'LblTipoCaption
         '
-        Me.Label5.AutoSize = True
-        Me.Label5.Font = New System.Drawing.Font("Calibri", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label5.ForeColor = System.Drawing.Color.White
-        Me.Label5.Location = New System.Drawing.Point(20, 165)
-        Me.Label5.Name = "Label5"
-        Me.Label5.Size = New System.Drawing.Size(52, 24)
-        Me.Label5.TabIndex = 6
-        Me.Label5.Text = "Tipo:"
+        Me.LblTipoCaption.AutoSize = True
+        Me.LblTipoCaption.Font = New System.Drawing.Font("Calibri", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LblTipoCaption.ForeColor = System.Drawing.Color.White
+        Me.LblTipoCaption.Location = New System.Drawing.Point(20, 165)
+        Me.LblTipoCaption.Name = "LblTipoCaption"
+        Me.LblTipoCaption.Size = New System.Drawing.Size(52, 24)
+        Me.LblTipoCaption.TabIndex = 6
+        Me.LblTipoCaption.Text = "Tipo:"
         '
         'LblCedula
         '
@@ -295,28 +295,28 @@ Partial Class ControlTransporte
         Me.LblCedula.Size = New System.Drawing.Size(241, 44)
         Me.LblCedula.TabIndex = 5
         '
-        'Label4
+        'LblCedulaCaption
         '
-        Me.Label4.AutoSize = True
-        Me.Label4.Font = New System.Drawing.Font("Calibri", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label4.ForeColor = System.Drawing.Color.White
-        Me.Label4.Location = New System.Drawing.Point(20, 23)
-        Me.Label4.Name = "Label4"
-        Me.Label4.Size = New System.Drawing.Size(73, 24)
-        Me.Label4.TabIndex = 4
-        Me.Label4.Text = "Cedula:"
+        Me.LblCedulaCaption.AutoSize = True
+        Me.LblCedulaCaption.Font = New System.Drawing.Font("Calibri", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LblCedulaCaption.ForeColor = System.Drawing.Color.White
+        Me.LblCedulaCaption.Location = New System.Drawing.Point(20, 23)
+        Me.LblCedulaCaption.Name = "LblCedulaCaption"
+        Me.LblCedulaCaption.Size = New System.Drawing.Size(73, 24)
+        Me.LblCedulaCaption.TabIndex = 4
+        Me.LblCedulaCaption.Text = "Cedula:"
         '
-        'Label3
+        'LblSeccionCaption
         '
-        Me.Label3.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.Label3.AutoSize = True
-        Me.Label3.Font = New System.Drawing.Font("Calibri", 12.0!)
-        Me.Label3.ForeColor = System.Drawing.Color.White
-        Me.Label3.Location = New System.Drawing.Point(20, 238)
-        Me.Label3.Name = "Label3"
-        Me.Label3.Size = New System.Drawing.Size(77, 24)
-        Me.Label3.TabIndex = 2
-        Me.Label3.Text = "Sección:"
+        Me.LblSeccionCaption.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.LblSeccionCaption.AutoSize = True
+        Me.LblSeccionCaption.Font = New System.Drawing.Font("Calibri", 12.0!)
+        Me.LblSeccionCaption.ForeColor = System.Drawing.Color.White
+        Me.LblSeccionCaption.Location = New System.Drawing.Point(20, 238)
+        Me.LblSeccionCaption.Name = "LblSeccionCaption"
+        Me.LblSeccionCaption.Size = New System.Drawing.Size(77, 24)
+        Me.LblSeccionCaption.TabIndex = 2
+        Me.LblSeccionCaption.Text = "Sección:"
         '
         'TxtUsuario
         '
@@ -330,16 +330,16 @@ Partial Class ControlTransporte
         Me.TxtUsuario.Size = New System.Drawing.Size(395, 44)
         Me.TxtUsuario.TabIndex = 1
         '
-        'Label2
+        'LblUsuarioCaption
         '
-        Me.Label2.AutoSize = True
-        Me.Label2.Font = New System.Drawing.Font("Calibri", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label2.ForeColor = System.Drawing.Color.White
-        Me.Label2.Location = New System.Drawing.Point(20, 94)
-        Me.Label2.Name = "Label2"
-        Me.Label2.Size = New System.Drawing.Size(80, 24)
-        Me.Label2.TabIndex = 0
-        Me.Label2.Text = "Usuario:"
+        Me.LblUsuarioCaption.AutoSize = True
+        Me.LblUsuarioCaption.Font = New System.Drawing.Font("Calibri", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LblUsuarioCaption.ForeColor = System.Drawing.Color.White
+        Me.LblUsuarioCaption.Location = New System.Drawing.Point(20, 94)
+        Me.LblUsuarioCaption.Name = "LblUsuarioCaption"
+        Me.LblUsuarioCaption.Size = New System.Drawing.Size(80, 24)
+        Me.LblUsuarioCaption.TabIndex = 0
+        Me.LblUsuarioCaption.Text = "Usuario:"
         '
         'Picture
         '
@@ -397,14 +397,14 @@ Partial Class ControlTransporte
         Me.BtnCerrar.TabIndex = 58
         Me.BtnCerrar.TabStop = False
         '
-        'Panel1
+        'PanelTopBar
         '
-        Me.Panel1.Controls.Add(Me.BtnCerrar)
-        Me.Panel1.Dock = System.Windows.Forms.DockStyle.Top
-        Me.Panel1.Location = New System.Drawing.Point(447, 0)
-        Me.Panel1.Name = "Panel1"
-        Me.Panel1.Size = New System.Drawing.Size(593, 52)
-        Me.Panel1.TabIndex = 56
+        Me.PanelTopBar.Controls.Add(Me.BtnCerrar)
+        Me.PanelTopBar.Dock = System.Windows.Forms.DockStyle.Top
+        Me.PanelTopBar.Location = New System.Drawing.Point(447, 0)
+        Me.PanelTopBar.Name = "PanelTopBar"
+        Me.PanelTopBar.Size = New System.Drawing.Size(593, 52)
+        Me.PanelTopBar.TabIndex = 56
         '
         'ControlTransporte
         '
@@ -415,7 +415,7 @@ Partial Class ControlTransporte
         Me.ClientSize = New System.Drawing.Size(1040, 784)
         Me.ControlBox = False
         Me.Controls.Add(Me.PanelResult)
-        Me.Controls.Add(Me.Panel1)
+        Me.Controls.Add(Me.PanelTopBar)
         Me.Controls.Add(Me.BunifuGradientPanel1)
         Me.Controls.Add(Me.StatusLine)
         Me.Controls.Add(PromptLabel)
@@ -436,7 +436,7 @@ Partial Class ControlTransporte
         Me.PanelResult.ResumeLayout(False)
         Me.PanelResult.PerformLayout()
         CType(Me.BtnCerrar, System.ComponentModel.ISupportInitialize).EndInit()
-        Me.Panel1.ResumeLayout(False)
+        Me.PanelTopBar.ResumeLayout(False)
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -447,12 +447,12 @@ Partial Class ControlTransporte
     Private WithEvents Picture As System.Windows.Forms.PictureBox
     Friend WithEvents GbDatos As System.Windows.Forms.GroupBox
     Friend WithEvents TxtUsuario As System.Windows.Forms.TextBox
-    Friend WithEvents Label2 As System.Windows.Forms.Label
+    Friend WithEvents LblUsuarioCaption As System.Windows.Forms.Label
     Friend WithEvents TxtTipo As System.Windows.Forms.TextBox
-    Friend WithEvents Label5 As System.Windows.Forms.Label
+    Friend WithEvents LblTipoCaption As System.Windows.Forms.Label
     Friend WithEvents LblCedula As System.Windows.Forms.TextBox
-    Friend WithEvents Label4 As System.Windows.Forms.Label
-    Friend WithEvents Label3 As System.Windows.Forms.Label
+    Friend WithEvents LblCedulaCaption As System.Windows.Forms.Label
+    Friend WithEvents LblSeccionCaption As System.Windows.Forms.Label
     Friend WithEvents LblFecha As System.Windows.Forms.Label
     Private WithEvents StatusText As System.Windows.Forms.TextBox
     Friend WithEvents Imgprocess As PictureBox
@@ -460,12 +460,12 @@ Partial Class ControlTransporte
     Friend WithEvents TxtCedula As TextBox
     Friend WithEvents TxtSeccion As TextBox
     Friend WithEvents TxtRuta As TextBox
-    Friend WithEvents Label6 As Label
+    Friend WithEvents LblRutaCaption As Label
     Friend WithEvents LblRuta As Label
     Friend WithEvents BunifuGradientPanel1 As System.Windows.Forms.Panel
     Friend WithEvents PanelResult As Panel
-    Friend WithEvents Panel1 As Panel
+    Friend WithEvents PanelTopBar As Panel
     Friend WithEvents BtnCerrar As PictureBox
     Friend WithEvents TxtPermisoSalida As TextBox
-    Friend WithEvents Label1 As Label
+    Friend WithEvents LblPermisoSalidaCaption As Label
 End Class

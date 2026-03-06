@@ -1,0 +1,2 @@
+﻿
+C:\Dev\SCB-master\SCSC\Formularios\FrmRecargas.vb(108,29): error BC30512: Option Strict On disallows implicit conversions from 'Integer' to 'String'. [C:\Dev\SCB-master\SCSC\SCSC_Marcas.vbproj]

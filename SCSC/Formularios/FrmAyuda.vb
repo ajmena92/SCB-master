@@ -1,7 +1,13 @@
-﻿Public NotInheritable Class FrmAyuda
+﻿Option Strict On
+Option Explicit On
+
+Public NotInheritable Class FrmAyuda
 
     Private Sub FrmAyuda_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
-        UIThemeManagerV2.Apply(Me, "dialogo")
+        If CrudVisualHelper.IsInDesignMode(Me) Then
+            Return
+        End If
+        CrudVisualHelper.ApplyCrudStandard(Me, "dialogo")
         ApplyModernFormStyle()
         ' Set the title of the form.
         Dim ApplicationTitle As String

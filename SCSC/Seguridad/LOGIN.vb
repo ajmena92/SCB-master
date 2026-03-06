@@ -1,4 +1,4 @@
-Option Strict Off
+Option Strict On
 Option Explicit On
 Imports System.Drawing
 Imports System.Drawing.Drawing2D
@@ -119,9 +119,8 @@ Partial Friend Class Login
             ParametroService.AsegurarEsquema(Cn)
             ParametroService.CrearFila1(Cn)
             ParametroService.MigrarDesdeAppConfigSiCorresponde(Cn)
-            Dim Valores(), Llave() As FuncionesDB.Campos
-            Valores = Cls.InicializarArray
-            Llave = Cls.InicializarArray
+            Dim Valores() As FuncionesDB.Campos = Cls.InicializarArray()
+            Dim Llave() As FuncionesDB.Campos = Cls.InicializarArray()
             Cls.ArmaValor(Valores, "Id")
             Cls.ArmaValor(Valores, "Institucion")
             Cls.ArmaValor(Valores, "CodPresupuestario")

@@ -1,4 +1,7 @@
-﻿Public Class FrmRecarga
+﻿Option Strict On
+Option Explicit On
+
+Public Class FrmRecarga
 
     Dim Cn As New SqlClient.SqlConnection
     Dim Cls As New FuncionesDB
@@ -33,10 +36,11 @@
     End Sub
 
     Private Sub FrmEstudiantes_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        If CrudVisualHelper.IsInDesignMode(Me) Then
+            Return
+        End If
         Try
-            UIThemeManagerV2.Apply(Me, "dialogo")
-            ApplyModernFormStyle()
-            UIThemeManagerV2.ApplyCrudModuleChrome(Me)
+            CrudVisualHelper.ApplyCrudStandard(Me, "dialogo")
             Cls.AbrirConexion(Cn, False)
             DsBeca = Cls.ConsultarTSQL("Becas", "Select IdBeca,DiasBeca,Descripcion From TipoBeca", Cn:=Cn)
         Catch ex As Exception
@@ -47,43 +51,6 @@
             Me.Dispose() 'Cierro el formulario
         End Try
         txtCedula.Focus()
-    End Sub
-
-    Private Sub ApplyModernFormStyle()
-        Me.BackColor = UIConstants.AppBackground
-        Me.BackgroundImage = Nothing
-        Me.Font = UIConstants.FontBody()
-        ApplySurface(Me)
-        StyleButtons(Me)
-    End Sub
-
-    Private Sub ApplySurface(ByVal root As Control)
-        For Each ctrl As Control In root.Controls
-            ctrl.BackgroundImage = Nothing
-            If TypeOf ctrl Is Panel OrElse TypeOf ctrl Is GroupBox Then
-                ctrl.BackColor = UIConstants.Surface
-            End If
-            If ctrl.HasChildren Then
-                ApplySurface(ctrl)
-            End If
-        Next
-    End Sub
-
-    Private Sub StyleButtons(ByVal root As Control)
-        For Each ctrl As Control In root.Controls
-            If TypeOf ctrl Is Button Then
-                Dim btn As Button = DirectCast(ctrl, Button)
-                btn.FlatStyle = FlatStyle.Flat
-                btn.FlatAppearance.BorderSize = 1
-                btn.FlatAppearance.BorderColor = UIConstants.Border
-                btn.BackColor = UIConstants.Surface
-                btn.ForeColor = UIConstants.TextPrimary
-                btn.Font = UIConstants.FontBodyStrong()
-            End If
-            If ctrl.HasChildren Then
-                StyleButtons(ctrl)
-            End If
-        Next
     End Sub
 
 
@@ -109,8 +76,9 @@
             Cls.ArmaValor(Llave, "1", "1")
             gSession.Valores = Valores
             gSession.Llave = Llave
-            Dim F As New Busqueda
-            F.ShowDialog()
+            Using frm As New Global.SCSC.Busqueda()
+                frm.ShowDialog(Me)
+            End Using
             txtCedula.Text = CStr(gSession.Resultado(0))
             TxtCedula_Validated(sender, e)
         Catch ex As Exception
@@ -137,7 +105,7 @@
                 Cls.ArmaValor(Valores, "CodTipo")
                 Cls.ArmaValor(Valores, "TipoBeca")
                 Cls.ArmaValor(Valores, "Activo")
-                DiaSemana = Weekday(Now)
+                DiaSemana = Weekday(Now).ToString()
                 Ds = Cls.Consultar("Usuario", Valores, Llave, Cn)
                 If Ds.Tables(0).Rows.Count > 0 Then
                     Dim row As DataRow = Ds.Tables(0).Rows(0)

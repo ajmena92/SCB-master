@@ -100,6 +100,9 @@ Public Class ControlComedor
     End Enum
 
     Private Sub ControlComedor_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        If CrudVisualHelper.IsInDesignMode(Me) Then
+            Return
+        End If
         Try
             UIThemeManagerV2.Apply(Me, "operativo")
             CargarPreferenciasOperacion()
@@ -476,10 +479,10 @@ Public Class ControlComedor
         GbDatos.FlatStyle = FlatStyle.Flat
         GbDatos.Font = New Font("Segoe UI", 11.0!, FontStyle.Bold)
 
-        Label2.ForeColor = Color.FromArgb(76, 90, 112)
-        Label3.ForeColor = Color.FromArgb(76, 90, 112)
-        Label4.ForeColor = Color.FromArgb(76, 90, 112)
-        Label5.ForeColor = Color.FromArgb(76, 90, 112)
+        LblUsuarioCaption.ForeColor = Color.FromArgb(76, 90, 112)
+        LblTiquetesCaption.ForeColor = Color.FromArgb(76, 90, 112)
+        LblCarnetCaption.ForeColor = Color.FromArgb(76, 90, 112)
+        LblTipoCaption.ForeColor = Color.FromArgb(76, 90, 112)
         LblRegistroError.ForeColor = Color.FromArgb(161, 47, 65)
         LblRegistroError.Font = New Font("Segoe UI", 9.5!, FontStyle.Bold)
 
@@ -506,11 +509,11 @@ Public Class ControlComedor
         BtnSalir.Text = String.Empty
 
         GbDatos.Text = "Último registro"
-        Label4.Text = "Carnet"
-        Label2.Text = "Nombre"
-        Label3.Text = "Tiquetes"
+        LblCarnetCaption.Text = "Carnet"
+        LblUsuarioCaption.Text = "Nombre"
+        LblTiquetesCaption.Text = "Tiquetes"
 
-        Label5.Visible = False
+        LblTipoCaption.Visible = False
         TxtTipo.Visible = False
 
         If _modoAccesible Then
@@ -634,11 +637,11 @@ Public Class ControlComedor
 
         Dim gX As Integer = 14
         Dim gW As Integer = GbDatos.ClientSize.Width - 28
-        Label4.SetBounds(gX, 30, gW, 22)
+        LblCarnetCaption.SetBounds(gX, 30, gW, 22)
         LblCedula.SetBounds(gX, 54, gW, 42)
-        Label2.SetBounds(gX, 104, gW, 22)
+        LblUsuarioCaption.SetBounds(gX, 104, gW, 22)
         TxtUsuario.SetBounds(gX, 128, gW, 42)
-        Label3.SetBounds(gX, 178, gW, 22)
+        LblTiquetesCaption.SetBounds(gX, 178, gW, 22)
         TxtTiquetes.SetBounds(gX, 202, gW, 56)
         LblRegistroError.SetBounds(gX, 262, gW, 34)
 

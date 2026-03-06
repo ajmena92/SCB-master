@@ -24,20 +24,20 @@ Partial Class FrmRutas
     Private Sub InitializeComponent()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(FrmRutas))
         Me.TxtDescripcion = New System.Windows.Forms.TextBox()
-        Me.Label3 = New System.Windows.Forms.Label()
-        Me.Panel4 = New System.Windows.Forms.Panel()
+        Me.LblDescripcionRuta = New System.Windows.Forms.Label()
+        Me.PanelAcciones = New System.Windows.Forms.Panel()
         Me.BtnEliminar = New System.Windows.Forms.Button()
         Me.BtnRegresar = New System.Windows.Forms.Button()
         Me.BtnCancelar = New System.Windows.Forms.Button()
         Me.BtnGuardar = New System.Windows.Forms.Button()
-        Me.Label1 = New System.Windows.Forms.Label()
-        Me.GroupBox2 = New System.Windows.Forms.GroupBox()
+        Me.LblTituloModulo = New System.Windows.Forms.Label()
+        Me.GroupDatosRuta = New System.Windows.Forms.GroupBox()
         Me.CkActivo = New System.Windows.Forms.CheckBox()
         Me.txtCodRuta = New System.Windows.Forms.TextBox()
         Me.Buscar = New System.Windows.Forms.Button()
-        Me.Label4 = New System.Windows.Forms.Label()
-        Me.Panel4.SuspendLayout()
-        Me.GroupBox2.SuspendLayout()
+        Me.LblBuscarRuta = New System.Windows.Forms.Label()
+        Me.PanelAcciones.SuspendLayout()
+        Me.GroupDatosRuta.SuspendLayout()
         Me.SuspendLayout()
         '
         'TxtDescripcion
@@ -51,30 +51,30 @@ Partial Class FrmRutas
         Me.TxtDescripcion.Size = New System.Drawing.Size(301, 68)
         Me.TxtDescripcion.TabIndex = 41
         '
-        'Label3
+        'LblDescripcionRuta
         '
-        Me.Label3.AutoSize = True
-        Me.Label3.BackColor = System.Drawing.Color.Transparent
-        Me.Label3.FlatStyle = System.Windows.Forms.FlatStyle.Popup
-        Me.Label3.Font = New System.Drawing.Font("Arial Narrow", 13.8!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label3.Location = New System.Drawing.Point(28, 113)
-        Me.Label3.Name = "Label3"
-        Me.Label3.Size = New System.Drawing.Size(126, 29)
-        Me.Label3.TabIndex = 42
-        Me.Label3.Text = "Descripción: "
+        Me.LblDescripcionRuta.AutoSize = True
+        Me.LblDescripcionRuta.BackColor = System.Drawing.Color.Transparent
+        Me.LblDescripcionRuta.FlatStyle = System.Windows.Forms.FlatStyle.Popup
+        Me.LblDescripcionRuta.Font = New System.Drawing.Font("Arial Narrow", 13.8!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LblDescripcionRuta.Location = New System.Drawing.Point(28, 113)
+        Me.LblDescripcionRuta.Name = "LblDescripcionRuta"
+        Me.LblDescripcionRuta.Size = New System.Drawing.Size(126, 29)
+        Me.LblDescripcionRuta.TabIndex = 42
+        Me.LblDescripcionRuta.Text = "Descripción: "
         '
-        'Panel4
+        'PanelAcciones
         '
-        Me.Panel4.BackColor = System.Drawing.Color.Transparent
-        Me.Panel4.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.Panel4.Controls.Add(Me.BtnEliminar)
-        Me.Panel4.Controls.Add(Me.BtnRegresar)
-        Me.Panel4.Controls.Add(Me.BtnCancelar)
-        Me.Panel4.Controls.Add(Me.BtnGuardar)
-        Me.Panel4.Location = New System.Drawing.Point(288, 316)
-        Me.Panel4.Name = "Panel4"
-        Me.Panel4.Size = New System.Drawing.Size(257, 72)
-        Me.Panel4.TabIndex = 19
+        Me.PanelAcciones.BackColor = System.Drawing.Color.Transparent
+        Me.PanelAcciones.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
+        Me.PanelAcciones.Controls.Add(Me.BtnEliminar)
+        Me.PanelAcciones.Controls.Add(Me.BtnRegresar)
+        Me.PanelAcciones.Controls.Add(Me.BtnCancelar)
+        Me.PanelAcciones.Controls.Add(Me.BtnGuardar)
+        Me.PanelAcciones.Location = New System.Drawing.Point(288, 316)
+        Me.PanelAcciones.Name = "PanelAcciones"
+        Me.PanelAcciones.Size = New System.Drawing.Size(257, 72)
+        Me.PanelAcciones.TabIndex = 19
         '
         'BtnEliminar
         '
@@ -118,38 +118,38 @@ Partial Class FrmRutas
         Me.BtnGuardar.TabIndex = 0
         Me.BtnGuardar.UseVisualStyleBackColor = True
         '
-        'Label1
+        'LblTituloModulo
         '
-        Me.Label1.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
+        Me.LblTituloModulo.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
             Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.Label1.AutoSize = True
-        Me.Label1.BackColor = System.Drawing.Color.Transparent
-        Me.Label1.Font = New System.Drawing.Font("Microsoft Sans Serif", 25.0!, System.Drawing.FontStyle.Bold)
-        Me.Label1.ForeColor = System.Drawing.Color.Black
-        Me.Label1.Location = New System.Drawing.Point(157, 9)
-        Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(289, 48)
-        Me.Label1.TabIndex = 20
-        Me.Label1.Text = "Modulo Rutas"
-        Me.Label1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        Me.LblTituloModulo.AutoSize = True
+        Me.LblTituloModulo.BackColor = System.Drawing.Color.Transparent
+        Me.LblTituloModulo.Font = New System.Drawing.Font("Microsoft Sans Serif", 25.0!, System.Drawing.FontStyle.Bold)
+        Me.LblTituloModulo.ForeColor = System.Drawing.Color.Black
+        Me.LblTituloModulo.Location = New System.Drawing.Point(157, 9)
+        Me.LblTituloModulo.Name = "LblTituloModulo"
+        Me.LblTituloModulo.Size = New System.Drawing.Size(289, 48)
+        Me.LblTituloModulo.TabIndex = 20
+        Me.LblTituloModulo.Text = "Modulo Rutas"
+        Me.LblTituloModulo.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
-        'GroupBox2
+        'GroupDatosRuta
         '
-        Me.GroupBox2.BackColor = System.Drawing.Color.Transparent
-        Me.GroupBox2.Controls.Add(Me.CkActivo)
-        Me.GroupBox2.Controls.Add(Me.txtCodRuta)
-        Me.GroupBox2.Controls.Add(Me.Buscar)
-        Me.GroupBox2.Controls.Add(Me.Label4)
-        Me.GroupBox2.Controls.Add(Me.Label3)
-        Me.GroupBox2.Controls.Add(Me.TxtDescripcion)
-        Me.GroupBox2.Font = New System.Drawing.Font("Arial Narrow", 12.0!, System.Drawing.FontStyle.Bold)
-        Me.GroupBox2.Location = New System.Drawing.Point(48, 68)
-        Me.GroupBox2.Name = "GroupBox2"
-        Me.GroupBox2.Size = New System.Drawing.Size(492, 242)
-        Me.GroupBox2.TabIndex = 22
-        Me.GroupBox2.TabStop = False
-        Me.GroupBox2.Text = "Datos de Rutas"
+        Me.GroupDatosRuta.BackColor = System.Drawing.Color.Transparent
+        Me.GroupDatosRuta.Controls.Add(Me.CkActivo)
+        Me.GroupDatosRuta.Controls.Add(Me.txtCodRuta)
+        Me.GroupDatosRuta.Controls.Add(Me.Buscar)
+        Me.GroupDatosRuta.Controls.Add(Me.LblBuscarRuta)
+        Me.GroupDatosRuta.Controls.Add(Me.LblDescripcionRuta)
+        Me.GroupDatosRuta.Controls.Add(Me.TxtDescripcion)
+        Me.GroupDatosRuta.Font = New System.Drawing.Font("Arial Narrow", 12.0!, System.Drawing.FontStyle.Bold)
+        Me.GroupDatosRuta.Location = New System.Drawing.Point(48, 68)
+        Me.GroupDatosRuta.Name = "GroupDatosRuta"
+        Me.GroupDatosRuta.Size = New System.Drawing.Size(492, 242)
+        Me.GroupDatosRuta.TabIndex = 22
+        Me.GroupDatosRuta.TabStop = False
+        Me.GroupDatosRuta.Text = "Datos de Rutas"
         '
         'CkActivo
         '
@@ -194,17 +194,17 @@ Partial Class FrmRutas
         Me.Buscar.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText
         Me.Buscar.UseVisualStyleBackColor = False
         '
-        'Label4
+        'LblBuscarRuta
         '
-        Me.Label4.AutoSize = True
-        Me.Label4.BackColor = System.Drawing.Color.Transparent
-        Me.Label4.FlatStyle = System.Windows.Forms.FlatStyle.Popup
-        Me.Label4.Font = New System.Drawing.Font("Arial Narrow", 13.8!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label4.Location = New System.Drawing.Point(74, 50)
-        Me.Label4.Name = "Label4"
-        Me.Label4.Size = New System.Drawing.Size(80, 29)
-        Me.Label4.TabIndex = 40
-        Me.Label4.Text = "Código:"
+        Me.LblBuscarRuta.AutoSize = True
+        Me.LblBuscarRuta.BackColor = System.Drawing.Color.Transparent
+        Me.LblBuscarRuta.FlatStyle = System.Windows.Forms.FlatStyle.Popup
+        Me.LblBuscarRuta.Font = New System.Drawing.Font("Arial Narrow", 13.8!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LblBuscarRuta.Location = New System.Drawing.Point(74, 50)
+        Me.LblBuscarRuta.Name = "LblBuscarRuta"
+        Me.LblBuscarRuta.Size = New System.Drawing.Size(80, 29)
+        Me.LblBuscarRuta.TabIndex = 40
+        Me.LblBuscarRuta.Text = "Código:"
         '
         'FrmRutas
         '
@@ -214,9 +214,9 @@ Partial Class FrmRutas
         Me.BackgroundImage = CType(resources.GetObject("$this.BackgroundImage"), System.Drawing.Image)
         Me.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
         Me.ClientSize = New System.Drawing.Size(582, 409)
-        Me.Controls.Add(Me.GroupBox2)
-        Me.Controls.Add(Me.Panel4)
-        Me.Controls.Add(Me.Label1)
+        Me.Controls.Add(Me.GroupDatosRuta)
+        Me.Controls.Add(Me.PanelAcciones)
+        Me.Controls.Add(Me.LblTituloModulo)
         Me.Font = New System.Drawing.Font("Calibri", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog
         Me.Margin = New System.Windows.Forms.Padding(4)
@@ -225,23 +225,23 @@ Partial Class FrmRutas
         Me.Name = "FrmRutas"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "Mantenimiento de estudiantes "
-        Me.Panel4.ResumeLayout(False)
-        Me.GroupBox2.ResumeLayout(False)
-        Me.GroupBox2.PerformLayout()
+        Me.PanelAcciones.ResumeLayout(False)
+        Me.GroupDatosRuta.ResumeLayout(False)
+        Me.GroupDatosRuta.PerformLayout()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
     End Sub
-    Friend WithEvents Panel4 As System.Windows.Forms.Panel
+    Friend WithEvents PanelAcciones As System.Windows.Forms.Panel
     Friend WithEvents BtnCancelar As System.Windows.Forms.Button
     Friend WithEvents BtnGuardar As System.Windows.Forms.Button
-    Friend WithEvents Label1 As System.Windows.Forms.Label
-    Friend WithEvents GroupBox2 As System.Windows.Forms.GroupBox
+    Friend WithEvents LblTituloModulo As System.Windows.Forms.Label
+    Friend WithEvents GroupDatosRuta As System.Windows.Forms.GroupBox
     Friend WithEvents txtCodRuta As System.Windows.Forms.TextBox
     Friend WithEvents Buscar As System.Windows.Forms.Button
-    Friend WithEvents Label4 As System.Windows.Forms.Label
+    Friend WithEvents LblBuscarRuta As System.Windows.Forms.Label
     Friend WithEvents TxtDescripcion As System.Windows.Forms.TextBox
-    Friend WithEvents Label3 As System.Windows.Forms.Label
+    Friend WithEvents LblDescripcionRuta As System.Windows.Forms.Label
     Friend WithEvents BtnRegresar As System.Windows.Forms.Button
     Friend WithEvents CkActivo As CheckBox
     Friend WithEvents BtnEliminar As Button
