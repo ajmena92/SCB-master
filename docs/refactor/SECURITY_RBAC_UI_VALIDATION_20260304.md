@@ -40,7 +40,7 @@
 ### Estado en este entorno (CLI)
 - Validación estática de código: **completa**.
 - Validación visual en Designer (VS): **pendiente de confirmar en entorno Windows con Visual Studio**.
-- Build local con `msbuild`: **no disponible en este entorno**.
+- Build local con `msbuild`: **ejecutado y exitoso** (`Debug | Any CPU`, `0 Error(s)`).
 
 ### Checklist para cierre en VS
 - [ ] Abrir `FrmSeguridadRBAC` en Designer sin error.

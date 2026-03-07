@@ -107,18 +107,20 @@ Partial Class FrmEstudiantes
         Me.GroupDatosEstudiante.Controls.Add(Me.LblNombre)
         Me.GroupDatosEstudiante.Font = New System.Drawing.Font("Calibri", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.GroupDatosEstudiante.ForeColor = System.Drawing.Color.Black
-        Me.GroupDatosEstudiante.Location = New System.Drawing.Point(12, 258)
+        Me.GroupDatosEstudiante.Location = New System.Drawing.Point(20, 250)
         Me.GroupDatosEstudiante.Name = "GroupDatosEstudiante"
-        Me.GroupDatosEstudiante.Size = New System.Drawing.Size(912, 390)
+        Me.GroupDatosEstudiante.Size = New System.Drawing.Size(1130, 450)
         Me.GroupDatosEstudiante.TabIndex = 21
         Me.GroupDatosEstudiante.TabStop = False
         Me.GroupDatosEstudiante.Text = "Datos del Estudiante"
         '
         'Label16
         '
-        Me.Label16.Location = New System.Drawing.Point(30, 325)
+        Me.Label16.Font = New System.Drawing.Font("Segoe UI", 10.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label16.ForeColor = System.Drawing.Color.FromArgb(CType(CType(70, Byte), Integer), CType(CType(84, Byte), Integer), CType(CType(109, Byte), Integer))
+        Me.Label16.Location = New System.Drawing.Point(30, 372)
         Me.Label16.Name = "Label16"
-        Me.Label16.Size = New System.Drawing.Size(624, 50)
+        Me.Label16.Size = New System.Drawing.Size(760, 55)
         Me.Label16.TabIndex = 70
         Me.Label16.Text = "NOTA: Al activar ruta pendiente en el reporte de transporte el estudiante se marc" &
     "ará de color rojo."
@@ -169,46 +171,55 @@ Partial Class FrmEstudiantes
         '
         'PanelAcciones
         '
+        Me.PanelAcciones.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.PanelAcciones.BackColor = System.Drawing.Color.Transparent
         Me.PanelAcciones.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
         Me.PanelAcciones.Controls.Add(Me.BtnRegresar)
         Me.PanelAcciones.Controls.Add(Me.BtnCancelar)
         Me.PanelAcciones.Controls.Add(Me.BtnGuardar)
-        Me.PanelAcciones.Location = New System.Drawing.Point(663, 305)
+        Me.PanelAcciones.Location = New System.Drawing.Point(800, 340)
         Me.PanelAcciones.Name = "PanelAcciones"
-        Me.PanelAcciones.Size = New System.Drawing.Size(225, 66)
+        Me.PanelAcciones.Size = New System.Drawing.Size(315, 88)
         Me.PanelAcciones.TabIndex = 19
         '
         'BtnRegresar
         '
-        Me.BtnRegresar.BackgroundImage = Global.SCSC.My.Resources.Resources.Regresar
-        Me.BtnRegresar.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center
-        Me.BtnRegresar.Location = New System.Drawing.Point(143, 0)
+        Me.BtnRegresar.BackColor = System.Drawing.Color.FromArgb(CType(CType(51, Byte), Integer), CType(CType(65, Byte), Integer), CType(CType(85, Byte), Integer))
+        Me.BtnRegresar.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.BtnRegresar.Font = New System.Drawing.Font("Segoe UI Semibold", 10.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.BtnRegresar.ForeColor = System.Drawing.Color.White
+        Me.BtnRegresar.Location = New System.Drawing.Point(212, 16)
         Me.BtnRegresar.Name = "BtnRegresar"
-        Me.BtnRegresar.Size = New System.Drawing.Size(63, 63)
+        Me.BtnRegresar.Size = New System.Drawing.Size(96, 56)
         Me.BtnRegresar.TabIndex = 7
-        Me.BtnRegresar.UseVisualStyleBackColor = True
+        Me.BtnRegresar.Text = "Cerrar"
+        Me.BtnRegresar.UseVisualStyleBackColor = False
         '
         'BtnCancelar
         '
-        Me.BtnCancelar.BackgroundImage = Global.SCSC.My.Resources.Resources.Cancelar
-        Me.BtnCancelar.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center
-        Me.BtnCancelar.Location = New System.Drawing.Point(75, 0)
+        Me.BtnCancelar.BackColor = System.Drawing.Color.FromArgb(CType(CType(245, Byte), Integer), CType(CType(158, Byte), Integer), CType(CType(11, Byte), Integer))
+        Me.BtnCancelar.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.BtnCancelar.Font = New System.Drawing.Font("Segoe UI Semibold", 10.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.BtnCancelar.ForeColor = System.Drawing.Color.White
+        Me.BtnCancelar.Location = New System.Drawing.Point(110, 16)
         Me.BtnCancelar.Name = "BtnCancelar"
-        Me.BtnCancelar.Size = New System.Drawing.Size(63, 63)
+        Me.BtnCancelar.Size = New System.Drawing.Size(96, 56)
         Me.BtnCancelar.TabIndex = 5
-        Me.BtnCancelar.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText
-        Me.BtnCancelar.UseVisualStyleBackColor = True
+        Me.BtnCancelar.Text = "Limpiar"
+        Me.BtnCancelar.UseVisualStyleBackColor = False
         '
         'BtnGuardar
         '
-        Me.BtnGuardar.BackgroundImage = Global.SCSC.My.Resources.Resources.Aceptar
-        Me.BtnGuardar.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center
-        Me.BtnGuardar.Location = New System.Drawing.Point(7, 0)
+        Me.BtnGuardar.BackColor = System.Drawing.Color.FromArgb(CType(CType(16, Byte), Integer), CType(CType(124, Byte), Integer), CType(CType(16, Byte), Integer))
+        Me.BtnGuardar.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.BtnGuardar.Font = New System.Drawing.Font("Segoe UI Semibold", 10.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.BtnGuardar.ForeColor = System.Drawing.Color.White
+        Me.BtnGuardar.Location = New System.Drawing.Point(8, 16)
         Me.BtnGuardar.Name = "BtnGuardar"
-        Me.BtnGuardar.Size = New System.Drawing.Size(63, 63)
+        Me.BtnGuardar.Size = New System.Drawing.Size(96, 56)
         Me.BtnGuardar.TabIndex = 0
-        Me.BtnGuardar.UseVisualStyleBackColor = True
+        Me.BtnGuardar.Text = "Guardar"
+        Me.BtnGuardar.UseVisualStyleBackColor = False
         '
         'Label14
         '
@@ -307,7 +318,7 @@ Partial Class FrmEstudiantes
         Me.Label11.BackColor = System.Drawing.Color.Transparent
         Me.Label11.FlatStyle = System.Windows.Forms.FlatStyle.Popup
         Me.Label11.Font = New System.Drawing.Font("Arial Narrow", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label11.Location = New System.Drawing.Point(731, 23)
+        Me.Label11.Location = New System.Drawing.Point(800, 40)
         Me.Label11.Name = "Label11"
         Me.Label11.Size = New System.Drawing.Size(101, 24)
         Me.Label11.TabIndex = 55
@@ -318,11 +329,11 @@ Partial Class FrmEstudiantes
         Me.LblRuta.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
         Me.LblRuta.Font = New System.Drawing.Font("Calibri", 21.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.LblRuta.ForeColor = System.Drawing.Color.FromArgb(CType(CType(192, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(0, Byte), Integer))
-        Me.LblRuta.Location = New System.Drawing.Point(734, 51)
+        Me.LblRuta.Location = New System.Drawing.Point(803, 68)
         Me.LblRuta.Name = "LblRuta"
         Me.LblRuta.Padding = New System.Windows.Forms.Padding(20, 15, 15, 15)
         Me.LblRuta.RightToLeft = System.Windows.Forms.RightToLeft.No
-        Me.LblRuta.Size = New System.Drawing.Size(154, 87)
+        Me.LblRuta.Size = New System.Drawing.Size(289, 78)
         Me.LblRuta.TabIndex = 54
         Me.LblRuta.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
@@ -353,11 +364,11 @@ Partial Class FrmEstudiantes
         Me.LblCantTiques.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
         Me.LblCantTiques.Font = New System.Drawing.Font("Calibri", 21.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.LblCantTiques.ForeColor = System.Drawing.Color.FromArgb(CType(CType(192, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(0, Byte), Integer))
-        Me.LblCantTiques.Location = New System.Drawing.Point(734, 179)
+        Me.LblCantTiques.Location = New System.Drawing.Point(803, 200)
         Me.LblCantTiques.Name = "LblCantTiques"
         Me.LblCantTiques.Padding = New System.Windows.Forms.Padding(20, 15, 15, 15)
         Me.LblCantTiques.RightToLeft = System.Windows.Forms.RightToLeft.No
-        Me.LblCantTiques.Size = New System.Drawing.Size(154, 87)
+        Me.LblCantTiques.Size = New System.Drawing.Size(289, 86)
         Me.LblCantTiques.TabIndex = 50
         Me.LblCantTiques.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
@@ -367,7 +378,7 @@ Partial Class FrmEstudiantes
         Me.Label8.BackColor = System.Drawing.Color.Transparent
         Me.Label8.FlatStyle = System.Windows.Forms.FlatStyle.Popup
         Me.Label8.Font = New System.Drawing.Font("Arial Narrow", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label8.Location = New System.Drawing.Point(732, 147)
+        Me.Label8.Location = New System.Drawing.Point(800, 170)
         Me.Label8.Name = "Label8"
         Me.Label8.Size = New System.Drawing.Size(165, 24)
         Me.Label8.TabIndex = 49
@@ -478,16 +489,15 @@ Partial Class FrmEstudiantes
         '
         'LblTituloModulo
         '
-        Me.LblTituloModulo.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
-            Or System.Windows.Forms.AnchorStyles.Left) _
+        Me.LblTituloModulo.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.LblTituloModulo.AutoSize = True
         Me.LblTituloModulo.BackColor = System.Drawing.Color.Transparent
-        Me.LblTituloModulo.Font = New System.Drawing.Font("Arial Narrow", 21.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.LblTituloModulo.ForeColor = System.Drawing.Color.Black
-        Me.LblTituloModulo.Location = New System.Drawing.Point(285, 35)
+        Me.LblTituloModulo.Font = New System.Drawing.Font("Segoe UI Semibold", 21.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LblTituloModulo.ForeColor = System.Drawing.Color.FromArgb(CType(CType(17, Byte), Integer), CType(CType(33, Byte), Integer), CType(CType(59, Byte), Integer))
+        Me.LblTituloModulo.Location = New System.Drawing.Point(394, 24)
         Me.LblTituloModulo.Name = "LblTituloModulo"
-        Me.LblTituloModulo.Size = New System.Drawing.Size(426, 43)
+        Me.LblTituloModulo.Size = New System.Drawing.Size(414, 47)
         Me.LblTituloModulo.TabIndex = 20
         Me.LblTituloModulo.Text = "Mantenimiento de Estudiantes"
         Me.LblTituloModulo.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
@@ -501,31 +511,32 @@ Partial Class FrmEstudiantes
         Me.GroupBusquedaEstudiante.Controls.Add(Me.TxtCedula)
         Me.GroupBusquedaEstudiante.Controls.Add(Me.Buscar)
         Me.GroupBusquedaEstudiante.Controls.Add(Me.LblCedulaBusqueda)
-        Me.GroupBusquedaEstudiante.Location = New System.Drawing.Point(18, 81)
+        Me.GroupBusquedaEstudiante.Location = New System.Drawing.Point(20, 82)
         Me.GroupBusquedaEstudiante.Name = "GroupBusquedaEstudiante"
-        Me.GroupBusquedaEstudiante.Size = New System.Drawing.Size(906, 171)
+        Me.GroupBusquedaEstudiante.Size = New System.Drawing.Size(1130, 160)
         Me.GroupBusquedaEstudiante.TabIndex = 0
         Me.GroupBusquedaEstudiante.TabStop = False
         Me.GroupBusquedaEstudiante.Text = "Estudiante"
         '
         'StatusLine
         '
-        Me.StatusLine.AutoSize = True
-        Me.StatusLine.Font = New System.Drawing.Font("Calibri", 14.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.StatusLine.Location = New System.Drawing.Point(12, 117)
+        Me.StatusLine.AutoSize = False
+        Me.StatusLine.Font = New System.Drawing.Font("Segoe UI", 10.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.StatusLine.ForeColor = System.Drawing.Color.FromArgb(CType(CType(70, Byte), Integer), CType(CType(84, Byte), Integer), CType(CType(109, Byte), Integer))
+        Me.StatusLine.Location = New System.Drawing.Point(20, 112)
         Me.StatusLine.Name = "StatusLine"
-        Me.StatusLine.Size = New System.Drawing.Size(133, 29)
+        Me.StatusLine.Size = New System.Drawing.Size(760, 29)
         Me.StatusLine.TabIndex = 25
-        Me.StatusLine.Text = "[Status line]"
+        Me.StatusLine.Text = "Estado: listo para búsqueda."
         '
         'Picture
         '
         Me.Picture.BackColor = System.Drawing.SystemColors.Window
         Me.Picture.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
         Me.Picture.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
-        Me.Picture.Location = New System.Drawing.Point(739, 41)
+        Me.Picture.Location = New System.Drawing.Point(946, 26)
         Me.Picture.Name = "Picture"
-        Me.Picture.Size = New System.Drawing.Size(143, 114)
+        Me.Picture.Size = New System.Drawing.Size(160, 118)
         Me.Picture.TabIndex = 43
         Me.Picture.TabStop = False
         '
@@ -533,28 +544,30 @@ Partial Class FrmEstudiantes
         '
         Me.TxtCedula.BackColor = System.Drawing.Color.FromArgb(CType(CType(240, Byte), Integer), CType(CType(240, Byte), Integer), CType(CType(240, Byte), Integer))
         Me.TxtCedula.Font = New System.Drawing.Font("Calibri", 14.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.TxtCedula.Location = New System.Drawing.Point(106, 51)
+        Me.TxtCedula.Location = New System.Drawing.Point(114, 46)
         Me.TxtCedula.MaxLength = 14
         Me.TxtCedula.Name = "TxtCedula"
-        Me.TxtCedula.Size = New System.Drawing.Size(163, 36)
+        Me.TxtCedula.Size = New System.Drawing.Size(298, 36)
         Me.TxtCedula.TabIndex = 0
         '
         'Buscar
         '
         Me.Buscar.AccessibleRole = System.Windows.Forms.AccessibleRole.ButtonMenu
         Me.Buscar.BackColor = System.Drawing.Color.Transparent
-        Me.Buscar.BackgroundImage = Global.SCSC.My.Resources.Resources.Buscar_30x30
-        Me.Buscar.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center
+        Me.Buscar.BackgroundImage = Nothing
+        Me.Buscar.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None
         Me.Buscar.FlatAppearance.BorderColor = System.Drawing.Color.WhiteSmoke
-        Me.Buscar.FlatAppearance.BorderSize = 0
+        Me.Buscar.FlatAppearance.BorderSize = 1
         Me.Buscar.FlatAppearance.MouseDownBackColor = System.Drawing.Color.White
         Me.Buscar.FlatAppearance.MouseOverBackColor = System.Drawing.Color.White
         Me.Buscar.FlatStyle = System.Windows.Forms.FlatStyle.Flat
-        Me.Buscar.ForeColor = System.Drawing.Color.White
-        Me.Buscar.Location = New System.Drawing.Point(275, 53)
+        Me.Buscar.Font = New System.Drawing.Font("Segoe UI", 10.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Buscar.ForeColor = System.Drawing.Color.FromArgb(CType(CType(17, Byte), Integer), CType(CType(33, Byte), Integer), CType(CType(59, Byte), Integer))
+        Me.Buscar.Location = New System.Drawing.Point(420, 46)
         Me.Buscar.Name = "Buscar"
-        Me.Buscar.Size = New System.Drawing.Size(27, 27)
+        Me.Buscar.Size = New System.Drawing.Size(94, 36)
         Me.Buscar.TabIndex = 41
+        Me.Buscar.Text = "Buscar"
         Me.Buscar.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText
         Me.Buscar.UseVisualStyleBackColor = False
         '
@@ -598,9 +611,9 @@ Partial Class FrmEstudiantes
         Me.PictureBox1.BackColor = System.Drawing.Color.Transparent
         Me.PictureBox1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
         Me.PictureBox1.Image = Global.SCSC.My.Resources.Resources.Users
-        Me.PictureBox1.Location = New System.Drawing.Point(815, 12)
+        Me.PictureBox1.Location = New System.Drawing.Point(1068, 4)
         Me.PictureBox1.Name = "PictureBox1"
-        Me.PictureBox1.Size = New System.Drawing.Size(103, 100)
+        Me.PictureBox1.Size = New System.Drawing.Size(70, 70)
         Me.PictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage
         Me.PictureBox1.TabIndex = 44
         Me.PictureBox1.TabStop = False
@@ -609,10 +622,10 @@ Partial Class FrmEstudiantes
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(10.0!, 24.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.BackColor = System.Drawing.Color.FromArgb(CType(CType(224, Byte), Integer), CType(CType(224, Byte), Integer), CType(CType(224, Byte), Integer))
-        Me.BackgroundImage = CType(resources.GetObject("$this.BackgroundImage"), System.Drawing.Image)
-        Me.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.ClientSize = New System.Drawing.Size(936, 662)
+        Me.BackColor = System.Drawing.Color.FromArgb(CType(CType(240, Byte), Integer), CType(CType(244, Byte), Integer), CType(CType(250, Byte), Integer))
+        Me.BackgroundImage = Nothing
+        Me.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None
+        Me.ClientSize = New System.Drawing.Size(1170, 720)
         Me.Controls.Add(Me.PictureBox1)
         Me.Controls.Add(Me.Prompt)
         Me.Controls.Add(Me.StatusText)
@@ -620,9 +633,9 @@ Partial Class FrmEstudiantes
         Me.Controls.Add(Me.GroupDatosEstudiante)
         Me.Controls.Add(Me.LblTituloModulo)
         Me.Font = New System.Drawing.Font("Calibri", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog
+        Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Sizable
         Me.Margin = New System.Windows.Forms.Padding(4)
-        Me.MaximizeBox = False
+        Me.MaximizeBox = True
         Me.MinimizeBox = False
         Me.Name = "FrmEstudiantes"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen

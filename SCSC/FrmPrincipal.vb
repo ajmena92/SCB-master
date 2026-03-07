@@ -179,7 +179,7 @@ Partial Class FrmPrincipal
 
     Private Sub MostrarDialogo(ByVal form As Form)
         UIThemeManagerV2.Apply(form, "dialogo")
-        form.ShowDialog()
+        form.ShowDialog(Me)
         RefreshDashboardDeferred()
     End Sub
 
@@ -205,6 +205,9 @@ Partial Class FrmPrincipal
 
         Try
             If Me.IsDisposed Then
+                Return False
+            End If
+            If Me.Controls Is Nothing Then
                 Return False
             End If
             _shellHost = New UIShellHost(Me, AddressOf NavigateToModule)
@@ -233,6 +236,12 @@ Partial Class FrmPrincipal
             Return False
         End Try
     End Function
+
+    Private Sub FrmPrincipal_Resize(sender As Object, e As EventArgs) Handles MyBase.Resize
+        If BtnCerrar IsNot Nothing AndAlso Not BtnCerrar.IsDisposed Then
+            BtnCerrar.BringToFront()
+        End If
+    End Sub
 
     Private Sub ActivarFallbackShellClasico(ByVal motivo As String)
         Try

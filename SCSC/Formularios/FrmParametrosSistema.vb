@@ -58,10 +58,10 @@ Public Class FrmParametrosSistema
             ParametroSvc.AsegurarEsquema(cn)
             ParametroSvc.CrearFila1(cn)
             ParametroSvc.MigrarDesdeAppConfigSiCorresponde(cn)
-            LblEstado.Text = "Fila 0 creada/inicializada."
+            LblEstado.Text = "Fila unica de parametros creada/inicializada (Id=0)."
             CargarDatos(cn)
         Catch ex As Exception
-            MsgBox("No se pudo crear la fila 0: " & ex.Message, MsgBoxStyle.Critical)
+            MsgBox("No se pudo crear la fila unica de parametros: " & ex.Message, MsgBoxStyle.Critical)
         Finally
             If cn.State = ConnectionState.Open Then
                 Cls.CerrarConexion(cn)
@@ -145,6 +145,8 @@ Public Class FrmParametrosSistema
             AddParam("PrecioDocente", cfg.PrecioDocente.ToString(CultureInfo.InvariantCulture))
             AddParam("PrecioEstudiante", cfg.PrecioEstudiante.ToString(CultureInfo.InvariantCulture))
             AddParam("PermitirSinMarcaTransporte", cfg.PermitirSinMarcaTransporte.ToString())
+            AddParam("DesactivarNoImportadosExcel", cfg.DesactivarNoImportadosExcel.ToString())
+            AddParam("AuditarImportacionExcel", cfg.AuditarImportacionExcel.ToString())
 
             Dim filasIgnoradas As Integer = ParametroSvc.ContarFilasIgnoradas(cn)
             LblEstado.Text = ConstruirMensajeEstado("Parámetros cargados desde Parametro(Id=0).", filasIgnoradas)
@@ -166,6 +168,12 @@ Public Class FrmParametrosSistema
         cfg.PrecioDocente = ParseDecimal(ObtenerValor("PrecioDocente"))
         cfg.PrecioEstudiante = ParseDecimal(ObtenerValor("PrecioEstudiante"))
         cfg.PermitirSinMarcaTransporte = ParseBool(ObtenerValor("PermitirSinMarcaTransporte"))
+        Dim rawDesactivar As String = ObtenerValor("DesactivarNoImportadosExcel")
+        If String.IsNullOrWhiteSpace(rawDesactivar) Then
+            rawDesactivar = ObtenerValor("DesactivarNoImportatExcel")
+        End If
+        cfg.DesactivarNoImportadosExcel = ParseBoolConDefault(rawDesactivar, True)
+        cfg.AuditarImportacionExcel = ParseBoolConDefault(ObtenerValor("AuditarImportacionExcel"), True)
         Return cfg
     End Function
 
@@ -207,6 +215,23 @@ Public Class FrmParametrosSistema
             Return b
         End If
         Return False
+    End Function
+
+    Private Function ParseBoolConDefault(ByVal raw As String, ByVal defaultValue As Boolean) As Boolean
+        If String.IsNullOrWhiteSpace(raw) Then
+            Return defaultValue
+        End If
+
+        raw = raw.Trim()
+        If raw = "1" Then Return True
+        If raw = "0" Then Return False
+
+        Dim b As Boolean
+        If Boolean.TryParse(raw, b) Then
+            Return b
+        End If
+
+        Return defaultValue
     End Function
 
     Private Function ConstruirMensajeEstado(ByVal mensajeBase As String, ByVal filasIgnoradas As Integer) As String

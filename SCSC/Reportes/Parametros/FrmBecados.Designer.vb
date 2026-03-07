@@ -22,54 +22,54 @@ Partial Class FrmBecados
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
-        Me.Label1 = New System.Windows.Forms.Label()
-        Me.Panel4 = New System.Windows.Forms.Panel()
+        Me.LblTituloReporte = New System.Windows.Forms.Label()
+        Me.PanelAcciones = New System.Windows.Forms.Panel()
         Me.BtnRegresar = New System.Windows.Forms.Button()
         Me.BtnCancelar = New System.Windows.Forms.Button()
         Me.BtnGuardar = New System.Windows.Forms.Button()
-        Me.GroupBox1 = New System.Windows.Forms.GroupBox()
-        Me.Panel1 = New System.Windows.Forms.Panel()
+        Me.GroupParametros = New System.Windows.Forms.GroupBox()
+        Me.PanelTiposReporte = New System.Windows.Forms.Panel()
         Me.RbPermisoSalida = New System.Windows.Forms.RadioButton()
         Me.RbBecaTransporte = New System.Windows.Forms.RadioButton()
         Me.RbBecaComedor = New System.Windows.Forms.RadioButton()
         Me.CbHorario = New System.Windows.Forms.ComboBox()
-        Me.Label6 = New System.Windows.Forms.Label()
+        Me.LblHorarioCaption = New System.Windows.Forms.Label()
         Me.RbDetallo = New System.Windows.Forms.RadioButton()
         Me.RbGeneral = New System.Windows.Forms.RadioButton()
-        Me.Panel4.SuspendLayout()
-        Me.GroupBox1.SuspendLayout()
-        Me.Panel1.SuspendLayout()
+        Me.PanelAcciones.SuspendLayout()
+        Me.GroupParametros.SuspendLayout()
+        Me.PanelTiposReporte.SuspendLayout()
         Me.SuspendLayout()
         '
-        'Label1
+        'LblTituloReporte
         '
-        Me.Label1.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
+        Me.LblTituloReporte.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
             Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.Label1.AutoSize = True
-        Me.Label1.BackColor = System.Drawing.Color.Transparent
-        Me.Label1.Font = New System.Drawing.Font("Arial Narrow", 18.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label1.ForeColor = System.Drawing.Color.Black
-        Me.Label1.Location = New System.Drawing.Point(204, 22)
-        Me.Label1.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
-        Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(374, 35)
-        Me.Label1.TabIndex = 21
-        Me.Label1.Text = "Reporte Estudiantes Becados "
-        Me.Label1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        Me.LblTituloReporte.AutoSize = True
+        Me.LblTituloReporte.BackColor = System.Drawing.Color.Transparent
+        Me.LblTituloReporte.Font = New System.Drawing.Font("Arial Narrow", 18.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LblTituloReporte.ForeColor = System.Drawing.Color.Black
+        Me.LblTituloReporte.Location = New System.Drawing.Point(204, 22)
+        Me.LblTituloReporte.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.LblTituloReporte.Name = "LblTituloReporte"
+        Me.LblTituloReporte.Size = New System.Drawing.Size(374, 35)
+        Me.LblTituloReporte.TabIndex = 21
+        Me.LblTituloReporte.Text = "Reporte Estudiantes Becados "
+        Me.LblTituloReporte.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
-        'Panel4
+        'PanelAcciones
         '
-        Me.Panel4.BackColor = System.Drawing.Color.Transparent
-        Me.Panel4.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.Panel4.Controls.Add(Me.BtnRegresar)
-        Me.Panel4.Controls.Add(Me.BtnCancelar)
-        Me.Panel4.Controls.Add(Me.BtnGuardar)
-        Me.Panel4.Location = New System.Drawing.Point(436, 277)
-        Me.Panel4.Margin = New System.Windows.Forms.Padding(4)
-        Me.Panel4.Name = "Panel4"
-        Me.Panel4.Size = New System.Drawing.Size(300, 81)
-        Me.Panel4.TabIndex = 22
+        Me.PanelAcciones.BackColor = System.Drawing.Color.Transparent
+        Me.PanelAcciones.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
+        Me.PanelAcciones.Controls.Add(Me.BtnRegresar)
+        Me.PanelAcciones.Controls.Add(Me.BtnCancelar)
+        Me.PanelAcciones.Controls.Add(Me.BtnGuardar)
+        Me.PanelAcciones.Location = New System.Drawing.Point(436, 277)
+        Me.PanelAcciones.Margin = New System.Windows.Forms.Padding(4)
+        Me.PanelAcciones.Name = "PanelAcciones"
+        Me.PanelAcciones.Size = New System.Drawing.Size(300, 81)
+        Me.PanelAcciones.TabIndex = 22
         '
         'BtnRegresar
         '
@@ -105,32 +105,32 @@ Partial Class FrmBecados
         Me.BtnGuardar.TabIndex = 0
         Me.BtnGuardar.UseVisualStyleBackColor = True
         '
-        'GroupBox1
+        'GroupParametros
         '
-        Me.GroupBox1.Controls.Add(Me.RbGeneral)
-        Me.GroupBox1.Controls.Add(Me.RbDetallo)
-        Me.GroupBox1.Controls.Add(Me.Panel1)
-        Me.GroupBox1.Controls.Add(Me.CbHorario)
-        Me.GroupBox1.Controls.Add(Me.Label6)
-        Me.GroupBox1.Font = New System.Drawing.Font("Calibri", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.GroupBox1.Location = New System.Drawing.Point(13, 76)
-        Me.GroupBox1.Margin = New System.Windows.Forms.Padding(4)
-        Me.GroupBox1.Name = "GroupBox1"
-        Me.GroupBox1.Padding = New System.Windows.Forms.Padding(4)
-        Me.GroupBox1.Size = New System.Drawing.Size(723, 182)
-        Me.GroupBox1.TabIndex = 23
-        Me.GroupBox1.TabStop = False
-        Me.GroupBox1.Text = "Parametros"
+        Me.GroupParametros.Controls.Add(Me.RbGeneral)
+        Me.GroupParametros.Controls.Add(Me.RbDetallo)
+        Me.GroupParametros.Controls.Add(Me.PanelTiposReporte)
+        Me.GroupParametros.Controls.Add(Me.CbHorario)
+        Me.GroupParametros.Controls.Add(Me.LblHorarioCaption)
+        Me.GroupParametros.Font = New System.Drawing.Font("Calibri", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.GroupParametros.Location = New System.Drawing.Point(13, 76)
+        Me.GroupParametros.Margin = New System.Windows.Forms.Padding(4)
+        Me.GroupParametros.Name = "GroupParametros"
+        Me.GroupParametros.Padding = New System.Windows.Forms.Padding(4)
+        Me.GroupParametros.Size = New System.Drawing.Size(723, 182)
+        Me.GroupParametros.TabIndex = 23
+        Me.GroupParametros.TabStop = False
+        Me.GroupParametros.Text = "Parametros"
         '
-        'Panel1
+        'PanelTiposReporte
         '
-        Me.Panel1.Controls.Add(Me.RbPermisoSalida)
-        Me.Panel1.Controls.Add(Me.RbBecaTransporte)
-        Me.Panel1.Controls.Add(Me.RbBecaComedor)
-        Me.Panel1.Location = New System.Drawing.Point(23, 32)
-        Me.Panel1.Name = "Panel1"
-        Me.Panel1.Size = New System.Drawing.Size(304, 120)
-        Me.Panel1.TabIndex = 13
+        Me.PanelTiposReporte.Controls.Add(Me.RbPermisoSalida)
+        Me.PanelTiposReporte.Controls.Add(Me.RbBecaTransporte)
+        Me.PanelTiposReporte.Controls.Add(Me.RbBecaComedor)
+        Me.PanelTiposReporte.Location = New System.Drawing.Point(23, 32)
+        Me.PanelTiposReporte.Name = "PanelTiposReporte"
+        Me.PanelTiposReporte.Size = New System.Drawing.Size(304, 120)
+        Me.PanelTiposReporte.TabIndex = 13
         '
         'RbPermisoSalida
         '
@@ -174,16 +174,16 @@ Partial Class FrmBecados
         Me.CbHorario.Size = New System.Drawing.Size(213, 32)
         Me.CbHorario.TabIndex = 12
         '
-        'Label6
+        'LblHorarioCaption
         '
-        Me.Label6.AutoSize = True
-        Me.Label6.Font = New System.Drawing.Font("Calibri", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label6.Location = New System.Drawing.Point(409, 42)
-        Me.Label6.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
-        Me.Label6.Name = "Label6"
-        Me.Label6.Size = New System.Drawing.Size(83, 24)
-        Me.Label6.TabIndex = 11
-        Me.Label6.Text = "Horario: "
+        Me.LblHorarioCaption.AutoSize = True
+        Me.LblHorarioCaption.Font = New System.Drawing.Font("Calibri", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LblHorarioCaption.Location = New System.Drawing.Point(409, 42)
+        Me.LblHorarioCaption.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.LblHorarioCaption.Name = "LblHorarioCaption"
+        Me.LblHorarioCaption.Size = New System.Drawing.Size(83, 24)
+        Me.LblHorarioCaption.TabIndex = 11
+        Me.LblHorarioCaption.Text = "Horario: "
         '
         'RbDetallo
         '
@@ -215,32 +215,32 @@ Partial Class FrmBecados
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(749, 381)
         Me.ControlBox = False
-        Me.Controls.Add(Me.GroupBox1)
-        Me.Controls.Add(Me.Panel4)
-        Me.Controls.Add(Me.Label1)
+        Me.Controls.Add(Me.GroupParametros)
+        Me.Controls.Add(Me.PanelAcciones)
+        Me.Controls.Add(Me.LblTituloReporte)
         Me.Margin = New System.Windows.Forms.Padding(4)
         Me.Name = "FrmBecados"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "Reporte Proyeción Comedor"
-        Me.Panel4.ResumeLayout(False)
-        Me.GroupBox1.ResumeLayout(False)
-        Me.GroupBox1.PerformLayout()
-        Me.Panel1.ResumeLayout(False)
-        Me.Panel1.PerformLayout()
+        Me.PanelAcciones.ResumeLayout(False)
+        Me.GroupParametros.ResumeLayout(False)
+        Me.GroupParametros.PerformLayout()
+        Me.PanelTiposReporte.ResumeLayout(False)
+        Me.PanelTiposReporte.PerformLayout()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
     End Sub
 
-    Friend WithEvents Label1 As Label
-    Friend WithEvents Panel4 As Panel
+    Friend WithEvents LblTituloReporte As Label
+    Friend WithEvents PanelAcciones As Panel
     Friend WithEvents BtnRegresar As Button
     Friend WithEvents BtnCancelar As Button
     Friend WithEvents BtnGuardar As Button
-    Friend WithEvents GroupBox1 As GroupBox
+    Friend WithEvents GroupParametros As GroupBox
     Friend WithEvents CbHorario As ComboBox
-    Friend WithEvents Label6 As Label
-    Friend WithEvents Panel1 As Panel
+    Friend WithEvents LblHorarioCaption As Label
+    Friend WithEvents PanelTiposReporte As Panel
     Friend WithEvents RbPermisoSalida As RadioButton
     Friend WithEvents RbBecaTransporte As RadioButton
     Friend WithEvents RbBecaComedor As RadioButton

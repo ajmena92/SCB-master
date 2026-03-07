@@ -7,7 +7,7 @@ Imports System.Threading.Tasks
 
 Public Class ControlTransporte
     Private Const SegundosInactividadLimpiarRegistro As Integer = 60
-    Private Const PermitirCierreOperador As Boolean = False
+    Private Const PermitirCierreOperador As Boolean = True
     Private Const SidebarMinWidth As Integer = 420
     Private Const SidebarMaxWidth As Integer = 520
 
@@ -181,6 +181,13 @@ Public Class ControlTransporte
 
     Private Sub TxtCedula_KeyDown(sender As Object, e As KeyEventArgs) Handles TxtCedula.KeyDown
         RegistrarActividad()
+
+        If e.KeyCode = Keys.Escape Then
+            e.SuppressKeyPress = True
+            e.Handled = True
+            EjecutarAccionEscape()
+            Exit Sub
+        End If
 
         If e.KeyCode <> Keys.Enter Then
             Exit Sub
@@ -544,37 +551,56 @@ Public Class ControlTransporte
         Dim statusW As Integer = PanelResult.ClientSize.Width
         Dim statusH As Integer = PanelResult.ClientSize.Height
         LblTitulo.SetBounds(24, 14, statusW - 48, 72)
-        LblRuta.SetBounds(0, 90, statusW, 62)
+        LblRuta.SetBounds(0, 90, statusW, 52)
 
         If _lblResultadoOperacion IsNot Nothing Then
-            _lblResultadoOperacion.SetBounds(24, 172, Math.Max(260, statusW - 48), 52)
+            _lblResultadoOperacion.SetBounds(24, 152, Math.Max(260, statusW - 48), 52)
         End If
         If _lblEstadoChip IsNot Nothing Then
-            _lblEstadoChip.SetBounds((statusW \ 2) - 110, 142, 220, 26)
+            _lblEstadoChip.SetBounds((statusW \ 2) - 110, 116, 220, 30)
         End If
 
-        lblProcesando.SetBounds(24, 230, Math.Max(260, statusW - 48), 78)
+        lblProcesando.SetBounds(24, 214, Math.Max(260, statusW - 48), 82)
 
         Dim iconSize As Integer = Math.Max(170, Math.Min(280, CInt(Math.Round(Math.Min(statusW, statusH) * 0.3R))))
         Dim iconX As Integer = Math.Max(0, (statusW - iconSize) \ 2)
-        Dim iconY As Integer = Math.Max(320, (statusH - iconSize) \ 2 + 40)
+        Dim iconY As Integer = Math.Max(304, (statusH - iconSize) \ 2 + 34)
         Imgprocess.SetBounds(iconX, iconY, iconSize, iconSize)
 
-        If _lblConexion IsNot Nothing Then
-            _lblConexion.SetBounds(20, statusH - 116, statusW - 40, 20)
-            _lblKpi.SetBounds(20, statusH - 94, statusW - 40, 20)
-            _lblUltimaLectura.SetBounds(20, statusH - 72, statusW - 40, 20)
-            _lblEdadEstado.SetBounds(20, statusH - 50, statusW - 40, 20)
-            _btnIncidencia.SetBounds(Math.Max(20, statusW - 190), 14, 170, 32)
+        ApplySidebarOperationalInfoLayout(leftWidth, mode)
+
+        If _lblScanHint IsNot Nothing AndAlso mode = LayoutMode.Compact Then
+            _lblScanHint.Font = New Font("Segoe UI", 10.0!, FontStyle.Bold)
+        ElseIf _lblScanHint IsNot Nothing Then
+            _lblScanHint.Font = New Font("Segoe UI", 11.0!, FontStyle.Bold)
         End If
-        If _lblHotkeys IsNot Nothing Then
-            _lblHotkeys.SetBounds(20, statusH - 28, statusW - 40, 20)
+    End Sub
+
+    Private Sub ApplySidebarOperationalInfoLayout(ByVal leftWidth As Integer, ByVal mode As LayoutMode)
+        If _lblConexion Is Nothing OrElse _lblKpi Is Nothing OrElse _lblUltimaLectura Is Nothing OrElse _lblEdadEstado Is Nothing OrElse _btnIncidencia Is Nothing OrElse _lblHotkeys Is Nothing Then
+            Exit Sub
         End If
 
+        Dim sidebarHeight As Integer = Math.Max(600, BunifuGradientPanel1.ClientSize.Height)
+        Dim hotkeysTop As Integer = sidebarHeight - 34
+        Dim infoBottom As Integer = hotkeysTop - 4
+        Dim edadTop As Integer = infoBottom - 20
+        Dim ultimaTop As Integer = edadTop - 22
+        Dim kpiTop As Integer = ultimaTop - 22
+        Dim conexionTop As Integer = kpiTop - 22
+        Dim incidenciaTop As Integer = Math.Max(GbDatos.Bottom + 8, conexionTop - 44)
+
+        _btnIncidencia.SetBounds(20, incidenciaTop, 188, 36)
+        _lblConexion.SetBounds(20, conexionTop, leftWidth - 40, 20)
+        _lblKpi.SetBounds(20, kpiTop, leftWidth - 40, 20)
+        _lblUltimaLectura.SetBounds(20, ultimaTop, leftWidth - 40, 20)
+        _lblEdadEstado.SetBounds(20, edadTop, leftWidth - 40, 20)
+        _lblHotkeys.SetBounds(20, hotkeysTop, leftWidth - 40, 30)
+
         If mode = LayoutMode.Compact Then
-            _lblScanHint.Font = New Font("Segoe UI", 10.0!, FontStyle.Bold)
+            _lblHotkeys.Font = New Font("Segoe UI", 8.0!, FontStyle.Bold)
         Else
-            _lblScanHint.Font = New Font("Segoe UI", 11.0!, FontStyle.Bold)
+            _lblHotkeys.Font = New Font("Segoe UI", 8.5!, FontStyle.Bold)
         End If
     End Sub
 
@@ -642,7 +668,7 @@ Public Class ControlTransporte
             _lblHotkeys.Font = New Font("Segoe UI", 8.5!, FontStyle.Bold)
             _lblHotkeys.TextAlign = ContentAlignment.MiddleLeft
             _lblHotkeys.Text = "Esc salir | F2 limpiar | F3 foco | F4 historial | F7 contraste"
-            PanelResult.Controls.Add(_lblHotkeys)
+            BunifuGradientPanel1.Controls.Add(_lblHotkeys)
             _lblHotkeys.BringToFront()
         End If
     End Sub
@@ -713,11 +739,11 @@ Public Class ControlTransporte
 
         PanelResult.Controls.Add(_lblResultadoOperacion)
         PanelResult.Controls.Add(_lblEstadoChip)
-        PanelResult.Controls.Add(_lblConexion)
-        PanelResult.Controls.Add(_lblKpi)
-        PanelResult.Controls.Add(_lblUltimaLectura)
-        PanelResult.Controls.Add(_lblEdadEstado)
-        PanelResult.Controls.Add(_btnIncidencia)
+        BunifuGradientPanel1.Controls.Add(_lblConexion)
+        BunifuGradientPanel1.Controls.Add(_lblKpi)
+        BunifuGradientPanel1.Controls.Add(_lblUltimaLectura)
+        BunifuGradientPanel1.Controls.Add(_lblEdadEstado)
+        BunifuGradientPanel1.Controls.Add(_btnIncidencia)
         GbDatos.Controls.Add(_lblHistorial)
         GbDatos.Controls.Add(_lstHistorial)
 
@@ -1296,13 +1322,25 @@ Public Class ControlTransporte
         RegistrarActividad()
     End Sub
 
+    Private Sub ControlTransporte_KeyDown(sender As Object, e As KeyEventArgs) Handles MyBase.KeyDown
+        If e.KeyCode = Keys.Escape Then
+            e.SuppressKeyPress = True
+            e.Handled = True
+            EjecutarAccionEscape()
+        End If
+    End Sub
+
+    Private Sub EjecutarAccionEscape()
+        If PermitirCierreOperador Then
+            Me.Close()
+        Else
+            EnsureScanFocus(False)
+        End If
+    End Sub
+
     Protected Overrides Function ProcessCmdKey(ByRef msg As Message, keyData As Keys) As Boolean
         If keyData = Keys.Escape Then
-            If PermitirCierreOperador Then
-                Me.Close()
-            Else
-                EnsureScanFocus(False)
-            End If
+            EjecutarAccionEscape()
             Return True
         End If
         If keyData = Keys.F2 Then

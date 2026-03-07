@@ -255,7 +255,7 @@ Partial Friend Class FrmSeguridadRBAC
     Private Sub ConfigureCrudFlow(ByVal flow As FlowLayoutPanel)
         flow.AutoSize = False
         flow.WrapContents = False
-        flow.Dock = DockStyle.Top
+        flow.Dock = DockStyle.Fill
         flow.FlowDirection = FlowDirection.LeftToRight
         flow.AutoScroll = True
         flow.Height = 42
@@ -485,7 +485,7 @@ Partial Friend Class FrmSeguridadRBAC
         If flow Is Nothing Then
             Exit Sub
         End If
-        flow.Dock = DockStyle.Top
+        flow.Dock = DockStyle.Fill
         flow.Height = 42
         flow.WrapContents = False
         flow.AutoScroll = True

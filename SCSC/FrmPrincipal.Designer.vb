@@ -332,10 +332,11 @@ Partial Class FrmPrincipal
         '
         'BtnCerrar
         '
+        Me.BtnCerrar.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.BtnCerrar.BackColor = System.Drawing.Color.Transparent
         Me.BtnCerrar.BackgroundImage = CType(resources.GetObject("BtnCerrar.BackgroundImage"), System.Drawing.Image)
         Me.BtnCerrar.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.BtnCerrar.Location = New System.Drawing.Point(1241, 1)
+        Me.BtnCerrar.Location = New System.Drawing.Point(1399, 1)
         Me.BtnCerrar.Margin = New System.Windows.Forms.Padding(4)
         Me.BtnCerrar.Name = "BtnCerrar"
         Me.BtnCerrar.Size = New System.Drawing.Size(33, 31)
@@ -359,7 +360,7 @@ Partial Class FrmPrincipal
         Me.MaximizeBox = False
         Me.Name = "FrmPrincipal"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
-        Me.Text = "procedamos "
+        Me.Text = "SCSC - Panel Principal"
         Me.WindowState = System.Windows.Forms.FormWindowState.Maximized
         Me.MenuStrip1.ResumeLayout(False)
         Me.MenuStrip1.PerformLayout()

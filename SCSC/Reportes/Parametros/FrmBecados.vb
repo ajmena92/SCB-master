@@ -2,11 +2,11 @@
 Option Explicit On
 
 Public Class FrmBecados
-    Dim Cls As New FuncionesDB
-    Dim Ds As New DataSet
-    Dim Cn As New SqlClient.SqlConnection
+    Private ReadOnly Cls As New FuncionesDB
+    Private Ds As New DataSet
+    Private ReadOnly Cn As New SqlClient.SqlConnection
 
-    Private Sub FrmReporteMarcas_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+    Private Sub FrmBecados_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         If CrudVisualHelper.IsInDesignMode(Me) Then
             Return
         End If
@@ -38,7 +38,7 @@ Public Class FrmBecados
         Limpiar()
     End Sub
 
-    Sub Limpiar()
+    Private Sub Limpiar()
         RbBecaComedor.Checked = False
         RbBecaTransporte.Checked = False
         RbPermisoSalida.Checked = False

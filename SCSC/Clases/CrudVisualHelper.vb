@@ -182,7 +182,7 @@ Public NotInheritable Class CrudVisualHelper
         Dim paddingHorizontal As Integer = 8
         Dim buttonHeight As Integer = 38
         Dim panelHeight As Integer = 56
-        Dim preferredButtonWidth As Integer = If(count <= 3, 126, 118)
+        Dim preferredButtonWidth As Integer = If(count <= 3, 152, 126)
         Dim minButtonWidth As Integer = 92
 
         Dim maxPanelWidth As Integer = Integer.MaxValue
@@ -289,8 +289,11 @@ Public NotInheritable Class CrudVisualHelper
         btn.BackgroundImage = Nothing
         btn.Image = Nothing
         btn.AutoSize = False
-        btn.AutoEllipsis = True
+        btn.AutoEllipsis = False
+        btn.TextImageRelation = TextImageRelation.Overlay
+        btn.ImageAlign = ContentAlignment.MiddleCenter
         btn.TextAlign = ContentAlignment.MiddleCenter
+        btn.Padding = New Padding(10, 0, 10, 0)
         btn.FlatStyle = FlatStyle.Flat
         btn.FlatAppearance.BorderSize = 1
         btn.Font = UIConstants.FontBodyStrong()
@@ -302,8 +305,13 @@ Public NotInheritable Class CrudVisualHelper
             btn.FlatAppearance.MouseOverBackColor = Color.FromArgb(181, 64, 77)
             btn.FlatAppearance.MouseDownBackColor = Color.FromArgb(161, 55, 68)
         ElseIf String.Equals(btn.Name, "BtnRegresar", StringComparison.OrdinalIgnoreCase) OrElse
-               String.Equals(btn.Name, "BtnCerrar", StringComparison.OrdinalIgnoreCase) OrElse
-               String.Equals(btn.Name, "BtnCancelar", StringComparison.OrdinalIgnoreCase) Then
+               String.Equals(btn.Name, "BtnCerrar", StringComparison.OrdinalIgnoreCase) Then
+            btn.BackColor = Color.FromArgb(114, 44, 61)
+            btn.ForeColor = Color.White
+            btn.FlatAppearance.BorderColor = Color.FromArgb(95, 36, 50)
+            btn.FlatAppearance.MouseOverBackColor = Color.FromArgb(133, 54, 72)
+            btn.FlatAppearance.MouseDownBackColor = Color.FromArgb(95, 36, 50)
+        ElseIf String.Equals(btn.Name, "BtnCancelar", StringComparison.OrdinalIgnoreCase) Then
             btn.BackColor = Color.FromArgb(82, 97, 120)
             btn.ForeColor = Color.White
             btn.FlatAppearance.BorderColor = Color.FromArgb(75, 89, 109)

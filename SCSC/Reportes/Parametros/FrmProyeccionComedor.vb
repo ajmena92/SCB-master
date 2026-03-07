@@ -2,11 +2,11 @@
 Option Explicit On
 
 Public Class FrmProyeccionComedor
-    Dim Cls As New FuncionesDB
-    Dim Ds As New DataSet
-    Dim Cn As New SqlClient.SqlConnection
+    Private ReadOnly Cls As New FuncionesDB
+    Private Ds As New DataSet
+    Private ReadOnly Cn As New SqlClient.SqlConnection
 
-    Private Sub FrmReporteMarcas_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+    Private Sub FrmProyeccionComedor_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         If CrudVisualHelper.IsInDesignMode(Me) Then
             Return
         End If
@@ -44,7 +44,7 @@ Public Class FrmProyeccionComedor
         End Try
 
 
-        FecIni.Value = Now.Date
+        FecIni.Value = Date.Today
 
     End Sub
 
@@ -52,8 +52,8 @@ Public Class FrmProyeccionComedor
         Limpiar()
     End Sub
 
-    Sub Limpiar()
-        FecIni.Value = Now.Date
+    Private Sub Limpiar()
+        FecIni.Value = Date.Today
     End Sub
 
     Private Sub BtnRegresar_Click(sender As Object, e As EventArgs) Handles BtnRegresar.Click

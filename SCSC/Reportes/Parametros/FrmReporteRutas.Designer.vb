@@ -22,55 +22,55 @@ Partial Class FrmReporteRutas
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
-        Me.Label1 = New System.Windows.Forms.Label()
-        Me.Panel4 = New System.Windows.Forms.Panel()
+        Me.LblTituloReporte = New System.Windows.Forms.Label()
+        Me.PanelAcciones = New System.Windows.Forms.Panel()
         Me.BtnRegresar = New System.Windows.Forms.Button()
         Me.BtnCancelar = New System.Windows.Forms.Button()
         Me.BtnGuardar = New System.Windows.Forms.Button()
-        Me.GroupBox1 = New System.Windows.Forms.GroupBox()
+        Me.GroupParametros = New System.Windows.Forms.GroupBox()
         Me.CbHorario = New System.Windows.Forms.ComboBox()
-        Me.Label6 = New System.Windows.Forms.Label()
+        Me.LblHorarioCaption = New System.Windows.Forms.Label()
         Me.CbTipoUsuario = New System.Windows.Forms.ComboBox()
-        Me.Label4 = New System.Windows.Forms.Label()
-        Me.Label3 = New System.Windows.Forms.Label()
-        Me.Label2 = New System.Windows.Forms.Label()
+        Me.LblRutaCaption = New System.Windows.Forms.Label()
+        Me.LblFechaFinalCaption = New System.Windows.Forms.Label()
+        Me.LblFechaInicialCaption = New System.Windows.Forms.Label()
         Me.RbDetallo = New System.Windows.Forms.RadioButton()
         Me.RbGeneral = New System.Windows.Forms.RadioButton()
         Me.FecFinal = New System.Windows.Forms.DateTimePicker()
         Me.FecIni = New System.Windows.Forms.DateTimePicker()
-        Me.Panel4.SuspendLayout()
-        Me.GroupBox1.SuspendLayout()
+        Me.PanelAcciones.SuspendLayout()
+        Me.GroupParametros.SuspendLayout()
         Me.SuspendLayout()
         '
-        'Label1
+        'LblTituloReporte
         '
-        Me.Label1.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
+        Me.LblTituloReporte.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
             Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.Label1.AutoSize = True
-        Me.Label1.BackColor = System.Drawing.Color.Transparent
-        Me.Label1.Font = New System.Drawing.Font("Calibri", 18.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label1.ForeColor = System.Drawing.Color.Black
-        Me.Label1.Location = New System.Drawing.Point(121, 20)
-        Me.Label1.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
-        Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(533, 37)
-        Me.Label1.TabIndex = 21
-        Me.Label1.Text = "Reporte de Trasporte por Rango de Fecha"
-        Me.Label1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        Me.LblTituloReporte.AutoSize = True
+        Me.LblTituloReporte.BackColor = System.Drawing.Color.Transparent
+        Me.LblTituloReporte.Font = New System.Drawing.Font("Calibri", 18.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LblTituloReporte.ForeColor = System.Drawing.Color.Black
+        Me.LblTituloReporte.Location = New System.Drawing.Point(121, 20)
+        Me.LblTituloReporte.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.LblTituloReporte.Name = "LblTituloReporte"
+        Me.LblTituloReporte.Size = New System.Drawing.Size(533, 37)
+        Me.LblTituloReporte.TabIndex = 21
+        Me.LblTituloReporte.Text = "Reporte de Transporte por Rango de Fecha"
+        Me.LblTituloReporte.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
-        'Panel4
+        'PanelAcciones
         '
-        Me.Panel4.BackColor = System.Drawing.Color.Transparent
-        Me.Panel4.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.Panel4.Controls.Add(Me.BtnRegresar)
-        Me.Panel4.Controls.Add(Me.BtnCancelar)
-        Me.Panel4.Controls.Add(Me.BtnGuardar)
-        Me.Panel4.Location = New System.Drawing.Point(436, 330)
-        Me.Panel4.Margin = New System.Windows.Forms.Padding(4)
-        Me.Panel4.Name = "Panel4"
-        Me.Panel4.Size = New System.Drawing.Size(300, 81)
-        Me.Panel4.TabIndex = 22
+        Me.PanelAcciones.BackColor = System.Drawing.Color.Transparent
+        Me.PanelAcciones.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
+        Me.PanelAcciones.Controls.Add(Me.BtnRegresar)
+        Me.PanelAcciones.Controls.Add(Me.BtnCancelar)
+        Me.PanelAcciones.Controls.Add(Me.BtnGuardar)
+        Me.PanelAcciones.Location = New System.Drawing.Point(436, 330)
+        Me.PanelAcciones.Margin = New System.Windows.Forms.Padding(4)
+        Me.PanelAcciones.Name = "PanelAcciones"
+        Me.PanelAcciones.Size = New System.Drawing.Size(300, 81)
+        Me.PanelAcciones.TabIndex = 22
         '
         'BtnRegresar
         '
@@ -106,27 +106,27 @@ Partial Class FrmReporteRutas
         Me.BtnGuardar.TabIndex = 0
         Me.BtnGuardar.UseVisualStyleBackColor = True
         '
-        'GroupBox1
+        'GroupParametros
         '
-        Me.GroupBox1.Controls.Add(Me.CbHorario)
-        Me.GroupBox1.Controls.Add(Me.Label6)
-        Me.GroupBox1.Controls.Add(Me.CbTipoUsuario)
-        Me.GroupBox1.Controls.Add(Me.Label4)
-        Me.GroupBox1.Controls.Add(Me.Label3)
-        Me.GroupBox1.Controls.Add(Me.Label2)
-        Me.GroupBox1.Controls.Add(Me.RbDetallo)
-        Me.GroupBox1.Controls.Add(Me.RbGeneral)
-        Me.GroupBox1.Controls.Add(Me.FecFinal)
-        Me.GroupBox1.Controls.Add(Me.FecIni)
-        Me.GroupBox1.Font = New System.Drawing.Font("Calibri", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.GroupBox1.Location = New System.Drawing.Point(28, 85)
-        Me.GroupBox1.Margin = New System.Windows.Forms.Padding(4)
-        Me.GroupBox1.Name = "GroupBox1"
-        Me.GroupBox1.Padding = New System.Windows.Forms.Padding(4)
-        Me.GroupBox1.Size = New System.Drawing.Size(708, 237)
-        Me.GroupBox1.TabIndex = 23
-        Me.GroupBox1.TabStop = False
-        Me.GroupBox1.Text = "Parametros"
+        Me.GroupParametros.Controls.Add(Me.CbHorario)
+        Me.GroupParametros.Controls.Add(Me.LblHorarioCaption)
+        Me.GroupParametros.Controls.Add(Me.CbTipoUsuario)
+        Me.GroupParametros.Controls.Add(Me.LblRutaCaption)
+        Me.GroupParametros.Controls.Add(Me.LblFechaFinalCaption)
+        Me.GroupParametros.Controls.Add(Me.LblFechaInicialCaption)
+        Me.GroupParametros.Controls.Add(Me.RbDetallo)
+        Me.GroupParametros.Controls.Add(Me.RbGeneral)
+        Me.GroupParametros.Controls.Add(Me.FecFinal)
+        Me.GroupParametros.Controls.Add(Me.FecIni)
+        Me.GroupParametros.Font = New System.Drawing.Font("Calibri", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.GroupParametros.Location = New System.Drawing.Point(28, 85)
+        Me.GroupParametros.Margin = New System.Windows.Forms.Padding(4)
+        Me.GroupParametros.Name = "GroupParametros"
+        Me.GroupParametros.Padding = New System.Windows.Forms.Padding(4)
+        Me.GroupParametros.Size = New System.Drawing.Size(708, 237)
+        Me.GroupParametros.TabIndex = 23
+        Me.GroupParametros.TabStop = False
+        Me.GroupParametros.Text = "Parametros"
         '
         'CbHorario
         '
@@ -137,15 +137,15 @@ Partial Class FrmReporteRutas
         Me.CbHorario.Size = New System.Drawing.Size(213, 32)
         Me.CbHorario.TabIndex = 14
         '
-        'Label6
+        'LblHorarioCaption
         '
-        Me.Label6.AutoSize = True
-        Me.Label6.Location = New System.Drawing.Point(56, 193)
-        Me.Label6.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
-        Me.Label6.Name = "Label6"
-        Me.Label6.Size = New System.Drawing.Size(83, 24)
-        Me.Label6.TabIndex = 13
-        Me.Label6.Text = "Horario: "
+        Me.LblHorarioCaption.AutoSize = True
+        Me.LblHorarioCaption.Location = New System.Drawing.Point(56, 193)
+        Me.LblHorarioCaption.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.LblHorarioCaption.Name = "LblHorarioCaption"
+        Me.LblHorarioCaption.Size = New System.Drawing.Size(83, 24)
+        Me.LblHorarioCaption.TabIndex = 13
+        Me.LblHorarioCaption.Text = "Horario: "
         '
         'CbTipoUsuario
         '
@@ -156,35 +156,35 @@ Partial Class FrmReporteRutas
         Me.CbTipoUsuario.Size = New System.Drawing.Size(160, 32)
         Me.CbTipoUsuario.TabIndex = 8
         '
-        'Label4
+        'LblRutaCaption
         '
-        Me.Label4.AutoSize = True
-        Me.Label4.Location = New System.Drawing.Point(80, 142)
-        Me.Label4.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
-        Me.Label4.Name = "Label4"
-        Me.Label4.Size = New System.Drawing.Size(59, 24)
-        Me.Label4.TabIndex = 7
-        Me.Label4.Text = "Ruta: "
+        Me.LblRutaCaption.AutoSize = True
+        Me.LblRutaCaption.Location = New System.Drawing.Point(80, 142)
+        Me.LblRutaCaption.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.LblRutaCaption.Name = "LblRutaCaption"
+        Me.LblRutaCaption.Size = New System.Drawing.Size(59, 24)
+        Me.LblRutaCaption.TabIndex = 7
+        Me.LblRutaCaption.Text = "Ruta: "
         '
-        'Label3
+        'LblFechaFinalCaption
         '
-        Me.Label3.AutoSize = True
-        Me.Label3.Location = New System.Drawing.Point(335, 72)
-        Me.Label3.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
-        Me.Label3.Name = "Label3"
-        Me.Label3.Size = New System.Drawing.Size(108, 24)
-        Me.Label3.TabIndex = 5
-        Me.Label3.Text = "Fecha Final:"
+        Me.LblFechaFinalCaption.AutoSize = True
+        Me.LblFechaFinalCaption.Location = New System.Drawing.Point(335, 72)
+        Me.LblFechaFinalCaption.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.LblFechaFinalCaption.Name = "LblFechaFinalCaption"
+        Me.LblFechaFinalCaption.Size = New System.Drawing.Size(108, 24)
+        Me.LblFechaFinalCaption.TabIndex = 5
+        Me.LblFechaFinalCaption.Text = "Fecha Final:"
         '
-        'Label2
+        'LblFechaInicialCaption
         '
-        Me.Label2.AutoSize = True
-        Me.Label2.Location = New System.Drawing.Point(22, 74)
-        Me.Label2.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
-        Me.Label2.Name = "Label2"
-        Me.Label2.Size = New System.Drawing.Size(117, 24)
-        Me.Label2.TabIndex = 4
-        Me.Label2.Text = "Fecha Inicial:"
+        Me.LblFechaInicialCaption.AutoSize = True
+        Me.LblFechaInicialCaption.Location = New System.Drawing.Point(22, 74)
+        Me.LblFechaInicialCaption.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.LblFechaInicialCaption.Name = "LblFechaInicialCaption"
+        Me.LblFechaInicialCaption.Size = New System.Drawing.Size(117, 24)
+        Me.LblFechaInicialCaption.TabIndex = 4
+        Me.LblFechaInicialCaption.Text = "Fecha Inicial:"
         '
         'RbDetallo
         '
@@ -234,35 +234,35 @@ Partial Class FrmReporteRutas
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(749, 446)
         Me.ControlBox = False
-        Me.Controls.Add(Me.GroupBox1)
-        Me.Controls.Add(Me.Panel4)
-        Me.Controls.Add(Me.Label1)
+        Me.Controls.Add(Me.GroupParametros)
+        Me.Controls.Add(Me.PanelAcciones)
+        Me.Controls.Add(Me.LblTituloReporte)
         Me.Margin = New System.Windows.Forms.Padding(4)
         Me.Name = "FrmReporteRutas"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "Reporte de Transporte por Rango de Fecha"
-        Me.Panel4.ResumeLayout(False)
-        Me.GroupBox1.ResumeLayout(False)
-        Me.GroupBox1.PerformLayout()
+        Me.PanelAcciones.ResumeLayout(False)
+        Me.GroupParametros.ResumeLayout(False)
+        Me.GroupParametros.PerformLayout()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
     End Sub
 
-    Friend WithEvents Label1 As Label
-    Friend WithEvents Panel4 As Panel
+    Friend WithEvents LblTituloReporte As Label
+    Friend WithEvents PanelAcciones As Panel
     Friend WithEvents BtnRegresar As Button
     Friend WithEvents BtnCancelar As Button
     Friend WithEvents BtnGuardar As Button
-    Friend WithEvents GroupBox1 As GroupBox
-    Friend WithEvents Label3 As Label
-    Friend WithEvents Label2 As Label
+    Friend WithEvents GroupParametros As GroupBox
+    Friend WithEvents LblFechaFinalCaption As Label
+    Friend WithEvents LblFechaInicialCaption As Label
     Friend WithEvents RbDetallo As RadioButton
     Friend WithEvents RbGeneral As RadioButton
     Friend WithEvents FecFinal As DateTimePicker
     Friend WithEvents FecIni As DateTimePicker
-    Friend WithEvents Label4 As Label
+    Friend WithEvents LblRutaCaption As Label
     Friend WithEvents CbTipoUsuario As ComboBox
     Friend WithEvents CbHorario As ComboBox
-    Friend WithEvents Label6 As Label
+    Friend WithEvents LblHorarioCaption As Label
 End Class

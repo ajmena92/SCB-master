@@ -165,7 +165,8 @@ Cerrar primero estabilidad de Designer/compilacion y luego terminar la estandari
 - Renombrado semantico de shell principal:
   - `SCSC/FrmPrincipal.Designer.vb` y `SCSC/FrmPrincipal.vb`: `Panel1` -> `PanelMenuLateral`, `Panel2` -> `PanelCabeceraModulo`.
 - Nota de validacion:
-  - En esta sesion WSL no fue posible ejecutar MSBuild por error de interoperabilidad (`UtilBindVsockAnyPort`), por lo que queda pendiente validacion de compilacion final en entorno Windows/Visual Studio.
+  - Nota historica de sesion anterior: en ese momento no fue posible ejecutar MSBuild desde WSL.
+  - Estado actual: validacion de compilacion ya resuelta en bloque 6 (MSBuild Windows exitoso).
 
 ## Avance aplicado (2026-03-05 cierre bloque 3)
 - Renombrado semantico en modulos operativos (kiosko) para reducir deuda de Designer:
@@ -186,7 +187,8 @@ Cerrar primero estabilidad de Designer/compilacion y luego terminar la estandari
   - `LblFecha.Text` en `ControlTransporte` corregido a `"Fecha"` para evitar texto residual tras renombre.
 - Nota de validacion:
   - Se verifico consistencia de referencias por busqueda (`rg`) en archivos impactados.
-  - Build global sigue pendiente en entorno Windows/Visual Studio por limitacion de interoperabilidad de MSBuild en esta sesion WSL.
+  - Nota historica de sesion anterior: build global quedo pendiente en ese corte.
+  - Estado actual: build global ya validado (bloque 6, `0 Error(s)`).
 
 ## Avance aplicado (2026-03-05 cierre bloque 4)
 - Renombrado semantico adicional en utilitario de impresion:
@@ -209,3 +211,23 @@ Cerrar primero estabilidad de Designer/compilacion y luego terminar la estandari
     - referencias y handler actualizados (`LblTituloModulo_Click`).
 - Resultado:
   - Consistencia con naming semantico ya aplicado en `FrmImportarExcel`.
+
+## Avance aplicado (2026-03-06 cierre bloque 6)
+- Estabilidad shell principal (`FrmPrincipal` + `UIShellHost`):
+  - `SCSC/FrmPrincipal.vb`: modal de formularios con owner (`ShowDialog(Me)`), guarda defensiva en `BuildModernShell()` y refuerzo de z-order de `BtnCerrar` en `Resize`.
+  - `SCSC/FrmPrincipal.Designer.vb`: `BtnCerrar` anclado a top-right y titulo de ventana normalizado (`SCSC - Panel Principal`).
+  - `SCSC/Clases/UIShellHost.vb`: hardening del titulo topbar (`_titleLabel`) con tamaño fijo y elipsis para evitar solape visual.
+- FrmSeguridadRBAC (acciones visibles):
+  - `SCSC/Formularios/FrmSeguridadRBAC.vb`: flows de acciones configurados en `DockStyle.Fill` para evitar colapso/ocultamiento de botoneras por pestaña.
+- Estandarizacion reportes parametros (Designer-first, naming semantico):
+  - `SCSC/Reportes/Parametros/FrmReporteComedor.Designer.vb`
+  - `SCSC/Reportes/Parametros/FrmReporteRutas.Designer.vb`
+  - `SCSC/Reportes/Parametros/FrmBecados.Designer.vb`
+  - `SCSC/Reportes/Parametros/FrmProyeccionComedor.Designer.vb`
+  - Cambios: eliminacion de identificadores genericos (`Label1`, `Panel4`, `GroupBox1`, etc.) por naming semantico (`LblTituloReporte`, `PanelAcciones`, `GroupParametros`, `LblHorarioCaption`, etc.).
+- Limpieza adicional:
+  - `SCSC/Formularios/FrmAyuda.vb`: removido comentario legacy `TODO`.
+  - `SCSC/Formularios/FrmParametrosSistema.vb`: mensajes de estado/error alineados a fila unica `Parametro(Id=0)`.
+  - `SCSC/Reportes/Parametros/FrmReporteRutas.Designer.vb`: correccion ortografica de titulo (`Transporte`).
+- Validacion:
+  - Build local ejecutado con MSBuild Windows (`VS2019`), solucion `Debug | Any CPU`: `0 Error(s)`, `1 Warning(s)` COM interop (`MSB3305`, no bloqueante).

@@ -6,7 +6,7 @@ Revision de consistencia visual en formularios WinForms bajo estandar hibrido 20
 ## Estado General
 - Modelo adoptado: `Designer-first` + tematizacion runtime segura.
 - Baseline canonico: `LOGIN`.
-- Resultado: fase visual principal avanzada, con pendiente de cierre en modulos operativos restantes.
+- Resultado: fase visual principal y formularios de parametros/reportes alineados; queda validacion visual final en DPI altos.
 
 ## Completado (alineado)
 1. Login y autenticacion:
@@ -19,7 +19,10 @@ Revision de consistencia visual en formularios WinForms bajo estandar hibrido 20
 3. Comedor (kiosko/operacion):
    - `SCSC/Formularios/ControlComedor.vb`
 
-4. CRUD estandarizados (cromado comun):
+4. Transporte (kiosko/operacion):
+   - `SCSC/Formularios/ControlTransporte.vb`
+
+5. CRUD estandarizados (cromado comun):
    - `SCSC/Formularios/FrmEstudiantes.vb`
    - `SCSC/Formularios/FrmBecas.vb`
    - `SCSC/Formularios/FrmRutas.vb`
@@ -27,28 +30,31 @@ Revision de consistencia visual en formularios WinForms bajo estandar hibrido 20
    - `SCSC/Formularios/FrmAgregarEstudiante.vb`
    - `SCSC/Formularios/FrmImportarDatos.vb`
    - `SCSC/Formularios/FrmImportarExcel.vb`
+   - `SCSC/Formularios/FrmSeguridadRBAC.vb`
+   - `SCSC/Formularios/FrmParametrosSistema.vb`
 
-5. Utilitarios alineados:
+6. Parametros de reportes alineados:
+   - `SCSC/Reportes/Parametros/FrmReporteComedor.vb`
+   - `SCSC/Reportes/Parametros/FrmReporteRutas.vb`
+   - `SCSC/Reportes/Parametros/FrmBecados.vb`
+   - `SCSC/Reportes/Parametros/FrmProyeccionComedor.vb`
+
+7. Utilitarios alineados:
    - `SCSC/Formularios/FrmAyuda.vb`
    - `SCSC/Formularios/IMPRIMIR.vb`
 
-6. Infraestructura visual comun:
+8. Infraestructura visual comun:
    - `SCSC/Clases/UIThemeManagerV2.vb` (`ApplyCrudModuleChrome`, layout de barra de acciones, estilo de campos)
 
 ## Pendientes de diseno (siguiente fase)
-1. `ControlTransporte`:
-   - Aun usa recalc de geometria runtime amplio.
-   - Requiere converger al mismo nivel de `designer-first` estricto aplicado en `ControlComedor`.
-
-2. Parametros/reportes:
-   - Revisar y unificar estilo en formularios de `SCSC/Reportes/Parametros/*`.
-
-3. Ajuste fino final por DPI:
+1. Ajuste fino final por DPI:
    - Validacion visual en 100%, 125%, 150%.
+2. Smoke visual manual de flujos kiosko:
+   - confirmar botoneras y estado operativo en pantalla fisica.
 
 ## Riesgos vigentes
-1. Diferencias entre Designer y runtime en formularios con recalc agresivo.
-2. Cambios visuales dispersos fuera de helper comun pueden generar regresion futura.
+1. Diferencias de render por DPI/escala de Windows en equipos no validados.
+2. Cambios visuales directos fuera de helper comun pueden generar regresion futura.
 
 ## Criterio de cierre de fase visual
 - Designer abre sin error en formularios criticos.
@@ -57,6 +63,6 @@ Revision de consistencia visual en formularios WinForms bajo estandar hibrido 20
 - Dashboard estable al redimensionar.
 
 ## Siguiente lote recomendado
-1. Migrar `ControlTransporte` a modo estricto de layout hibrido.
-2. Estandarizar `Reportes/Parametros`.
-3. Ejecutar smoke visual completo y congelar estandar.
+1. Ejecutar smoke visual completo (kiosko + CRUD + reportes parametros) en VS.
+2. Validar DPI 100/125/150 y capturar evidencia.
+3. Congelar estandar visual hibrido 2026 para nuevas pantallas.

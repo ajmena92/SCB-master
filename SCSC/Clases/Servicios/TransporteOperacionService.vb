@@ -30,6 +30,20 @@ END"
         Using cmd As New SqlCommand(sql, cn)
             cmd.ExecuteNonQuery()
         End Using
+
+        Const sqlUsuario As String =
+"IF COL_LENGTH('dbo.Usuario', 'PermisoSalida') IS NULL
+BEGIN
+    ALTER TABLE dbo.Usuario ADD PermisoSalida BIT NOT NULL CONSTRAINT DF_Usuario_PermisoSalida DEFAULT(0) WITH VALUES;
+END;
+IF COL_LENGTH('dbo.Usuario', 'PendienteBecaTransporte') IS NULL
+BEGIN
+    ALTER TABLE dbo.Usuario ADD PendienteBecaTransporte BIT NOT NULL CONSTRAINT DF_Usuario_PendienteBecaTransporte DEFAULT(0) WITH VALUES;
+END;"
+
+        Using cmdUsuario As New SqlCommand(sqlUsuario, cn)
+            cmdUsuario.ExecuteNonQuery()
+        End Using
     End Sub
 
     Public Sub RegistrarEvento(ByVal cn As SqlConnection,
@@ -90,4 +104,3 @@ ORDER BY IdOperacionTransporteEvento DESC;"
         Return dt
     End Function
 End Class
-

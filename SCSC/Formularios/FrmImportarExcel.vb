@@ -2,14 +2,25 @@ Option Strict On
 Option Explicit On
 
 Imports System.Data
-Imports System.Data.OleDb
 Imports System.Globalization
 Imports System.IO
 Imports System.Collections.Generic
+Imports OXPackaging = DocumentFormat.OpenXml.Packaging
+Imports OXSpreadsheet = DocumentFormat.OpenXml.Spreadsheet
 
 Public Class FrmImportarExcel
+    Private Class ImportacionMetricas
+        Public Property FilasOrigen As Integer
+        Public Property FilasValidas As Integer
+        Public Property FilasOmitidasEstado As Integer
+        Public Property FilasOmitidasCedula As Integer
+        Public Property FilasDuplicadas As Integer
+        Public Property FilasSinFechaNac As Integer
+    End Class
+
     Private ReadOnly Cls As New FuncionesDB()
     Private ReadOnly ImportSvc As New ImportacionExcelService(Cls)
+    Private ReadOnly ParametroSvc As New ParametroSistemaService()
     Private ReadOnly OpenFileDialog As New OpenFileDialog()
 
     Private _lblArchivoExcel As Label
@@ -18,6 +29,7 @@ Public Class FrmImportarExcel
     Private _lblInfo As Label
     Private _lblHorario As Label
     Private _archivoExcelSeleccionado As String = String.Empty
+    Private _ultimaMetrica As ImportacionMetricas
 
     Private Sub FrmImportarExcel_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         If CrudVisualHelper.IsInDesignMode(Me) Then
@@ -162,7 +174,7 @@ Public Class FrmImportarExcel
         _lblInfo.TextAlign = ContentAlignment.MiddleLeft
         _lblInfo.Font = New Font("Segoe UI", 9.0!, FontStyle.Italic)
         _lblInfo.ForeColor = UIConstants.TextSecondary
-        _lblInfo.Text = "Seleccione un archivo .xlsx/.xls/.xlsm con hoja 'Lista' (o la primera hoja disponible)."
+        _lblInfo.Text = "Seleccione un archivo .xlsx/.xlsm con hoja 'Lista'. Solo se importa Estado=Regular."
 
         _lblHorario = New Label()
         _lblHorario.AutoSize = True
@@ -253,7 +265,7 @@ Public Class FrmImportarExcel
         End If
 
         OpenFileDialog.InitialDirectory = My.Computer.FileSystem.SpecialDirectories.MyDocuments
-        OpenFileDialog.Filter = "Archivos Excel (*.xlsx;*.xls;*.xlsm)|*.xlsx;*.xls;*.xlsm|Todos (*.*)|*.*"
+        OpenFileDialog.Filter = "Archivos Excel (*.xlsx;*.xlsm)|*.xlsx;*.xlsm|Todos (*.*)|*.*"
         OpenFileDialog.Title = "Seleccione el archivo Excel a importar"
 
         If OpenFileDialog.ShowDialog(Me) <> DialogResult.OK Then
@@ -272,6 +284,7 @@ Public Class FrmImportarExcel
         Progreso.Style = ProgressBarStyle.Continuous
         Progreso.Value = 0
         DgvVistaPrevia.DataSource = Nothing
+        _ultimaMetrica = Nothing
     End Sub
 
     Private Sub BtnCancelar_Click(sender As Object, e As EventArgs) Handles BtnCancelar.Click
@@ -344,8 +357,14 @@ Public Class FrmImportarExcel
             Refresh()
 
             Dim tablaExcel As DataTable = LeerTablaExcel(rutaExcel)
-            Dim normalizada As DataTable = NormalizarDesdeExcel(tablaExcel)
+            Dim resumenEstructura As String = String.Empty
+            Dim metricas As ImportacionMetricas = Nothing
+            Dim normalizada As DataTable = NormalizarDesdeExcel(tablaExcel, resumenEstructura, metricas)
+            _ultimaMetrica = metricas
             DgvVistaPrevia.DataSource = normalizada
+            If resumenEstructura.Length > 0 Then
+                LblEstado.Text = resumenEstructura
+            End If
             EjecutarImportacion(normalizada)
         Finally
             Progreso.Style = ProgressBarStyle.Continuous
@@ -357,73 +376,227 @@ Public Class FrmImportarExcel
             Throw New FileNotFoundException("No se encontró el archivo seleccionado.", rutaExcel)
         End If
 
-        Using conn As New OleDbConnection(ObtenerCadenaConexionExcel(rutaExcel))
-            conn.Open()
+        Dim extension As String = Path.GetExtension(rutaExcel).ToLowerInvariant()
+        If extension <> ".xlsx" AndAlso extension <> ".xlsm" Then
+            Throw New InvalidOperationException("Formato de archivo no soportado. Use un archivo .xlsx o .xlsm.")
+        End If
 
-            Dim hoja As String = ResolverNombreHoja(conn)
-            If String.IsNullOrWhiteSpace(hoja) Then
-                Throw New InvalidOperationException("No se encontró ninguna hoja de datos en el archivo Excel.")
+        Return LeerTablaExcelOpenXml(rutaExcel)
+    End Function
+
+    Private Function LeerTablaExcelOpenXml(ByVal rutaExcel As String) As DataTable
+        Dim tabla As New DataTable("Excel")
+
+        Using documento As OXPackaging.SpreadsheetDocument = OXPackaging.SpreadsheetDocument.Open(rutaExcel, False)
+            Dim libro As OXPackaging.WorkbookPart = documento.WorkbookPart
+            If libro Is Nothing OrElse libro.Workbook Is Nothing Then
+                Throw New InvalidOperationException("El archivo Excel no contiene un libro válido.")
             End If
 
-            Dim sql As String = "SELECT * FROM [" & hoja & "]"
-            Using dta As New OleDbDataAdapter(sql, conn)
-                Dim dt As New DataTable()
-                dta.Fill(dt)
-                Return dt
-            End Using
+            Dim hoja As OXSpreadsheet.Sheet = ResolverHojaOpenXml(libro)
+            If hoja Is Nothing Then
+                Throw New InvalidOperationException("No se encontró ninguna hoja de datos en el archivo Excel.")
+            End If
+            If hoja.Id Is Nothing Then
+                Throw New InvalidOperationException("La hoja seleccionada no tiene un identificador válido.")
+            End If
+
+            Dim hojaPart As OXPackaging.WorksheetPart = TryCast(libro.GetPartById(hoja.Id.Value), OXPackaging.WorksheetPart)
+            If hojaPart Is Nothing OrElse hojaPart.Worksheet Is Nothing Then
+                Throw New InvalidOperationException("No se pudo leer la hoja seleccionada en el archivo Excel.")
+            End If
+
+            Dim sharedStrings As List(Of String) = CargarSharedStrings(libro)
+            Dim datos As OXSpreadsheet.SheetData = hojaPart.Worksheet.GetFirstChild(Of OXSpreadsheet.SheetData)()
+            If datos Is Nothing Then
+                Throw New InvalidOperationException("La hoja seleccionada no contiene datos.")
+            End If
+
+            Dim filas As List(Of OXSpreadsheet.Row) = New List(Of OXSpreadsheet.Row)(datos.Elements(Of OXSpreadsheet.Row)())
+            If filas.Count = 0 Then
+                Throw New InvalidOperationException("La hoja seleccionada está vacía.")
+            End If
+
+            Dim filaEncabezado As OXSpreadsheet.Row = filas(0)
+            Dim encabezados As Dictionary(Of Integer, String) = ExtraerValoresFila(filaEncabezado, sharedStrings)
+            If encabezados.Count = 0 Then
+                Throw New InvalidOperationException("No se pudieron leer encabezados en la hoja seleccionada.")
+            End If
+
+            Dim maxColumna As Integer = -1
+            For Each indice As Integer In encabezados.Keys
+                If indice > maxColumna Then
+                    maxColumna = indice
+                End If
+            Next
+
+            For i As Integer = 0 To maxColumna
+                Dim encabezado As String = String.Empty
+                If encabezados.ContainsKey(i) Then
+                    encabezado = encabezados(i)
+                End If
+
+                If String.IsNullOrWhiteSpace(encabezado) Then
+                    encabezado = "Columna" & (i + 1).ToString(CultureInfo.InvariantCulture)
+                End If
+
+                Dim nombreUnico As String = ObtenerNombreColumnaUnico(tabla, encabezado.Trim())
+                tabla.Columns.Add(nombreUnico, GetType(String))
+            Next
+
+            For i As Integer = 1 To filas.Count - 1
+                Dim mapaValores As Dictionary(Of Integer, String) = ExtraerValoresFila(filas(i), sharedStrings)
+                Dim valores(tabla.Columns.Count - 1) As Object
+
+                For j As Integer = 0 To tabla.Columns.Count - 1
+                    Dim valor As String = String.Empty
+                    If mapaValores.ContainsKey(j) Then
+                        valor = mapaValores(j)
+                    End If
+                    valores(j) = valor
+                Next
+
+                tabla.Rows.Add(valores)
+            Next
         End Using
+
+        Return tabla
     End Function
 
-    Private Function ObtenerCadenaConexionExcel(ByVal rutaExcel As String) As String
-        Dim extension As String = Path.GetExtension(rutaExcel).ToLowerInvariant()
-        If extension = ".xls" Then
-            Return "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" & rutaExcel & ";Extended Properties='Excel 8.0;HDR=YES;IMEX=1;'"
+    Private Function ResolverHojaOpenXml(ByVal libro As OXPackaging.WorkbookPart) As OXSpreadsheet.Sheet
+        Dim hojas As OXSpreadsheet.Sheets = libro.Workbook.GetFirstChild(Of OXSpreadsheet.Sheets)()
+        If hojas Is Nothing Then
+            Return Nothing
         End If
 
-        Return "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" & rutaExcel & ";Extended Properties='Excel 12.0 Xml;HDR=YES;IMEX=1;'"
-    End Function
+        Dim primeraHoja As OXSpreadsheet.Sheet = Nothing
 
-    Private Function ResolverNombreHoja(ByVal conn As OleDbConnection) As String
-        Dim schema As DataTable = conn.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, Nothing)
-        If schema Is Nothing OrElse schema.Rows.Count = 0 Then
-            Return String.Empty
-        End If
+        For Each hoja As OXSpreadsheet.Sheet In hojas.Elements(Of OXSpreadsheet.Sheet)()
+            If primeraHoja Is Nothing Then
+                primeraHoja = hoja
+            End If
 
-        Dim hojaPreferida As String = String.Empty
-        Dim primeraHoja As String = String.Empty
-
-        For Each row As DataRow In schema.Rows
-            Dim nombre As String = Convert.ToString(row("TABLE_NAME"))
+            Dim nombre As String = Convert.ToString(hoja.Name)
             If String.IsNullOrWhiteSpace(nombre) Then
                 Continue For
             End If
 
-            Dim n As String = nombre.Trim()
-            If n.EndsWith("$") OrElse n.EndsWith("$'") Then
-                If primeraHoja.Length = 0 Then
-                    primeraHoja = n
-                End If
-
-                Dim nUpper As String = n.ToUpperInvariant()
-                If nUpper = "LISTA$" OrElse nUpper = "'LISTA$'" Then
-                    hojaPreferida = n
-                    Exit For
-                End If
+            Dim normalizado As String = NormalizarTextoComparacion(nombre)
+            If normalizado = "lista" Then
+                Return hoja
             End If
         Next
 
-        If hojaPreferida.Length > 0 Then
-            Return hojaPreferida
-        End If
-
-        If primeraHoja.Length > 0 Then
-            Return primeraHoja
-        End If
-
-        Return String.Empty
+        Return primeraHoja
     End Function
 
-    Private Function NormalizarDesdeExcel(ByVal tablaExcel As DataTable) As DataTable
+    Private Function CargarSharedStrings(ByVal libro As OXPackaging.WorkbookPart) As List(Of String)
+        Dim resultado As New List(Of String)()
+        If libro Is Nothing OrElse libro.SharedStringTablePart Is Nothing OrElse libro.SharedStringTablePart.SharedStringTable Is Nothing Then
+            Return resultado
+        End If
+
+        For Each item As OXSpreadsheet.SharedStringItem In libro.SharedStringTablePart.SharedStringTable.Elements(Of OXSpreadsheet.SharedStringItem)()
+            resultado.Add(item.InnerText)
+        Next
+
+        Return resultado
+    End Function
+
+    Private Function ExtraerValoresFila(ByVal fila As OXSpreadsheet.Row, ByVal sharedStrings As List(Of String)) As Dictionary(Of Integer, String)
+        Dim resultado As New Dictionary(Of Integer, String)()
+        If fila Is Nothing Then
+            Return resultado
+        End If
+
+        For Each celda As OXSpreadsheet.Cell In fila.Elements(Of OXSpreadsheet.Cell)()
+            Dim referencia As String = Convert.ToString(celda.CellReference)
+            Dim indiceColumna As Integer = ObtenerIndiceColumna(referencia)
+            If indiceColumna < 0 Then
+                Continue For
+            End If
+
+            Dim valor As String = ObtenerValorCelda(celda, sharedStrings)
+            If Not resultado.ContainsKey(indiceColumna) Then
+                resultado.Add(indiceColumna, valor)
+            Else
+                resultado(indiceColumna) = valor
+            End If
+        Next
+
+        Return resultado
+    End Function
+
+    Private Function ObtenerIndiceColumna(ByVal referenciaCelda As String) As Integer
+        If String.IsNullOrWhiteSpace(referenciaCelda) Then
+            Return -1
+        End If
+
+        Dim acumulado As Integer = 0
+        For Each ch As Char In referenciaCelda.ToUpperInvariant()
+            If ch < "A"c OrElse ch > "Z"c Then
+                Exit For
+            End If
+            acumulado = (acumulado * 26) + (AscW(ch) - AscW("A"c) + 1)
+        Next
+
+        If acumulado <= 0 Then
+            Return -1
+        End If
+
+        Return acumulado - 1
+    End Function
+
+    Private Function ObtenerValorCelda(ByVal celda As OXSpreadsheet.Cell, ByVal sharedStrings As List(Of String)) As String
+        If celda Is Nothing Then
+            Return String.Empty
+        End If
+
+        Dim valorBase As String = celda.InnerText
+        If celda.DataType Is Nothing Then
+            Return valorBase.Trim()
+        End If
+
+        Select Case celda.DataType.Value
+            Case OXSpreadsheet.CellValues.SharedString
+                Dim indice As Integer
+                If Integer.TryParse(valorBase, indice) Then
+                    If sharedStrings IsNot Nothing AndAlso indice >= 0 AndAlso indice < sharedStrings.Count Then
+                        Return sharedStrings(indice).Trim()
+                    End If
+                End If
+
+            Case OXSpreadsheet.CellValues.Boolean
+                Return If(valorBase = "1", "TRUE", "FALSE")
+
+            Case OXSpreadsheet.CellValues.InlineString
+                Return celda.InnerText.Trim()
+        End Select
+
+        Return valorBase.Trim()
+    End Function
+
+    Private Function ObtenerNombreColumnaUnico(ByVal tabla As DataTable, ByVal nombreBase As String) As String
+        If tabla Is Nothing Then
+            Return nombreBase
+        End If
+
+        Dim baseNormalizada As String = nombreBase
+        If baseNormalizada.Length = 0 Then
+            baseNormalizada = "Columna"
+        End If
+
+        Dim nombre As String = baseNormalizada
+        Dim sufijo As Integer = 2
+        While tabla.Columns.Contains(nombre)
+            nombre = baseNormalizada & "_" & sufijo.ToString(CultureInfo.InvariantCulture)
+            sufijo += 1
+        End While
+
+        Return nombre
+    End Function
+
+    Private Function NormalizarDesdeExcel(ByVal tablaExcel As DataTable, ByRef resumen As String, ByRef metricas As ImportacionMetricas) As DataTable
         Dim dt As New DataTable("Importacion")
         dt.Columns.Add("Cedula", GetType(String))
         dt.Columns.Add("PrimerApellido", GetType(String))
@@ -433,25 +606,80 @@ Public Class FrmImportarExcel
         dt.Columns.Add("Especialidad", GetType(String))
         dt.Columns.Add("FechaNac", GetType(DateTime))
         dt.Columns.Add("Telefono", GetType(String))
+        dt.Columns.Add("Sexo", GetType(Integer))
+        metricas = New ImportacionMetricas()
+        metricas.FilasOrigen = If(tablaExcel Is Nothing, 0, tablaExcel.Rows.Count)
 
-        Dim idxCedula As Integer = ResolverIndiceColumna(tablaExcel, "Cedula", "Cédula", "Identificacion", "Identificación", "Ced")
-        Dim idxPrimerApellido As Integer = ResolverIndiceColumna(tablaExcel, "PrimerApellido", "Apellido1", "Primer Apellido")
-        Dim idxSegundoApellido As Integer = ResolverIndiceColumna(tablaExcel, "SegundoApellido", "Apellido2", "Segundo Apellido")
-        Dim idxNombre As Integer = ResolverIndiceColumna(tablaExcel, "Nombre", "Nombres")
-        Dim idxSeccion As Integer = ResolverIndiceColumna(tablaExcel, "Seccion", "Sección", "Grupo")
-        Dim idxEspecialidad As Integer = ResolverIndiceColumna(tablaExcel, "Especialidad", "EspecialidadAcademica", "Especialidad Académica")
-        Dim idxFechaNac As Integer = ResolverIndiceColumna(tablaExcel, "FechaNac", "Fecha Nacimiento", "FechaNacimiento")
-        Dim idxTelefono As Integer = ResolverIndiceColumna(tablaExcel, "Telefono", "Teléfono", "Celular")
+        Dim idxCedula As Integer = ResolverIndiceColumnaConFallback(tablaExcel, New Integer() {0}, "Cedula", "Cédula", "Identificacion", "Identificación", "Ced", "Documento")
+        Dim idxPrimerApellido As Integer = ResolverIndiceColumnaConFallback(tablaExcel, New Integer() {1}, "PrimerApellido", "Apellido1", "Primer Apellido", "Title", "Apellido")
+        Dim idxSegundoApellido As Integer = ResolverIndiceColumnaConFallback(tablaExcel, New Integer() {2}, "SegundoApellido", "Apellido2", "Segundo Apellido")
+        Dim idxNombre As Integer = ResolverIndiceColumnaConFallback(tablaExcel, New Integer() {3}, "Nombre", "Nombres")
+        Dim idxSeccion As Integer = ResolverIndiceColumnaConFallback(tablaExcel, New Integer() {8, 4}, "Seccion", "Sección", "Grupo")
+        Dim idxEspecialidad As Integer = ResolverIndiceColumnaConFallback(tablaExcel, New Integer() {10, 5}, "Especialidad", "Especilidad", "EspecialidadAcademica", "Especialidad Académica", "Especialidad Academica")
+        Dim idxFechaNac As Integer = ResolverIndiceColumnaConFallback(tablaExcel, New Integer() {5, 6}, "FechaNac", "Fecha Nacimiento", "FechaNacimiento", "Nacimiento")
+        Dim idxTelefono As Integer = ResolverIndiceColumnaConFallback(tablaExcel, New Integer() {11, 12, 13, 8}, "Telefono", "Teléfono", "Telefono Estudiante", "Teléfono Estudiante", "Celular", "Contacto 1", "Contacto1", "Contacto 2", "Contacto2")
+        Dim idxSexo As Integer = ResolverIndiceColumnaConFallback(tablaExcel, New Integer() {4}, "Sexo", "Genero", "Género", "Sex")
+        Dim idxEstado As Integer = ResolverIndiceColumnaConFallback(tablaExcel, New Integer() {22}, "Estado", "Status", "Condicion", "Condición")
+
+        Dim columnasFaltantes As New List(Of String)()
+        If idxCedula < 0 Then
+            columnasFaltantes.Add("Cédula")
+        End If
+        If idxPrimerApellido < 0 Then
+            columnasFaltantes.Add("Primer Apellido (Title)")
+        End If
+        If idxSegundoApellido < 0 Then
+            columnasFaltantes.Add("Segundo Apellido")
+        End If
+        If idxNombre < 0 Then
+            columnasFaltantes.Add("Nombre")
+        End If
+        If idxSeccion < 0 Then
+            columnasFaltantes.Add("Sección")
+        End If
+        If idxEspecialidad < 0 Then
+            columnasFaltantes.Add("Especialidad")
+        End If
+        If idxFechaNac < 0 Then
+            columnasFaltantes.Add("FechaNacimiento")
+        End If
+        If idxTelefono < 0 Then
+            columnasFaltantes.Add("Teléfono Estudiante")
+        End If
+        If idxSexo < 0 Then
+            columnasFaltantes.Add("Género")
+        End If
+        If idxEstado < 0 Then
+            columnasFaltantes.Add("Estado")
+        End If
+
+        If columnasFaltantes.Count > 0 Then
+            Throw New InvalidOperationException("La plantilla Excel no contiene columnas obligatorias: " &
+                String.Join(", ", columnasFaltantes.ToArray()) &
+                ". Encabezados detectados: " & ObtenerEncabezados(tablaExcel))
+        End If
 
         Dim cedulasImportadas As New HashSet(Of String)(StringComparer.OrdinalIgnoreCase)
+        Dim omitidasCedula As Integer = 0
+        Dim omitidasDuplicadas As Integer = 0
+        Dim omitidasEstado As Integer = 0
+        Dim omitidasFecha As Integer = 0
 
         For Each row As DataRow In tablaExcel.Rows
-            Dim cedula As String = NormalizarCedula(LeerValor(row, idxCedula, 0))
+            Dim estado As String = NormalizarTextoComparacion(LeerValor(row, idxEstado, -1))
+            If estado <> "regular" Then
+                omitidasEstado += 1
+                Continue For
+            End If
+
+            Dim cedula As String = NormalizarCedula(LeerValor(row, idxCedula, -1))
             If Not EsFilaImportable(cedula) Then
+                omitidasCedula += 1
                 Continue For
             End If
 
             If cedulasImportadas.Contains(cedula) Then
+                omitidasDuplicadas += 1
                 Continue For
             End If
 
@@ -460,13 +688,31 @@ Public Class FrmImportarExcel
             nueva("PrimerApellido") = LeerValor(row, idxPrimerApellido, 1)
             nueva("SegundoApellido") = LeerValor(row, idxSegundoApellido, 2)
             nueva("Nombre") = LeerValor(row, idxNombre, 3)
-            nueva("Seccion") = LeerValor(row, idxSeccion, 4)
-            nueva("Especialidad") = LeerValor(row, idxEspecialidad, 5)
-            nueva("FechaNac") = ParseFecha(LeerValor(row, idxFechaNac, 6))
-            nueva("Telefono") = LeerValor(row, idxTelefono, 8)
+            nueva("Seccion") = LeerValor(row, idxSeccion, 8)
+            nueva("Especialidad") = LeerValor(row, idxEspecialidad, 10)
+            Dim tieneFechaNac As Boolean = False
+            nueva("FechaNac") = ParseFechaNullable(LeerIndiceObjeto(row, idxFechaNac), tieneFechaNac)
+            If Not tieneFechaNac Then
+                omitidasFecha += 1
+            End If
+            nueva("Telefono") = LeerValor(row, idxTelefono, 11)
+            nueva("Sexo") = ParseSexo(LeerIndiceObjeto(row, idxSexo))
             dt.Rows.Add(nueva)
             cedulasImportadas.Add(cedula)
         Next
+
+        metricas.FilasValidas = dt.Rows.Count
+        metricas.FilasOmitidasCedula = omitidasCedula
+        metricas.FilasDuplicadas = omitidasDuplicadas
+        metricas.FilasOmitidasEstado = omitidasEstado
+        metricas.FilasSinFechaNac = omitidasFecha
+
+        resumen = "Estructura validada. Filas origen: " & tablaExcel.Rows.Count.ToString(CultureInfo.InvariantCulture) &
+            ", válidas: " & dt.Rows.Count.ToString(CultureInfo.InvariantCulture) &
+            ", cédula inválida: " & omitidasCedula.ToString(CultureInfo.InvariantCulture) &
+            ", duplicadas: " & omitidasDuplicadas.ToString(CultureInfo.InvariantCulture) &
+            ", estado distinto de Regular: " & omitidasEstado.ToString(CultureInfo.InvariantCulture) &
+            ", sin fecha nacimiento: " & omitidasFecha.ToString(CultureInfo.InvariantCulture) & "."
 
         Return dt
     End Function
@@ -475,7 +721,14 @@ Public Class FrmImportarExcel
         If String.IsNullOrWhiteSpace(raw) Then
             Return String.Empty
         End If
-        Return raw.Replace("-", String.Empty).Replace(" ", String.Empty).Trim()
+
+        Dim sb As New System.Text.StringBuilder(raw.Length)
+        For Each ch As Char In raw.Trim()
+            If Char.IsLetterOrDigit(ch) Then
+                sb.Append(Char.ToUpperInvariant(ch))
+            End If
+        Next
+        Return sb.ToString()
     End Function
 
     Private Function EsFilaImportable(ByVal cedula As String) As Boolean
@@ -495,34 +748,87 @@ Public Class FrmImportarExcel
         Return True
     End Function
 
-    Private Function ParseFecha(ByVal raw As String) As DateTime
-        If String.IsNullOrWhiteSpace(raw) Then
-            Return DateTime.Now.Date
+    Private Function ParseFechaNullable(ByVal raw As Object, ByRef tieneValor As Boolean) As Object
+        tieneValor = False
+        If raw Is Nothing OrElse raw Is DBNull.Value Then
+            Return DBNull.Value
         End If
 
-        Dim fecha As DateTime
-        Dim formatos As String() = {"dd/MM/yyyy", "d/M/yyyy", "dd-MM-yyyy", "d-M-yyyy", "yyyy-MM-dd", "MM/dd/yyyy", "M/d/yyyy"}
-        If DateTime.TryParseExact(raw.Trim(), formatos, CultureInfo.GetCultureInfo("es-CR"), DateTimeStyles.None, fecha) Then
-            Return fecha
+        If TypeOf raw Is DateTime Then
+            tieneValor = True
+            Return DirectCast(raw, DateTime).Date
         End If
 
-        If DateTime.TryParseExact(raw.Trim(), formatos, CultureInfo.InvariantCulture, DateTimeStyles.None, fecha) Then
-            Return fecha
-        End If
-
-        If DateTime.TryParse(raw, fecha) Then
-            Return fecha
-        End If
-
-        Dim oa As Double
-        If Double.TryParse(raw, NumberStyles.Any, CultureInfo.InvariantCulture, oa) Then
+        If TypeOf raw Is Double Then
             Try
-                Return DateTime.FromOADate(oa)
+                Dim desdeOa As DateTime = DateTime.FromOADate(CDbl(raw)).Date
+                tieneValor = True
+                Return desdeOa
             Catch
             End Try
         End If
 
-        Return DateTime.Now.Date
+        Dim rawTexto As String = Convert.ToString(raw).Trim()
+        If rawTexto.Length = 0 Then
+            Return DBNull.Value
+        End If
+
+        Dim fecha As DateTime
+        Dim formatos As String() = {"dd/MM/yyyy", "d/M/yyyy", "dd-MM-yyyy", "d-M-yyyy", "yyyy-MM-dd", "MM/dd/yyyy", "M/d/yyyy"}
+        If DateTime.TryParseExact(rawTexto, formatos, CultureInfo.GetCultureInfo("es-CR"), DateTimeStyles.None, fecha) Then
+            tieneValor = True
+            Return fecha
+        End If
+
+        If DateTime.TryParseExact(rawTexto, formatos, CultureInfo.InvariantCulture, DateTimeStyles.None, fecha) Then
+            tieneValor = True
+            Return fecha
+        End If
+
+        If DateTime.TryParse(rawTexto, fecha) Then
+            tieneValor = True
+            Return fecha
+        End If
+
+        Dim oa As Double
+        If Double.TryParse(rawTexto, NumberStyles.Any, CultureInfo.InvariantCulture, oa) Then
+            Try
+                Dim desdeOa As DateTime = DateTime.FromOADate(oa).Date
+                tieneValor = True
+                Return desdeOa
+            Catch
+            End Try
+        End If
+
+        Return DBNull.Value
+    End Function
+
+    Private Function ParseSexo(ByVal raw As Object) As Integer
+        If raw Is Nothing OrElse raw Is DBNull.Value Then
+            Return 0
+        End If
+
+        Dim texto As String = NormalizarTextoComparacion(Convert.ToString(raw))
+        If texto.Length = 0 Then
+            Return 0
+        End If
+
+        Dim valorNumerico As Integer
+        If Integer.TryParse(texto, valorNumerico) Then
+            If valorNumerico = 1 OrElse valorNumerico = 2 Then
+                Return valorNumerico
+            End If
+        End If
+
+        If texto = "m" OrElse texto = "femenino" OrElse texto = "mujer" Then
+            Return 2
+        End If
+
+        If texto = "h" OrElse texto = "masculino" OrElse texto = "hombre" Then
+            Return 1
+        End If
+
+        Return 0
     End Function
 
     Private Function ResolverIndiceColumna(ByVal tabla As DataTable, ParamArray ByVal nombresPosibles() As String) As Integer
@@ -542,6 +848,33 @@ Public Class FrmImportarExcel
         Return -1
     End Function
 
+    Private Function ResolverIndiceColumnaConFallback(ByVal tabla As DataTable,
+                                                       ByVal indicesFallback As Integer(),
+                                                       ParamArray ByVal nombresPosibles() As String) As Integer
+        Dim indiceEncontrado As Integer = ResolverIndiceColumna(tabla, nombresPosibles)
+        If indiceEncontrado >= 0 Then
+            Return indiceEncontrado
+        End If
+
+        If indicesFallback IsNot Nothing Then
+            For Each indice As Integer In indicesFallback
+                If EsIndiceValido(tabla, indice) Then
+                    Return indice
+                End If
+            Next
+        End If
+
+        Return -1
+    End Function
+
+    Private Function EsIndiceValido(ByVal tabla As DataTable, ByVal indice As Integer) As Boolean
+        If tabla Is Nothing OrElse indice < 0 Then
+            Return False
+        End If
+
+        Return indice < tabla.Columns.Count
+    End Function
+
     Private Function NormalizarNombreColumna(ByVal nombre As String) As String
         If String.IsNullOrWhiteSpace(nombre) Then
             Return String.Empty
@@ -559,6 +892,20 @@ Public Class FrmImportarExcel
             Trim()
     End Function
 
+    Private Function NormalizarTextoComparacion(ByVal valor As String) As String
+        If String.IsNullOrWhiteSpace(valor) Then
+            Return String.Empty
+        End If
+
+        Return valor.ToLowerInvariant().
+            Replace("á", "a").
+            Replace("é", "e").
+            Replace("í", "i").
+            Replace("ó", "o").
+            Replace("ú", "u").
+            Trim()
+    End Function
+
     Private Function LeerValor(ByVal row As DataRow, ByVal indicePreferido As Integer, ByVal indiceAlterno As Integer) As String
         Dim valor As String = LeerIndice(row, indicePreferido)
         If valor.Length > 0 Then
@@ -568,7 +915,7 @@ Public Class FrmImportarExcel
     End Function
 
     Private Function LeerIndice(ByVal row As DataRow, ByVal index As Integer) As String
-        If row Is Nothing OrElse row.Table Is Nothing OrElse row.Table.Columns.Count <= index Then
+        If index < 0 OrElse row Is Nothing OrElse row.Table Is Nothing OrElse row.Table.Columns.Count <= index Then
             Return String.Empty
         End If
 
@@ -577,6 +924,30 @@ Public Class FrmImportarExcel
         End If
 
         Return Convert.ToString(row(index)).Trim()
+    End Function
+
+    Private Function LeerIndiceObjeto(ByVal row As DataRow, ByVal index As Integer) As Object
+        If index < 0 OrElse row Is Nothing OrElse row.Table Is Nothing OrElse row.Table.Columns.Count <= index Then
+            Return Nothing
+        End If
+
+        If row.IsNull(index) Then
+            Return Nothing
+        End If
+
+        Return row(index)
+    End Function
+
+    Private Function ObtenerEncabezados(ByVal tabla As DataTable) As String
+        If tabla Is Nothing OrElse tabla.Columns Is Nothing OrElse tabla.Columns.Count = 0 Then
+            Return "(sin encabezados)"
+        End If
+
+        Dim nombres As New List(Of String)()
+        For Each col As DataColumn In tabla.Columns
+            nombres.Add(col.ColumnName)
+        Next
+        Return String.Join(", ", nombres.ToArray())
     End Function
 
     Private Sub EjecutarImportacion(ByVal tabla As DataTable)
@@ -589,43 +960,81 @@ Public Class FrmImportarExcel
 
         Dim cn As New SqlClient.SqlConnection()
         Dim pTransac As SqlClient.SqlTransaction = Nothing
-        Dim contador As Integer = 0
         Dim tipoUsuario As Integer = ObtenerTipoUsuario()
         Dim idHorario As Integer = ObtenerIdHorarioSeleccionado()
+        Dim cfg As ParametroSistemaService.ParametroSistemaConfig = Nothing
+        Dim desactivarNoImportados As Boolean = True
+        Dim auditarImportacion As Boolean = True
+        Dim metrica As ImportacionMetricas = ObtenerMetricasConFallback(tabla)
+        Dim usuarioEjecucion As String = If(String.IsNullOrWhiteSpace(NombreUsuario), Environment.UserName, NombreUsuario)
+        Dim mensajeAuditoria As String = String.Empty
 
         Try
             LblEstado.Text = "Preparando transacción..."
             Progreso.Style = ProgressBarStyle.Continuous
-            Progreso.Maximum = tabla.Rows.Count
-            Progreso.Step = 1
+            Progreso.Maximum = 4
             Progreso.Value = 0
             Refresh()
 
-            Cls.AbrirConexion(cn, True, pTransac)
-            ImportSvc.MarcarUsuariosComoNoActualizados(cn, pTransac, tipoUsuario, idHorario)
+            Cls.AbrirConexion(cn, False)
+            cfg = ObtenerConfigImportacion(cn)
+            If cfg IsNot Nothing Then
+                desactivarNoImportados = cfg.DesactivarNoImportadosExcel
+                auditarImportacion = cfg.AuditarImportacionExcel
+            End If
+            pTransac = cn.BeginTransaction()
 
-            LblEstado.Text = "Importando datos..."
+            ImportSvc.MarcarUsuariosComoNoActualizados(cn, pTransac, tipoUsuario, idHorario)
+            Progreso.Value = 1
             Refresh()
 
-            For Each row As DataRow In tabla.Rows
-                ImportSvc.GuardarUsuarioNormalizado(row, tipoUsuario, idHorario, cn, pTransac)
-                If Progreso.Value < Progreso.Maximum Then
-                    Progreso.Value += 1
-                End If
+            LblEstado.Text = "Importando datos en lote..."
+            Refresh()
 
-                contador += 1
-                If (contador Mod 25) = 0 Then
-                    Application.DoEvents()
-                End If
-            Next
+            ImportSvc.ImportarUsuariosNormalizadosEnLote(tabla, tipoUsuario, idHorario, cn, pTransac)
+            Progreso.Value = 3
+            Refresh()
 
-            ImportSvc.DesactivarNoActualizados(cn, pTransac, tipoUsuario, idHorario)
+            If desactivarNoImportados Then
+                ImportSvc.DesactivarNoActualizados(cn, pTransac, tipoUsuario, idHorario)
+            End If
+
+            mensajeAuditoria = "Importacion completada. Filas validas=" & metrica.FilasValidas.ToString(CultureInfo.InvariantCulture) &
+                ", omitidas estado=" & metrica.FilasOmitidasEstado.ToString(CultureInfo.InvariantCulture) &
+                ", omitidas cedula=" & metrica.FilasOmitidasCedula.ToString(CultureInfo.InvariantCulture) &
+                ", duplicadas=" & metrica.FilasDuplicadas.ToString(CultureInfo.InvariantCulture) &
+                ", sin fecha nacimiento=" & metrica.FilasSinFechaNac.ToString(CultureInfo.InvariantCulture) &
+                ", desactivar no importados=" & desactivarNoImportados.ToString()
+
+            If auditarImportacion Then
+                Dim auditoriaOk As New ImportacionExcelService.ImportacionAuditoria()
+                auditoriaOk.ArchivoOrigen = _archivoExcelSeleccionado
+                auditoriaOk.TipoUsuario = tipoUsuario
+                auditoriaOk.IdHorario = idHorario
+                auditoriaOk.FilasOrigen = metrica.FilasOrigen
+                auditoriaOk.FilasValidas = metrica.FilasValidas
+                auditoriaOk.FilasOmitidasEstado = metrica.FilasOmitidasEstado
+                auditoriaOk.FilasOmitidasCedula = metrica.FilasOmitidasCedula
+                auditoriaOk.FilasDuplicadas = metrica.FilasDuplicadas
+                auditoriaOk.FilasSinFechaNac = metrica.FilasSinFechaNac
+                auditoriaOk.DesactivarNoImportados = desactivarNoImportados
+                auditoriaOk.Exito = True
+                auditoriaOk.Mensaje = mensajeAuditoria
+                auditoriaOk.UsuarioEjecucion = usuarioEjecucion
+                Try
+                    ImportSvc.RegistrarAuditoriaImportacion(cn, pTransac, auditoriaOk)
+                Catch exAudit As Exception
+                    ErrorLogger.LogException("FrmImportarExcel.EjecutarImportacion.AuditoriaOk", exAudit)
+                End Try
+            End If
+
             Cls.CerrarConexion(cn, pTransac)
 
+            ErrorLogger.LogInfo("FrmImportarExcel.EjecutarImportacion", mensajeAuditoria)
             LblEstado.Text = "Importación finalizada correctamente."
-            Progreso.Value = tabla.Rows.Count
+            Progreso.Value = Progreso.Maximum
             Refresh()
-            MsgBox("Importación concluida con éxito.", MsgBoxStyle.Information)
+            MsgBox("Importación concluida con éxito. Registros procesados: " & tabla.Rows.Count.ToString(CultureInfo.InvariantCulture), MsgBoxStyle.Information)
             Me.Dispose()
         Catch ex As Exception
             Progreso.Value = 0
@@ -635,7 +1044,69 @@ Public Class FrmImportarExcel
             If cn.State = ConnectionState.Open Then
                 Cls.CerrarConexion(cn)
             End If
-            MsgBox("Error al actualizar registro " & contador.ToString() & ": " & ex.Message, MsgBoxStyle.Critical)
+            Dim mensajeError As String = "Error al ejecutar la importación: " & ex.Message
+            ErrorLogger.LogException("FrmImportarExcel.EjecutarImportacion", ex, "Archivo=" & _archivoExcelSeleccionado)
+
+            If auditarImportacion Then
+                RegistrarAuditoriaFallida(_archivoExcelSeleccionado, tipoUsuario, idHorario, metrica, desactivarNoImportados, usuarioEjecucion, mensajeError)
+            End If
+
+            MsgBox("Error al ejecutar la importación: " & ex.Message, MsgBoxStyle.Critical)
+        End Try
+    End Sub
+
+    Private Function ObtenerMetricasConFallback(ByVal tabla As DataTable) As ImportacionMetricas
+        If _ultimaMetrica IsNot Nothing Then
+            Return _ultimaMetrica
+        End If
+
+        Dim m As New ImportacionMetricas()
+        m.FilasOrigen = If(tabla Is Nothing, 0, tabla.Rows.Count)
+        m.FilasValidas = If(tabla Is Nothing, 0, tabla.Rows.Count)
+        m.FilasOmitidasEstado = 0
+        m.FilasOmitidasCedula = 0
+        m.FilasDuplicadas = 0
+        m.FilasSinFechaNac = 0
+        Return m
+    End Function
+
+    Private Function ObtenerConfigImportacion(ByVal cn As SqlClient.SqlConnection) As ParametroSistemaService.ParametroSistemaConfig
+        ParametroSvc.AsegurarEsquema(cn)
+        ParametroSvc.CrearFila1(cn)
+        Return ParametroSvc.ObtenerFila1(cn)
+    End Function
+
+    Private Sub RegistrarAuditoriaFallida(ByVal archivo As String,
+                                          ByVal tipoUsuario As Integer,
+                                          ByVal idHorario As Integer,
+                                          ByVal metrica As ImportacionMetricas,
+                                          ByVal desactivarNoImportados As Boolean,
+                                          ByVal usuarioEjecucion As String,
+                                          ByVal mensaje As String)
+        Dim cnAudit As New SqlClient.SqlConnection()
+        Try
+            Cls.AbrirConexion(cnAudit, False)
+            Dim auditoriaErr As New ImportacionExcelService.ImportacionAuditoria()
+            auditoriaErr.ArchivoOrigen = archivo
+            auditoriaErr.TipoUsuario = tipoUsuario
+            auditoriaErr.IdHorario = idHorario
+            auditoriaErr.FilasOrigen = metrica.FilasOrigen
+            auditoriaErr.FilasValidas = metrica.FilasValidas
+            auditoriaErr.FilasOmitidasEstado = metrica.FilasOmitidasEstado
+            auditoriaErr.FilasOmitidasCedula = metrica.FilasOmitidasCedula
+            auditoriaErr.FilasDuplicadas = metrica.FilasDuplicadas
+            auditoriaErr.FilasSinFechaNac = metrica.FilasSinFechaNac
+            auditoriaErr.DesactivarNoImportados = desactivarNoImportados
+            auditoriaErr.Exito = False
+            auditoriaErr.Mensaje = mensaje
+            auditoriaErr.UsuarioEjecucion = usuarioEjecucion
+            ImportSvc.RegistrarAuditoriaImportacion(cnAudit, Nothing, auditoriaErr)
+            Cls.CerrarConexion(cnAudit)
+        Catch ex As Exception
+            ErrorLogger.LogException("FrmImportarExcel.RegistrarAuditoriaFallida", ex)
+            If cnAudit.State = ConnectionState.Open Then
+                Cls.CerrarConexion(cnAudit)
+            End If
         End Try
     End Sub
 

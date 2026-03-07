@@ -1,2 +1,0 @@
-﻿
-  SCSC_Marcas -> C:\Dev\SCB-master\SCSC\bin\Debug\SCSC_Marcas.exe

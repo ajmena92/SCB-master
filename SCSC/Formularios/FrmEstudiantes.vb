@@ -1,14 +1,19 @@
 ﻿Option Strict On
 Option Explicit On
 
+Imports System
+Imports System.Data
+Imports System.Data.SqlClient
+Imports System.Drawing
 Imports System.IO
 Imports System.Linq
+Imports System.Windows.Forms
 
-Public Class FrmEstudiantes
+Public Partial Class FrmEstudiantes
     Dim DsRutas As New DataSet
     Dim DsBecas As New DataSet
     Dim ActivaEdicion As Boolean = False
-    Dim Cn As New SqlClient.SqlConnection
+    Dim Cn As New SqlConnection
     Dim Cls As New FuncionesDB
     Private Sub FrmEstudiantes_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         If CrudVisualHelper.IsInDesignMode(Me) Then
@@ -16,11 +21,14 @@ Public Class FrmEstudiantes
         End If
         Try
             CrudVisualHelper.ApplyCrudStandard(Me, "dialogo")
+            AplicarPulidoVisual()
             Cls.AbrirConexion(Cn, False)
+            AsegurarEsquemaUsuario()
             CargaRutas(CBRuta)
             CargaBecas(CBBeca)
             CargaGenero(CBGenero)
             CargaPermiso(CBPermisoSalida)
+            AjustarPanelAccionesVisible()
         Catch ex As Exception
             If Cn.State = ConnectionState.Open Then
                 Cls.CerrarConexion(Cn)
@@ -29,6 +37,103 @@ Public Class FrmEstudiantes
             Me.Dispose()  'Cierro el formulario
         End Try
         TxtCedula.Focus()
+    End Sub
+
+    Private Sub AplicarPulidoVisual()
+        Me.Text = "SCSC | Estudiantes"
+        Me.BackColor = Color.FromArgb(240, 244, 250)
+
+        LblTituloModulo.AutoSize = False
+        LblTituloModulo.TextAlign = ContentAlignment.MiddleCenter
+        LblTituloModulo.Font = New Font("Segoe UI Semibold", 20.0!, FontStyle.Bold)
+        LblTituloModulo.ForeColor = Color.FromArgb(17, 33, 59)
+        LblTituloModulo.Text = "Mantenimiento de Estudiantes"
+
+        GroupBusquedaEstudiante.BackColor = Color.White
+        GroupDatosEstudiante.BackColor = Color.White
+        GroupBusquedaEstudiante.ForeColor = Color.FromArgb(17, 33, 59)
+        GroupDatosEstudiante.ForeColor = Color.FromArgb(17, 33, 59)
+        GroupBusquedaEstudiante.Font = New Font("Segoe UI Semibold", 12.0!, FontStyle.Bold)
+        GroupDatosEstudiante.Font = New Font("Segoe UI Semibold", 12.0!, FontStyle.Bold)
+
+        StatusLine.BackColor = Color.FromArgb(232, 242, 255)
+        StatusLine.ForeColor = Color.FromArgb(27, 84, 147)
+        StatusLine.BorderStyle = BorderStyle.FixedSingle
+        StatusLine.Padding = New Padding(10, 4, 10, 4)
+        StatusLine.Text = "Estado: listo para búsqueda."
+
+        Label11.ForeColor = Color.FromArgb(53, 73, 103)
+        Label8.ForeColor = Color.FromArgb(53, 73, 103)
+        LblRuta.ForeColor = Color.FromArgb(17, 33, 59)
+        LblCantTiques.ForeColor = Color.FromArgb(17, 33, 59)
+
+        Label16.ForeColor = Color.FromArgb(78, 91, 112)
+        Label16.Font = New Font("Segoe UI", 10.0!, FontStyle.Bold)
+
+        AjustarDistribucionVisual()
+    End Sub
+
+    Private Sub AjustarDistribucionVisual()
+        Dim widthUtil As Integer = Math.Max(760, Me.ClientSize.Width - 40)
+        Dim heightDatos As Integer = Math.Max(360, Me.ClientSize.Height - 260)
+
+        LblTituloModulo.SetBounds(20, 18, widthUtil, 42)
+        GroupBusquedaEstudiante.SetBounds(20, 74, widthUtil, 160)
+        GroupDatosEstudiante.SetBounds(20, 242, widthUtil, heightDatos)
+
+        If StatusLine IsNot Nothing Then
+            StatusLine.SetBounds(18, 108, Math.Max(280, GroupBusquedaEstudiante.ClientSize.Width - 220), 32)
+        End If
+
+        If PictureBox1 IsNot Nothing Then
+            PictureBox1.Left = Me.ClientSize.Width - PictureBox1.Width - 32
+            PictureBox1.Top = 8
+        End If
+
+        AjustarPanelAccionesVisible()
+    End Sub
+
+    Private Sub AjustarPanelAccionesVisible()
+        If PanelAcciones Is Nothing OrElse GroupDatosEstudiante Is Nothing Then
+            Exit Sub
+        End If
+
+        Dim panelW As Integer = Math.Max(280, PanelAcciones.Width)
+        Dim panelH As Integer = Math.Max(56, PanelAcciones.Height)
+        Dim x As Integer = GroupDatosEstudiante.ClientSize.Width - panelW - 16
+        Dim y As Integer = GroupDatosEstudiante.ClientSize.Height - panelH - 16
+
+        PanelAcciones.SetBounds(Math.Max(16, x), Math.Max(24, y), panelW, panelH)
+        PanelAcciones.Anchor = AnchorStyles.Bottom Or AnchorStyles.Right
+        PanelAcciones.Visible = True
+        PanelAcciones.BringToFront()
+
+        BtnGuardar.Visible = True
+        BtnCancelar.Visible = True
+        BtnRegresar.Visible = True
+        BtnGuardar.BringToFront()
+        BtnCancelar.BringToFront()
+        BtnRegresar.BringToFront()
+
+        If Label16 IsNot Nothing Then
+            Label16.MaximumSize = New Size(Math.Max(220, GroupDatosEstudiante.ClientSize.Width - panelW - 48), 0)
+        End If
+    End Sub
+
+    Private Sub AsegurarEsquemaUsuario()
+        Const sql As String =
+"IF COL_LENGTH('dbo.Usuario', 'PermisoSalida') IS NULL
+BEGIN
+    ALTER TABLE dbo.Usuario ADD PermisoSalida BIT NOT NULL CONSTRAINT DF_Usuario_PermisoSalida DEFAULT(0) WITH VALUES;
+END;
+IF COL_LENGTH('dbo.Usuario', 'PendienteBecaTransporte') IS NULL
+BEGIN
+    ALTER TABLE dbo.Usuario ADD PendienteBecaTransporte BIT NOT NULL CONSTRAINT DF_Usuario_PendienteBecaTransporte DEFAULT(0) WITH VALUES;
+END;"
+
+        Using cmd As New SqlCommand(sql, Cn)
+            cmd.ExecuteNonQuery()
+        End Using
     End Sub
 
     Sub CargaGenero(ByRef Combo As ComboBox)
@@ -134,21 +239,34 @@ Public Class FrmEstudiantes
             Using frm As New Global.SCSC.Busqueda()
                 frm.ShowDialog(Me)
             End Using
-            TxtCedula.Text = CStr(gSession.Resultado(0))
-            TxtCedula_Validated(sender, e)
+
+            If gSession.Resultado Is Nothing OrElse gSession.Resultado.Length = 0 Then
+                Exit Sub
+            End If
+
+            Dim cedulaSeleccionada As String = gSession.Resultado(0)
+            If String.IsNullOrWhiteSpace(cedulaSeleccionada) Then
+                Exit Sub
+            End If
+
+            TxtCedula.Text = cedulaSeleccionada.Trim()
+            TxtCedula_Validated(TxtCedula, EventArgs.Empty)
             BtnGuardar.Select()
         Catch ex As Exception
-            'MsgBox(MSJ.Mensajes.ErrorBusqueda)
+            ErrorLogger.LogException("FrmEstudiantes.Buscar_Click", ex)
+            MsgBox("No fue posible completar la búsqueda.", MsgBoxStyle.Exclamation)
         End Try
 
     End Sub
 
     Private Sub TxtCedula_Validated(sender As Object, e As EventArgs) Handles TxtCedula.Validated
         LimpiarPantalla(False)
-        Dim Cedula As String = Replace(TxtCedula.Text.Trim, ControlCarnet, "")
+        Dim textoCedula As String = If(TxtCedula.Text, String.Empty).Trim()
+        Dim prefijoCarnet As String = If(ControlCarnet, String.Empty)
+        Dim Cedula As String = textoCedula.Replace(prefijoCarnet, String.Empty).Trim()
         Dim Ds As New DataSet
         Dim Valores(), Llave() As FuncionesDB.Campos
-        If Cedula.Trim().Length > 0 Then
+        If Cedula.Length > 0 Then
             Try
                 Valores = Cls.InicializarArray
                 Llave = Cls.InicializarArray
@@ -307,6 +425,10 @@ Public Class FrmEstudiantes
 
     Private Sub Label16_Click(sender As Object, e As EventArgs) Handles Label16.Click
 
+    End Sub
+
+    Private Sub FrmEstudiantes_Resize(sender As Object, e As EventArgs) Handles MyBase.Resize
+        AjustarDistribucionVisual()
     End Sub
 
     Private Sub FrmEstudiantes_FormClosed(sender As Object, e As FormClosedEventArgs) Handles MyBase.FormClosed

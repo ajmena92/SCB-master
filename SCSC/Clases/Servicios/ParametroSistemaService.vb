@@ -15,14 +15,32 @@ Public Class ParametroSistemaService
         Public Property PrecioDocente As Decimal
         Public Property PrecioEstudiante As Decimal
         Public Property PermitirSinMarcaTransporte As Boolean
+        Public Property DesactivarNoImportadosExcel As Boolean
+        Public Property AuditarImportacionExcel As Boolean
     End Class
 
     Public Sub AsegurarEsquema(ByVal cn As SqlConnection)
         Dim script As String =
+"IF OBJECT_ID(N'dbo.Parametro', N'U') IS NULL RETURN;" &
 "IF COL_LENGTH('dbo.Parametro', 'PermitirSinMarcaTransporte') IS NULL " &
 "BEGIN " &
 "    ALTER TABLE dbo.Parametro ADD PermitirSinMarcaTransporte BIT NULL; " &
-"    UPDATE dbo.Parametro SET PermitirSinMarcaTransporte = 0 WHERE PermitirSinMarcaTransporte IS NULL; " &
+"    EXEC sp_executesql N'UPDATE dbo.Parametro SET PermitirSinMarcaTransporte = 0 WHERE PermitirSinMarcaTransporte IS NULL;'; " &
+"END;" &
+"IF COL_LENGTH('dbo.Parametro', 'DesactivarNoImportadosExcel') IS NULL " &
+"BEGIN " &
+"    ALTER TABLE dbo.Parametro ADD DesactivarNoImportadosExcel BIT NULL; " &
+"    EXEC sp_executesql N'UPDATE dbo.Parametro SET DesactivarNoImportadosExcel = 1 WHERE DesactivarNoImportadosExcel IS NULL;'; " &
+"END;" &
+"IF COL_LENGTH('dbo.Parametro', 'DesactivarNoImportatExcel') IS NOT NULL " &
+"BEGIN " &
+"    EXEC sp_executesql N'UPDATE dbo.Parametro SET DesactivarNoImportadosExcel = ISNULL(DesactivarNoImportadosExcel, 1) WHERE DesactivarNoImportadosExcel IS NULL;'; " &
+"    EXEC sp_executesql N'UPDATE dbo.Parametro SET DesactivarNoImportadosExcel = CAST(DesactivarNoImportatExcel AS BIT) WHERE DesactivarNoImportatExcel IS NOT NULL;'; " &
+"END;" &
+"IF COL_LENGTH('dbo.Parametro', 'AuditarImportacionExcel') IS NULL " &
+"BEGIN " &
+"    ALTER TABLE dbo.Parametro ADD AuditarImportacionExcel BIT NULL; " &
+"    EXEC sp_executesql N'UPDATE dbo.Parametro SET AuditarImportacionExcel = 1 WHERE AuditarImportacionExcel IS NULL;'; " &
 "END"
 
         Using cmd As New SqlCommand(script, cn)
@@ -102,6 +120,25 @@ Public Class ParametroSistemaService
             End If
         End If
 
+        If Not cfg.DesactivarNoImportadosExcel Then
+            Dim activar As Boolean = LeerAppBool("DesactivarNoImportadosExcel", False)
+            If Not activar Then
+                activar = LeerAppBool("DesactivarNoImportatExcel", False)
+            End If
+            If activar Then
+                cfg.DesactivarNoImportadosExcel = True
+                huboCambio = True
+            End If
+        End If
+
+        If Not cfg.AuditarImportacionExcel Then
+            Dim auditar As Boolean = LeerAppBool("AuditarImportacionExcel", False)
+            If auditar Then
+                cfg.AuditarImportacionExcel = True
+                huboCambio = True
+            End If
+        End If
+
         If huboCambio Then
             GuardarFila1(cn, cfg)
         End If
@@ -126,6 +163,8 @@ Public Class ParametroSistemaService
                 cfg.PrecioDocente = LeerDec(rd, "PrecioDocente")
                 cfg.PrecioEstudiante = LeerDec(rd, "PrecioEstudiante")
                 cfg.PermitirSinMarcaTransporte = LeerBool(rd, "PermitirSinMarcaTransporte", False)
+                cfg.DesactivarNoImportadosExcel = LeerBool(rd, "DesactivarNoImportadosExcel", True)
+                cfg.AuditarImportacionExcel = LeerBool(rd, "AuditarImportacionExcel", True)
                 Return cfg
             End Using
         End Using
@@ -143,14 +182,14 @@ Public Class ParametroSistemaService
         Dim sql As String =
 "IF EXISTS (SELECT 1 FROM Parametro WHERE Id = @Id) RETURN;" & vbCrLf &
 "BEGIN TRY" & vbCrLf &
-"    INSERT INTO Parametro (Id, Institucion, CodPresupuestario, Ubicacion, Leyenda, ControlCarnet, PrecioDocente, PrecioEstudiante, PermitirSinMarcaTransporte)" & vbCrLf &
-"    VALUES (@Id, N'', N'', N'', N'', N'', 0, 0, 0);" & vbCrLf &
+"    INSERT INTO Parametro (Id, Institucion, CodPresupuestario, Ubicacion, Leyenda, ControlCarnet, PrecioDocente, PrecioEstudiante, PermitirSinMarcaTransporte, DesactivarNoImportadosExcel, AuditarImportacionExcel)" & vbCrLf &
+"    VALUES (@Id, N'', N'', N'', N'', N'', 0, 0, 0, 1, 1);" & vbCrLf &
 "END TRY" & vbCrLf &
 "BEGIN CATCH" & vbCrLf &
 "    BEGIN TRY" & vbCrLf &
 "        SET IDENTITY_INSERT Parametro ON;" & vbCrLf &
-"        INSERT INTO Parametro (Id, Institucion, CodPresupuestario, Ubicacion, Leyenda, ControlCarnet, PrecioDocente, PrecioEstudiante, PermitirSinMarcaTransporte)" & vbCrLf &
-"        VALUES (@Id, N'', N'', N'', N'', N'', 0, 0, 0);" & vbCrLf &
+"        INSERT INTO Parametro (Id, Institucion, CodPresupuestario, Ubicacion, Leyenda, ControlCarnet, PrecioDocente, PrecioEstudiante, PermitirSinMarcaTransporte, DesactivarNoImportadosExcel, AuditarImportacionExcel)" & vbCrLf &
+"        VALUES (@Id, N'', N'', N'', N'', N'', 0, 0, 0, 1, 1);" & vbCrLf &
 "        SET IDENTITY_INSERT Parametro OFF;" & vbCrLf &
 "    END TRY" & vbCrLf &
 "    BEGIN CATCH" & vbCrLf &
@@ -175,7 +214,9 @@ Public Class ParametroSistemaService
 " ControlCarnet=@ControlCarnet," & vbCrLf &
 " PrecioDocente=@PrecioDocente," & vbCrLf &
 " PrecioEstudiante=@PrecioEstudiante," & vbCrLf &
-" PermitirSinMarcaTransporte=@PermitirSinMarcaTransporte" & vbCrLf &
+" PermitirSinMarcaTransporte=@PermitirSinMarcaTransporte," & vbCrLf &
+" DesactivarNoImportadosExcel=@DesactivarNoImportadosExcel," & vbCrLf &
+" AuditarImportacionExcel=@AuditarImportacionExcel" & vbCrLf &
 "WHERE Id=@Id;"
 
         Using cmd As New SqlCommand(sql, cn)
@@ -188,6 +229,8 @@ Public Class ParametroSistemaService
             cmd.Parameters.AddWithValue("@PrecioDocente", cfg.PrecioDocente)
             cmd.Parameters.AddWithValue("@PrecioEstudiante", cfg.PrecioEstudiante)
             cmd.Parameters.AddWithValue("@PermitirSinMarcaTransporte", cfg.PermitirSinMarcaTransporte)
+            cmd.Parameters.AddWithValue("@DesactivarNoImportadosExcel", cfg.DesactivarNoImportadosExcel)
+            cmd.Parameters.AddWithValue("@AuditarImportacionExcel", cfg.AuditarImportacionExcel)
             cmd.ExecuteNonQuery()
         End Using
     End Sub
@@ -202,7 +245,9 @@ Public Class ParametroSistemaService
 " ControlCarnet=N''," & vbCrLf &
 " PrecioDocente=0," & vbCrLf &
 " PrecioEstudiante=0," & vbCrLf &
-" PermitirSinMarcaTransporte=0" & vbCrLf &
+" PermitirSinMarcaTransporte=0," & vbCrLf &
+" DesactivarNoImportadosExcel=1," & vbCrLf &
+" AuditarImportacionExcel=1" & vbCrLf &
 "WHERE Id=@Id;"
 
         Using cmd As New SqlCommand(sql, cn)

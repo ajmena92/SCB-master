@@ -4,15 +4,15 @@ Option Explicit On
 Public Class FrmReporteRutas
 
 
-    Private Sub FrmReporteMarcas_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+    Private Sub FrmReporteRutas_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         If CrudVisualHelper.IsInDesignMode(Me) Then
             Return
         End If
         Try
             CrudVisualHelper.ApplyReportStandard(Me)
             Dim Cls As New FuncionesDB
-            FecIni.Value = Now.Date
-            FecFinal.Value = Now.Date
+            FecIni.Value = Date.Today
+            FecFinal.Value = Date.Today
             Dim Ds As New DataSet
             Ds = Cls.ConsultarTSQL("Ruta", "Select IdRuta,Descripcion From Ruta Where Activo = 1",)
             If Ds.Tables(0).Rows.Count > 0 Then
@@ -44,9 +44,9 @@ Public Class FrmReporteRutas
         Limpiar()
     End Sub
 
-    Sub Limpiar()
-        FecIni.Value = Now.Date
-        FecFinal.Value = Now.Date
+    Private Sub Limpiar()
+        FecIni.Value = Date.Today
+        FecFinal.Value = Date.Today
         RbGeneral.Checked = True
     End Sub
 

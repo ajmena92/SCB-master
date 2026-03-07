@@ -126,10 +126,11 @@ Public Partial Class UIShellHost
 
         _titleLabel = New Label()
         _titleLabel.Text = "Panel principal"
-        _titleLabel.AutoSize = True
-        _titleLabel.Location = New Point(24, 6)
+        _titleLabel.AutoSize = False
+        _titleLabel.Location = New Point(24, 8)
         _titleLabel.Font = New Font("Segoe UI Semibold", 16.0!, FontStyle.Bold, GraphicsUnit.Point)
-        _titleLabel.MaximumSize = New Size(520, 0)
+        _titleLabel.Size = New Size(520, 30)
+        _titleLabel.Anchor = AnchorStyles.Top Or AnchorStyles.Left
         _titleLabel.AutoEllipsis = True
         _titleLabel.ForeColor = Color.FromArgb(23, 32, 51)
         _topBar.Controls.Add(_titleLabel)
