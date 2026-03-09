@@ -1,6 +1,5 @@
 Imports System.Drawing
 Imports System.Linq
-Imports System.Configuration
 Imports System.Media
 Imports System.Globalization
 Imports System.Threading
@@ -878,26 +877,7 @@ Public Class ControlComedor
     End Function
 
     Private Function ResolverRutaRecursoMarca(ByVal nombreArchivo As String) As String
-        If Global.System.IO.Path.IsPathRooted(nombreArchivo) AndAlso Global.System.IO.File.Exists(nombreArchivo) Then
-            Return nombreArchivo
-        End If
-
-        Dim candidatos As String() = {
-            Global.System.IO.Path.Combine(Application.StartupPath, "Resources", nombreArchivo),
-            Global.System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", nombreArchivo),
-            Global.System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "Resources", nombreArchivo),
-            Global.System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "Resources", nombreArchivo),
-            Global.System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "Resources", nombreArchivo)
-        }
-
-        For Each candidato As String In candidatos
-            Dim rutaCompleta As String = Global.System.IO.Path.GetFullPath(candidato)
-            If Global.System.IO.File.Exists(rutaCompleta) Then
-                Return rutaCompleta
-            End If
-        Next
-
-        Return candidatos(0)
+        Return ResolveResourcePath(nombreArchivo)
     End Function
 
     Private Sub CargarPreferenciasOperacion()
@@ -1480,68 +1460,24 @@ Public Class ControlComedor
     End Sub
 
     Private Function LeerConfigBool(ByVal key As String, ByVal valorDefault As Boolean) As Boolean
-        Try
-            Dim raw As String = ConfigurationManager.AppSettings(key)
-            If String.IsNullOrWhiteSpace(raw) Then
-                Return valorDefault
-            End If
-            Dim parsed As Boolean
-            If Boolean.TryParse(raw, parsed) Then
-                Return parsed
-            End If
-        Catch
-        End Try
-        Return valorDefault
+        Return GetAppSettingBoolean(key, valorDefault)
     End Function
 
     Private Function LeerConfigInt(ByVal key As String, ByVal valorDefault As Integer) As Integer
-        Try
-            Dim raw As String = ConfigurationManager.AppSettings(key)
-            If String.IsNullOrWhiteSpace(raw) Then
-                Return valorDefault
-            End If
-            Dim parsed As Integer
-            If Integer.TryParse(raw, parsed) Then
-                Return parsed
-            End If
-        Catch
-        End Try
-        Return valorDefault
+        Return GetAppSettingInteger(key, valorDefault)
     End Function
 
     Private Function LeerConfigDouble(ByVal key As String, ByVal valorDefault As Double) As Double
-        Try
-            Dim raw As String = ConfigurationManager.AppSettings(key)
-            If String.IsNullOrWhiteSpace(raw) Then
-                Return valorDefault
-            End If
-            Dim parsed As Double
-            If Double.TryParse(raw, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, parsed) Then
-                Return parsed
-            End If
-            If Double.TryParse(raw, parsed) Then
-                Return parsed
-            End If
-        Catch
-        End Try
-        Return valorDefault
+        Return GetAppSettingDouble(key, valorDefault)
     End Function
 
     Private Function LeerConfigTexto(ByVal key As String, ByVal valorDefault As String) As String
-        Try
-            Dim raw As String = ConfigurationManager.AppSettings(key)
-            If String.IsNullOrWhiteSpace(raw) Then
-                Return valorDefault
-            End If
-            Return raw.Trim()
-        Catch
-        End Try
-        Return valorDefault
+        Return GetAppSettingValue(key, valorDefault)
     End Function
 
     Private Function LeerConfigColor(ByVal key As String, ByVal valorDefault As Color) As Color
         Try
-            Dim raw As String = ConfigurationManager.AppSettings(key)
+            Dim raw As String = GetAppSettingValue(key, String.Empty)
             If String.IsNullOrWhiteSpace(raw) Then
                 Return valorDefault
             End If

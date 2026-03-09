@@ -19,8 +19,8 @@ Partial Friend Class Login
     Private Const PasswordToggleGap As Integer = 10
     Private Const OverlayOpacity As Single = 0.16F
 
-    Private Const DefaultAdminUser As String = "admin"
-    Private Const DefaultAdminSupportPassword As String = "System10."
+    Private Const DefaultAdminUser As String = ""
+    Private Const DefaultAdminSupportPassword As String = ""
     Private Cls As FuncionesDB
     Private Cn As SqlClient.SqlConnection
     Private DsParametro As DataSet
@@ -87,6 +87,13 @@ Partial Friend Class Login
 
     Private Sub Login_Load(ByVal eventSender As System.Object, ByVal eventArgs As System.EventArgs) Handles MyBase.Load
         If IsInDesignMode() Then
+            Exit Sub
+        End If
+
+        If Not DeploymentBootstrapper.EnsureDeploymentReady(Me) Then
+            AllowClose = True
+            Me.DialogResult = DialogResult.Cancel
+            Me.Close()
             Exit Sub
         End If
 
@@ -327,15 +334,7 @@ Partial Friend Class Login
     End Sub
 
     Private Function ObtenerAppSettingConDefault(ByVal key As String, ByVal defaultValue As String) As String
-        Try
-            Dim value As String = System.Configuration.ConfigurationManager.AppSettings(key)
-            If String.IsNullOrWhiteSpace(value) Then
-                Return defaultValue
-            End If
-            Return value.Trim()
-        Catch
-            Return defaultValue
-        End Try
+        Return GetAppSettingValue(key, defaultValue)
     End Function
 
     Private Function IsDebugOrDevMode() As Boolean
@@ -539,7 +538,7 @@ Partial Friend Class Login
 
     Private Sub ApplyBrandAssets()
         Try
-            Dim iconPath As String = Global.System.IO.Path.Combine(Application.StartupPath, "favicon.ico")
+            Dim iconPath As String = ResolveApplicationIconPath()
             If Global.System.IO.File.Exists(iconPath) Then
                 Me.Icon = New Icon(iconPath)
             End If
@@ -549,22 +548,7 @@ Partial Friend Class Login
     End Sub
 
     Private Function ResolveBrandAssetPath(ByVal fileName As String) As String
-        Dim candidates As String() = {
-            Global.System.IO.Path.Combine(Application.StartupPath, "Resources", fileName),
-            Global.System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", fileName),
-            Global.System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "Resources", fileName),
-            Global.System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "Resources", fileName),
-            Global.System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "Resources", fileName)
-        }
-
-        For Each candidate As String In candidates
-            Dim full As String = Global.System.IO.Path.GetFullPath(candidate)
-            If Global.System.IO.File.Exists(full) Then
-                Return full
-            End If
-        Next
-
-        Return candidates(0)
+        Return ResolveResourcePath(fileName)
     End Function
 
     Private Sub ApplyResponsiveRightBlockLayout()

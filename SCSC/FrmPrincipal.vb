@@ -1,6 +1,5 @@
 ﻿Imports System.Collections.Generic
 Imports System.Drawing
-Imports System.Configuration
 
 Partial Class FrmPrincipal
     Private ReadOnly UseModernShell As Boolean = ObtenerFlag("UseModernShell", False)
@@ -24,6 +23,15 @@ Partial Class FrmPrincipal
         End If
 
         Try
+            If DeploymentBootstrapper.ShouldRunSetupOnly() Then
+                Me.Hide()
+                Using setupForm As New FrmDeploymentSetup(True)
+                    setupForm.ShowDialog(Me)
+                End Using
+                Me.Close()
+                Exit Sub
+            End If
+
             FechaServer = Date.Now()
             Me.Hide()
             ErrorLogger.LogInfo("FrmPrincipal_Load", "Iniciando flujo de autenticacion.")
@@ -314,18 +322,7 @@ Partial Class FrmPrincipal
     End Sub
 
     Private Shared Function ObtenerFlag(ByVal key As String, ByVal defaultValue As Boolean) As Boolean
-        Try
-            Dim raw As String = Convert.ToString(ConfigurationManager.AppSettings(key))
-            If String.IsNullOrWhiteSpace(raw) Then
-                Return defaultValue
-            End If
-            Dim value As Boolean
-            If Boolean.TryParse(raw.Trim(), value) Then
-                Return value
-            End If
-        Catch
-        End Try
-        Return defaultValue
+        Return GetAppSettingBoolean(key, defaultValue)
     End Function
 
     Private Sub NavigateToModule(ByVal moduleKey As String)

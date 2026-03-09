@@ -5,10 +5,10 @@
     <Setting Name="SCSCConnectionString" Type="(Connection string)" Scope="Application">
       <DesignTimeValue Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
 &lt;SerializableConnectionString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
-  &lt;ConnectionString&gt;171.30.210.200;Initial Catalog=SCSC;User ID=sa;Password=S0p0rt3CTP.&lt;/ConnectionString&gt;
+  &lt;ConnectionString&gt;__SET_IN_ENV__:SCSC_CONNECTION_STRING&lt;/ConnectionString&gt;
   &lt;ProviderName&gt;System.Data.SqlClient&lt;/ProviderName&gt;
 &lt;/SerializableConnectionString&gt;</DesignTimeValue>
-      <Value Profile="(Default)">171.30.210.200;Initial Catalog=SCSC;User ID=sa;Password=S0p0rt3CTP.</Value>
+      <Value Profile="(Default)">__SET_IN_ENV__:SCSC_CONNECTION_STRING</Value>
     </Setting>
   </Settings>
 </SettingsFile>

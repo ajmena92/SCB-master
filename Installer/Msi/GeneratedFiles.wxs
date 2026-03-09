@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Fragment>
+    <DirectoryRef Id="INSTALLFOLDER">
+      <Component Id="PlaceholderComponent" Guid="{75A1AA1F-D6DB-4181-8CB0-856B5121A4E6}">
+        <CreateFolder />
+        <RegistryValue Root="HKLM" Key="Software\CTP Platanares\SCSC" Name="InstallFolder" Type="string" Value="[INSTALLFOLDER]" KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <ComponentGroup Id="AppFiles">
+      <ComponentRef Id="PlaceholderComponent" />
+    </ComponentGroup>
+  </Fragment>
+</Wix>

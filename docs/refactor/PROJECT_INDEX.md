@@ -1,5 +1,7 @@
 # Índice Técnico del Proyecto SCB
 
+> Actualizacion vigente: ver `docs/refactor/PROJECT_ANALYSIS_20260309.md` y `docs/refactor/TECH_DEBT_BACKLOG_20260309.md` para el estado recalculado al 2026-03-09.
+
 ## Resumen
 - Fecha de indexación: 2026-03-04
 - Solución principal: `SCSC_Marcas.sln`

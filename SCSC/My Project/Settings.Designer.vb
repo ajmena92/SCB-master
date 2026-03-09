@@ -57,7 +57,7 @@ Namespace My
         <Global.System.Configuration.ApplicationScopedSettingAttribute(),  _
          Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
          Global.System.Configuration.SpecialSettingAttribute(Global.System.Configuration.SpecialSetting.ConnectionString),  _
-         Global.System.Configuration.DefaultSettingValueAttribute("171.30.210.200;Initial Catalog=SCSC;User ID=sa;Password=S0p0rt3CTP.")>  _
+         Global.System.Configuration.DefaultSettingValueAttribute("__SET_IN_ENV__:SCSC_CONNECTION_STRING")>  _
         Public ReadOnly Property SCSCConnectionString() As String
             Get
                 Return CType(Me("SCSCConnectionString"),String)

@@ -79,10 +79,21 @@ Public Class FrmBecas
             Using frm As New Global.SCSC.Busqueda()
                 frm.ShowDialog(Me)
             End Using
-            txtCodBeca.Text = CStr(gSession.Resultado(0))
-            txtCodRuta_Validated(sender, e)
+
+            If gSession.Resultado Is Nothing OrElse gSession.Resultado.Length = 0 Then
+                Exit Sub
+            End If
+
+            Dim codigoSeleccionado As String = gSession.Resultado(0)
+            If String.IsNullOrWhiteSpace(codigoSeleccionado) Then
+                Exit Sub
+            End If
+
+            txtCodBeca.Text = codigoSeleccionado.Trim()
+            txtCodRuta_Validated(txtCodBeca, EventArgs.Empty)
         Catch ex As Exception
-            'MsgBox(ex.Message, MsgBoxStyle.Critical)
+            ErrorLogger.LogException("FrmBecas.Buscar_Click", ex)
+            MsgBox("No fue posible completar la búsqueda.", MsgBoxStyle.Exclamation)
         End Try
 
     End Sub

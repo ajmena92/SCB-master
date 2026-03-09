@@ -150,6 +150,9 @@
     <Compile Include="Busqueda.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Clases\AppRuntimeSupport.vb" />
+    <Compile Include="Clases\DeploymentBootstrapper.vb" />
+    <Compile Include="Clases\DeploymentConfigService.vb" />
     <Compile Include="Clases\CodigoGeneral.vb" />
     <Compile Include="Clases\CrudFormBase.vb">
       <SubType>Form</SubType>
@@ -165,6 +168,7 @@
     <Compile Include="Clases\UIShellHost.Refresh.vb" />
     <Compile Include="Clases\Encriptacion64.vb" />
     <Compile Include="Clases\LBItem.vb" />
+    <Compile Include="Clases\LicenseService.vb" />
     <Compile Include="Clases\FunccionesDB.vb" />
     <Compile Include="Clases\Servicios\ComedorDataService.vb" />
     <Compile Include="Clases\Servicios\ComedorOperacionService.vb" />
@@ -238,6 +242,9 @@
       <DependentUpon>FrmSeguridadRBAC.vb</DependentUpon>
     </Compile>
     <Compile Include="Formularios\FrmSeguridadRBAC.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Formularios\FrmDeploymentSetup.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Formularios\IMPRIMIR.Designer.vb">

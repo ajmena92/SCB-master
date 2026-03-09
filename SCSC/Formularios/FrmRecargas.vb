@@ -79,10 +79,21 @@ Public Class FrmRecarga
             Using frm As New Global.SCSC.Busqueda()
                 frm.ShowDialog(Me)
             End Using
-            txtCedula.Text = CStr(gSession.Resultado(0))
-            TxtCedula_Validated(sender, e)
+
+            If gSession.Resultado Is Nothing OrElse gSession.Resultado.Length = 0 Then
+                Exit Sub
+            End If
+
+            Dim cedulaSeleccionada As String = gSession.Resultado(0)
+            If String.IsNullOrWhiteSpace(cedulaSeleccionada) Then
+                Exit Sub
+            End If
+
+            txtCedula.Text = cedulaSeleccionada.Trim()
+            TxtCedula_Validated(txtCedula, EventArgs.Empty)
         Catch ex As Exception
-            'MsgBox(MSJ.Mensajes.ErrorBusqueda)
+            ErrorLogger.LogException("FrmRecargas.Buscar_Click", ex)
+            MsgBox("No fue posible completar la búsqueda.", MsgBoxStyle.Exclamation)
         End Try
 
     End Sub

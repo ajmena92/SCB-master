@@ -1263,7 +1263,7 @@ Public Partial Class UIShellHost
                 Exit Sub
             End If
 
-            Dim iconPath As String = Global.System.IO.Path.Combine(Application.StartupPath, "favicon.ico")
+            Dim iconPath As String = ResolveApplicationIconPath()
             If Global.System.IO.File.Exists(iconPath) Then
                 _owner.Icon = New Icon(iconPath)
             End If
@@ -1318,22 +1318,7 @@ Public Partial Class UIShellHost
     End Function
 
     Private Function ResolveBrandAssetPath(ByVal fileName As String) As String
-        Dim candidates As String() = {
-            Global.System.IO.Path.Combine(Application.StartupPath, "Resources", fileName),
-            Global.System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", fileName),
-            Global.System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "Resources", fileName),
-            Global.System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "Resources", fileName),
-            Global.System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "Resources", fileName)
-        }
-
-        For Each candidate As String In candidates
-            Dim full As String = Global.System.IO.Path.GetFullPath(candidate)
-            If Global.System.IO.File.Exists(full) Then
-                Return full
-            End If
-        Next
-
-        Return candidates(0)
+        Return ResolveResourcePath(fileName)
     End Function
 
     Private Sub SafeNavigate(ByVal key As String)

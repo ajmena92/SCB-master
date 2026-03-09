@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Product Id="*" Name="SCSC" Language="3082" Version="$(var.ProductVersion)" Manufacturer="CTP Platanares" UpgradeCode="{8D6F90FD-D4E3-4A5B-BE3C-86EE4F50E8F2}">
+    <Package InstallerVersion="500" Compressed="yes" InstallScope="perMachine" Platform="x64" />
+    <MajorUpgrade DowngradeErrorMessage="Ya existe una versión más reciente de SCSC instalada." />
+    <MediaTemplate EmbedCab="yes" />
+    <Property Id="ARPNOMODIFY" Value="1" />
+    <Property Id="ARPURLINFOABOUT" Value="https://example.invalid/scsc" />
+
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFiles64Folder">
+        <Directory Id="INSTALLFOLDER" Name="SCSC" />
+      </Directory>
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="ProgramMenuDir" Name="SCSC" />
+      </Directory>
+      <Directory Id="DesktopFolder" />
+      <Directory Id="CommonAppDataFolder">
+        <Directory Id="CommonAppDataSCSC" Name="SCSC" />
+      </Directory>
+    </Directory>
+
+    <Feature Id="MainFeature" Title="SCSC" Level="1">
+      <ComponentGroupRef Id="AppFiles" />
+      <ComponentRef Id="ApplicationShortcutComponent" />
+      <ComponentRef Id="ProgramDataFolderComponent" />
+    </Feature>
+
+    <DirectoryRef Id="ProgramMenuDir">
+      <Component Id="ApplicationShortcutComponent" Guid="{59075E50-1F1B-4D82-8B1C-2C6C0214980A}">
+        <Shortcut Id="ApplicationStartMenuShortcut"
+                  Name="SCSC"
+                  Description="Sistema SCSC"
+                  Target="[INSTALLFOLDER]SCSC_Marcas.exe"
+                  WorkingDirectory="INSTALLFOLDER" />
+        <Shortcut Id="ApplicationDesktopShortcut"
+                  Directory="DesktopFolder"
+                  Name="SCSC"
+                  Description="Sistema SCSC"
+                  Target="[INSTALLFOLDER]SCSC_Marcas.exe"
+                  WorkingDirectory="INSTALLFOLDER" />
+        <RemoveFolder Id="RemoveProgramMenuDir" Directory="ProgramMenuDir" On="uninstall" />
+        <RegistryValue Root="HKLM" Key="Software\CTP Platanares\SCSC" Name="Installed" Type="integer" Value="1" KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+
+    <DirectoryRef Id="CommonAppDataSCSC">
+      <Component Id="ProgramDataFolderComponent" Guid="{53E0A2E2-0A14-4494-AFCE-9D6305E13CE0}">
+        <CreateFolder />
+        <RegistryValue Root="HKLM" Key="Software\CTP Platanares\SCSC" Name="ProgramDataFolder" Type="string" Value="[CommonAppDataSCSC]" KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+  </Product>
+</Wix>

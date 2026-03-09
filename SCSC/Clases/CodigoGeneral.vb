@@ -56,10 +56,7 @@
     ''' <returns></returns>
     ''' <remarks></remarks>
     Function GetAppConfig(Optional ByVal NombreConfiguracion As String = "Conexion") As String
-        Dim strConn As String
-        Dim configurationAppSettings As New System.Configuration.AppSettingsReader
-        strConn = CStr(configurationAppSettings.GetValue(NombreConfiguracion, GetType(String)))
-        Return strConn
+        Return GetAppSettingValue(NombreConfiguracion, String.Empty)
     End Function
 
 

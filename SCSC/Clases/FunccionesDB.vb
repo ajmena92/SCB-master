@@ -93,7 +93,7 @@ Public Class FuncionesDB
             Else
                 pCn.ConnectionString = Conexion
             End If
-            'pCn.ConnectionString = "server=DANIELFONSECA\SQLDANIEL; database=SCSC; uid=Daniel; pwd=esquivel07"
+            ' ConnectionString de ejemplo removido para no versionar credenciales.
 
             pCn.Open()
             If pUsarTransaccion Then
@@ -1381,4 +1381,3 @@ Public Class FuncionesDB
         End If
     End Function
 End Class
-

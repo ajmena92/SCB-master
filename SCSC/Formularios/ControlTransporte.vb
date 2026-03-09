@@ -1,4 +1,3 @@
-Imports System.Configuration
 Imports System.Drawing
 Imports System.Linq
 Imports System.Media
@@ -1221,72 +1220,24 @@ Public Class ControlTransporte
     End Sub
 
     Private Function ResolverRutaRecurso(ByVal nombreArchivo As String) As String
-        If IO.Path.IsPathRooted(nombreArchivo) AndAlso IO.File.Exists(nombreArchivo) Then
-            Return nombreArchivo
-        End If
-
-        Dim candidatos As String() = {
-            IO.Path.Combine(Application.StartupPath, "Resources", nombreArchivo),
-            IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", nombreArchivo),
-            IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "Resources", nombreArchivo),
-            IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "Resources", nombreArchivo)
-        }
-
-        For Each candidato As String In candidatos
-            Dim rutaCompleta As String = IO.Path.GetFullPath(candidato)
-            If IO.File.Exists(rutaCompleta) Then
-                Return rutaCompleta
-            End If
-        Next
-
-        Return candidatos(0)
+        Return ResolveResourcePath(nombreArchivo)
     End Function
 
     Private Function LeerConfigBool(ByVal key As String, ByVal valorDefault As Boolean) As Boolean
-        Try
-            Dim raw As String = ConfigurationManager.AppSettings(key)
-            If String.IsNullOrWhiteSpace(raw) Then
-                Return valorDefault
-            End If
-            Dim parsed As Boolean
-            If Boolean.TryParse(raw, parsed) Then
-                Return parsed
-            End If
-        Catch
-        End Try
-        Return valorDefault
+        Return GetAppSettingBoolean(key, valorDefault)
     End Function
 
     Private Function LeerConfigInt(ByVal key As String, ByVal valorDefault As Integer) As Integer
-        Try
-            Dim raw As String = ConfigurationManager.AppSettings(key)
-            If String.IsNullOrWhiteSpace(raw) Then
-                Return valorDefault
-            End If
-            Dim parsed As Integer
-            If Integer.TryParse(raw, parsed) Then
-                Return parsed
-            End If
-        Catch
-        End Try
-        Return valorDefault
+        Return GetAppSettingInteger(key, valorDefault)
     End Function
 
     Private Function LeerConfigTexto(ByVal key As String, ByVal valorDefault As String) As String
-        Try
-            Dim raw As String = ConfigurationManager.AppSettings(key)
-            If String.IsNullOrWhiteSpace(raw) Then
-                Return valorDefault
-            End If
-            Return raw.Trim()
-        Catch
-        End Try
-        Return valorDefault
+        Return GetAppSettingValue(key, valorDefault)
     End Function
 
     Private Function LeerConfigColor(ByVal key As String, ByVal valorDefault As Color) As Color
         Try
-            Dim raw As String = ConfigurationManager.AppSettings(key)
+            Dim raw As String = GetAppSettingValue(key, String.Empty)
             If String.IsNullOrWhiteSpace(raw) Then
                 Return valorDefault
             End If

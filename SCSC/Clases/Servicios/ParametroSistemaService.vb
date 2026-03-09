@@ -1,4 +1,3 @@
-Imports System.Configuration
 Imports System.Data.SqlClient
 Imports System.Globalization
 
@@ -257,38 +256,15 @@ Public Class ParametroSistemaService
     End Sub
 
     Private Function LeerApp(ByVal key As String) As String
-        Return Convert.ToString(ConfigurationManager.AppSettings(key)).Trim()
+        Return GetAppSettingValue(key, String.Empty)
     End Function
 
     Private Function LeerAppBool(ByVal key As String, ByVal defaultValue As Boolean) As Boolean
-        Dim raw As String = LeerApp(key)
-        If String.IsNullOrWhiteSpace(raw) Then Return defaultValue
-
-        If raw = "1" Then Return True
-        If raw = "0" Then Return False
-
-        Dim parsed As Boolean
-        If Boolean.TryParse(raw, parsed) Then
-            Return parsed
-        End If
-
-        Return defaultValue
+        Return GetAppSettingBoolean(key, defaultValue)
     End Function
 
     Private Function LeerAppDecimal(ByVal key As String, ByVal defaultValue As Decimal) As Decimal
-        Dim raw As String = LeerApp(key)
-        If String.IsNullOrWhiteSpace(raw) Then Return defaultValue
-
-        Dim parsed As Decimal
-        If Decimal.TryParse(raw, NumberStyles.Any, CultureInfo.InvariantCulture, parsed) Then
-            Return parsed
-        End If
-
-        If Decimal.TryParse(raw, NumberStyles.Any, CultureInfo.CurrentCulture, parsed) Then
-            Return parsed
-        End If
-
-        Return defaultValue
+        Return GetAppSettingDecimal(key, defaultValue)
     End Function
 
     Private Function LeerStr(ByVal rd As SqlDataReader, ByVal col As String, Optional ByVal [default] As String = "") As String
