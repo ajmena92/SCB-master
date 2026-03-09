@@ -61,9 +61,11 @@ Public Class FrmProyeccionComedor
     End Sub
 
     Private Sub BtnGuardar_Click(sender As Object, e As EventArgs) Handles BtnGuardar.Click
-        If ArmaReporte() Then
+        Dim request As ReportRequest = ArmaReporte()
+        If request IsNot Nothing Then
             Try
                 Using frm As New FrmReportViewer()
+                    frm.Request = request
                     frm.ShowDialog(Me)
                 End Using
             Catch ex As Exception
@@ -72,9 +74,8 @@ Public Class FrmProyeccionComedor
         End If
     End Sub
 
-    Private Function ArmaReporte() As Boolean
+    Private Function ArmaReporte() As ReportRequest
         Dim Criterio As String = String.Empty
-        LimpiarSession()
 
         If Not IsDate(FecIni.Value) Then
             MsgBox("Debe Indicar una Fecha Válida de Inicio", MsgBoxStyle.Critical)
@@ -84,20 +85,21 @@ Public Class FrmProyeccionComedor
             ' todo bien, se saca reporte.
             'Arma el Criterio de la Consulta
             Criterio = ArmaFechaReporte("{RegistroTransporte.Fecha}", FecIni.Value.Date, FecIni.Value.Date)
-            gSession.RangoDeFecha = "Fecha: " & FecIni.Value
+            Dim request As New ReportRequest()
+            request.DateRangeLabel = "Fecha: " & FecIni.Value
             If CbBeca.SelectedIndex > 0 Then
                 Criterio = Criterio + " and {TipoBeca.IdBeca}=" & DirectCast(CbBeca.Items(CbBeca.SelectedIndex), LBItem).Valor
             End If
             If CbHorario.SelectedIndex > 0 Then
                 Criterio = Criterio + " and {RegistroTransporte.IdHorario}=" & DirectCast(CbHorario.Items(CbHorario.SelectedIndex), LBItem).Valor
-                gSession.Valor1 = "Horario: " + CbHorario.Text
+                request.ScheduleLabel = "Horario: " + CbHorario.Text
             End If
             Criterio = Criterio + " and {Usuario.CodTipo}=1"
-            gSession.Criterio = Criterio
-            gSession.Titulo = "Reporte Proyección Asistencia Servicio Comedor"
-            gSession.Reporte = "FrmProyeccionComedor"
-            Return True
+            request.SelectionFormula = Criterio
+            request.Title = "Reporte Proyección Asistencia Servicio Comedor"
+            request.ReportKey = "FrmProyeccionComedor"
+            Return request
         End If
-        Return False
+        Return Nothing
     End Function
 End Class

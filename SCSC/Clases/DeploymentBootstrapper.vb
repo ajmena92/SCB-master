@@ -1,6 +1,8 @@
 Option Strict On
 Option Explicit On
 
+Imports System.Windows.Forms
+
 Public NotInheritable Class DeploymentBootstrapper
     Public Const SetupSwitch As String = "/deployment-setup"
 

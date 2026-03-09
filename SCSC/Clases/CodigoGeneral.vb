@@ -1,46 +1,5 @@
 ﻿Public Module CodigoGeneral
 
-    Public Sub LimpiarSession()
-        Dim cls As New FuncionesDB
-        gSession.Valor1 = ""
-        gSession.Valor2 = ""
-        gSession.Valor3 = ""
-        gSession.Valor5 = ""
-        gSession.Titulo = ""
-        gSession.Criterio = ""
-        gSession.RangoDeFecha = ""
-        gSession.TipoReporte = ""
-        gSession.Imprimir = False
-        gSession.Reporte = ""
-        gSession.Valores = cls.InicializarArray
-        gSession.Llave = cls.InicializarArray
-        ReDim gSession.Resultado(-1)
-        gSession.ResultadoDset = Nothing
-    End Sub
-
-    Public Structure stSession
-        Dim Valor1 As String
-        Dim Valor2 As String
-        Dim Valor3 As String
-        Dim Valor5 As String
-        Dim Titulo As String
-        Dim Criterio As String
-        Dim Valor6 As String
-        Dim TipoReporte As String
-        Dim Imprimir As Boolean
-        Dim Reporte As String
-        Dim RangoDeFecha As String
-        'Dim Fecha1 As Date
-        'Dim Fecha2 As Date
-        Dim Valores() As FuncionesDB.Campos
-        Dim Llave() As FuncionesDB.Campos
-        Dim Resultado() As String     ' array dinamico, se pueden devolver 1 o n valores.
-        Dim ResultadoDset As DataSet
-
-    End Structure
-
-    Public gSession As stSession
-
     Public Function KeyAscii(ByVal UserKeyArgument As KeyPressEventArgs) As Short
         KeyAscii = CShort(Asc(UserKeyArgument.KeyChar))
     End Function

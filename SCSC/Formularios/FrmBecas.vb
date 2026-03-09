@@ -63,33 +63,35 @@ Public Class FrmBecas
             Dim Valores(), Llave() As FuncionesDB.Campos
             Valores = Cls.InicializarArray
             Llave = Cls.InicializarArray
-            LimpiarSession()
-            gSession.Titulo = "Becas Comedor del Sistema"
-            gSession.Valor1 = "TipoBeca"   '  TABLA utilizada.
-            gSession.Valor2 = "IdBeca" ' ORDER BY
-            gSession.Valor3 = "IdBeca" ' codigo devuelto a la aplicacion en propiedad gsession.resultado
-            'gSession.Valor4 = "Cedula,Nombre,PrimerApellido,SegundoApellido" ' Valor presentado al usuario
-            gSession.Valor5 = "Descripcion" ' campo para el filtro utilizado
             Cls.ArmaValor(Valores, "IdBeca", "Código")
             Cls.ArmaValor(Valores, "Descripcion", "Descripción")
             'Armado de la llave primaria, 1=1 para todos los registros
             Cls.ArmaValor(Llave, "1", "1")
-            gSession.Valores = Valores
-            gSession.Llave = Llave
+            Dim request As New SearchRequest()
+            request.Title = "Becas Comedor del Sistema"
+            request.TableName = "TipoBeca"
+            request.OrderBy = "IdBeca"
+            request.ReturnFieldsCsv = "IdBeca"
+            request.DefaultFilterField = "Descripcion"
+            request.Values = Valores
+            request.Keys = Llave
             Using frm As New Global.SCSC.Busqueda()
+                frm.Request = request
                 frm.ShowDialog(Me)
+                If frm.SelectedValues Is Nothing OrElse frm.SelectedValues.Length = 0 Then
+                    Exit Sub
+                End If
+                Dim codigoSeleccionado As String = frm.SelectedValues(0)
+                If String.IsNullOrWhiteSpace(codigoSeleccionado) Then
+                    Exit Sub
+                End If
+                txtCodBeca.Text = codigoSeleccionado.Trim()
             End Using
 
-            If gSession.Resultado Is Nothing OrElse gSession.Resultado.Length = 0 Then
+            If String.IsNullOrWhiteSpace(txtCodBeca.Text) Then
                 Exit Sub
             End If
 
-            Dim codigoSeleccionado As String = gSession.Resultado(0)
-            If String.IsNullOrWhiteSpace(codigoSeleccionado) Then
-                Exit Sub
-            End If
-
-            txtCodBeca.Text = codigoSeleccionado.Trim()
             txtCodRuta_Validated(txtCodBeca, EventArgs.Empty)
         Catch ex As Exception
             ErrorLogger.LogException("FrmBecas.Buscar_Click", ex)

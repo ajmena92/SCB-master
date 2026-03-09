@@ -13,8 +13,9 @@ Fecha: 2026-03-09
   - validar arranque real despues del cambio.
 
 ### 2. Rehabilitar warnings del compilador
+- Estado: mitigado parcialmente en esta revision.
 - Evidencia: `SCSC/SCSC_Marcas.vbproj`
-- Riesgo: conversiones peligrosas, late binding y warnings reales ocultos en CI/build local.
+- Riesgo remanente: warnings visibles pero aun no clasificados en build Windows real.
 - Accion recomendada:
   - subir `WarningLevel`;
   - corregir warnings por lotes empezando por `Clases` y `Servicios`;
@@ -43,16 +44,18 @@ Fecha: 2026-03-09
   - separar persistencia de feedback visual.
 
 ### 5. Eliminar estado global compartido
+- Estado: mitigado parcialmente en reportes y busquedas.
 - Evidencia:
   - `SCSC/Clases/VariablesGlobales.vb`
   - `SCSC/Clases/CodigoGeneral.vb`
-  - usos de `gSession` en formularios y reportes
+- Riesgo remanente concentrado en `VariablesGlobales` y formularios que leen/modifican estado compartido del modulo.
 - Riesgo: efectos secundarios entre pantallas, trazabilidad baja y acoplamiento fuerte.
 - Accion recomendada:
   - introducir objetos de contexto por flujo;
-  - pasar parametros explicitamente a reportes y busquedas.
+  - pasar parametros explicitamente a configuracion/sesion operativa en lugar de leer globals del modulo.
 
 ### 6. Completar migracion a consultas parametrizadas
+- Estado: mitigado parcialmente en `FrmRecargas`.
 - Evidencia:
   - `SCSC/Formularios/FrmRecargas.vb`
   - `SCSC/Clases/FunccionesDB.vb`
@@ -71,12 +74,13 @@ Fecha: 2026-03-09
   - agregar pruebas a helpers y servicios puros donde ya existe aislamiento.
 
 ### 8. Reducir deuda de Crystal Reports
+- Estado: mitigado parcialmente en esta revision.
 - Evidencia: wrappers `Rpt/*.vb` con `Option Strict Off`.
 - Riesgo: zona fuera de los estandares de tipado y dificil de modernizar.
 - Accion recomendada:
   - aislar wrappers autogenerados;
   - documentar que no se editan manualmente;
-  - mover preparacion de parametros fuera del viewer.
+  - mantener la preparacion de parametros fuera del viewer, usando contratos explicitos.
 
 ### 9. Consolidar acceso a recursos visuales y archivos
 - Evidencia:
@@ -89,6 +93,7 @@ Fecha: 2026-03-09
   - priorizar `My.Resources` cuando sea viable.
 
 ### 10. Documentar baseline de build y smoke operativo
+- Estado: mitigado parcialmente en esta revision.
 - Evidencia: la documentacion historica mezcla estados de distintas sesiones.
 - Riesgo: no hay una unica fuente de verdad para saber si un cambio esta listo.
 - Accion recomendada:

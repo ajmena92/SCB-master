@@ -43,8 +43,9 @@ Nota de actualizacion del mismo dia: durante esta revision se saneo `SCSC/app.co
 
 ### Estado global y reporting
 - `SCSC/Clases/VariablesGlobales.vb` mantiene configuracion y contexto global del sistema.
-- `SCSC/Clases/CodigoGeneral.vb` expone `gSession`, usado para flujos de busqueda y parametros de reportes.
-- `SCSC/Reportes/FrmReportViewer.vb` sigue dependiendo de `gSession` para seleccionar y parametrizar reportes.
+- `SCSC/Clases/CodigoGeneral.vb` ya no expone `gSession`; conserva utilidades generales de formato/configuracion.
+- `SCSC/Reportes/FrmReportViewer.vb` ya consume un contrato explicito (`ReportRequest`) para seleccionar y parametrizar reportes.
+- `SCSC/Busqueda.vb` ya exige un contrato explicito (`SearchRequest`) para cada flujo de busqueda.
 
 ## Hallazgos tecnicos
 ### Fortalezas actuales
@@ -57,8 +58,8 @@ Nota de actualizacion del mismo dia: durante esta revision se saneo `SCSC/app.co
 ### Riesgos vigentes
 1. Configuracion sensible historicamente expuesta.
    - El repositorio ya fue saneado en esta revision, pero la operacion ahora depende de variables de entorno y sigue pendiente rotacion de credenciales historicas.
-2. La compilacion oculta warnings.
-   - `SCSC/SCSC_Marcas.vbproj` usa `WarningLevel=0` en Debug y Release.
+2. La compilacion vuelve a exponer warnings, pero falta baseline validado.
+   - `SCSC/SCSC_Marcas.vbproj` ya usa `WarningLevel=4`; resta ejecutar build real en Windows y clasificar warnings.
 3. El acceso a datos legacy sigue siendo demasiado generico.
    - `SCSC/Clases/FunccionesDB.vb` tiene 1384 lineas y concentra demasiadas responsabilidades.
 4. Persisten formularios monoliticos.
@@ -78,7 +79,7 @@ Nota de actualizacion del mismo dia: durante esta revision se saneo `SCSC/app.co
 - El login de soporte queda deshabilitado por defecto si no se define configuracion externa.
 
 ### Build/calidad
-- `SCSC/SCSC_Marcas.vbproj`: `WarningLevel=0` en configuraciones principales.
+- `SCSC/SCSC_Marcas.vbproj`: `WarningLevel=4` en configuraciones principales.
 - En este entorno no fue posible ejecutar `msbuild` ni `nuget`; no estan instalados en WSL actual.
 
 ### Tipado
@@ -92,15 +93,15 @@ Nota de actualizacion del mismo dia: durante esta revision se saneo `SCSC/app.co
   - `SCSC/Reportes/Rpt/RptFechaComedor.vb`
 
 ### SQL y acoplamiento
-- `SCSC/Formularios/FrmRecargas.vb`: mantiene SQL de update armado en formulario.
+- `SCSC/Formularios/FrmRecargas.vb`: recarga movida a `RecargaService`, pero el formulario aun conserva dependencias legacy para busqueda/modal.
 - `SCSC/Clases/FunccionesDB.vb`: expone CRUD dinamico y consultas genericas de uso transversal.
-- `SCSC/Clases/CodigoGeneral.vb`: usa `gSession` como bus de estado para busquedas y reportes.
+- `SCSC/Clases/CodigoGeneral.vb`: usa `gSession` como bus de estado para busquedas legacy.
 
 ## Direccion recomendada
 1. Resolver configuracion sensible fuera del repositorio.
 2. Restaurar warnings del compilador y usar build de Windows como baseline obligatorio.
 3. Seguir moviendo consultas y reglas desde formularios hacia `Clases/Servicios`.
-4. Reducir `gSession` y `VariablesGlobales` empezando por reportes y busquedas.
+4. Reducir `gSession` y `VariablesGlobales` empezando por busquedas y formularios CRUD.
 5. Partir formularios monoliticos por responsabilidades: captura, validacion, persistencia, feedback visual.
 6. Agregar al menos pruebas de humo repetibles o una capa de validacion automatizada para servicios puros.
 

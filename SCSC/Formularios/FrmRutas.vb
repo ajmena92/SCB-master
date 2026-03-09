@@ -53,33 +53,34 @@ Public Class FrmRutas
             Dim Valores(), Llave() As FuncionesDB.Campos
             Valores = Cls.InicializarArray
             Llave = Cls.InicializarArray
-            LimpiarSession()
-            gSession.Titulo = "Rutas del Sistema"
-            gSession.Valor1 = "Ruta"   '  TABLA utilizada.
-            gSession.Valor2 = "IdRuta" ' ORDER BY
-            gSession.Valor3 = "Codigo" ' codigo devuelto a la aplicacion en propiedad gsession.resultado
-            'gSession.Valor4 = "Cedula,Nombre,PrimerApellido,SegundoApellido" ' Valor presentado al usuario
-            gSession.Valor5 = "Descripcion" ' campo para el filtro utilizado
             Cls.ArmaValor(Valores, "Codigo", "Código")
             Cls.ArmaValor(Valores, "Descripcion", "Descripción")
             'Armado de la llave primaria, 1=1 para todos los registros
             Cls.ArmaValor(Llave, "1", "1")
-            gSession.Valores = Valores
-            gSession.Llave = Llave
+            Dim request As New SearchRequest()
+            request.Title = "Rutas del Sistema"
+            request.TableName = "Ruta"
+            request.OrderBy = "IdRuta"
+            request.ReturnFieldsCsv = "Codigo"
+            request.DefaultFilterField = "Descripcion"
+            request.Values = Valores
+            request.Keys = Llave
             Using frm As New Global.SCSC.Busqueda()
+                frm.Request = request
                 frm.ShowDialog(Me)
+                If frm.SelectedValues Is Nothing OrElse frm.SelectedValues.Length = 0 Then
+                    Exit Sub
+                End If
+                Dim codigoSeleccionado As String = frm.SelectedValues(0)
+                If String.IsNullOrWhiteSpace(codigoSeleccionado) Then
+                    Exit Sub
+                End If
+                txtCodRuta.Text = codigoSeleccionado.Trim()
             End Using
 
-            If gSession.Resultado Is Nothing OrElse gSession.Resultado.Length = 0 Then
+            If String.IsNullOrWhiteSpace(txtCodRuta.Text) Then
                 Exit Sub
             End If
-
-            Dim codigoSeleccionado As String = gSession.Resultado(0)
-            If String.IsNullOrWhiteSpace(codigoSeleccionado) Then
-                Exit Sub
-            End If
-
-            txtCodRuta.Text = codigoSeleccionado.Trim()
             txtCodRuta_Validated(txtCodRuta, EventArgs.Empty)
         Catch ex As Exception
             ErrorLogger.LogException("FrmRutas.Buscar_Click", ex)

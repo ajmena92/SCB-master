@@ -5,7 +5,8 @@ Public Class FrmRecarga
 
     Dim Cn As New SqlClient.SqlConnection
     Dim Cls As New FuncionesDB
-    Dim DsBeca As New DataSet ' Datset para almacenar los tipos de becas
+    Private ReadOnly _recargaService As New RecargaService()
+    Private _becas As DataTable
     Dim TipoUsuario As String
     Dim TipoUsuarioCod As Integer
 
@@ -42,7 +43,7 @@ Public Class FrmRecarga
         Try
             CrudVisualHelper.ApplyCrudStandard(Me, "dialogo")
             Cls.AbrirConexion(Cn, False)
-            DsBeca = Cls.ConsultarTSQL("Becas", "Select IdBeca,DiasBeca,Descripcion From TipoBeca", Cn:=Cn)
+            _becas = _recargaService.CargarBecas(Cn)
         Catch ex As Exception
             If Cn.State = ConnectionState.Open Then
                 Cls.CerrarConexion(Cn)
@@ -61,35 +62,36 @@ Public Class FrmRecarga
             Dim Valores(), Llave() As FuncionesDB.Campos
             Valores = Cls.InicializarArray
             Llave = Cls.InicializarArray
-            LimpiarSession()
-            gSession.Titulo = "Usuarios del Sistema"
-            gSession.Valor1 = "Usuario"   '  TABLA utilizada.
-            gSession.Valor2 = "IdUsuario" ' ORDER BY
-            gSession.Valor3 = "Cedula" ' codigo devuelto a la aplicacion en propiedad gsession.resultado
-            'gSession.Valor4 = "Cedula,Nombre,PrimerApellido,SegundoApellido" ' Valor presentado al usuario
-            gSession.Valor5 = "Nombre" ' campo para el filtro utilizado
             Cls.ArmaValor(Valores, "Cedula", "Cédula")
             Cls.ArmaValor(Valores, "Nombre", "Nombre")
             Cls.ArmaValor(Valores, "PrimerApellido", "1° Apellido")
             Cls.ArmaValor(Valores, "SegundoApellido", "2­­° Apellido")
             'Armado de la llave primaria, 1=1 para todos los registros
             Cls.ArmaValor(Llave, "1", "1")
-            gSession.Valores = Valores
-            gSession.Llave = Llave
+            Dim request As New SearchRequest()
+            request.Title = "Usuarios del Sistema"
+            request.TableName = "Usuario"
+            request.OrderBy = "IdUsuario"
+            request.ReturnFieldsCsv = "Cedula"
+            request.DefaultFilterField = "Nombre"
+            request.Values = Valores
+            request.Keys = Llave
             Using frm As New Global.SCSC.Busqueda()
+                frm.Request = request
                 frm.ShowDialog(Me)
+                If frm.SelectedValues Is Nothing OrElse frm.SelectedValues.Length = 0 Then
+                    Exit Sub
+                End If
+                Dim cedulaSeleccionada As String = frm.SelectedValues(0)
+                If String.IsNullOrWhiteSpace(cedulaSeleccionada) Then
+                    Exit Sub
+                End If
+                txtCedula.Text = cedulaSeleccionada.Trim()
             End Using
 
-            If gSession.Resultado Is Nothing OrElse gSession.Resultado.Length = 0 Then
+            If String.IsNullOrWhiteSpace(txtCedula.Text) Then
                 Exit Sub
             End If
-
-            Dim cedulaSeleccionada As String = gSession.Resultado(0)
-            If String.IsNullOrWhiteSpace(cedulaSeleccionada) Then
-                Exit Sub
-            End If
-
-            txtCedula.Text = cedulaSeleccionada.Trim()
             TxtCedula_Validated(txtCedula, EventArgs.Empty)
         Catch ex As Exception
             ErrorLogger.LogException("FrmRecargas.Buscar_Click", ex)
@@ -101,29 +103,15 @@ Public Class FrmRecarga
     Private Sub TxtCedula_Validated(sender As Object, e As EventArgs) Handles txtCedula.Validated
         Dim Cedula As String = Replace(txtCedula.Text.Trim, ControlCarnet, "")
         Cedula = Replace(Cedula, "CTPP", "")
-        Dim Ds As New DataSet
-        Dim Valores(), Llave() As FuncionesDB.Campos
         If Cedula.Trim().Length > 0 Then
             Try
-                Valores = Cls.InicializarArray
-                Llave = Cls.InicializarArray
-                Cls.ArmaValor(Llave, "Cedula", Cedula)
-                Cls.ArmaValor(Valores, "IdUsuario")
-                Cls.ArmaValor(Valores, "Nombre")
-                Cls.ArmaValor(Valores, "PrimerApellido")
-                Cls.ArmaValor(Valores, "SegundoApellido")
-                Cls.ArmaValor(Valores, "CantidadTiquetes")
-                Cls.ArmaValor(Valores, "CodTipo")
-                Cls.ArmaValor(Valores, "TipoBeca")
-                Cls.ArmaValor(Valores, "Activo")
                 DiaSemana = Weekday(Now).ToString()
-                Ds = Cls.Consultar("Usuario", Valores, Llave, Cn)
-                If Ds.Tables(0).Rows.Count > 0 Then
-                    Dim row As DataRow = Ds.Tables(0).Rows(0)
-                    TxtNombre.Text = CStr(row("Nombre"))
-                    TxtPrimerApellido.Text = CStr(row("PrimerApellido"))
-                    TxtSegundoApellido.Text = CStr(row("SegundoApellido"))
-                    If CInt(row("CodTipo")) = 1 Then
+                Dim usuario As RecargaService.UsuarioRecargaInfo = _recargaService.ObtenerUsuarioPorCedula(Cn, Cedula)
+                If usuario IsNot Nothing Then
+                    TxtNombre.Text = usuario.Nombre
+                    TxtPrimerApellido.Text = usuario.PrimerApellido
+                    TxtSegundoApellido.Text = usuario.SegundoApellido
+                    If usuario.CodTipo = 1 Then
                         TipoUsuario = "ESTUDIANTE"
                         Precio = PrecioEstudiante
                         TipoUsuarioCod = 1
@@ -132,20 +120,21 @@ Public Class FrmRecarga
                         Precio = PrecioDocente
                         TipoUsuarioCod = 2
                     End If
-                    If Not CBool(row("Activo")) Then
+                    If Not usuario.Activo Then
                         MsgBox("El usuario ingresado esta inactivo, no puede realizar recargas", MsgBoxStyle.Critical)
                         LimpiarPantalla()
                         Exit Sub
                     End If
-                    For Each Beca As DataRow In DsBeca.Tables(0).Rows
-                        If CInt(Beca("IdBeca")) = CInt(row("TipoBeca")) Then
+                    LblTipoBeca.Text = String.Empty
+                    For Each Beca As DataRow In _becas.Rows
+                        If CInt(Beca("IdBeca")) = usuario.TipoBeca Then
                             LblTipoBeca.Text = CStr(Beca("Descripcion"))
                             Exit For
                         End If
                     Next
                     LblTipoUsuario.Text = TipoUsuario
-                    txtCedula.Tag = CInt(row("IdUsuario"))
-                    LblCantTiques.Text = CInt(row("CantidadTiquetes")).ToString() & " Disponibles "
+                    txtCedula.Tag = usuario.IdUsuario
+                    LblCantTiques.Text = usuario.CantidadTiquetes.ToString() & " Disponibles "
                 Else
                     LimpiarPantalla()
                     MsgBox("Usuario no ingresado en el sistema", MsgBoxStyle.Information)
@@ -212,61 +201,17 @@ Public Class FrmRecarga
 
     Private Sub BtnGuardar_Click(sender As Object, e As EventArgs) Handles BtnGuardar.Click
         If Validacion() Then
-
-
-            Dim Valores(), Llave() As FuncionesDB.Campos
-            Dim Ds As New DataSet
-
-            Dim pTransac As SqlClient.SqlTransaction = Nothing
-
-            Dim Cmd As String = String.Empty
             Try
                 Dim recargaCantidad As Integer = ObtenerCantidadRecarga()
-                Cls.IniciaSQL(Cn, pTransac)
-                'Valores = Cls.InicializarArray
-                Llave = Cls.InicializarArray
-                Cls.ArmaValor(Llave, "IdUsuario", txtCedula.Tag)
-                'Cls.ArmaValor(Valores, "Recarga", Val(sen(TxtRecarga.Text)))                  
-                Cmd = "UPDATE Usuario set CantidadTiquetes = CantidadTiquetes + " & recargaCantidad.ToString() & " WHERE IdUsuario = @IdUsuario"
-                ''Suma los tiquetes en usuarios
-                Cls.AplicaSQL(Cmd, Cn, pTransac, Llave)
-                ''Inserta la nueva trasaccion
-                Valores = Cls.InicializarArray
-                Cls.ArmaValor(Valores, "IdUsuario", txtCedula.Tag)
-                Cls.ArmaValor(Valores, "TipoPago", 1)
-                Cls.ArmaValor(Valores, "Beca", 9)
-                Cls.ArmaValor(Valores, "Precio", Precio)
-                Cls.ArmaValor(Valores, "TipoUsuario", TipoUsuarioCod)
-                Cls.ArmaValor(Valores, "Cantidad", recargaCantidad)
-
-
-                Cls.Insert("RegistroComedor", Valores, Cn, pTransac)
-
-                Cls.FinalSQL(pTransac)
+                Dim cantidadActualizada As Integer = _recargaService.AplicarRecarga(Cn, CInt(txtCedula.Tag), Precio, TipoUsuarioCod, recargaCantidad)
                 MsgBox("Recarga realizada con exitosamente.", MsgBoxStyle.Information)
-
-
-                'Para actualizar cantidad de tiquetes despues de recargar para poder imprimir recibo
-                Valores = Cls.InicializarArray
-                Llave = Cls.InicializarArray
-                Cls.ArmaValor(Llave, "IdUsuario", txtCedula.Tag)
-                Cls.ArmaValor(Valores, "IdUsuario")
-                Cls.ArmaValor(Valores, "CantidadTiquetes")
-                Ds = Cls.Consultar("Usuario", Valores, Llave, Cn)
-                LblCantTiques.Text = CInt(Ds.Tables(0).Rows(0)("CantidadTiquetes")).ToString() & " Disponibles "
-
-
+                LblCantTiques.Text = cantidadActualizada.ToString() & " Disponibles "
 
                 TxtRecarga.Clear()
                 LblTotal.Text = "0"
                 txtCedula.Focus()
                 'BtnCancelar_Click(sender, e)
             Catch ex As Exception
-                Try
-                    Cls.RollSQL(pTransac)
-                Catch ex2 As Exception
-                    ''Omitir error del rollback, pendiente mejorar
-                End Try
                 MsgBox("Error al recargar: " & ex.Message, MsgBoxStyle.Critical)
             End Try
         End If

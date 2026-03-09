@@ -55,9 +55,11 @@ Public Class FrmReporteRutas
     End Sub
 
     Private Sub BtnGuardar_Click(sender As Object, e As EventArgs) Handles BtnGuardar.Click
-        If ArmaReporte() Then
+        Dim request As ReportRequest = ArmaReporte()
+        If request IsNot Nothing Then
             Try
                 Using frm As New FrmReportViewer()
+                    frm.Request = request
                     frm.ShowDialog(Me)
                 End Using
             Catch ex As Exception
@@ -66,9 +68,8 @@ Public Class FrmReporteRutas
         End If
     End Sub
 
-    Private Function ArmaReporte() As Boolean
+    Private Function ArmaReporte() As ReportRequest
         Dim Criterio As String = String.Empty
-        LimpiarSession()
 
         If Not IsDate(FecIni.Value) Then
             MsgBox("Debe Indicar una Fecha Válida de Inicio", MsgBoxStyle.Critical)
@@ -83,27 +84,28 @@ Public Class FrmReporteRutas
             ' todo bien, se saca reporte.
             'Arma el Criterio de la Consulta
             Criterio = ArmaFechaReporte("Date({V_RutaEstudiante_x_Fecha.Fecha})", FecIni.Value.Date, FecFinal.Value.Date)
-            gSession.RangoDeFecha = "Desde: " & FecIni.Value & "  " & "Hasta: " & FecFinal.Value
+            Dim request As New ReportRequest()
+            request.DateRangeLabel = "Desde: " & FecIni.Value & "  " & "Hasta: " & FecFinal.Value
             If CbTipoUsuario.SelectedIndex > 0 Then
                 Criterio = Criterio + " and {V_RutaEstudiante_x_Fecha.IdRuta}=" & DirectCast(CbTipoUsuario.Items(CbTipoUsuario.SelectedIndex), LBItem).Valor
             End If
             If CbHorario.SelectedIndex > 0 Then
                 Criterio = Criterio + " and {V_RutaEstudiante_x_Fecha.IdHorario}=" & DirectCast(CbHorario.Items(CbHorario.SelectedIndex), LBItem).Valor
-                gSession.Valor1 = "Horario: " + CbHorario.Text
+                request.ScheduleLabel = "Horario: " + CbHorario.Text
             End If
 
-            gSession.Criterio = Criterio
-            gSession.Titulo = "Reporte de Marcas por Rango de Fechas"
+            request.SelectionFormula = Criterio
+            request.Title = "Reporte de Marcas por Rango de Fechas"
             If RbGeneral.Checked Then
-                gSession.TipoReporte = "GENERAL"
-                gSession.Titulo = "Reporte Servicio de Transporte General"
+                request.ReportVariant = "GENERAL"
+                request.Title = "Reporte Servicio de Transporte General"
             Else
-                gSession.TipoReporte = "DETALLADO"
-                gSession.Titulo = "Reporte Servicio de Transporte Detallado"
+                request.ReportVariant = "DETALLADO"
+                request.Title = "Reporte Servicio de Transporte Detallado"
             End If
-            gSession.Reporte = "FrmReporteRutas"
-            Return True
+            request.ReportKey = "FrmReporteRutas"
+            Return request
         End If
-        Return False
+        Return Nothing
     End Function
 End Class

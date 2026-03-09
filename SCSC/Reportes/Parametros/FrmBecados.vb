@@ -50,9 +50,11 @@ Public Class FrmBecados
     End Sub
 
     Private Sub BtnGuardar_Click(sender As Object, e As EventArgs) Handles BtnGuardar.Click
-        If ArmaReporte() Then
+        Dim request As ReportRequest = ArmaReporte()
+        If request IsNot Nothing Then
             Try
                 Using frm As New FrmReportViewer()
+                    frm.Request = request
                     frm.ShowDialog(Me)
                 End Using
             Catch ex As Exception
@@ -61,9 +63,8 @@ Public Class FrmBecados
         End If
     End Sub
 
-    Private Function ArmaReporte() As Boolean
+    Private Function ArmaReporte() As ReportRequest
         Dim Criterio As String = String.Empty
-        LimpiarSession()
 
         If (RbBecaComedor.Checked = False And RbBecaTransporte.Checked = False And RbPermisoSalida.Checked = False) Then
             MsgBox("Debe Indicar el tipo de reporte a mostrar (Comedror-Transporte)", MsgBoxStyle.Critical)
@@ -71,32 +72,33 @@ Public Class FrmBecados
             ' todo bien, se saca reporte.
             'Arma el Criterio de la Consulta
 
+            Dim request As New ReportRequest()
             Criterio = Criterio + " {Usuario.CodTipo}=1 and {Usuario.Activo}= True"
             If RbBecaComedor.Checked Then
-                gSession.Titulo = "Reporte Beneficiarios Servicio de Comedor"
+                request.Title = "Reporte Beneficiarios Servicio de Comedor"
                 Criterio = Criterio + " and {Usuario.TipoBeca}<>1"
-                gSession.TipoReporte = "BecadosComedor"
+                request.ReportVariant = "BecadosComedor"
             ElseIf RbBecaTransporte.Checked Then
-                gSession.Titulo = "Reporte Beneficiarios Servicio de Transporte"
+                request.Title = "Reporte Beneficiarios Servicio de Transporte"
                 Criterio = Criterio + " and {Usuario.IdRuta}<>1"
                 If RbGeneral.Checked Then
-                    gSession.TipoReporte = "FrmBecadosTransporteGeneral"
+                    request.ReportVariant = "FrmBecadosTransporteGeneral"
                 Else
-                    gSession.TipoReporte = "FrmBecadosTansporteDetallado"
+                    request.ReportVariant = "FrmBecadosTansporteDetallado"
                 End If
             Else
-                gSession.Titulo = "Reporte Estudiantes con Permiso de Salida"
+                request.Title = "Reporte Estudiantes con Permiso de Salida"
                 Criterio = Criterio + " and {Usuario.PermisoSalida}=1"
             End If
             If CbHorario.SelectedIndex > 0 Then
                 Criterio = Criterio + " and {Usuario.IdHorario}=" & DirectCast(CbHorario.Items(CbHorario.SelectedIndex), LBItem).Valor
-                gSession.Valor1 = "Horario: " + CbHorario.Text
+                request.ScheduleLabel = "Horario: " + CbHorario.Text
             End If
-            gSession.Reporte = "FrmBecados"
-            gSession.Criterio = Criterio
-            Return True
+            request.ReportKey = "FrmBecados"
+            request.SelectionFormula = Criterio
+            Return request
         End If
-        Return False
+        Return Nothing
     End Function
 
     Private Sub RbGeneral_CheckedChanged(sender As Object, e As EventArgs) Handles RbGeneral.CheckedChanged

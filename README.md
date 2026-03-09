@@ -57,6 +57,7 @@ El código ahora prioriza variables de entorno sobre `appSettings`.
 
 ## Documentación recomendada
 - [Análisis actual del proyecto](docs/refactor/PROJECT_ANALYSIS_20260309.md)
+- [Baseline de build y smoke manual](docs/refactor/BUILD_SMOKE_BASELINE_20260309.md)
 - [Backlog de deuda técnica pendiente](docs/refactor/TECH_DEBT_BACKLOG_20260309.md)
 - [Índice técnico histórico](docs/refactor/PROJECT_INDEX.md)
 - [Roadmap de refactor](docs/refactor/REFACTOR_ROADMAP.md)
@@ -64,6 +65,7 @@ El código ahora prioriza variables de entorno sobre `appSettings`.
 
 ## Hallazgos relevantes al 2026-03-09
 - El proyecto combina código legacy orientado a formularios con una capa de servicios nueva, pero la separación todavía es parcial.
-- Persisten globals compartidos (`VariablesGlobales`, `gSession`) y acceso a datos genérico en `FuncionesDB`.
+- Persisten globals compartidos (`VariablesGlobales`) y acceso a datos genérico en `FuncionesDB`.
 - Los secretos sensibles se movieron a variables de entorno, pero sigue pendiente rotar cualquier credencial histórica ya expuesta y limpiar referencias legacy/documentales.
-- El archivo de proyecto mantiene `WarningLevel=0`, por lo que parte del riesgo de compilación sigue oculto.
+- El flujo de reportes ya no depende de `gSession`, y el flujo de búsqueda ya migró a `SearchRequest`.
+- El archivo de proyecto vuelve a exponer warnings del compilador; falta validar el baseline real de build en Windows.

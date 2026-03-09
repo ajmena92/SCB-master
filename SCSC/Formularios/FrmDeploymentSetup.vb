@@ -167,6 +167,8 @@ Public Class FrmDeploymentSetup
     End Sub
 
     Private Sub LoadExistingState()
+        OnWindowsAuthChanged(Me, EventArgs.Empty)
+
         Dim config As DeploymentConfiguration = Nothing
         Dim errorMessage As String = String.Empty
         If DeploymentConfigService.TryLoad(config, errorMessage) AndAlso config IsNot Nothing Then
@@ -175,6 +177,7 @@ Public Class FrmDeploymentSetup
             _chkWindowsAuth.Checked = config.UseIntegratedSecurity()
             _txtUser.Text = config.UserName
             _txtPassword.Text = config.GetPlainTextPassword()
+            OnWindowsAuthChanged(Me, EventArgs.Empty)
             _connectionValidated = DeploymentConfigService.TestConnection(config, errorMessage)
         End If
 
@@ -192,7 +195,6 @@ Public Class FrmDeploymentSetup
         End If
 
         RefreshRequestCode()
-        OnWindowsAuthChanged(Me, EventArgs.Empty)
     End Sub
 
     Private Sub OnWindowsAuthChanged(sender As Object, e As EventArgs)

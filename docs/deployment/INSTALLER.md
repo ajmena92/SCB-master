@@ -5,6 +5,7 @@
 - `Installer/Bundle`: `Setup.exe` con prerequisitos y ejecución del bootstrap de configuración.
 - `scripts/New-SCSCLicense.ps1`: genera activaciones offline firmadas.
 - `scripts/build-release.ps1`: compila app, cosecha archivos y construye MSI + bundle.
+- `SCSC/Clases/LicenseService.vb`: validar la clave pública embebida y reemplazarla por la definitiva antes de producción.
 
 ## Flujo de instalación
 1. Ejecutar `Setup.exe`.

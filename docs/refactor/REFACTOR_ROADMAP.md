@@ -5,7 +5,7 @@
 - Código: 55 archivos `.vb` (22 designer), total aproximado de 13,647 líneas.
 - Núcleo técnico: `SCSC/Clases/FunccionesDB.vb` (1,384 líneas) centraliza CRUD y transacciones.
 - Dependencias críticas: DigitalPersona (captura/huella) y Crystal Reports.
-- Base de datos SQL Server accesible y validada (`SCSC`, host `172.30.210.200`).
+- Base de datos SQL Server accesible y validada en ambiente tecnico controlado.
 - Tablas núcleo operativas confirmadas: `Usuario`, `RegistroComedor`, `RegistroTransporte`, `RegistroDocentes`, `TipoBeca`, `Horario`, `Ruta`, `Parametro`, `TablaSeguridad`.
 
 ## 2. Riesgos principales
@@ -88,6 +88,6 @@ Criterio de salida:
 4. Refactor login/configuración segura.
 
 ## 8. Decisiones tomadas hoy
-- Se confirma conectividad real a SQL Server de producción técnica del sistema (`172.30.210.200:1433`).
+- Se confirma conectividad real a SQL Server del ambiente tecnico del sistema.
 - Se instala `sqlcmd` local para diagnóstico y validaciones futuras.
 - Se establece estrategia de refactor incremental sin Big Bang.

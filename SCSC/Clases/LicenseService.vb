@@ -28,6 +28,7 @@ Public NotInheritable Class LicenseService
     Private Shared ReadOnly Serializer As New JavaScriptSerializer()
     Private Const LicenseFolderName As String = "license"
     Private Const LicenseFileName As String = "license.dat"
+    ' Reemplazar esta clave pública por la del entorno productivo antes de emitir licencias definitivas.
     Private Const PublicKeyXml As String = "<RSAKeyValue><Modulus>n8K6JQ2NQ9e0ABm0c7vN6LJm0hQ1SckV9Oq3jA2h1gKScx8/0sK3K+JvAkDq6O1b0m6P3hNQK8v9JfH8yP65YyGmQMMhshG1u1kI9Ykif0gL4N9Or0xlN7s1lQTF7g9s7vX9m+7m4Pci7kO2Fv5YP+EsC2S+WvSQjU5p1R2Rj4dN2obP9vXAZshH5tvq4k41wVv5v7E6Y5P4vD8K9EX5E9P7Q7N6w3D8P0gkW0lWQwD6c0v4l8rqYwK8+4L7cEmM4M97cV2m5bYdDoh6y9K4m8GQjCQ2hQdQ4lsPahc4m1rA1FQwYVw9hOymNmtjXy3YvYpK9cL1w==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue>"
 
     Private Sub New()

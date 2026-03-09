@@ -90,35 +90,36 @@ Public Class FrmAgregarEstudiante
             Dim Valores(), Llave() As FuncionesDB.Campos
             Valores = Cls.InicializarArray
             Llave = Cls.InicializarArray
-            LimpiarSession()
-            gSession.Titulo = "Usuarios del Sistema"
-            gSession.Valor1 = "Usuario"   '  TABLA utilizada.
-            gSession.Valor2 = "IdUsuario" ' ORDER BY
-            gSession.Valor3 = "Cedula" ' codigo devuelto a la aplicacion en propiedad gsession.resultado
-            'gSession.Valor4 = "Cedula,Nombre,PrimerApellido,SegundoApellido" ' Valor presentado al usuario
-            gSession.Valor5 = "Nombre" ' campo para el filtro utilizado
             Cls.ArmaValor(Valores, "Cedula", "Cédula")
             Cls.ArmaValor(Valores, "Nombre", "Nombre")
             Cls.ArmaValor(Valores, "PrimerApellido", "1° Apellido")
             Cls.ArmaValor(Valores, "SegundoApellido", "2­­° Apellido")
             'Armado de la llave primaria, 1=1 para todos los registros
             Cls.ArmaValor(Llave, "Activo", "1")
-            gSession.Valores = Valores
-            gSession.Llave = Llave
+            Dim request As New SearchRequest()
+            request.Title = "Usuarios del Sistema"
+            request.TableName = "Usuario"
+            request.OrderBy = "IdUsuario"
+            request.ReturnFieldsCsv = "Cedula"
+            request.DefaultFilterField = "Nombre"
+            request.Values = Valores
+            request.Keys = Llave
             Using frm As New Global.SCSC.Busqueda()
+                frm.Request = request
                 frm.ShowDialog(Me)
+                If frm.SelectedValues Is Nothing OrElse frm.SelectedValues.Length = 0 Then
+                    Exit Sub
+                End If
+                Dim cedulaSeleccionada As String = frm.SelectedValues(0)
+                If String.IsNullOrWhiteSpace(cedulaSeleccionada) Then
+                    Exit Sub
+                End If
+                TxtCedula.Text = cedulaSeleccionada.Trim()
             End Using
 
-            If gSession.Resultado Is Nothing OrElse gSession.Resultado.Length = 0 Then
+            If String.IsNullOrWhiteSpace(TxtCedula.Text) Then
                 Exit Sub
             End If
-
-            Dim cedulaSeleccionada As String = gSession.Resultado(0)
-            If String.IsNullOrWhiteSpace(cedulaSeleccionada) Then
-                Exit Sub
-            End If
-
-            TxtCedula.Text = cedulaSeleccionada.Trim()
             TxtCedula_Validated(TxtCedula, EventArgs.Empty)
             BtnGuardar.Select()
         Catch ex As Exception
