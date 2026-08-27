@@ -6,6 +6,7 @@ on:
       - ".github/workflows/verificacion.yml"
       - "web/backend/**"
       - "web/frontend/**"
+      - "web/ops/**"
       - "web/scripts/**"
   push:
     branches:
@@ -14,8 +15,15 @@ on:
       - ".github/workflows/verificacion.yml"
       - "web/backend/**"
       - "web/frontend/**"
+      - "web/ops/**"
       - "web/scripts/**"
   workflow_dispatch:
+    inputs:
+      ejecutar_medicion_memoria:
+        description: "Ejecutar la puerta de memoria contra el stack de staging"
+        required: true
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -71,10 +79,10 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
-          cache-dependency-path: web/backend/requirements.txt
+          cache-dependency-path: web/backend/requirements-desarrollo.txt
 
       - name: Instalar dependencias
-        run: python -m pip install -r requirements.txt
+        run: python -m pip install -r requirements-desarrollo.txt
 
       - name: Verificar Ruff
         run: ruff check .
@@ -88,5 +96,59 @@ jobs:
       - name: Ejecutar pruebas
         run: pytest -q
 
+      - name: Medir cobertura backend
+        run: >-
+          pytest --cov=aplicacion --cov-report=term-missing
+          --cov-report=json:coverage/coverage.json -q
+
+      - name: Verificar cobertura de dominios críticos
+        run: >-
+          coverage report
+          --include='aplicacion/modulos/identidad/seguridad.py,aplicacion/modulos/cuentas/servicio.py,aplicacion/modulos/asistencia/servicio.py'
+          --fail-under=90
+
+      - name: Conservar reporte de cobertura
+        uses: actions/upload-artifact@v4
+        with:
+          name: cobertura-backend-${{ github.run_id }}
+          path: web/backend/coverage/coverage.json
+          if-no-files-found: error
+
       - name: Verificar cliente TypeScript generado desde OpenAPI
         run: python ../scripts/generar_cliente_openapi.py --verificar
+
+  memoria-staging:
+    name: Memoria de staging
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.ejecutar_medicion_memoria == true }}
+    runs-on: self-hosted
+    timeout-minutes: 15
+    environment: staging
+    steps:
+      - name: Obtener código
+        uses: actions/checkout@v4
+
+      - name: Medir memoria de los servicios desplegados
+        env:
+          COMPOSE_ENV_FILE: ${{ vars.COMPOSE_ENV_FILE }}
+          SALIDA_MEDICION_MEMORIA: /tmp/scsc-memoria-staging-${{ github.run_id }}.tsv
+          SALIDA_MUESTRAS_MEMORIA: /tmp/scsc-memoria-staging-${{ github.run_id }}-muestras.tsv
+          URL_PRUEBA: ${{ vars.URL_PRUEBA }}
+          USUARIOS_PRUEBA: ${{ vars.USUARIOS_PRUEBA || 1 }}
+          UMBRAL_MEMORIA_PORCENTAJE: ${{ vars.UMBRAL_MEMORIA_PORCENTAJE || 70 }}
+          LATENCIA_P95_UMBRAL_MS: ${{ vars.LATENCIA_P95_UMBRAL_MS }}
+          LATENCIA_P95_REFERENCIA_MS: ${{ vars.LATENCIA_P95_REFERENCIA_MS }}
+          AUMENTO_LATENCIA_MAXIMO_PORCENTAJE: ${{ vars.AUMENTO_LATENCIA_MAXIMO_PORCENTAJE || 20 }}
+          EXIGIR_UMBRAL_MEMORIA: "true"
+          DURACION_MEDICION_SEGUNDOS: ${{ vars.DURACION_MEDICION_SEGUNDOS || 60 }}
+          INTERVALO_MEDICION_SEGUNDOS: ${{ vars.INTERVALO_MEDICION_SEGUNDOS || 1 }}
+        run: ./web/scripts/medir_memoria_operativa.sh
+
+      - name: Conservar evidencia de memoria
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: medicion-memoria-${{ github.run_id }}
+          path: |
+            /tmp/scsc-memoria-staging-${{ github.run_id }}.tsv
+            /tmp/scsc-memoria-staging-${{ github.run_id }}-muestras.tsv
+          if-no-files-found: error

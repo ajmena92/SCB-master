@@ -72,3 +72,12 @@ def test_consumo_no_puede_dejar_saldo_negativo() -> None:
         ServicioCuentas(repo).registrar_movimiento(
             8, movimiento("consumo", "11.00", "consumo-001"), 3, "WEB"
         )
+
+
+def test_saldo_y_movimiento_rechazan_estudiante_invalido() -> None:
+    servicio = ServicioCuentas(RepositorioFalso())
+    assert servicio.saldo(8).saldo == Decimal("10.00")
+    with pytest.raises(ValueError, match="no es válido"):
+        servicio.saldo(0)
+    with pytest.raises(ValueError, match="no es válido"):
+        servicio.registrar_movimiento(0, movimiento(), 3, "WEB")

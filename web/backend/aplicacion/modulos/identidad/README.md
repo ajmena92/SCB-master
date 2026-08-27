@@ -1,4 +1,4 @@
-# Núcleo de identidad
+# Dominio de identidad
 
 Este paquete contiene la identidad canónica de la plataforma web: hashes Argon2id,
 sesiones opacas y evaluación de permisos en español.
@@ -20,9 +20,8 @@ sesiones opacas y evaluación de permisos en español.
 
 Las implementaciones `RepositorioSqlUsuarios` y `RepositorioSqlSesiones` reciben una
 `FabricaConexionSql`, ejecutan únicamente SQL parametrizado sobre el esquema canónico y no
-importan módulos del sistema local. La estructura se crea con `008_identidad_canonica.sql`;
-su rollback destructivo está documentado en `008_identidad_canonica_revertir.sql` y requiere
-autorización del DBA.
+importan módulos del sistema local. La estructura se crea mediante las revisiones versionadas
+de Alembic; cualquier rollback destructivo requiere autorización del DBA.
 
 Los permisos son una colección extensible. El primer permiso canónico utilizado por la
 migración es `rutas.administrar`; la API deberá aplicar la comprobación en cada endpoint.

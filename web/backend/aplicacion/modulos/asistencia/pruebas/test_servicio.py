@@ -1,5 +1,7 @@
 from datetime import date
 
+import pytest
+
 from aplicacion.modulos.asistencia.esquemas import CorreccionEntrada, MarcaEntrada
 from aplicacion.modulos.asistencia.servicio import ServicioAsistencia
 
@@ -60,3 +62,19 @@ def test_corregir_registra_motivo() -> None:
     salida = ServicioAsistencia(repositorio).corregir(1, datos, 3, "WEB")
     assert salida.corregida
     assert repositorio.llamadas[0][3] == "Ajuste autorizado"
+
+
+def test_registrar_con_observacion_vacia_conserva_valor() -> None:
+    repositorio = RepositorioFalso()
+    datos = MarcaEntrada(
+        idEstudiante=7, fecha=date(2026, 8, 26), estado="presente", observacion="   "
+    )
+    ServicioAsistencia(repositorio).registrar(datos, 3, "WEB")
+    assert repositorio.llamadas[0][1]["observacion"] == ""
+
+
+def test_corregir_rechaza_motivo_vacio() -> None:
+    with pytest.raises(ValueError, match="obligatorio"):
+        ServicioAsistencia(RepositorioFalso()).corregir(
+            1, CorreccionEntrada(estado="justificada", motivo=" a "), 3, "WEB"
+        )

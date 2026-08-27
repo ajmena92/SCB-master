@@ -1,2 +1,4 @@
 import DominioPage from "./DominioPage";
-export default function Auditoria() { return <DominioPage dominio="auditoria" />; }
+export default function Auditoria() {
+  return <DominioPage dominio="auditoria" />;
+}

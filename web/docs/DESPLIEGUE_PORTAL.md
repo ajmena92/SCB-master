@@ -85,4 +85,17 @@ una decisión formal de operación; no se permite convivencia ni doble escritura
 
 ## Controles previos a publicar
 
-No se permite ejecutar contra producción hasta que staging complete las pruebas de confirmación, cancelación, concurrencia y recuperación de SQL. Configure `CORS_ORIGIN` como un único dominio HTTPS y `FORWARDED_ALLOW_IPS`/`TRUSTED_PROXY_CIDRS` con la red exacta del proxy inverso; nunca use `*`. El único Dockerfile y Nginx canónicos son `web/ops/Dockerfile.api`, `web/ops/Dockerfile.frontend` y `web/ops/nginx/default.conf`.
+No se permite ejecutar contra producción hasta que staging complete las pruebas de confirmación, cancelación, concurrencia y recuperación de SQL. Configure `CORS_ORIGIN` como un único dominio HTTPS y `FORWARDED_ALLOW_IPS`/`TRUSTED_PROXY_CIDRS` con la red exacta del proxy inverso; nunca use `*`. Los Dockerfile canónicos son `web/ops/Dockerfile.api` y `web/ops/Dockerfile.migracion`; Nginx usa `web/ops/Dockerfile.frontend` y `web/ops/nginx/default.conf`.
+
+Antes de fijar los límites de memoria de Compose, ejecute la medición operativa con la carga
+representativa de staging. El resultado debe conservarse junto con la aprobación del entorno;
+no se aceptan valores basados únicamente en el arranque en reposo. La puerta debe confirmar
+que el uso de memoria no supera 70 %, no hay reinicios ni `OOMKilled`, la latencia no aumenta
+fuera del objetivo aprobado y no aparecen errores 5xx. Deben conservarse los TSV fechados con
+usuarios concurrentes, workers, duración, picos, latencia y errores.
+
+La imagen `Dockerfile.migracion` no es una imagen de servicio: su entrada solo ejecuta Alembic
+y rechaza el inicio sin `MIGRACION_MANUAL_DBA=confirmada`. El servicio Compose está bajo el
+perfil `migracion`, excluido del arranque normal, sin reinicio automático. El DBA ejecuta
+exclusivamente `CONFIRMAR_MIGRACION_DBA=SI ./web/scripts/validar_alembic_docker.sh upgrade`
+desde una cuenta perteneciente a `GRUPO_DBA_MIGRACION` (por defecto, `dba`).

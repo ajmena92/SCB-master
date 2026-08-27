@@ -29,3 +29,17 @@ warn_redundant_casts = true
 warn_unused_ignores = true
 ignore_missing_imports = true
 follow_imports = "silent"
+
+[tool.coverage.run]
+branch = true
+source = ["aplicacion"]
+omit = ["*/pruebas/*", "*/__pycache__/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+  "pragma: no cover",
+  "if TYPE_CHECKING:",
+  "raise NotImplementedError",
+]
+fail_under = 80
+show_missing = true

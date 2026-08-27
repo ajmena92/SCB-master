@@ -17,21 +17,5 @@ export default defineConfig(({ mode }) => ({
       : undefined,
   },
   preview: { host: "127.0.0.1", port: 4173, strictPort: true },
-  test: {
-    globals: true,
-    environment: "jsdom",
-    setupFiles: [path.resolve(rootDir, "src/testSetup.js")],
-    alias: { "@": path.resolve(rootDir, "src") },
-    css: true,
-    pool: "forks",
-    singleThread: true,
-    coverage: {
-      provider: "v8",
-      reporter: ["text", "html", "json-summary"],
-      reportsDirectory: "./coverage",
-      exclude: ["src/testSetup.js", "src/**/*.test.*", "src/compartido/contratos/api.ts"],
-      thresholds: { lines: 80, functions: 80, statements: 80, branches: 75 },
-    },
-  },
   define: { "process.env.NODE_ENV": JSON.stringify(mode) },
 }));

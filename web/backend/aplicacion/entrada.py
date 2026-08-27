@@ -22,7 +22,18 @@ from aplicacion.modulos.auditoria.repositorio import RepositorioSqlAuditoria
 from aplicacion.modulos.beneficios.repositorio import RepositorioSqlBeneficios
 from aplicacion.modulos.comedor.repositorio import RepositorioSqlComedor
 from aplicacion.modulos.cuentas.repositorio import RepositorioSqlCuentas
-from aplicacion.modulos.estudiantes.repositorio import RepositorioSqlEstudiantes
+from aplicacion.modulos.estudiantes.repositorio_completo import RepositorioSqlEstudiantesCompleto
+from aplicacion.modulos.identidad.esquemas import SesionPersistida
+from aplicacion.modulos.identidad.repositorio import (
+    RepositorioSqlSesiones,
+    RepositorioSqlSesionesEstudiante,
+    RepositorioSqlUsuarios,
+)
+from aplicacion.modulos.identidad.servicio import (
+    AutenticacionFallida,
+    ServicioIdentidad,
+    ServicioPermisos,
+)
 from aplicacion.modulos.importaciones.repositorio import RepositorioSqlImportaciones
 from aplicacion.modulos.menu.repositorio import RepositorioSqlMenu
 from aplicacion.modulos.parametros.repositorio import RepositorioSqlParametros
@@ -31,17 +42,6 @@ from aplicacion.modulos.salud.repositorio import RepositorioSalud
 from aplicacion.modulos.soporte.repositorio import RepositorioSqlSoporte
 from aplicacion.modulos.transporte.repositorio import RepositorioSqlRutas
 from aplicacion.nucleo.base_datos import FabricaConexionSql
-from aplicacion.nucleo.identidad.esquemas import SesionPersistida
-from aplicacion.nucleo.identidad.repositorio import (
-    RepositorioSqlSesiones,
-    RepositorioSqlSesionesEstudiante,
-    RepositorioSqlUsuarios,
-)
-from aplicacion.nucleo.identidad.servicio import (
-    AutenticacionFallida,
-    ServicioIdentidad,
-    ServicioPermisos,
-)
 from config import Settings
 
 
@@ -98,8 +98,8 @@ def crear_aplicacion(dependencias: DependenciasAplicacion | None = None) -> Fast
     def obtener_asistencia() -> Iterator[RepositorioSqlAsistencia]:
         yield RepositorioSqlAsistencia(fabrica)
 
-    def obtener_estudiantes() -> Iterator[RepositorioSqlEstudiantes]:
-        yield RepositorioSqlEstudiantes(fabrica)
+    def obtener_estudiantes() -> Iterator[RepositorioSqlEstudiantesCompleto]:
+        yield RepositorioSqlEstudiantesCompleto(fabrica)
 
     def obtener_beneficios() -> Iterator[RepositorioSqlBeneficios]:
         yield RepositorioSqlBeneficios(fabrica)

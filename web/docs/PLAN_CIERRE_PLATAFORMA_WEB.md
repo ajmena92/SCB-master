@@ -122,11 +122,11 @@ para declarar este hito.
 
 | Puerta | Evidencia exigida | Estado actual |
 |---|---|---|
-| Arquitectura y límites | Guardas y revisión de dependencias | Parcial |
+| Arquitectura y límites | Guardas y revisión de dependencias | Modelos por dominio; guardas pendientes de CI remoto |
 | Tipos y estilo | TypeScript, ESLint, Prettier, Ruff, mypy | Parcial |
 | Pruebas | Unitarias, integración, contratos y Playwright | Parcial |
-| Cobertura | 80 % global; 90 % seguridad/saldos/asistencia | Pendiente |
-| Persistencia | SQLAlchemy/Alembic, base vacía y reversión | Pendiente |
+| Cobertura | 80 % global; 90 % seguridad/saldos/asistencia | Configurada en CI; falta ejecución remota |
+| Persistencia | SQLAlchemy/Alembic, base vacía y reversión | Metadata y SQL offline validados; falta staging |
 | Seguridad | Argon2id, sesiones, CSRF y RBAC en API activa | Pendiente |
 | Accesibilidad | WCAG AA, teclado, lector y movimiento reducido | Pendiente |
 | Operación | Staging, observabilidad, respaldo y recuperación | Pendiente |

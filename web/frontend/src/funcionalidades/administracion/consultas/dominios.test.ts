@@ -5,7 +5,13 @@ import { api } from "@/lib/api";
 describe("catálogo de dominios administrativos", () => {
   it("expone los dominios web canónicos", () => {
     expect(Object.keys(DOMINIOS)).toEqual([
-      "estudiantes", "asistencia", "beneficios", "cuentas", "reportes", "importaciones", "auditoria",
+      "estudiantes",
+      "asistencia",
+      "beneficios",
+      "cuentas",
+      "reportes",
+      "importaciones",
+      "auditoria",
     ]);
   });
 
@@ -18,7 +24,9 @@ describe("catálogo de dominios administrativos", () => {
   });
 
   it("normaliza respuestas en lista y objeto", async () => {
-    vi.spyOn(api, "get").mockResolvedValueOnce({ data: { items: [{ idEstudiante: 1 }] } } as never).mockResolvedValueOnce({ data: { eventos: [{ idEvento: 2 }] } } as never);
+    vi.spyOn(api, "get")
+      .mockResolvedValueOnce({ data: { items: [{ idEstudiante: 1 }] } } as never)
+      .mockResolvedValueOnce({ data: { eventos: [{ idEvento: 2 }] } } as never);
     expect(await DOMINIOS.estudiantes.cargar()).toEqual([{ idEstudiante: 1 }]);
     expect(await DOMINIOS.auditoria.cargar()).toEqual([{ idEvento: 2 }]);
   });

@@ -2,9 +2,9 @@ from contextlib import contextmanager
 from datetime import datetime, timezone
 from typing import Iterator, cast
 
+from aplicacion.modulos.identidad.esquemas import SesionPersistida
+from aplicacion.modulos.identidad.repositorio import RepositorioSqlSesiones, RepositorioSqlUsuarios
 from aplicacion.nucleo.base_datos import ConexionSql, CursorSql, FabricaConexionSql
-from aplicacion.nucleo.identidad.esquemas import SesionPersistida
-from aplicacion.nucleo.identidad.repositorio import RepositorioSqlSesiones, RepositorioSqlUsuarios
 
 
 class CursorDoble:

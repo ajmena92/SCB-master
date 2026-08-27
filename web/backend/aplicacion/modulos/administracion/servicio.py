@@ -1,4 +1,4 @@
-from aplicacion.nucleo.identidad.servicio import preparar_hash_contrasena
+from aplicacion.modulos.identidad.servicio import preparar_hash_contrasena
 
 from .esquemas import PermisoSalida, RolEntrada, RolSalida, UsuarioEntrada, UsuarioSalida
 from .repositorio import RepositorioAdministracion

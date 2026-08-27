@@ -1,12 +1,17 @@
 from typing import Protocol
 
-from fastapi import APIRouter, Depends, File, Response, UploadFile
+from fastapi import APIRouter, Depends, File, HTTPException, Response, UploadFile
+
+from aplicacion.nucleo.archivos import ArchivoExcedeLimite, leer_archivo_limitado
 
 
 class RepositorioFotos(Protocol):
     def obtener_foto(self, id_estudiante: int) -> tuple[bytes, str] | None: ...
     def guardar_foto(self, id_estudiante: int, contenido: bytes, tipo: str) -> None: ...
     def eliminar_foto(self, id_estudiante: int) -> None: ...
+
+
+MAXIMO_FOTO_BYTES = 5_000_000
 
 
 def crear_enrutador_fotos(obtener_repositorio, exigir_permiso, exigir_csrf, **_kwargs) -> APIRouter:
@@ -42,8 +47,11 @@ def crear_enrutador_fotos(obtener_repositorio, exigir_permiso, exigir_csrf, **_k
     ):
         if archivo.content_type not in {"image/jpeg", "image/png"}:
             return Response(status_code=415)
-        contenido = await archivo.read()
-        if not contenido or len(contenido) > 5_000_000:
+        try:
+            contenido = await leer_archivo_limitado(archivo, MAXIMO_FOTO_BYTES)
+        except ArchivoExcedeLimite as exc:
+            raise HTTPException(413, "La fotografía supera el tamaño máximo permitido") from exc
+        if not contenido:
             return Response(status_code=413)
         repo.guardar_foto(id_estudiante, contenido, archivo.content_type)
 

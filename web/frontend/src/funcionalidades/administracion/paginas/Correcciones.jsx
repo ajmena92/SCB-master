@@ -80,8 +80,8 @@ export default function CorreccionesTab() {
       <div className="flex items-start gap-3 bg-primary/10 border border-primary/30 rounded-lg p-4">
         <ShieldAlert className="h-5 w-5 text-primary shrink-0 mt-0.5" />
         <p className="text-sm">
-          Agregar crea una marca en el registro canónico de asistencia
-          retirar elimina únicamente la marca del portal y conserva la auditoría.
+          Agregar crea una marca en el registro canónico de asistencia retirar elimina únicamente la
+          marca del portal y conserva la auditoría.
         </p>
       </div>
 

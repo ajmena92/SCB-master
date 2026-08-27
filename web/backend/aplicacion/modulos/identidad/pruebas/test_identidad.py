@@ -2,13 +2,14 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 
-from aplicacion.nucleo.identidad.esquemas import CredencialesUsuario, SesionPersistida
-from aplicacion.nucleo.identidad.seguridad import (
+from aplicacion.modulos.identidad.esquemas import CredencialesUsuario, SesionPersistida
+from aplicacion.modulos.identidad.seguridad import (
     comparar_secreto_sesion,
     hash_contrasena,
+    requiere_rehash,
     verificar_contrasena,
 )
-from aplicacion.nucleo.identidad.servicio import (
+from aplicacion.modulos.identidad.servicio import (
     AutenticacionFallida,
     ServicioIdentidad,
     ServicioPermisos,
@@ -123,3 +124,8 @@ def test_permisos_son_canonicos_y_extensibles() -> None:
 def test_hash_contrasena_vacio_es_invalido() -> None:
     with pytest.raises(ValueError):
         hash_contrasena("")
+
+
+def test_requiere_rehash_rechaza_hash_invalido_y_acepta_hash_actual() -> None:
+    assert requiere_rehash("no-es-un-hash")
+    assert not requiere_rehash(hash_contrasena("Clave segura 2026"))
