@@ -46,7 +46,25 @@ def crear_enrutador_operaciones(obtener_repositorio: Callable[[], Iterator], exi
         credencial = repo.buscar_credencial_por_id(sesion.id_usuario)
         if not credencial or not credencial.get("activo"):
             raise HTTPException(401, "El estudiante no está disponible")
-        return credencial
+        return {
+            "idEstudiante": credencial["id_estudiante"],
+            "carne": credencial["carne"],
+            "nombre": credencial["nombre"],
+            "primerApellido": credencial.get("primer_apellido"),
+            "segundoApellido": credencial.get("segundo_apellido"),
+            "cedula": credencial.get("cedula"),
+            "seccion": credencial.get("seccion"),
+            "turno": credencial.get("turno"),
+            "idRuta": credencial.get("id_ruta"),
+            "rutaCodigo": credencial.get("ruta_codigo"),
+            "rutaDescripcion": credencial.get("ruta_descripcion"),
+            "rutaColor": credencial.get("ruta_color"),
+            "idBeneficio": credencial.get("id_beneficio"),
+            "tipoBeca": credencial.get("tipo_beca"),
+            "debeCambiarPin": bool(credencial.get("debe_cambiar_pin")),
+            "tieneFoto": bool(credencial.get("tiene_foto")),
+            "barcode": credencial["carne"],
+        }
 
     @r.get("/menu")
     def menu(repo=Depends(obtener_repositorio), identidad: ServicioIdentidad | None = Depends(identidad_portal), id_sesion: str | None = Cookie(default=None), secreto: str | None = Cookie(default=None), menu_repo=Depends(obtener_menu) if obtener_menu else None):
@@ -59,12 +77,31 @@ def crear_enrutador_operaciones(obtener_repositorio: Callable[[], Iterator], exi
     def carnet(repo=Depends(obtener_repositorio), identidad: ServicioIdentidad | None = Depends(identidad_portal), id_sesion: str | None = Cookie(default=None), secreto: str | None = Cookie(default=None)):
         return estudiante_actual(repo, identidad, id_sesion, secreto)
 
+    @r.get("/carnet/foto")
+    def foto_carnet(repo=Depends(obtener_repositorio), identidad: ServicioIdentidad | None = Depends(identidad_portal), id_sesion: str | None = Cookie(default=None), secreto: str | None = Cookie(default=None)):
+        estudiante = estudiante_actual(repo, identidad, id_sesion, secreto)
+        foto = repo.obtener_foto(int(estudiante["idEstudiante"]))
+        if foto is None:
+            return Response(status_code=404)
+        return Response(content=foto[0], media_type=foto[1])
+
+    @r.get("/carnet.pdf")
+    def carnet_pdf(repo=Depends(obtener_repositorio), identidad: ServicioIdentidad | None = Depends(identidad_portal), id_sesion: str | None = Cookie(default=None), secreto: str | None = Cookie(default=None)):
+        estudiante = estudiante_actual(repo, identidad, id_sesion, secreto)
+        cuerpo = f"BT /F1 18 Tf 72 720 Td (Carnet estudiante {estudiante['carne']}) Tj ET"
+        pdf = ("%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n"
+               "2 0 obj<</Type/Pages/Count 1/Kids[3 0 R]>>endobj\n"
+               "3 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 612 792]/Resources<</Font<</F1 4 0 R>>>>/Contents 5 0 R>>endobj\n"
+               "4 0 obj<</Type/Font/Subtype/Type1/BaseFont/Helvetica>>endobj\n"
+               f"5 0 obj<</Length {len(cuerpo)}>>stream\n{cuerpo}\nendstream endobj\nxref\n0 6\n0000000000 65535 f \ntrailer<</Size 6/Root 1 0 R>>\nstartxref\n0\n%%EOF\n").encode()
+        return Response(pdf, media_type="application/pdf", headers={"Content-Disposition": f"inline; filename=carnet-{estudiante['idEstudiante']}.pdf"})
+
     @r.get("/asistencia/hoy")
     def asistencia_hoy(repo=Depends(obtener_repositorio), identidad: ServicioIdentidad | None = Depends(identidad_portal), id_sesion: str | None = Cookie(default=None), secreto: str | None = Cookie(default=None), asistencia_repo=Depends(obtener_asistencia) if obtener_asistencia else None):
         estudiante = estudiante_actual(repo, identidad, id_sesion, secreto)
         if asistencia_repo is None:
             raise HTTPException(503, "La asistencia no está configurada")
-        marcas = [m for m in asistencia_repo.listar(date.today()) if int(m["id_estudiante"]) == int(estudiante["id_estudiante"])]
+        marcas = [m for m in asistencia_repo.listar(date.today()) if int(m["id_estudiante"]) == int(estudiante["idEstudiante"])]
         return {"marcas": marcas}
 
     @r.post("/asistencia/{accion}")
@@ -76,7 +113,7 @@ def crear_enrutador_operaciones(obtener_repositorio: Callable[[], Iterator], exi
         estado = estados.get(accion)
         if estado is None:
             raise HTTPException(400, "Acción de asistencia no válida")
-        return asistencia_repo.registrar({"id_estudiante": int(estudiante["id_estudiante"]), "fecha": date.today(), "estado": estado, "observacion": None}, int(estudiante["id_estudiante"]), "WEB")
+        return asistencia_repo.registrar({"id_estudiante": int(estudiante["idEstudiante"]), "fecha": date.today(), "estado": estado, "observacion": None}, int(estudiante["idEstudiante"]), "WEB")
 
     @r.post("/autenticacion")
     def autenticar(datos: AccesoEstudiante, respuesta: Response, repo=Depends(obtener_repositorio), identidad: ServicioIdentidad | None = Depends(obtener_identidad_estudiante) if obtener_identidad_estudiante else None):

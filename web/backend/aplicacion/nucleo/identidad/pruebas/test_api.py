@@ -45,7 +45,10 @@ def servicio_falso() -> ServicioFalso:
 
 def test_autenticacion_emite_cookies_y_sesion_actual() -> None:
     servicio = servicio_falso()
-    ruta = cast(APIRoute, crear_enrutador(cast(Any, lambda: servicio), cookies_seguras=False).routes[0])
+    ruta = next(
+        ruta for ruta in crear_enrutador(cast(Any, lambda: servicio), cookies_seguras=False).routes
+        if isinstance(ruta, APIRoute) and ruta.path == "/autenticacion"
+    )
     salida = ruta.endpoint(CredencialesEntrada(nombreUsuario="operador", contrasena="Clave segura 2026"), Response(), servicio)
     assert salida.id_usuario == 7
     assert servicio.sesion is not None
@@ -54,12 +57,20 @@ def test_autenticacion_emite_cookies_y_sesion_actual() -> None:
 def test_cierre_exige_csrf_y_revoca_sesion() -> None:
     servicio = servicio_falso()
     router = crear_enrutador(cast(Any, lambda: servicio), cookies_seguras=False)
-    cast(APIRoute, router.routes[0]).endpoint(CredencialesEntrada(nombreUsuario="operador", contrasena="Clave segura 2026"), Response(), servicio)
+    autenticacion = next(
+        ruta for ruta in router.routes
+        if isinstance(ruta, APIRoute) and ruta.path == "/autenticacion"
+    )
+    cierre = next(
+        ruta for ruta in router.routes
+        if isinstance(ruta, APIRoute) and ruta.path == "/sesion/cerrar"
+    )
+    autenticacion.endpoint(CredencialesEntrada(nombreUsuario="operador", contrasena="Clave segura 2026"), Response(), servicio)
     assert servicio.sesion is not None
     from fastapi import HTTPException
     try:
-        cast(APIRoute, router.routes[2]).endpoint(Response(), servicio.sesion, None, None, servicio)
+        cierre.endpoint(Response(), servicio.sesion.id_sesion, "secreto", None, None, servicio, None)
     except HTTPException as error:
         assert error.status_code == 403
-    cast(APIRoute, router.routes[2]).endpoint(Response(), servicio.sesion, servicio.token_csrf, servicio.token_csrf, servicio)
+    cierre.endpoint(Response(), servicio.sesion.id_sesion, "secreto", servicio.token_csrf, servicio.token_csrf, servicio, None)
     assert servicio.sesion.revocada
