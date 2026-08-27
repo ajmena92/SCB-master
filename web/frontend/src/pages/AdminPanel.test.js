@@ -20,12 +20,12 @@ describe("administrative tabs", () => {
     expect(adminModules).toEqual(ADMIN_NAVIGATION);
   });
 
-  it("does not expose modules to an Operador without explicit permissions", () => {
-    const operatorModules = getVisibleAdminModules({ usuario: { Rol: "Operador" } });
+  it("does not expose modules to an Usuario sin permisos explícitos", () => {
+    const operatorModules = getVisibleAdminModules({ usuario: { Rol: "Profesor" } });
 
     expect(operatorModules).toHaveLength(0);
     expect(operatorModules.map((module) => module.v)).not.toContain("correcciones");
-    expect(getDefaultAdminRoute({ usuario: { Rol: "Operador" } })).toBe("/admin/panel/inicio");
+    expect(getDefaultAdminRoute({ usuario: { Rol: "Profesor" } })).toBe("/admin/panel/inicio");
   });
 
   it("resolves the navigation group from a target route", () => {
@@ -49,7 +49,7 @@ describe("administrative tabs", () => {
 
   it("filters an operator by the permissions returned by the API", () => {
     const modules = getVisibleAdminModules({
-      usuario: { Rol: "Operador" },
+      usuario: { Rol: "Profesor" },
       permisos: ["rutas.administrar"],
     });
     expect(modules.map((module) => module.id)).toEqual(["rutas"]);

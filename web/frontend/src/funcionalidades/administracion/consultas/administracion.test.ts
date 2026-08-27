@@ -9,7 +9,7 @@ describe("operaciones de administración", () => {
     vi.spyOn(api, "put").mockResolvedValue({ data: {} } as never);
     await consultarRoles(); await consultarPermisos();
     await crearUsuario({ nombreUsuario: "ana", contrasena: "12345678", activo: true });
-    await crearRol({ nombre: "Operador", descripcion: "Acceso operativo" });
+    await crearRol({ nombre: "Profesor", descripcion: "Acceso docente" });
     await editarUsuario(4, { activo: false, permisos: ["auditoria.leer"] });
     expect(api.get).toHaveBeenCalledWith("/v1/administracion/roles");
     expect(api.get).toHaveBeenCalledWith("/v1/administracion/permisos");

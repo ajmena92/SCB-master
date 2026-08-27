@@ -1,4 +1,4 @@
-import { normalizeRuta, validateRuta } from "./RutasTab";
+import { normalizeRuta, validateRuta } from "../../funcionalidades/rutas/paginas/Rutas";
 
 describe("catálogo de rutas", () => {
   it("normaliza la respuesta SQL y conserva el color de identidad", () => {

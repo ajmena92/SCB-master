@@ -113,7 +113,7 @@ def crear_enrutador(
         try:
             sesion = admin.validar_sesion(id_sesion, secreto)
             permisos = admin.permisos_de_sesion(sesion)
-            es_administrador = "administracion.usuarios" in permisos or "administracion.usuarios.editar" in permisos
+            es_administrador = "administracion.usuarios.editar" in permisos
             return SesionActualSalida(
                 idUsuario=sesion.id_usuario,
                 expiraEn=sesion.expira_en,

@@ -8,7 +8,7 @@ vi.mock("@/lib/api", () => ({
   errMsg: vi.fn(() => "No fue posible completar la operación."),
 }));
 
-import ParametrosTabBase, { normalizeParametros, validateParametros } from "./ParametrosTab";
+import ParametrosTabBase, { normalizeParametros, validateParametros } from "../../funcionalidades/administracion/paginas/Parametros";
 import { api, errMsg } from "@/lib/api";
 
 const SETTINGS = {
