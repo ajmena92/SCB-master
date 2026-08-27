@@ -8,8 +8,10 @@ sesiones opacas y evaluación de permisos en español.
 - `seguridad.py` solo contiene primitivas criptográficas y no acepta hashes del sistema local.
 - `repositorio.py` define puertos tipados e implementaciones SQL concretas para `identidad.*`.
 - `servicio.py` contiene autenticación, emisión/validación/revocación de sesiones y permisos.
-- `api.py` expone las rutas canónicas `/identidad/autenticacion`, `/identidad/sesion` y
-  `/identidad/sesion/cerrar`; la composición superior decide cuándo incluirlas.
+- `api_administracion.py` expone la autenticación administrativa y `api_sesion.py` adapta el
+  servicio neutral de ciclo de vida para `/identidad/sesion` y `/identidad/sesion/cerrar`.
+  El acceso y perfil estudiantil se mantienen en `modulos/estudiantes/portal.py` y
+  `modulos/estudiantes/servicio_perfil.py`.
 - `aplicacion.entrada.crear_aplicacion` compone identidad, salud y transporte con fábricas
   canónicas inyectables; el camino predeterminado obtiene SQL desde `Settings`.
 - `esquemas.py` usa contratos camelCase en español (`idUsuario`, `secretoSesion`, `expiraEn`).

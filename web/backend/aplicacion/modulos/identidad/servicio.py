@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import hashlib
 import secrets
+from collections.abc import Callable
+from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
-from typing import Callable
 
 from .esquemas import ResultadoAutenticacion, SesionPersistida
 from .repositorio import RepositorioSesiones, RepositorioUsuarios
@@ -132,6 +133,76 @@ class ServicioPermisos:
     @staticmethod
     def tiene(permisos: frozenset[str] | set[str], permiso: str) -> bool:
         return permiso in permisos
+
+
+@dataclass(frozen=True)
+class SesionResuelta:
+    """Sesión autenticada sin exponer el mecanismo de selección de identidad."""
+
+    sesion: SesionPersistida
+    tipo: str
+    usuario: dict[str, object]
+
+
+class ServicioSesiones:
+    """Caso de uso común del ciclo de vida de sesiones web."""
+
+    def __init__(
+        self,
+        administracion: ServicioIdentidad,
+        estudiantes: ServicioIdentidad | None = None,
+        perfil_estudiante: Callable[[int], dict[str, object]] | None = None,
+    ) -> None:
+        self._administracion = administracion
+        self._estudiantes = estudiantes
+        self._perfil_estudiante = perfil_estudiante
+
+    def validar(self, id_sesion: str, secreto: str) -> SesionResuelta:
+        """Valida una sesión y devuelve su proyección pública."""
+
+        try:
+            sesion = self._administracion.validar_sesion(id_sesion, secreto)
+            permisos = self._administracion.permisos_de_sesion(sesion)
+            return SesionResuelta(
+                sesion,
+                "admin",
+                {
+                    "idUsuario": sesion.id_usuario,
+                    "permisos": list(permisos),
+                    "roles": ["Administrador"]
+                    if "administracion.usuarios.editar" in permisos
+                    else [],
+                },
+            )
+        except AutenticacionFallida:
+            if self._estudiantes is None:
+                raise AutenticacionFallida("La sesión no es válida")
+            sesion = self._estudiantes.validar_sesion(id_sesion, secreto)
+            perfil = (
+                self._perfil_estudiante(sesion.id_usuario)
+                if self._perfil_estudiante
+                else {"idEstudiante": sesion.id_usuario}
+            )
+            return SesionResuelta(sesion, "estudiante", perfil)
+
+    def cerrar(self, id_sesion: str, secreto: str, token_csrf: str, csrf_cookie: str) -> None:
+        """Valida CSRF y revoca la sesión correspondiente."""
+
+        try:
+            servicio = self._administracion
+            sesion = servicio.validar_sesion(id_sesion, secreto)
+        except AutenticacionFallida:
+            if self._estudiantes is None:
+                raise AutenticacionFallida("La sesión no es válida")
+            servicio = self._estudiantes
+            sesion = servicio.validar_sesion(id_sesion, secreto)
+        if (
+            not token_csrf
+            or token_csrf != csrf_cookie
+            or not servicio.validar_csrf(sesion, token_csrf)
+        ):
+            raise ValueError("El token CSRF no es válido")
+        servicio.cerrar_sesion(sesion.id_sesion)
 
 
 def preparar_hash_contrasena(contrasena: str) -> str:

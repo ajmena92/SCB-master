@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { api, errMsg } from "@/lib/api";
-import { useAutenticacion } from "@/aplicacion/estado/ContextoAutenticacion";
+import { useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
+import { useInicioSesionEstudiantil } from "@/funcionalidades/identidad/hooks/useInicioSesion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,45 +8,21 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp
 import { AlertTriangle, Loader2, UtensilsCrossed, ShieldCheck } from "lucide-react";
 
 export default function StudentLogin() {
-  const [carne, setCarne] = useState("");
-  const [pin, setPin] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [errorKind, setErrorKind] = useState("credenciales");
-  const navigate = useNavigate();
-  const { loadMe } = useAutenticacion();
+  const pinInputRef = useRef(null);
+  const {
+    carne,
+    pin,
+    cambiarCarne,
+    cambiarPin,
+    enviar,
+    cargando,
+    error,
+    tipoError: errorKind,
+  } = useInicioSesionEstudiantil();
 
   useEffect(() => {
-    if (!error) return;
-    const campo = document.querySelector('[data-testid="student-pin-input"] input');
-    campo?.focus();
+    if (error) pinInputRef.current?.focus();
   }, [error]);
-
-  const submit = async (e) => {
-    e.preventDefault();
-    setError("");
-    if (pin.length !== 6) {
-      setErrorKind("validacion");
-      return setError("El PIN debe tener 6 dígitos.");
-    }
-    setLoading(true);
-    try {
-      const { data } = await api.post(
-        "/v1/estudiantes/autenticacion",
-        { carne, pin },
-        { omitirManejoFalloAutenticacion: true, omitirCsrf: true },
-      );
-      await loadMe();
-      navigate(data.debeCambiarPin ? "/cambiar-pin" : "/estudiante", { replace: true });
-    } catch (err) {
-      const status = err.response?.status;
-      setErrorKind(status >= 500 ? "servidor" : status ? "credenciales" : "conexion");
-      setError(errMsg(err, { showUnauthorizedDetail: true }));
-      setPin("");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <div className="min-h-screen grid lg:grid-cols-2 bg-background">
@@ -86,14 +61,14 @@ export default function StudentLogin() {
             Ingresá a tu portal
           </h2>
 
-          <form onSubmit={submit} className="space-y-6">
+          <form onSubmit={enviar} className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="carne">Carné / Cédula</Label>
               <Input
                 id="carne"
                 data-testid="student-carne-input"
                 value={carne}
-                onChange={(e) => setCarne(e.target.value)}
+                onChange={(e) => cambiarCarne(e.target.value)}
                 placeholder="Ej: 115000008"
                 className="h-12 text-base"
                 autoComplete="username"
@@ -101,7 +76,13 @@ export default function StudentLogin() {
             </div>
             <div className="space-y-2">
               <Label>PIN de 6 dígitos</Label>
-              <InputOTP maxLength={6} value={pin} onChange={setPin} data-testid="student-pin-input">
+              <InputOTP
+                ref={pinInputRef}
+                maxLength={6}
+                value={pin}
+                onChange={cambiarPin}
+                data-testid="student-pin-input"
+              >
                 <InputOTPGroup className="w-full justify-between">
                   {[0, 1, 2, 3, 4, 5].map((i) => (
                     <InputOTPSlot
@@ -142,10 +123,10 @@ export default function StudentLogin() {
             <Button
               type="submit"
               data-testid="student-login-submit"
-              disabled={loading}
+              disabled={cargando}
               className="w-full h-12 rounded-full text-base font-bold transition-transform hover:-translate-y-0.5"
             >
-              {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Ingresar"}
+              {cargando ? <Loader2 className="h-5 w-5 animate-spin" /> : "Ingresar"}
             </Button>
           </form>
 
