@@ -12,9 +12,7 @@ Estas excepciones son transitorias del frontend existente. Cada una deberá reti
 
 | Archivo | Motivo | Revisión |
 | --- | --- | --- |
-| `frontend/src/components/admin/EstudiantesTab.jsx` | Componente legado aún no migrado al dominio `estudiantes`. | Al iniciar el corte de estudiantes |
-| `frontend/src/pages/StudentPortal.jsx` | Página legada pendiente de descomposición por funcionalidades. | Al iniciar el corte de estudiantes/asistencia |
-| `frontend/src/pages/StudentPortal.test.jsx` | Prueba de caracterización asociada a la página legada. | Junto con la descomposición de la página |
+| `frontend/src/compartido/contratos/api.ts` | Contrato TypeScript generado desde OpenAPI; se reemplaza al regenerar el cliente. | Al dividir el cliente generado |
 
 ## Inglés propio permitido
 

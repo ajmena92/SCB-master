@@ -26,13 +26,19 @@ TERMINOS_INGLES_PROPIOS = {
     "balances", "topup", "topups", "report", "reports", "audit", "repository", "service", "schema",
 }
 PATRON_SQL = re.compile(
-    r"\b(?:select|insert|update|delete|merge|create\s+table|alter\s+table|drop\s+table)\b|\.execute\s*\(",
+    r"(?:['\"]\s*)\b(?:select|insert|update|delete|merge|create\s+table|alter\s+table|drop\s+table)\b|\.execute\s*\(",
     re.IGNORECASE,
 )
 PATRON_HTTP = re.compile(r"\b(?:fetch\s*\(|axios(?:\.[A-Za-z]+|\s*\())")
 PATRON_ESCRITORIO = re.compile(r"\bescritorio\b", re.IGNORECASE)
 PATRON_FRAGMENTO_IDENTIFICADOR = re.compile(
     r"[A-Z]+(?=[A-Z][a-z]|[^A-Za-z]|$)|[A-Z]?[a-z]+"
+)
+PATRON_IMPORTACION_TECNICA = re.compile(
+    r"^\s*(?:from\s+(?:fastapi(?:\.[\w]+)*|lucide-react|react(?:-[\w-]+)?|"
+    r"@tanstack/[\w-]+|sonner)\s+import|import\s+(?:.*\sfrom\s+)?['\"]?"
+    r"(?:react(?:-[\w-]+)?|lucide-react|@tanstack/[\w-]+|sonner)"
+    r"['\"]?)"
 )
 
 
@@ -55,7 +61,13 @@ def lineas_con_patron(ruta: Path, patron: re.Pattern[str]) -> list[int]:
 
 def contiene_termino_ingles_propio(texto: str, terminos: set[str]) -> bool:
     """Busca términos completos, incluso en identificadores snake_case y camelCase."""
-    return any(fragmento.lower() in terminos for fragmento in PATRON_FRAGMENTO_IDENTIFICADOR.findall(texto))
+    # Los nombres exportados por bibliotecas obligatorias pertenecen a su API
+    # técnica; los identificadores propios del proyecto siguen siendo revisados.
+    if PATRON_IMPORTACION_TECNICA.search(texto):
+        return False
+    codigo = re.sub(r"(['\"]).*?\1", "", texto)
+    codigo = codigo.split("#", 1)[0]
+    return any(fragmento.lower() in terminos for fragmento in PATRON_FRAGMENTO_IDENTIFICADOR.findall(codigo))
 
 
 def buscar_referencias_escritorio(raiz: Path) -> list[Hallazgo]:

@@ -1,10 +1,10 @@
 import { NavLink } from "react-router-dom";
-import { useAuth } from "@/context/AuthContext";
-import { ADMIN_NAVIGATION_GROUPS, getVisibleAdminModules } from "@/config/adminNavigation";
+import { useAutenticacion } from "@/aplicacion/estado/ContextoAutenticacion";
+import { ADMIN_NAVIGATION_GROUPS, obtenerModulosVisibles } from "@/config/adminNavigation";
 
 export default function AdminGroupHub({ groupId }) {
-  const { session } = useAuth();
-  const modules = getVisibleAdminModules(session).filter((item) => item.group === groupId);
+  const { session } = useAutenticacion();
+  const modules = obtenerModulosVisibles(session).filter((item) => item.group === groupId);
   const group = ADMIN_NAVIGATION_GROUPS.find((item) => item.id === groupId);
   return (
     <section>

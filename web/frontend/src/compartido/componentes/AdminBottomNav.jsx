@@ -10,18 +10,18 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import { useAuth } from "@/context/AuthContext";
-import { ADMIN_NAVIGATION, getVisibleAdminModules } from "@/config/adminNavigation";
+import { useAutenticacion } from "@/aplicacion/estado/ContextoAutenticacion";
+import { ADMIN_NAVIGATION, obtenerModulosVisibles } from "@/config/adminNavigation";
 
 const primaryIds = ["dashboard", "menu", "estudiantes", "reporte"];
 
 export default function AdminBottomNav() {
-  const { session } = useAuth();
+  const { session } = useAutenticacion();
   const [open, setOpen] = useState(false);
-  const visible = getVisibleAdminModules(session);
+  const visible = obtenerModulosVisibles(session);
   const primary = primaryIds
     .map((id) => ADMIN_NAVIGATION.find((item) => item.id === id))
-    .filter((item) => item && visible.some((module) => module.id === item.id));
+    .filter((item) => item && visible.some((modulo) => modulo.id === item.id));
   const extras = visible.filter((item) => !primaryIds.includes(item.id));
 
   return (

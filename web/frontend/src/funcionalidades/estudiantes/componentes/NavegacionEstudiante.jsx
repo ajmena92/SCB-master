@@ -5,7 +5,7 @@ const items = [
   { id: "carnet", label: "Carnet", Icon: IdCard },
 ];
 
-export function StudentBottomNav({ activeView, onChange }) {
+export function NavegacionEstudiante({ vistaActiva, alCambiar }) {
   return (
     <nav
       aria-label="Navegación estudiantil"
@@ -13,14 +13,14 @@ export function StudentBottomNav({ activeView, onChange }) {
     >
       <div className="mx-auto grid max-w-sm grid-cols-2 gap-1">
         {items.map(({ id, label, Icon }) => {
-          const active = activeView === id;
+          const active = vistaActiva === id;
           return (
             <button
               key={id}
               type="button"
               aria-current={active ? "page" : undefined}
               aria-label={`Ver ${label}`}
-              onClick={() => onChange(id)}
+              onClick={() => alCambiar(id)}
               className={`flex min-h-14 flex-col items-center justify-center gap-1 rounded-2xl px-4 text-xs font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${active ? "bg-primary text-primary-foreground shadow-[0_8px_20px_rgb(var(--brand-primary)_/_0.28)]" : "text-secondary/65 hover:bg-primary/10 hover:text-secondary"}`}
             >
               <Icon className="h-5 w-5" aria-hidden="true" />

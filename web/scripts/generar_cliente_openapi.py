@@ -56,10 +56,9 @@ def _generar(especificacion: dict[str, Any]) -> str:
     esquemas = especificacion.get("components", {}).get("schemas", {})
     nombres = {nombre: _nombre_tipo(nombre) for nombre in esquemas}
     lineas = [
-        "/* eslint-disable */",
         "/** Generado por web/scripts/generar_cliente_openapi.py; no editar manualmente. */",
         "",
-        "export type MetodoHttp = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';",
+        'export type MetodoHttp = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";',
         "",
     ]
     for nombre in sorted(esquemas):
@@ -93,9 +92,25 @@ def _generar(especificacion: dict[str, Any]) -> str:
             if metodo not in {"get", "post", "put", "patch", "delete"}:
                 continue
             operacion_id = operacion.get("operationId", f"{metodo}_{ruta}")
-            lineas.append(
-                f"  {{ metodo: {metodo.upper()!r}, ruta: {ruta!r}, operacionId: {operacion_id!r} }},"
+            metodo_texto = json.dumps(metodo.upper())
+            ruta_texto = json.dumps(ruta)
+            operacion_texto = json.dumps(operacion_id)
+            linea = (
+                f"  {{ metodo: {metodo_texto}, ruta: {ruta_texto}, "
+                f"operacionId: {operacion_texto} }},"
             )
+            if len(linea) <= 100:
+                lineas.append(linea)
+            else:
+                lineas.extend(
+                    [
+                        "  {",
+                        f"    metodo: {metodo_texto},",
+                        f"    ruta: {ruta_texto},",
+                        f"    operacionId: {operacion_texto},",
+                        "  },",
+                    ]
+                )
     lineas.extend(["] as const;", ""])
     return "\n".join(lineas)
 

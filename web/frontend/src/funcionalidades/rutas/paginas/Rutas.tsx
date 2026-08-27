@@ -17,7 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Map, Pencil, Plus, Route, Search } from "lucide-react";
+import { Map, Pencil, Plus, Route as IconoRuta, Search } from "lucide-react";
 import { toast } from "sonner";
 import { EditorRuta } from "@/funcionalidades/rutas/EditorRuta";
 import {
@@ -47,7 +47,7 @@ export default function RutasTab() {
   const [error, setError] = useState("");
   const [form, setForm] = useState<FormularioRuta>(EMPTY);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [confirmRoute, setConfirmRoute] = useState<Ruta | null>(null);
+  const [rutaPorConfirmar, setRutaPorConfirmar] = useState<Ruta | null>(null);
   const {
     data = { rows: [], palette: [] },
     error: loadError,
@@ -100,18 +100,18 @@ export default function RutasTab() {
     }
   };
   const desactivar = async () => {
-    if (!confirmRoute) return;
+    if (!rutaPorConfirmar) return;
     setSaving(true);
     setError("");
     try {
-      await actualizarRuta(confirmRoute.idRuta, {
-        codigo: confirmRoute.codigo,
-        descripcion: confirmRoute.descripcion,
-        colorHex: confirmRoute.colorCarnetHex || "#CBD5E1",
+      await actualizarRuta(rutaPorConfirmar.idRuta, {
+        codigo: rutaPorConfirmar.codigo,
+        descripcion: rutaPorConfirmar.descripcion,
+        colorHex: rutaPorConfirmar.colorCarnetHex || "#CBD5E1",
         activo: false,
       });
       toast.success("Ruta desactivada");
-      setConfirmRoute(null);
+      setRutaPorConfirmar(null);
       await refetch();
     } catch (e) {
       setError(errMsg(e));
@@ -195,7 +195,7 @@ export default function RutasTab() {
                     }}
                     aria-label={`Color de la ruta ${ruta.codigo}`}
                   >
-                    <Route className="h-4 w-4 text-slate-900" />
+                    <IconoRuta className="h-4 w-4 text-slate-900" />
                   </span>
                   <div className="min-w-0">
                     <p className="font-display text-lg font-black tracking-tight">{ruta.codigo}</p>
@@ -230,7 +230,7 @@ export default function RutasTab() {
                       variant="ghost"
                       size="sm"
                       className="text-destructive hover:text-destructive"
-                      onClick={() => setConfirmRoute(ruta)}
+                      onClick={() => setRutaPorConfirmar(ruta)}
                       data-testid={`ruta-desactivar-${ruta.idRuta}`}
                     >
                       Desactivar
@@ -253,13 +253,13 @@ export default function RutasTab() {
         onGuardar={guardar}
       />
       <AlertDialog
-        open={Boolean(confirmRoute)}
-        onOpenChange={(open) => !open && setConfirmRoute(null)}
+        open={Boolean(rutaPorConfirmar)}
+        onOpenChange={(open) => !open && setRutaPorConfirmar(null)}
       >
         <AlertDialogContent ref={undefined} className="">
           <AlertDialogHeader className="">
             <AlertDialogTitle ref={undefined} className="">
-              ¿Desactivar la ruta {confirmRoute?.codigo}?
+              ¿Desactivar la ruta {rutaPorConfirmar?.codigo}?
             </AlertDialogTitle>
             <AlertDialogDescription ref={undefined} className="">
               La ruta dejará de estar disponible para nuevas asignaciones. Sus estudiantes y

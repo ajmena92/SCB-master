@@ -1,20 +1,23 @@
 import "@/App.css";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider } from "@/context/AuthContext";
+import {
+  ProveedorAutenticacion,
+  useAutenticacion,
+} from "@/aplicacion/estado/ContextoAutenticacion";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Toaster } from "@/components/ui/sonner";
 import StudentLogin from "@/pages/StudentLogin";
 import ChangePin from "@/pages/ChangePin";
-import StudentPortal from "@/pages/StudentPortal";
+import PaginaPortalEstudiante from "@/funcionalidades/estudiantes/paginas/PaginaPortalEstudiante";
 import AdminLogin from "@/pages/AdminLogin";
 import AdminPanel from "@/pages/AdminPanel";
 import AdminModule from "@/pages/AdminModule";
 import AdminGroupHub from "@/pages/AdminGroupHub";
-import { useAuth } from "@/context/AuthContext";
 
 function Inicio() {
-  const { session, debeCambiarPin } = useAuth();
-  if (session === null) return <div className="min-h-screen flex items-center justify-center">Cargando…</div>;
+  const { session, debeCambiarPin } = useAutenticacion();
+  if (session === null)
+    return <div className="min-h-screen flex items-center justify-center">Cargando…</div>;
   if (!session) return <StudentLogin />;
   if (session.tipo === "admin") return <Navigate to="/admin/panel" replace />;
   return <Navigate to={debeCambiarPin ? "/cambiar-pin" : "/estudiante"} replace />;
@@ -23,7 +26,7 @@ function Inicio() {
 function App() {
   return (
     <div className="App">
-      <AuthProvider>
+      <ProveedorAutenticacion>
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Inicio />} />
@@ -39,7 +42,7 @@ function App() {
               path="/estudiante"
               element={
                 <ProtectedRoute tipo="estudiante">
-                  <StudentPortal />
+                  <PaginaPortalEstudiante />
                 </ProtectedRoute>
               }
             />
@@ -82,7 +85,7 @@ function App() {
           </Routes>
         </BrowserRouter>
         <Toaster position="top-center" richColors />
-      </AuthProvider>
+      </ProveedorAutenticacion>
     </div>
   );
 }

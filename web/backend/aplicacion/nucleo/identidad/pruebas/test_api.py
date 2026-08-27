@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from typing import Any, cast
 
 from fastapi import Response
-from fastapi.routing import APIRoute
+from fastapi.routing import APIRoute as RutaAPI
 
 from aplicacion.nucleo.identidad.api import CredencialesEntrada, crear_enrutador
 from aplicacion.nucleo.identidad.esquemas import ResultadoAutenticacion, SesionPersistida
@@ -46,8 +46,8 @@ def servicio_falso() -> ServicioFalso:
 def test_autenticacion_emite_cookies_y_sesion_actual() -> None:
     servicio = servicio_falso()
     ruta = next(
-        ruta for ruta in crear_enrutador(cast(Any, lambda: servicio), cookies_seguras=False).routes
-        if isinstance(ruta, APIRoute) and ruta.path == "/autenticacion"
+        ruta for ruta in getattr(crear_enrutador(cast(Any, lambda: servicio), cookies_seguras=False), "routes")
+        if isinstance(ruta, RutaAPI) and ruta.path == "/autenticacion"
     )
     salida = ruta.endpoint(CredencialesEntrada(nombreUsuario="operador", contrasena="Clave segura 2026"), Response(), servicio)
     assert salida.id_usuario == 7
@@ -56,14 +56,14 @@ def test_autenticacion_emite_cookies_y_sesion_actual() -> None:
 
 def test_cierre_exige_csrf_y_revoca_sesion() -> None:
     servicio = servicio_falso()
-    router = crear_enrutador(cast(Any, lambda: servicio), cookies_seguras=False)
+    enrutador = crear_enrutador(cast(Any, lambda: servicio), cookies_seguras=False)
     autenticacion = next(
-        ruta for ruta in router.routes
-        if isinstance(ruta, APIRoute) and ruta.path == "/autenticacion"
+        ruta for ruta in getattr(enrutador, "routes")
+        if isinstance(ruta, RutaAPI) and ruta.path == "/autenticacion"
     )
     cierre = next(
-        ruta for ruta in router.routes
-        if isinstance(ruta, APIRoute) and ruta.path == "/sesion/cerrar"
+        ruta for ruta in getattr(enrutador, "routes")
+        if isinstance(ruta, RutaAPI) and ruta.path == "/sesion/cerrar"
     )
     autenticacion.endpoint(CredencialesEntrada(nombreUsuario="operador", contrasena="Clave segura 2026"), Response(), servicio)
     assert servicio.sesion is not None

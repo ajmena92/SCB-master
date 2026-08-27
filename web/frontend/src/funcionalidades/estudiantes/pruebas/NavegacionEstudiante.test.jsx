@@ -2,9 +2,9 @@ import { act } from "react";
 import { createRoot } from "react-dom/client";
 import { vi } from "vitest";
 
-import { StudentBottomNav } from "./StudentBottomNav";
+import { NavegacionEstudiante } from "../componentes/NavegacionEstudiante";
 
-describe("StudentBottomNav", () => {
+describe("NavegacionEstudiante", () => {
   beforeEach(() => {
     global.IS_REACT_ACT_ENVIRONMENT = true;
   });
@@ -16,7 +16,7 @@ describe("StudentBottomNav", () => {
     const onChange = vi.fn();
 
     await act(async () => {
-      root.render(<StudentBottomNav activeView="carnet" onChange={onChange} />);
+      root.render(<NavegacionEstudiante vistaActiva="carnet" alCambiar={onChange} />);
     });
 
     const buttons = [...container.querySelectorAll("button")];

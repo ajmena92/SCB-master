@@ -3,19 +3,19 @@ import { createRoot } from "react-dom/client";
 import { vi } from "vitest";
 
 import { api } from "@/lib/api";
-import { AuthProvider, useAuth } from "./AuthContext";
+import { ProveedorAutenticacion, useAutenticacion } from "../estado/ContextoAutenticacion";
 
 vi.mock("@/lib/api", () => ({
   api: { get: vi.fn(), post: vi.fn() },
 }));
 
 function ObservadorSesion({ alCambiar }) {
-  const autenticacion = useAuth();
+  const autenticacion = useAutenticacion();
   alCambiar(autenticacion);
   return null;
 }
 
-describe("AuthContext", () => {
+describe("ProveedorAutenticacion", () => {
   let contenedor;
   let raiz;
 
@@ -47,9 +47,9 @@ describe("AuthContext", () => {
 
     await act(async () => {
       raiz.render(
-        <AuthProvider>
+        <ProveedorAutenticacion>
           <ObservadorSesion alCambiar={alCambiar} />
-        </AuthProvider>,
+        </ProveedorAutenticacion>,
       );
     });
 
@@ -81,9 +81,9 @@ describe("AuthContext", () => {
 
     await act(async () => {
       raiz.render(
-        <AuthProvider>
+        <ProveedorAutenticacion>
           <ObservadorSesion alCambiar={alCambiar} />
-        </AuthProvider>,
+        </ProveedorAutenticacion>,
       );
     });
 

@@ -1,13 +1,13 @@
 import {
   ADMIN_NAVIGATION,
-  getActiveAdminGroup,
+  obtenerGrupoAdministrativoActivo,
   getDefaultAdminRoute,
-  getVisibleAdminModules,
+  obtenerModulosVisibles,
 } from "@/config/adminNavigation";
 
 describe("administrative tabs", () => {
   it("exposes all ten modules to an Administrador", () => {
-    const adminModules = getVisibleAdminModules({ usuario: { Rol: "Administrador" } });
+    const adminModules = obtenerModulosVisibles({ usuario: { Rol: "Administrador" } });
 
     expect(adminModules).toHaveLength(ADMIN_NAVIGATION.length);
     expect(adminModules.map((module) => module.v)).toContain("correcciones");
@@ -15,13 +15,13 @@ describe("administrative tabs", () => {
   });
 
   it("reconoce una sesión administrativa aunque el backend aún no haya cargado el rol", () => {
-    const adminModules = getVisibleAdminModules({ tipo: "admin", usuario: { idUsuario: 1 } });
+    const adminModules = obtenerModulosVisibles({ tipo: "admin", usuario: { idUsuario: 1 } });
 
     expect(adminModules).toEqual(ADMIN_NAVIGATION);
   });
 
   it("does not expose modules to an Usuario sin permisos explícitos", () => {
-    const operatorModules = getVisibleAdminModules({ usuario: { Rol: "Profesor" } });
+    const operatorModules = obtenerModulosVisibles({ usuario: { Rol: "Profesor" } });
 
     expect(operatorModules).toHaveLength(0);
     expect(operatorModules.map((module) => module.v)).not.toContain("correcciones");
@@ -29,9 +29,11 @@ describe("administrative tabs", () => {
   });
 
   it("resolves the navigation group from a target route", () => {
-    expect(getActiveAdminGroup("/admin/panel/operacion/rutas")).toBe("operacion");
-    expect(getActiveAdminGroup("/admin/panel/personas/estudiantes/details")).toBe("personas");
-    expect(getActiveAdminGroup("/unknown")).toBeNull();
+    expect(obtenerGrupoAdministrativoActivo("/admin/panel/operacion/rutas")).toBe("operacion");
+    expect(obtenerGrupoAdministrativoActivo("/admin/panel/personas/estudiantes/details")).toBe(
+      "personas",
+    );
+    expect(obtenerGrupoAdministrativoActivo("/unknown")).toBeNull();
   });
 
   it("keeps permission metadata in the central catalog for later RBAC enforcement", () => {
@@ -44,11 +46,11 @@ describe("administrative tabs", () => {
   });
 
   it("does not resolve a route that is not part of the catalog", () => {
-    expect(getActiveAdminGroup("/admin/panel/operacion/no-existe")).toBeNull();
+    expect(obtenerGrupoAdministrativoActivo("/admin/panel/operacion/no-existe")).toBeNull();
   });
 
   it("filters an operator by the permissions returned by the API", () => {
-    const modules = getVisibleAdminModules({
+    const modules = obtenerModulosVisibles({
       usuario: { Rol: "Profesor" },
       permisos: ["rutas.administrar"],
     });
@@ -56,7 +58,7 @@ describe("administrative tabs", () => {
   });
 
   it("muestra Inicio a un usuario con el permiso canónico del dashboard", () => {
-    const modules = getVisibleAdminModules({
+    const modules = obtenerModulosVisibles({
       usuario: { Rol: "Profe" },
       permisos: ["reportes.dashboard.leer"],
     });

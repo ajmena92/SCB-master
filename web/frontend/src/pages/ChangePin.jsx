@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api, errMsg } from "@/lib/api";
-import { useAuth } from "@/context/AuthContext";
+import { useAutenticacion } from "@/aplicacion/estado/ContextoAutenticacion";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -86,7 +86,7 @@ export default function ChangePin() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
-  const { setDebeCambiarPin, debeCambiarPin } = useAuth();
+  const { setDebeCambiarPin, debeCambiarPin } = useAutenticacion();
 
   const submit = async (e) => {
     e.preventDefault();
