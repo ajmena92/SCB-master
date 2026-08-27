@@ -1,8 +1,8 @@
 from typing import cast
 
 from aplicacion.entrada import DependenciasAplicacion, crear_aplicacion
+from aplicacion.modulos.identidad.servicio import ServicioPermisos
 from aplicacion.nucleo.base_datos import FabricaConexionSql
-from aplicacion.nucleo.identidad.servicio import ServicioPermisos
 
 
 def test_permiso_canonico_acepta_operador_autorizado() -> None:

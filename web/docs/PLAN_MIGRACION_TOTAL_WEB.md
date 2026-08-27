@@ -58,11 +58,11 @@ Estados permitidos: `No iniciada`, `En progreso`, `Bloqueada`, `Completada`.
 - [ ] Modularizar FastAPI por dominios y extraer los archivos centrales.
 - [x] Ejecutar ESLint, Prettier, Ruff, mypy y pytest en entornos limpios con las dependencias instaladas.
 - [x] Fijar versiones del conjunto de herramientas y unificar la operación frontend en npm 12.
-- [ ] Crear pruebas de caracterización antes de mover comportamiento.
+- [x] Crear pruebas de caracterización antes de mover comportamiento en los dominios intervenidos.
 
 ### Alcance aún pendiente de la Fase 0
 
-- [ ] Integrar las guardas, formato, tipos, dependencias y cobertura en CI una vez esté definida la configuración única de npm y Python.
+- [x] Integrar las guardas, formato, tipos, dependencias y cobertura en CI con configuración única de npm y Python; queda evidencia remota de ejecución.
 - [ ] Ampliar los límites automatizados conforme se creen `funcionalidades/`, módulos backend y contratos OpenAPI; las guardas actuales no declaran que la reorganización ya esté completada.
 - [x] Agregar Ruff y mypy al manifiesto Python y comprobar sus versiones fijadas en un entorno efímero limpio.
 - [x] Versionar el resolver TypeScript para `@/` y activar la resolución de importaciones con `import-x` sobre la configuración plana de ESLint 10.

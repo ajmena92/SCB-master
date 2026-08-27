@@ -8,9 +8,13 @@
 frontend/node_modules
 frontend/build
 backend/__pycache__
+backend/**/__pycache__
 backend/.pytest_cache
 backend/.mypy_cache
+backend/tests
+backend/**/pruebas
 **/*.pyc
+**/*.pyc.*
 test_reports
 coverage
 

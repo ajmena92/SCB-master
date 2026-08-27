@@ -6,12 +6,33 @@ services:
       context: ..
       dockerfile: ops/Dockerfile.api
     env_file:
-      - .env
+      - ${COMPOSE_ENV_FILE:-.env}
     restart: unless-stopped
     networks:
       - private
     expose:
       - "8000"
+    mem_limit: ${API_MEMORIA_LIMITE:-256m}
+    mem_reservation: ${API_MEMORIA_RESERVA:-128m}
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+
+  migracion:
+    profiles:
+      - migracion
+    restart: "no"
+    build:
+      context: ..
+      dockerfile: ops/Dockerfile.migracion
+    env_file:
+      - ${COMPOSE_ENV_FILE:-.env}
+    networks:
+      - private
     read_only: true
     tmpfs:
       - /tmp
@@ -34,6 +55,8 @@ services:
     # to loopback unless the infrastructure team explicitly changes the design.
     ports:
       - "127.0.0.1:8081:8080"
+    mem_limit: ${WEB_MEMORIA_LIMITE:-64m}
+    mem_reservation: ${WEB_MEMORIA_RESERVA:-32m}
     read_only: true
     tmpfs:
       - /var/cache/nginx

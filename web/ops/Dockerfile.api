@@ -16,10 +16,12 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
-COPY backend/requirements.txt ./requirements.txt
-RUN pip install --requirement requirements.txt
+COPY backend/requirements-produccion.txt ./requirements-produccion.txt
+RUN pip install --no-compile --requirement requirements-produccion.txt \
+    && rm requirements-produccion.txt
 
-COPY backend/ ./
+COPY backend/aplicacion ./aplicacion
+COPY backend/config.py ./config.py
 RUN useradd --create-home --uid 10001 appuser \
     && chown -R appuser:appuser /app
 USER appuser

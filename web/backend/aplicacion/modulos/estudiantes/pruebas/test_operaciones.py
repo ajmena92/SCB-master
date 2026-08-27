@@ -1,14 +1,16 @@
 import inspect
 from typing import Any, cast
 
+from fastapi import FastAPI
 from fastapi.routing import APIRoute as RutaAPI
 
-from aplicacion.modulos.estudiantes.operaciones import (
-    GeneracionPinesSeccion,
-    crear_enrutador_operaciones,
-)
-from aplicacion.modulos.estudiantes.repositorio import RepositorioSqlEstudiantes
-from aplicacion.nucleo.identidad.servicio import ServicioIdentidad
+from aplicacion.modulos.estudiantes.administracion import crear_enrutador_administracion
+from aplicacion.modulos.estudiantes.esquemas import GeneracionPinesSeccion
+from aplicacion.modulos.estudiantes.operaciones import crear_enrutador_operaciones
+from aplicacion.modulos.estudiantes.portal import crear_enrutador_portal
+from aplicacion.modulos.estudiantes.repositorio_credenciales import RepositorioSqlCredenciales
+from aplicacion.modulos.estudiantes.repositorio_pines import RepositorioSqlPines
+from aplicacion.modulos.identidad.servicio import ServicioIdentidad
 
 
 def dependencia_identidad_nula() -> ServicioIdentidad:
@@ -35,12 +37,8 @@ class RepositorioFalso:
 
 def test_generacion_de_pines_por_seccion_filtra_turno_y_devuelve_reporte() -> None:
     repo = RepositorioFalso()
-    enrutador = crear_enrutador_operaciones(
-        lambda: iter((repo,)),
-        lambda permiso: lambda: None,
-        lambda: None,
-        obtener_identidad=dependencia_identidad_nula,
-        obtener_identidad_estudiante=dependencia_identidad_nula,
+    enrutador = crear_enrutador_administracion(
+        lambda: iter((repo,)), lambda permiso: lambda: None, lambda: None
     )
     rutas = getattr(enrutador, "routes")
     ruta = next(r for r in rutas if isinstance(r, RutaAPI) and r.path.endswith("/pines/seccion"))
@@ -54,12 +52,8 @@ def test_generacion_de_pines_por_seccion_filtra_turno_y_devuelve_reporte() -> No
 
 def test_generacion_de_pines_sin_seccion_persiste_con_none() -> None:
     repo = RepositorioFalso()
-    enrutador = crear_enrutador_operaciones(
-        lambda: iter((repo,)),
-        lambda permiso: lambda: None,
-        lambda: None,
-        obtener_identidad=dependencia_identidad_nula,
-        obtener_identidad_estudiante=dependencia_identidad_nula,
+    enrutador = crear_enrutador_administracion(
+        lambda: iter((repo,)), lambda permiso: lambda: None, lambda: None
     )
     rutas = getattr(enrutador, "routes")
     ruta = next(r for r in rutas if isinstance(r, RutaAPI) and r.path.endswith("/pines/seccion"))
@@ -70,12 +64,8 @@ def test_generacion_de_pines_sin_seccion_persiste_con_none() -> None:
 
 def test_reinicio_individual_devuelve_pin_nuevo() -> None:
     repo = RepositorioFalso()
-    enrutador = crear_enrutador_operaciones(
-        lambda: iter((repo,)),
-        lambda permiso: lambda: None,
-        lambda: None,
-        obtener_identidad=dependencia_identidad_nula,
-        obtener_identidad_estudiante=dependencia_identidad_nula,
+    enrutador = crear_enrutador_administracion(
+        lambda: iter((repo,)), lambda permiso: lambda: None, lambda: None
     )
     rutas = getattr(enrutador, "routes")
     ruta = next(r for r in rutas if isinstance(r, RutaAPI) and r.path.endswith("/reset-pin"))
@@ -85,28 +75,46 @@ def test_reinicio_individual_devuelve_pin_nuevo() -> None:
 
 
 def test_persistencia_pin_aplica_vencimiento_y_lo_limpia_al_cambiar() -> None:
-    fuente = inspect.getsource(RepositorioSqlEstudiantes)
+    fuente = inspect.getsource(RepositorioSqlPines)
+    fuente_credenciales = inspect.getsource(RepositorioSqlCredenciales)
     assert "fecha_expiracion_pin=DATEADD(day, 1" in fuente
-    assert "fecha_expiracion_pin IS NULL OR fecha_expiracion_pin > SYSUTCDATETIME()" in fuente
-    assert "fecha_expiracion_pin=NULL" in fuente
+    assert (
+        "fecha_expiracion_pin IS NULL OR fecha_expiracion_pin > SYSUTCDATETIME()"
+        in fuente_credenciales
+    )
+    assert "fecha_expiracion_pin=NULL" in fuente_credenciales
 
 
 def test_rutas_literales_preceden_a_parametros_dinamicos() -> None:
-    enrutador = crear_enrutador_operaciones(
-        lambda: iter(()),
-        lambda permiso: lambda: None,
-        lambda: None,
-        obtener_identidad=dependencia_identidad_nula,
-        obtener_identidad_estudiante=dependencia_identidad_nula,
+    enrutador = crear_enrutador_administracion(
+        lambda: iter(()), lambda permiso: lambda: None, lambda: None
     )
     rutas = [r.path for r in getattr(enrutador, "routes") if isinstance(r, RutaAPI)]
-    assert rutas.index("/estudiantes/secciones") < rutas.index(
-        "/estudiantes/{id_estudiante}/perfil"
+    assert rutas.index("/secciones") < rutas.index("/{id_estudiante}/perfil")
+
+
+def test_ensamblador_expone_rutas_de_portal_y_administracion() -> None:
+    aplicacion = FastAPI()
+    aplicacion.include_router(
+        crear_enrutador_operaciones(
+            lambda: iter(()),
+            lambda permiso: lambda: None,
+            lambda: None,
+            obtener_identidad=dependencia_identidad_nula,
+            obtener_identidad_estudiante=dependencia_identidad_nula,
+        )
     )
+    rutas = set(aplicacion.openapi()["paths"])
+    assert {
+        "/estudiantes/menu",
+        "/estudiantes/carnet",
+        "/estudiantes/secciones",
+        "/estudiantes/pines/seccion",
+    } <= rutas
 
 
 def test_carnet_expone_contrato_canonico_y_descargas_sin_rutas_historicas() -> None:
-    fuente = inspect.getsource(crear_enrutador_operaciones)
+    fuente = inspect.getsource(crear_enrutador_portal)
     assert '"idEstudiante"' in fuente
     assert '"primerApellido"' in fuente
     assert '"rutaDescripcion"' in fuente

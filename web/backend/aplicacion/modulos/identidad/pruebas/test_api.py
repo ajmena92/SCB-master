@@ -4,9 +4,9 @@ from typing import Any, cast
 from fastapi import Response
 from fastapi.routing import APIRoute as RutaAPI
 
-from aplicacion.nucleo.identidad.api import CredencialesEntrada, crear_enrutador
-from aplicacion.nucleo.identidad.esquemas import ResultadoAutenticacion, SesionPersistida
-from aplicacion.nucleo.identidad.servicio import AutenticacionFallida
+from aplicacion.modulos.identidad.api import CredencialesEntrada, crear_enrutador
+from aplicacion.modulos.identidad.esquemas import ResultadoAutenticacion, SesionPersistida
+from aplicacion.modulos.identidad.servicio import AutenticacionFallida
 
 
 class ServicioFalso:

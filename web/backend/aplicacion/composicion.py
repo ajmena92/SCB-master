@@ -11,6 +11,7 @@ from aplicacion.modulos.cuentas.api import crear_enrutador as crear_enrutador_cu
 from aplicacion.modulos.estudiantes.api import crear_enrutador as crear_enrutador_estudiantes
 from aplicacion.modulos.estudiantes.fotos import crear_enrutador_fotos
 from aplicacion.modulos.estudiantes.operaciones import crear_enrutador_operaciones
+from aplicacion.modulos.identidad.api import crear_enrutador as crear_enrutador_identidad
 from aplicacion.modulos.importaciones.api import crear_enrutador as crear_enrutador_importaciones
 from aplicacion.modulos.menu.api import crear_enrutador as crear_enrutador_menu
 from aplicacion.modulos.parametros.api import crear_enrutador as crear_enrutador_parametros
@@ -18,7 +19,6 @@ from aplicacion.modulos.reportes.api import crear_enrutador as crear_enrutador_r
 from aplicacion.modulos.salud.api import enrutador as enrutador_salud
 from aplicacion.modulos.soporte.api import crear_enrutador as crear_enrutador_soporte
 from aplicacion.modulos.transporte.api import crear_enrutador as crear_enrutador_transporte
-from aplicacion.nucleo.identidad.api import crear_enrutador as crear_enrutador_identidad
 
 _MARCA_MODULOS_INCLUIDOS = "modulos_aplicacion_incluidos"
 
@@ -50,7 +50,21 @@ def crear_enrutador_aplicacion(
         # Las rutas literales del portal deben registrarse antes de
         # /estudiantes/{id_estudiante}, que de lo contrario intentaría
         # convertir "menu", "carnet" o "asistencia" a entero.
-        enrutador.include_router(crear_enrutador_operaciones(**dependencias_estudiantes))
+        enrutador.include_router(
+            crear_enrutador_operaciones(
+                obtener_repositorio=dependencias_estudiantes["obtener_repositorio"],
+                exigir_permiso=dependencias_estudiantes["exigir_permiso"],
+                exigir_csrf=dependencias_estudiantes["exigir_csrf"],
+                obtener_identidad=dependencias_estudiantes["obtener_identidad"],
+                obtener_identidad_estudiante=dependencias_estudiantes[
+                    "obtener_identidad_estudiante"
+                ],
+                obtener_menu=dependencias_estudiantes["obtener_menu"],
+                obtener_asistencia=dependencias_estudiantes["obtener_asistencia"],
+                cookies_seguras=dependencias_estudiantes["cookies_seguras"],
+                duracion_sesion_estudiante=dependencias_estudiantes["duracion_sesion_estudiante"],
+            )
+        )
         enrutador.include_router(crear_enrutador_estudiantes(**dependencias_estudiantes_base))
         enrutador.include_router(crear_enrutador_fotos(**dependencias_estudiantes_base))
     if dependencias_identidad:

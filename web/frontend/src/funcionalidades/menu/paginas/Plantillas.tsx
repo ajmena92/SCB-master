@@ -6,10 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { AlertCircle, Layers3, Plus, Pencil, RefreshCw } from "lucide-react";
-import {
-  prepararComponente,
-  prepararComponentes,
-} from "@/funcionalidades/menu/componentesMenu";
+import { prepararComponente, prepararComponentes } from "@/funcionalidades/menu/componentesMenu";
 import type { ComponenteMenu } from "@/funcionalidades/menu/componentesMenu";
 import { DIAS_MENU, EditorPlantilla } from "@/funcionalidades/menu/EditorPlantilla";
 import type { FormularioPlantilla } from "@/funcionalidades/menu/EditorPlantilla";
@@ -19,7 +16,8 @@ interface PlantillaMenu extends Omit<FormularioPlantilla, "Componentes"> {
   Componentes: ComponenteMenu[];
 }
 type DatoMenu = Record<string, unknown>;
-const campo = (dato: DatoMenu, canonico: string, legado: string): unknown => dato[canonico] ?? dato[legado];
+const campo = (dato: DatoMenu, canonico: string, legado: string): unknown =>
+  dato[canonico] ?? dato[legado];
 
 export default function Plantillas() {
   const [open, setOpen] = useState(false);
@@ -34,7 +32,27 @@ export default function Plantillas() {
     queryKey: ["admin", "menu", "plantillas"],
     queryFn: async () => {
       const { data } = await api.get<PlantillaMenu[]>("/v1/menu/plantillas");
-      return data.map((p) => { const dato = p as unknown as DatoMenu; return ({...p, IdMenuPlantilla:campo(dato,"idPlantilla","IdMenuPlantilla"), SemanaMes:campo(dato,"semana","SemanaMes"), DiaSemana:campo(dato,"dia","DiaSemana"), Titulo:campo(dato,"titulo","Titulo"), Observaciones:campo(dato,"observaciones","Observaciones"), Activo:campo(dato,"activo","Activo"), Componentes:(campo(dato,"componentes","Componentes") as DatoMenu[] ?? []).map((c) => ({Nombre:campo(c,"nombre","Nombre"),TipoComponente:campo(c,"tipo","TipoComponente"),Orden:campo(c,"orden","Orden")}))} as PlantillaMenu); }).sort((a, b) => a.SemanaMes - b.SemanaMes || a.DiaSemana - b.DiaSemana);
+      return data
+        .map((p) => {
+          const dato = p as unknown as DatoMenu;
+          return {
+            ...p,
+            IdMenuPlantilla: campo(dato, "idPlantilla", "IdMenuPlantilla"),
+            SemanaMes: campo(dato, "semana", "SemanaMes"),
+            DiaSemana: campo(dato, "dia", "DiaSemana"),
+            Titulo: campo(dato, "titulo", "Titulo"),
+            Observaciones: campo(dato, "observaciones", "Observaciones"),
+            Activo: campo(dato, "activo", "Activo"),
+            Componentes: ((campo(dato, "componentes", "Componentes") as DatoMenu[]) ?? []).map(
+              (c) => ({
+                Nombre: campo(c, "nombre", "Nombre"),
+                TipoComponente: campo(c, "tipo", "TipoComponente"),
+                Orden: campo(c, "orden", "Orden"),
+              }),
+            ),
+          } as PlantillaMenu;
+        })
+        .sort((a, b) => a.SemanaMes - b.SemanaMes || a.DiaSemana - b.DiaSemana);
     },
   });
 
@@ -69,9 +87,16 @@ export default function Plantillas() {
     setSaving(true);
     try {
       await api.post("/v1/menu/plantillas", {
-        semana: Number(form.SemanaMes), dia: Number(form.DiaSemana), titulo: form.Titulo,
-        observaciones: form.Observaciones || "", activo: !!form.Activo,
-        componentes: form.Componentes.filter((c) => c.Nombre.trim()).map((c) => ({ nombre: c.Nombre, tipo: c.TipoComponente, orden: c.Orden })),
+        semana: Number(form.SemanaMes),
+        dia: Number(form.DiaSemana),
+        titulo: form.Titulo,
+        observaciones: form.Observaciones || "",
+        activo: !!form.Activo,
+        componentes: form.Componentes.filter((c) => c.Nombre.trim()).map((c) => ({
+          nombre: c.Nombre,
+          tipo: c.TipoComponente,
+          orden: c.Orden,
+        })),
       });
       toast.success("Menú publicado");
       setOpen(false);

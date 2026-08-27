@@ -12,13 +12,17 @@ describe("errMsg", () => {
   });
 
   it.each([
-    [403, "No tiene permiso"], [429, "Demasiados intentos"], [500, "servidor"],
+    [403, "No tiene permiso"],
+    [429, "Demasiados intentos"],
+    [500, "servidor"],
   ])("traduce errores HTTP %s", (status, esperado) => {
     expect(errMsg({ response: { status, data: { detail: "detalle" } } })).toContain(esperado);
   });
 
   it("traduce detalles de validación y errores sin respuesta", () => {
-    expect(errMsg({ response: { status: 422, data: { detail: [{ msg: "campo inválido" }] } } })).toContain("campo inválido");
+    expect(
+      errMsg({ response: { status: 422, data: { detail: [{ msg: "campo inválido" }] } } }),
+    ).toContain("campo inválido");
     expect(errMsg(new Error("network"))).toContain("comunicarse");
   });
 });

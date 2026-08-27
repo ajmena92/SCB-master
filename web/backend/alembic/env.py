@@ -7,8 +7,23 @@ from sqlalchemy import pool
 from sqlalchemy.engine import URL
 
 from alembic import context
+
+# Importación explícita: registra todos los modelos de dominio en el metadata.
+from aplicacion.modulos.asistencia import modelos as _modelos_asistencia  # noqa: F401
+from aplicacion.modulos.auditoria import modelos as _modelos_auditoria  # noqa: F401
+from aplicacion.modulos.beneficios import modelos as _modelos_beneficios  # noqa: F401
+from aplicacion.modulos.comedor import modelos as _modelos_comedor  # noqa: F401
+from aplicacion.modulos.cuentas import modelos as _modelos_cuentas  # noqa: F401
+from aplicacion.modulos.estudiantes import modelos as _modelos_estudiantes  # noqa: F401
+from aplicacion.modulos.identidad import modelos as _modelos_identidad  # noqa: F401
+from aplicacion.modulos.importaciones import modelos as _modelos_importaciones  # noqa: F401
+from aplicacion.modulos.menu import modelos as _modelos_menu  # noqa: F401
+from aplicacion.modulos.parametros import modelos as _modelos_parametros  # noqa: F401
+from aplicacion.modulos.reportes import modelos as _modelos_reportes  # noqa: F401
+from aplicacion.modulos.soporte import modelos as _modelos_soporte  # noqa: F401
+from aplicacion.modulos.transporte import modelos as _modelos_transporte  # noqa: F401
 from aplicacion.nucleo.dialecto_sql_server import DialectoSqlServerCompatible
-from aplicacion.nucleo.modelos import BaseDeclarativa
+from aplicacion.nucleo.modelos_base import BaseDeclarativa
 
 config = context.config
 if config.config_file_name is not None:

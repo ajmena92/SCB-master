@@ -44,3 +44,28 @@ class PaginaEstudiantes(BaseModel):
     pagina: int
     tamano: int
     total: int
+
+
+class CambioAsignacion(BaseModel):
+    id_beneficio: int | None = Field(default=None, alias="idBeneficio", ge=1)
+    id_ruta: int | None = Field(default=None, alias="idRuta", ge=1)
+
+
+class GeneracionPinesSeccion(BaseModel):
+    seccion: str | None = Field(default=None, max_length=30)
+    turno: str | None = Field(default=None, max_length=30)
+
+
+class PinGenerado(BaseModel):
+    id_estudiante: int = Field(alias="idEstudiante")
+    pin: str
+
+
+class AccesoEstudiante(BaseModel):
+    carne: str = Field(min_length=1, max_length=30)
+    pin: str = Field(pattern=r"^\d{6}$")
+
+
+class CambioPinEstudiante(BaseModel):
+    pin_actual: str = Field(alias="pinActual", pattern=r"^\d{6}$")
+    pin_nuevo: str = Field(alias="pinNuevo", pattern=r"^\d{6}$")

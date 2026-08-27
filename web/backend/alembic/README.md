@@ -22,6 +22,11 @@ SQL_CONNECTION_STRING='(obtenida del almacén)' alembic upgrade head
 La aplicación no ejecuta Alembic al iniciar. El `downgrade` es deliberado y
 debe revisarse antes de usarlo en una base con datos.
 
+La imagen del API no contiene Alembic. Para validar o ejecutar migraciones se usa la
+imagen aislada `Dockerfile.migracion` y el perfil Compose `migracion`; en local, sus
+dependencias están en `requirements-migracion.txt`. Las pruebas completas usan
+`requirements-desarrollo.txt`.
+
 Para validar staging sin aplicar DDL, exporte la cadena desde el almacén
 institucional y ejecute `web/scripts/validar_alembic_staging.sh`. El script
 solo ejecuta `alembic current`, exige ODBC Driver 18 y `Encrypt=yes`, y no
