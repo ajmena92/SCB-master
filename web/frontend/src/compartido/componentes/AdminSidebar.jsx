@@ -1,11 +1,11 @@
 import { NavLink } from "react-router-dom";
-import { useAuth } from "@/context/AuthContext";
-import { ADMIN_NAVIGATION_GROUPS, getVisibleAdminModules } from "@/config/adminNavigation";
+import { useAutenticacion } from "@/aplicacion/estado/ContextoAutenticacion";
+import { ADMIN_NAVIGATION_GROUPS, obtenerModulosVisibles } from "@/config/adminNavigation";
 import { PanelLeft } from "lucide-react";
 
 export default function AdminSidebar() {
-  const { session } = useAuth();
-  const modules = getVisibleAdminModules(session);
+  const { session } = useAutenticacion();
+  const modulos = obtenerModulosVisibles(session);
 
   return (
     <aside
@@ -20,7 +20,7 @@ export default function AdminSidebar() {
         </p>
         <nav className="space-y-6" aria-label="Módulos administrativos">
           {ADMIN_NAVIGATION_GROUPS.map((group) => {
-            const items = modules.filter((item) => item.group === group.id);
+            const items = modulos.filter((item) => item.group === group.id);
             if (!items.length) return null;
             return (
               <section key={group.id} aria-label={group.label}>
@@ -58,7 +58,7 @@ export default function AdminSidebar() {
           })}
         </nav>
 
-        {!modules.length && (
+        {!modulos.length && (
           <div className="mt-4 px-2 text-center text-xs text-secondary-foreground/60" role="status">
             <PanelLeft className="mx-auto mb-2 h-5 w-5" aria-hidden="true" />
             Sin módulos disponibles

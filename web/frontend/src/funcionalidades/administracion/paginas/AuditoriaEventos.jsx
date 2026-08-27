@@ -27,7 +27,7 @@ const EVENT_LABEL = {
   "Parametros del portal": "Parámetros del portal",
 };
 
-export function auditEventLabel(evento) {
+export function etiquetaEventoAuditoria(evento) {
   return EVENT_LABEL[evento] || evento;
 }
 
@@ -90,8 +90,8 @@ export default function AuditoriaTab() {
                       {fmt(r.FechaEvento)}
                     </TableCell>
                     <TableCell>
-                      <Badge className={COLOR[auditEventLabel(r.Evento)] || ""}>
-                        {auditEventLabel(r.Evento)}
+                      <Badge className={COLOR[etiquetaEventoAuditoria(r.Evento)] || ""}>
+                        {etiquetaEventoAuditoria(r.Evento)}
                       </Badge>
                     </TableCell>
                     <TableCell>{r.NombreEstudiante || "—"}</TableCell>

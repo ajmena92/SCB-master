@@ -1,19 +1,19 @@
 import { Suspense } from "react";
-import { useAuth } from "@/context/AuthContext";
+import { useAutenticacion } from "@/aplicacion/estado/ContextoAutenticacion";
 import {
   ADMIN_NAVIGATION,
-  getVisibleAdminModules,
+  obtenerModulosVisibles,
   isAdministratorSession,
 } from "@/config/adminNavigation";
 
 export default function AdminModule({ moduleId }) {
-  const { session } = useAuth();
+  const { session } = useAutenticacion();
   const module = ADMIN_NAVIGATION.find((item) => item.id === moduleId);
   if (!module) return null;
 
   const Component = module.C;
   const esAdmin = isAdministratorSession(session);
-  if (!getVisibleAdminModules(session).some((item) => item.id === moduleId)) {
+  if (!obtenerModulosVisibles(session).some((item) => item.id === moduleId)) {
     return (
       <section
         className="mx-auto max-w-2xl rounded-2xl border border-destructive/30 bg-card p-6 text-center shadow-sm"

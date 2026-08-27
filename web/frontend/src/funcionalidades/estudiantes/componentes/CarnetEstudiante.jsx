@@ -82,14 +82,14 @@ function routeTextColor(color) {
   return (rgb[0] * 299 + rgb[1] * 587 + rgb[2] * 114) / 1000 > 160 ? "#252653" : "#FFFFFF";
 }
 
-function HtmlStudentCard({ data, hasPhoto }) {
-  const student = data || {};
-  const routeColor = safeRouteColor(student.rutaColor);
+function TarjetaHtmlEstudiante({ datosCarnet, tieneFoto }) {
+  const estudiante = datosCarnet || {};
+  const routeColor = safeRouteColor(estudiante.rutaColor);
   const headerText = routeTextColor(routeColor);
-  const fullName = [student.nombre, student.primerApellido, student.segundoApellido]
+  const fullName = [estudiante.nombre, estudiante.primerApellido, estudiante.segundoApellido]
     .filter(Boolean)
     .join(" ");
-  const photoUrl = `/api/v1/estudiantes/carnet/foto?v=${student.idEstudiante || "student"}`;
+  const photoUrl = `/api/v1/estudiantes/carnet/foto?v=${estudiante.idEstudiante || "estudiante"}`;
 
   return (
     <div
@@ -112,7 +112,7 @@ function HtmlStudentCard({ data, hasPhoto }) {
         </div>
         <div className="relative mt-6 flex items-end gap-4">
           <div className="h-28 w-24 shrink-0 overflow-hidden rounded-2xl border-4 border-white/70 bg-white/25 shadow-lg">
-            {hasPhoto ? (
+            {tieneFoto ? (
               <img
                 src={photoUrl}
                 alt={`Fotografía de ${fullName}`}
@@ -142,27 +142,27 @@ function HtmlStudentCard({ data, hasPhoto }) {
             <p className="text-[0.62rem] font-black uppercase tracking-wider text-muted-foreground">
               Cédula
             </p>
-            <p className="mt-1 font-bold">{student.cedula || "Pendiente"}</p>
+            <p className="mt-1 font-bold">{estudiante.cedula || "Pendiente"}</p>
           </div>
           <div>
             <p className="text-[0.62rem] font-black uppercase tracking-wider text-muted-foreground">
               Sección
             </p>
-            <p className="mt-1 font-bold">{student.seccion || "Sin sección"}</p>
+            <p className="mt-1 font-bold">{estudiante.seccion || "Sin sección"}</p>
           </div>
           <div>
             <p className="text-[0.62rem] font-black uppercase tracking-wider text-muted-foreground">
               Ruta
             </p>
             <p className="mt-1 font-bold">
-              {student.rutaDescripcion || student.rutaCodigo || "Sin ruta"}
+              {estudiante.rutaDescripcion || estudiante.rutaCodigo || "Sin ruta"}
             </p>
           </div>
           <div>
             <p className="text-[0.62rem] font-black uppercase tracking-wider text-muted-foreground">
               Beneficio
             </p>
-            <p className="mt-1 font-bold">{student.tipoBeca || "Sin beca"}</p>
+            <p className="mt-1 font-bold">{estudiante.tipoBeca || "Sin beca"}</p>
           </div>
         </div>
         <div
@@ -179,25 +179,25 @@ function HtmlStudentCard({ data, hasPhoto }) {
   );
 }
 
-export function StudentCardPreview({
-  studentId,
-  hasPhoto,
-  cardData = null,
-  loading = false,
+export function VistaCarnetEstudiante({
+  idEstudiante,
+  tieneFoto,
+  datosCarnet = null,
+  cargando = false,
   error = "",
-  onRetry,
-  className = "",
+  alReintentar,
+  clase = "",
 }) {
   const [version] = useState(() => Date.now());
-  const photoAvailable = studentId ? hasPhoto : (hasPhoto ?? Boolean(cardData?.tieneFoto));
-  const base = studentId ? `/api/v1/estudiantes/${studentId}` : "/api/v1/estudiantes";
+  const fotoDisponible = idEstudiante ? tieneFoto : (tieneFoto ?? Boolean(datosCarnet?.tieneFoto));
+  const rutaBase = idEstudiante ? `/api/v1/estudiantes/${idEstudiante}` : "/api/v1/estudiantes";
   // El contrato canónico entrega la fotografía como imagen y el carnet como PDF.
-  const png = studentId ? `${base}/foto?v=${version}` : null;
-  const pdf = studentId ? `${base}/carnet.pdf` : "/api/v1/estudiantes/carnet.pdf";
+  const rutaImagen = idEstudiante ? `${rutaBase}/foto?v=${version}` : null;
+  const rutaPdf = idEstudiante ? `${rutaBase}/carnet.pdf` : "/api/v1/estudiantes/carnet.pdf";
 
   return (
     <section
-      className={`rounded-2xl border bg-card p-5 shadow-[0_8px_30px_rgb(70_73_180_/_0.12)] ${className}`}
+      className={`rounded-2xl border bg-card p-5 shadow-[0_8px_30px_rgb(70_73_180_/_0.12)] ${clase}`}
       data-testid="student-card-panel"
     >
       <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
@@ -212,9 +212,9 @@ export function StudentCardPreview({
             </p>
           </div>
         </div>
-        {photoAvailable === false && <Badge variant="secondary">Carnet provisional</Badge>}
+        {fotoDisponible === false && <Badge variant="secondary">Carnet provisional</Badge>}
       </div>
-      {!studentId && loading && (
+      {!idEstudiante && cargando && (
         <div className="space-y-3">
           <Skeleton className="mx-auto h-[31rem] w-full max-w-[23rem] rounded-[1.75rem]" />
           <p className="text-center text-sm font-medium text-muted-foreground">
@@ -228,37 +228,39 @@ export function StudentCardPreview({
           className="space-y-3 rounded-xl bg-destructive/10 p-4 text-sm font-medium text-destructive"
         >
           <p>{error}</p>
-          {onRetry && (
-            <Button type="button" variant="outline" size="sm" onClick={onRetry}>
+          {alReintentar && (
+            <Button type="button" variant="outline" size="sm" onClick={alReintentar}>
               Reintentar
             </Button>
           )}
         </div>
       )}
-      {studentId && (
+      {idEstudiante && (
         <div className="overflow-hidden rounded-xl border bg-primary/5 p-3">
           <img
-            src={png}
+            src={rutaImagen}
             alt="Carnet digital del estudiante"
             className="mx-auto w-full max-w-[280px]"
           />
         </div>
       )}
-      {!studentId && cardData && !error && (
-        <HtmlStudentCard data={cardData} hasPhoto={photoAvailable} />
+      {!idEstudiante && datosCarnet && !error && (
+        <TarjetaHtmlEstudiante datosCarnet={datosCarnet} tieneFoto={fotoDisponible} />
       )}
       <div className="mt-4 flex flex-wrap gap-2">
-        {png && <Button asChild className="rounded-full">
-          <a href={png} download>
-            <Download className="mr-2 h-4 w-4" /> Descargar PNG
-          </a>
-        </Button>}
+        {rutaImagen && (
+          <Button asChild className="rounded-full">
+            <a href={rutaImagen} download>
+              <Download className="mr-2 h-4 w-4" /> Descargar PNG
+            </a>
+          </Button>
+        )}
         <Button asChild variant="outline" className="rounded-full">
-          <a href={pdf} download>
+          <a href={rutaPdf} download>
             <Download className="mr-2 h-4 w-4" /> Descargar PDF
           </a>
         </Button>
-        {photoAvailable === false && (
+        {fotoDisponible === false && (
           <p className="basis-full text-xs text-muted-foreground">
             El administrador todavía debe cargar tu fotografía.
           </p>
@@ -268,15 +270,15 @@ export function StudentCardPreview({
   );
 }
 
-export function CardThumbnail({ studentId, hasPhoto }) {
+export function CardThumbnail({ idEstudiante, tieneFoto }) {
   return (
     <div
       className="relative h-10 w-8 overflow-hidden rounded border bg-accent/30"
-      title={hasPhoto ? "Fotografía cargada" : "Foto pendiente"}
+      title={tieneFoto ? "Fotografía cargada" : "Foto pendiente"}
     >
-      {hasPhoto ? (
+      {tieneFoto ? (
         <img
-          src={`/api/v1/estudiantes/${studentId}/foto`}
+          src={`/api/v1/estudiantes/${idEstudiante}/foto`}
           alt=""
           loading="lazy"
           decoding="async"

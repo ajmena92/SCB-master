@@ -1,7 +1,7 @@
 import inspect
 from typing import Any, cast
 
-from fastapi.routing import APIRoute
+from fastapi.routing import APIRoute as RutaAPI
 
 from aplicacion.modulos.estudiantes.operaciones import (
     GeneracionPinesSeccion,
@@ -35,12 +35,13 @@ class RepositorioFalso:
 
 def test_generacion_de_pines_por_seccion_filtra_turno_y_devuelve_reporte() -> None:
     repo = RepositorioFalso()
-    router = crear_enrutador_operaciones(
+    enrutador = crear_enrutador_operaciones(
         lambda: iter((repo,)), lambda permiso: lambda: None, lambda: None,
         obtener_identidad=dependencia_identidad_nula,
         obtener_identidad_estudiante=dependencia_identidad_nula,
     )
-    ruta = next(r for r in router.routes if isinstance(r, APIRoute) and r.path.endswith("/pines/seccion"))
+    rutas = getattr(enrutador, "routes")
+    ruta = next(r for r in rutas if isinstance(r, RutaAPI) and r.path.endswith("/pines/seccion"))
     salida = ruta.endpoint(GeneracionPinesSeccion(seccion="10-1", turno="diurno"), None, None, repo)
     assert salida["total"] == 1
     assert salida["turno"] == "diurno"
@@ -51,8 +52,9 @@ def test_generacion_de_pines_por_seccion_filtra_turno_y_devuelve_reporte() -> No
 
 def test_generacion_de_pines_sin_seccion_persiste_con_none() -> None:
     repo = RepositorioFalso()
-    router = crear_enrutador_operaciones(lambda: iter((repo,)), lambda permiso: lambda: None, lambda: None, obtener_identidad=dependencia_identidad_nula, obtener_identidad_estudiante=dependencia_identidad_nula)
-    ruta = next(r for r in router.routes if isinstance(r, APIRoute) and r.path.endswith("/pines/seccion"))
+    enrutador = crear_enrutador_operaciones(lambda: iter((repo,)), lambda permiso: lambda: None, lambda: None, obtener_identidad=dependencia_identidad_nula, obtener_identidad_estudiante=dependencia_identidad_nula)
+    rutas = getattr(enrutador, "routes")
+    ruta = next(r for r in rutas if isinstance(r, RutaAPI) and r.path.endswith("/pines/seccion"))
     salida = ruta.endpoint(GeneracionPinesSeccion(seccion=""), None, None, repo)
     assert salida["seccion"] == "Sin sección"
     assert len(repo.hashes) == 1 and 3 in repo.hashes
@@ -60,8 +62,9 @@ def test_generacion_de_pines_sin_seccion_persiste_con_none() -> None:
 
 def test_reinicio_individual_devuelve_pin_nuevo() -> None:
     repo = RepositorioFalso()
-    router = crear_enrutador_operaciones(lambda: iter((repo,)), lambda permiso: lambda: None, lambda: None, obtener_identidad=dependencia_identidad_nula, obtener_identidad_estudiante=dependencia_identidad_nula)
-    ruta = next(r for r in router.routes if isinstance(r, APIRoute) and r.path.endswith("/reset-pin"))
+    enrutador = crear_enrutador_operaciones(lambda: iter((repo,)), lambda permiso: lambda: None, lambda: None, obtener_identidad=dependencia_identidad_nula, obtener_identidad_estudiante=dependencia_identidad_nula)
+    rutas = getattr(enrutador, "routes")
+    ruta = next(r for r in rutas if isinstance(r, RutaAPI) and r.path.endswith("/reset-pin"))
     salida = ruta.endpoint(4, None, None, repo)
     assert salida.id_estudiante == 4 and len(salida.pin) == 6
     assert repo.hashes[4].startswith("$argon2id$")
@@ -75,12 +78,12 @@ def test_persistencia_pin_aplica_vencimiento_y_lo_limpia_al_cambiar() -> None:
 
 
 def test_rutas_literales_preceden_a_parametros_dinamicos() -> None:
-    router = crear_enrutador_operaciones(
+    enrutador = crear_enrutador_operaciones(
         lambda: iter(()), lambda permiso: lambda: None, lambda: None,
         obtener_identidad=dependencia_identidad_nula,
         obtener_identidad_estudiante=dependencia_identidad_nula,
     )
-    rutas = [r.path for r in router.routes if isinstance(r, APIRoute)]
+    rutas = [r.path for r in getattr(enrutador, "routes") if isinstance(r, RutaAPI)]
     assert rutas.index("/estudiantes/secciones") < rutas.index("/estudiantes/{id_estudiante}/perfil")
 
 

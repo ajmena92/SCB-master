@@ -1,9 +1,9 @@
 import { Navigate } from "react-router-dom";
-import { useAuth } from "@/context/AuthContext";
+import { useAutenticacion } from "@/aplicacion/estado/ContextoAutenticacion";
 import { Loader2 } from "lucide-react";
 
 export function ProtectedRoute({ tipo, children }) {
-  const { session } = useAuth();
+  const { session } = useAutenticacion();
   if (session === null)
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">

@@ -69,7 +69,7 @@ class Settings:
     cookie_secure: bool
     cors_origin: str
     app_timezone: str
-    student_session_days: int
+    dias_sesion_estudiante: int
     admin_session_minutes: int
     student_max_login_attempts: int
     student_lock_minutes: int
@@ -85,7 +85,7 @@ class Settings:
             cookie_secure=os.getenv("COOKIE_SECURE", "true").lower() == "true",
             cors_origin=_single_https_origin(_required("CORS_ORIGIN")),
             app_timezone=os.getenv("APP_TZ", "America/Costa_Rica"),
-            student_session_days=int(os.getenv("STUDENT_SESSION_DAYS", "365")),
+            dias_sesion_estudiante=int(os.getenv("DIAS_SESION_ESTUDIANTE", "365")),
             admin_session_minutes=int(os.getenv("ADMIN_SESSION_MINUTES", "60")),
             student_max_login_attempts=_bounded_int(
                 "STUDENT_MAX_LOGIN_ATTEMPTS", "5", minimum=3, maximum=20

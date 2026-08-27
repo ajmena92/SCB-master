@@ -1,7 +1,7 @@
 import { createContext, use, useEffect, useState, useCallback } from "react";
 import { api } from "@/lib/api";
 
-const AuthContext = createContext(null);
+const ContextoAutenticacionContext = createContext(null);
 
 function listaExplicita(valores) {
   return Array.isArray(valores) ? valores.filter((valor) => typeof valor === "string") : [];
@@ -32,7 +32,7 @@ async function obtenerSesion() {
   };
 }
 
-export function AuthProvider({ children }) {
+export function ProveedorAutenticacion({ children }) {
   const [session, setSession] = useState(null); // null=checking, false=none, object=logged
   const [debeCambiarPin, setDebeCambiarPin] = useState(false);
 
@@ -85,10 +85,12 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext value={{ session, setSession, debeCambiarPin, setDebeCambiarPin, loadMe, logout }}>
+    <ContextoAutenticacionContext
+      value={{ session, setSession, debeCambiarPin, setDebeCambiarPin, loadMe, logout }}
+    >
       {children}
-    </AuthContext>
+    </ContextoAutenticacionContext>
   );
 }
 
-export const useAuth = () => use(AuthContext);
+export const useAutenticacion = () => use(ContextoAutenticacionContext);

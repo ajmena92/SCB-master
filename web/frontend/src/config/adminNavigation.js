@@ -18,7 +18,9 @@ import {
 const DashboardTab = lazy(() => import("@/funcionalidades/administracion/paginas/Dashboard"));
 const Plantillas = lazy(() => import("@/funcionalidades/menu/paginas/Plantillas"));
 const CalendarioTab = lazy(() => import("@/funcionalidades/administracion/paginas/Calendario"));
-const SustitucionesTab = lazy(() => import("@/funcionalidades/administracion/paginas/Sustituciones"));
+const SustitucionesTab = lazy(
+  () => import("@/funcionalidades/administracion/paginas/Sustituciones"),
+);
 const RutasTab = lazy(() => import("@/funcionalidades/rutas/paginas/Rutas"));
 const CorreccionesTab = lazy(() => import("@/funcionalidades/administracion/paginas/Correcciones"));
 const ParametrosTab = lazy(() => import("@/funcionalidades/administracion/paginas/Parametros"));
@@ -102,7 +104,7 @@ export const ADMIN_NAVIGATION = [
     shortLabel: "Correcciones",
     group: "operacion",
     path: "/admin/panel/operacion/correcciones",
-      requiredPermissions: ["asistencia.correcciones.editar"],
+    requiredPermissions: ["asistencia.correcciones.editar"],
     icon: Wrench,
     C: CorreccionesTab,
     adminOnly: true,
@@ -191,7 +193,7 @@ export const ADMIN_NAVIGATION = [
     shortLabel: "Auditoría",
     group: "mas",
     path: "/admin/panel/mas/auditoria",
-      requiredPermissions: ["auditoria.leer"],
+    requiredPermissions: ["auditoria.leer"],
     icon: ScrollText,
     C: Auditoria,
   },
@@ -207,7 +209,7 @@ export function isAdministratorSession(session) {
   return role === "administrador";
 }
 
-export function getVisibleAdminModules(session) {
+export function obtenerModulosVisibles(session) {
   const isAdmin = isAdministratorSession(session);
   const permissions = Array.isArray(session?.permisos) ? session.permisos : [];
   return ADMIN_NAVIGATION.filter((module) => {
@@ -217,20 +219,13 @@ export function getVisibleAdminModules(session) {
   });
 }
 
-// Short alias for consumers that do not need the administrative prefix.
-export const getVisibleModules = getVisibleAdminModules;
-
-export function getActiveAdminGroup(pathname = "") {
+export function obtenerGrupoAdministrativoActivo(pathname = "") {
   const module = ADMIN_NAVIGATION.find(
     (item) => pathname === item.path || pathname.startsWith(`${item.path}/`),
   );
   return module?.group || null;
 }
 
-export const getActiveGroup = getActiveAdminGroup;
-
 export function getDefaultAdminRoute(session) {
-  return getVisibleAdminModules(session)[0]?.path || "/admin/panel/inicio";
+  return obtenerModulosVisibles(session)[0]?.path || "/admin/panel/inicio";
 }
-
-export const getDefaultRoute = getDefaultAdminRoute;

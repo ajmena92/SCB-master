@@ -27,6 +27,7 @@ from aplicacion.modulos.importaciones.repositorio import RepositorioSqlImportaci
 from aplicacion.modulos.menu.repositorio import RepositorioSqlMenu
 from aplicacion.modulos.parametros.repositorio import RepositorioSqlParametros
 from aplicacion.modulos.reportes.repositorio import RepositorioSqlReportes
+from aplicacion.modulos.salud.repositorio import RepositorioSalud
 from aplicacion.modulos.soporte.repositorio import RepositorioSqlSoporte
 from aplicacion.modulos.transporte.repositorio import RepositorioSqlRutas
 from aplicacion.nucleo.base_datos import FabricaConexionSql
@@ -75,12 +76,13 @@ def crear_aplicacion(dependencias: DependenciasAplicacion | None = None) -> Fast
             FabricaConexionSql(configuracion.sql_connection_string), configuracion.cookie_secure
         )
     fabrica = dependencias.fabrica_sql
+    repositorio_salud = RepositorioSalud(fabrica)
 
     def obtener_identidad() -> ServicioIdentidad:
         return ServicioIdentidad(RepositorioSqlUsuarios(fabrica), RepositorioSqlSesiones(fabrica), timedelta(minutes=(configuracion.admin_session_minutes if configuracion else 60)))
 
     def obtener_identidad_estudiante() -> ServicioIdentidad:
-        return ServicioIdentidad(RepositorioSqlUsuarios(fabrica), RepositorioSqlSesionesEstudiante(fabrica), timedelta(days=(configuracion.student_session_days if configuracion else 365)))
+        return ServicioIdentidad(RepositorioSqlUsuarios(fabrica), RepositorioSqlSesionesEstudiante(fabrica), timedelta(days=(configuracion.dias_sesion_estudiante if configuracion else 365)))
 
     def obtener_rutas() -> Iterator[RepositorioSqlRutas]:
         yield RepositorioSqlRutas(fabrica)
@@ -166,8 +168,7 @@ def crear_aplicacion(dependencias: DependenciasAplicacion | None = None) -> Fast
     def consultar_salud() -> dict[str, str]:
         """Comprueba que el proceso puede abrir SQL Server."""
         try:
-            with fabrica.conexion() as conexion:
-                conexion.cursor().execute("SELECT 1 AS ok").fetchone()
+            repositorio_salud.comprobar_conexion()
         except Exception as exc:
             raise HTTPException(503, "SQL no disponible") from exc
         return {"status": "ok"}
@@ -204,7 +205,7 @@ def crear_aplicacion(dependencias: DependenciasAplicacion | None = None) -> Fast
             "obtener_menu": obtener_menu,
             "obtener_asistencia": obtener_asistencia,
             "cookies_seguras": dependencias.cookies_seguras,
-            "duracion_sesion_estudiante": configuracion.student_session_days * 24 * 60 * 60 if configuracion else 31536000,
+            "duracion_sesion_estudiante": configuracion.dias_sesion_estudiante * 24 * 60 * 60 if configuracion else 31536000,
         },
         dependencias_identidad={
             "obtener_servicio": obtener_identidad,

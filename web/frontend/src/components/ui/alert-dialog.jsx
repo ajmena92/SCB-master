@@ -9,7 +9,7 @@ const AlertDialogTrigger = AlertDialogPrimitive.Trigger;
 
 const AlertDialogPortal = AlertDialogPrimitive.Portal;
 
-const AlertDialogOverlay = ({ ref, className, ...props }) => (
+const AlertDialogOverlay = ({ ref = undefined, className = "", ...props }) => (
   <AlertDialogPrimitive.Overlay
     className={cn(
       "fixed inset-0 z-50 bg-black/80 transition-opacity duration-200 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:pointer-events-none data-[state=closed]:opacity-0",
@@ -21,7 +21,7 @@ const AlertDialogOverlay = ({ ref, className, ...props }) => (
 );
 AlertDialogOverlay.displayName = AlertDialogPrimitive.Overlay.displayName;
 
-const AlertDialogContent = ({ ref, className, ...props }) => (
+const AlertDialogContent = ({ ref = undefined, className = "", ...props }) => (
   <AlertDialogPortal>
     <AlertDialogOverlay />
     <AlertDialogPrimitive.Content
@@ -36,12 +36,12 @@ const AlertDialogContent = ({ ref, className, ...props }) => (
 );
 AlertDialogContent.displayName = AlertDialogPrimitive.Content.displayName;
 
-const AlertDialogHeader = ({ className, ...props }) => (
+const AlertDialogHeader = ({ className = "", ...props }) => (
   <div className={cn("flex flex-col space-y-2 text-center sm:text-left", className)} {...props} />
 );
 AlertDialogHeader.displayName = "AlertDialogHeader";
 
-const AlertDialogFooter = ({ className, ...props }) => (
+const AlertDialogFooter = ({ className = "", ...props }) => (
   <div
     className={cn("flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2", className)}
     {...props}
@@ -49,7 +49,7 @@ const AlertDialogFooter = ({ className, ...props }) => (
 );
 AlertDialogFooter.displayName = "AlertDialogFooter";
 
-const AlertDialogTitle = ({ ref, className, ...props }) => (
+const AlertDialogTitle = ({ ref = undefined, className = "", ...props }) => (
   <AlertDialogPrimitive.Title
     ref={ref}
     className={cn("text-lg font-semibold", className)}
@@ -58,7 +58,7 @@ const AlertDialogTitle = ({ ref, className, ...props }) => (
 );
 AlertDialogTitle.displayName = AlertDialogPrimitive.Title.displayName;
 
-const AlertDialogDescription = ({ ref, className, ...props }) => (
+const AlertDialogDescription = ({ ref = undefined, className = "", ...props }) => (
   <AlertDialogPrimitive.Description
     ref={ref}
     className={cn("text-sm text-muted-foreground", className)}
@@ -67,12 +67,12 @@ const AlertDialogDescription = ({ ref, className, ...props }) => (
 );
 AlertDialogDescription.displayName = AlertDialogPrimitive.Description.displayName;
 
-const AlertDialogAction = ({ ref, className, ...props }) => (
+const AlertDialogAction = ({ ref = undefined, className = "", ...props }) => (
   <AlertDialogPrimitive.Action ref={ref} className={cn(buttonVariants(), className)} {...props} />
 );
 AlertDialogAction.displayName = AlertDialogPrimitive.Action.displayName;
 
-const AlertDialogCancel = ({ ref, className, ...props }) => (
+const AlertDialogCancel = ({ ref = undefined, className = "", ...props }) => (
   <AlertDialogPrimitive.Cancel
     ref={ref}
     className={cn(buttonVariants({ variant: "outline" }), "mt-2 sm:mt-0", className)}

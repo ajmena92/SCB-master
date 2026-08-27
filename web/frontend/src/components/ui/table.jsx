@@ -1,23 +1,23 @@
 import { cn } from "@/lib/utils";
 
-const Table = ({ ref, className, ...props }) => (
+const Table = ({ ref = undefined, className = "", ...props }) => (
   <div className="relative w-full overflow-auto">
     <table ref={ref} className={cn("w-full caption-bottom text-sm", className)} {...props} />
   </div>
 );
 Table.displayName = "Table";
 
-const TableHeader = ({ ref, className, ...props }) => (
+const TableHeader = ({ ref = undefined, className = "", ...props }) => (
   <thead ref={ref} className={cn("[&_tr]:border-b", className)} {...props} />
 );
 TableHeader.displayName = "TableHeader";
 
-const TableBody = ({ ref, className, ...props }) => (
+const TableBody = ({ ref = undefined, className = "", ...props }) => (
   <tbody ref={ref} className={cn("[&_tr:last-child]:border-0", className)} {...props} />
 );
 TableBody.displayName = "TableBody";
 
-const TableFooter = ({ ref, className, ...props }) => (
+const TableFooter = ({ ref = undefined, className = "", ...props }) => (
   <tfoot
     ref={ref}
     className={cn("border-t bg-muted/50 font-medium [&>tr]:last:border-b-0", className)}
@@ -26,7 +26,7 @@ const TableFooter = ({ ref, className, ...props }) => (
 );
 TableFooter.displayName = "TableFooter";
 
-const TableRow = ({ ref, className, ...props }) => (
+const TableRow = ({ ref = undefined, className = "", ...props }) => (
   <tr
     ref={ref}
     className={cn(
@@ -38,7 +38,7 @@ const TableRow = ({ ref, className, ...props }) => (
 );
 TableRow.displayName = "TableRow";
 
-const TableHead = ({ ref, className, ...props }) => (
+const TableHead = ({ ref = undefined, className = "", ...props }) => (
   <th
     ref={ref}
     className={cn(
@@ -50,7 +50,7 @@ const TableHead = ({ ref, className, ...props }) => (
 );
 TableHead.displayName = "TableHead";
 
-const TableCell = ({ ref, className, ...props }) => (
+const TableCell = ({ ref = undefined, className = "", ...props }) => (
   <td
     ref={ref}
     className={cn(
@@ -62,7 +62,7 @@ const TableCell = ({ ref, className, ...props }) => (
 );
 TableCell.displayName = "TableCell";
 
-const TableCaption = ({ ref, className, ...props }) => (
+const TableCaption = ({ ref = undefined, className = "", ...props }) => (
   <caption ref={ref} className={cn("mt-4 text-sm text-muted-foreground", className)} {...props} />
 );
 TableCaption.displayName = "TableCaption";

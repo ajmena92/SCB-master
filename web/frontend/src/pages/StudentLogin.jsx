@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { api, errMsg } from "@/lib/api";
-import { useAuth } from "@/context/AuthContext";
+import { useAutenticacion } from "@/aplicacion/estado/ContextoAutenticacion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,7 +15,7 @@ export default function StudentLogin() {
   const [error, setError] = useState("");
   const [errorKind, setErrorKind] = useState("credenciales");
   const navigate = useNavigate();
-  const { loadMe } = useAuth();
+  const { loadMe } = useAutenticacion();
 
   useEffect(() => {
     if (!error) return;

@@ -1,18 +1,18 @@
 import { useLocation, useNavigate, Outlet } from "react-router-dom";
-import { useAuth } from "@/context/AuthContext";
+import { useAutenticacion } from "@/aplicacion/estado/ContextoAutenticacion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ShieldCheck, LogOut } from "lucide-react";
-import { getActiveAdminGroup, ADMIN_NAVIGATION } from "@/config/adminNavigation";
+import { obtenerGrupoAdministrativoActivo, ADMIN_NAVIGATION } from "@/config/adminNavigation";
 import AdminSidebar from "@/compartido/componentes/AdminSidebar";
 import AdminBottomNav from "@/compartido/componentes/AdminBottomNav";
 
 export default function AdminPanel() {
-  const { session, logout } = useAuth();
+  const { session, logout } = useAutenticacion();
   const navigate = useNavigate();
   const location = useLocation();
   const activeModule = ADMIN_NAVIGATION.find((item) => item.path === location.pathname);
-  const activeGroup = getActiveAdminGroup(location.pathname);
+  const activeGroup = obtenerGrupoAdministrativoActivo(location.pathname);
 
   return (
     <div className="min-h-[100dvh] bg-background text-foreground">
