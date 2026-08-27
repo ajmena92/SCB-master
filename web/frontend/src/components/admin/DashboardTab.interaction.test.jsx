@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { api } from "@/lib/api";
-import DashboardTab, { filterNominal } from "./DashboardTab";
+import DashboardTab, { filterNominal } from "../../funcionalidades/administracion/paginas/Dashboard";
 
 describe("interacción del dashboard", () => {
   it("filtra resultados y conserva vacío", () => {

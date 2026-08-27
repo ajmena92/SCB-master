@@ -1,4 +1,4 @@
-import { filterNominal } from "./DashboardTab";
+import { filterNominal } from "../../funcionalidades/administracion/paginas/Dashboard";
 
 const rows = [
   { NombreCompleto: "Ana López", Cedula: "101230456", Seccion: "10-1" },

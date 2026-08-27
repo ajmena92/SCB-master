@@ -31,16 +31,14 @@ describe("AuthContext", () => {
     contenedor.remove();
   });
 
-  it("conserva los roles y permisos explícitos devueltos por /auth/me", async () => {
+  it("conserva los roles y permisos explícitos devueltos por la sesión canónica", async () => {
     api.get.mockResolvedValueOnce({
       data: {
         tipo: "admin",
         usuario: {
           IdUsuario: 42,
-          NombreCompleto: "Olga Operadora",
-          EsAdministrador: 0,
-          EsOperador: 1,
-          roles: ["Operador"],
+          NombreCompleto: "Docente de prueba",
+          roles: ["Profesor"],
           permisos: ["rutas.administrar"],
         },
       },
@@ -58,23 +56,22 @@ describe("AuthContext", () => {
     const sesion = alCambiar.mock.calls.at(-1)[0].session;
     expect(sesion).toMatchObject({
       tipo: "admin",
-      roles: ["Operador"],
+      roles: ["Profesor"],
       permisos: ["rutas.administrar"],
       usuario: {
-        Nombre: "Olga Operadora",
-        Rol: "Operador",
+        Nombre: "Docente de prueba",
+        Rol: "Profesor",
       },
     });
   });
 
-  it("no concede un rol ni permisos cuando /auth/me no los declara", async () => {
+  it("no concede un rol ni permisos cuando la sesión no los declara", async () => {
     api.get.mockResolvedValueOnce({
       data: {
         tipo: "admin",
         usuario: {
           IdUsuario: 43,
           NombreCompleto: "Cuenta sin asignación",
-          EsAdministrador: 1,
           roles: [],
           permisos: [],
         },

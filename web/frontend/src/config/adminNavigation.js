@@ -58,7 +58,7 @@ export const ADMIN_NAVIGATION = [
     shortLabel: "Menú",
     group: "operacion",
     path: "/admin/panel/operacion/menu",
-    requiredPermissions: ["admin.menu.read"],
+    requiredPermissions: ["menu.leer"],
     icon: CalendarDays,
     C: Plantillas,
   },
@@ -69,7 +69,7 @@ export const ADMIN_NAVIGATION = [
     shortLabel: "Calendario",
     group: "operacion",
     path: "/admin/panel/operacion/calendario",
-    requiredPermissions: ["admin.calendario.read"],
+    requiredPermissions: ["calendario.leer"],
     icon: CalendarRange,
     C: CalendarioTab,
   },
@@ -80,7 +80,7 @@ export const ADMIN_NAVIGATION = [
     shortLabel: "Cambios",
     group: "operacion",
     path: "/admin/panel/operacion/sustituciones",
-    requiredPermissions: ["admin.sustituciones.read"],
+    requiredPermissions: ["menu.leer"],
     icon: Replace,
     C: SustitucionesTab,
   },
@@ -158,7 +158,7 @@ export const ADMIN_NAVIGATION = [
     shortLabel: "Reportes",
     group: "reportes",
     path: "/admin/panel/reportes/transporte",
-    requiredPermissions: ["admin.reportes.transporte.read"],
+    requiredPermissions: ["reportes.leer"],
     icon: FileSpreadsheet,
     C: Reportes,
   },
@@ -180,7 +180,7 @@ export const ADMIN_NAVIGATION = [
     shortLabel: "Más",
     group: "mas",
     path: "/admin/panel/mas/parametros",
-    requiredPermissions: ["admin.parametros.read"],
+    requiredPermissions: ["parametros.leer"],
     icon: Settings2,
     C: ParametrosTab,
   },
@@ -198,21 +198,13 @@ export const ADMIN_NAVIGATION = [
 ];
 
 function roleFromSession(session) {
-  if (typeof session === "string") return session;
-  if (session === true) return "Administrador";
   return session?.usuario?.Rol || session?.Rol || "";
 }
 
 export function isAdministratorSession(session) {
-  // Toda sesión emitida por el módulo de identidad administrativa ya fue
-  // autenticada por la API. El rol se conserva para restricciones específicas,
-  // pero su ausencia no debe convertir a un administrador válido en visitante.
   if (session?.tipo === "admin") return true;
-  // Compatibilidad de forma, no de ruta: algunas restauraciones antiguas
-  // conservaron únicamente el identificador administrativo.
-  if (Number.isInteger(session?.usuario?.idUsuario)) return true;
   const role = roleFromSession(session).toLocaleLowerCase();
-  return role === "administrador" || role === "admin";
+  return role === "administrador";
 }
 
 export function getVisibleAdminModules(session) {

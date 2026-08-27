@@ -39,13 +39,24 @@ class RepositorioSqlUsuarios:
 
     def buscar_por_nombre(self, nombre_usuario: str) -> CredencialesUsuario | None:
         consulta = """
+            WITH permisos_usuario AS (
+                SELECT up.id_usuario, p.clave
+                FROM identidad.usuario_permiso AS up
+                INNER JOIN identidad.permiso AS p ON p.id_permiso = up.id_permiso
+                WHERE p.activo = 1
+                UNION
+                SELECT ur.id_usuario, p.clave
+                FROM identidad.usuario_rol AS ur
+                INNER JOIN identidad.rol AS r ON r.id_rol = ur.id_rol AND r.activo = 1
+                INNER JOIN identidad.rol_permiso AS rp ON rp.id_rol = r.id_rol
+                INNER JOIN identidad.permiso AS p ON p.id_permiso = rp.id_permiso AND p.activo = 1
+            )
             SELECT u.id_usuario, u.nombre_usuario, u.hash_contrasena, u.activo,
-                   p.clave AS permiso
+                   permisos_usuario.clave AS permiso
             FROM identidad.usuario AS u
-            LEFT JOIN identidad.usuario_permiso AS up ON up.id_usuario = u.id_usuario
-            LEFT JOIN identidad.permiso AS p ON p.id_permiso = up.id_permiso
+            LEFT JOIN permisos_usuario ON permisos_usuario.id_usuario = u.id_usuario
             WHERE u.nombre_usuario = ?
-            ORDER BY p.clave
+            ORDER BY permisos_usuario.clave
         """
         with self._fabrica.conexion() as conexion:
             cursor = conexion.cursor()
@@ -65,13 +76,24 @@ class RepositorioSqlUsuarios:
 
     def buscar_por_id(self, id_usuario: int) -> CredencialesUsuario | None:
         consulta = """
+            WITH permisos_usuario AS (
+                SELECT up.id_usuario, p.clave
+                FROM identidad.usuario_permiso AS up
+                INNER JOIN identidad.permiso AS p ON p.id_permiso = up.id_permiso
+                WHERE p.activo = 1
+                UNION
+                SELECT ur.id_usuario, p.clave
+                FROM identidad.usuario_rol AS ur
+                INNER JOIN identidad.rol AS r ON r.id_rol = ur.id_rol AND r.activo = 1
+                INNER JOIN identidad.rol_permiso AS rp ON rp.id_rol = r.id_rol
+                INNER JOIN identidad.permiso AS p ON p.id_permiso = rp.id_permiso AND p.activo = 1
+            )
             SELECT u.id_usuario, u.nombre_usuario, u.hash_contrasena, u.activo,
-                   p.clave AS permiso
+                   permisos_usuario.clave AS permiso
             FROM identidad.usuario AS u
-            LEFT JOIN identidad.usuario_permiso AS up ON up.id_usuario = u.id_usuario
-            LEFT JOIN identidad.permiso AS p ON p.id_permiso = up.id_permiso
+            LEFT JOIN permisos_usuario ON permisos_usuario.id_usuario = u.id_usuario
             WHERE u.id_usuario = ?
-            ORDER BY p.clave
+            ORDER BY permisos_usuario.clave
         """
         with self._fabrica.conexion() as conexion:
             cursor = conexion.cursor()

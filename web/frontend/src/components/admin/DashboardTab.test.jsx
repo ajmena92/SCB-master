@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { filterNominal } from "./DashboardTab";
+import { filterNominal } from "../../funcionalidades/administracion/paginas/Dashboard";
 
 describe("filtro del dashboard", () => {
   const filas = [{ NombreCompleto: "Ana Sol", Cedula: "1", Seccion: "7-1" }, { NombreCompleto: "Luis", Cedula: "2", Seccion: null }];
