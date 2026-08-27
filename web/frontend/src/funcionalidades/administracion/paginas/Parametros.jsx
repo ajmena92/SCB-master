@@ -1,117 +1,25 @@
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { api, errMsg } from "@/lib/api";
+import { useParametros } from "@/funcionalidades/administracion/hooks/useParametros";
 import { CheckCircle2, Loader2, Settings2 } from "lucide-react";
 
-const TIME_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/;
-
-function field(item, camel, pascal) {
-  return item?.[camel] ?? item?.[pascal];
-}
-
-export function normalizeParametros(data) {
-  const horarios = data?.horarios ?? data?.Horarios ?? [];
-  return {
-    minutosAvisoPrevio: String(
-      data?.minutosAvisoPrevio ??
-        data?.MinutosAvisoPrevio ??
-        data?.minutosAviso ??
-        data?.MinutosAviso ??
-        "15",
-    ),
-    horarios: horarios.map((horario) => {
-      const activo = field(horario, "activo", "Activo");
-      return {
-        idHorario: field(horario, "idHorario", "IdHorario"),
-        descripcion: field(horario, "descripcion", "Descripcion") || "Horario",
-        horaApertura:
-          field(horario, "horaInicio", "HoraInicio") ??
-          field(horario, "horaApertura", "HoraApertura"),
-        horaLimite: field(horario, "horaLimite", "HoraLimite") || "",
-        activo: activo !== false && activo !== 0,
-      };
-    }),
-  };
-}
-
-export function validateParametros({ minutosAvisoPrevio, horarios }) {
-  const horariosEditables = horarios.filter((horario) => horario.activo !== false);
-  const minutes = Number(minutosAvisoPrevio);
-  if (!Number.isInteger(minutes) || minutes < 1 || minutes > 120) {
-    return "El aviso previo debe ser un número entre 1 y 120 minutos.";
-  }
-  if (horariosEditables.some((horario) => !TIME_PATTERN.test(horario.horaLimite))) {
-    return "Cada hora límite debe tener el formato HH:mm.";
-  }
-  if (
-    horariosEditables.some(
-      (horario) => horario.horaApertura && horario.horaLimite <= horario.horaApertura,
-    )
-  ) {
-    return "La hora límite debe ser posterior a la hora de apertura de cada horario.";
-  }
-  return "";
-}
-
 export default function ParametrosTab() {
-  const [parametrosEditados, setParametrosEditados] = useState(null);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const {
-    data,
-    error: loadError,
-    isPending: loading,
-  } = useQuery({
-    queryKey: ["admin", "parametros"],
-    queryFn: async () => (await api.get("/v1/parametros")).data,
-  });
-  const parametros = parametrosEditados ?? normalizeParametros(data);
-
-  const actualizarHorario = (idHorario, horaLimite) => {
-    setParametrosEditados((actual) => {
-      const base = actual ?? normalizeParametros(data);
-      return {
-        ...base,
-        horarios: base.horarios.map((horario) =>
-          horario.idHorario === idHorario ? { ...horario, horaLimite } : horario,
-        ),
-      };
-    });
-  };
-
-  const horariosEditables = parametros.horarios.filter((horario) => horario.activo !== false);
-
-  const guardar = async () => {
-    const validation = validateParametros(parametros);
-    if (validation) {
-      setSuccess("");
-      setError(validation);
-      return;
-    }
-    setSaving(true);
-    setError("");
-    setSuccess("");
-    try {
-      await api.put("/v1/parametros", {
-        minutosAvisoPrevio: Number(parametros.minutosAvisoPrevio),
-        horarios: horariosEditables.map(({ idHorario, horaLimite }) => ({ idHorario, horaLimite })),
-      });
-      setSuccess(
-        "Parámetros guardados. El portal aplicará los cambios dinámicamente en la próxima consulta o acción del estudiante.",
-      );
-    } catch (e) {
-      setError(errMsg(e));
-    } finally {
-      setSaving(false);
-    }
-  };
+    parametros,
+    horariosEditables,
+    loading,
+    loadError,
+    error,
+    success,
+    saving,
+    actualizarHorario,
+    actualizarMinutos,
+    guardar,
+  } = useParametros();
 
   return (
     <section className="max-w-3xl space-y-6" aria-labelledby="parametros-title">
@@ -128,7 +36,7 @@ export default function ParametrosTab() {
       {(error || loadError) && (
         <Alert variant="destructive" role="alert" data-testid="parametros-error">
           <AlertTitle>No se pudieron guardar los parámetros</AlertTitle>
-          <AlertDescription>{error || errMsg(loadError)}</AlertDescription>
+          <AlertDescription>{error || loadError}</AlertDescription>
         </Alert>
       )}
       {success && (
@@ -161,12 +69,7 @@ export default function ParametrosTab() {
               max="120"
               step="1"
               value={parametros.minutosAvisoPrevio}
-              onChange={(event) =>
-                setParametrosEditados((actual) => ({
-                  ...(actual ?? normalizeParametros(data)),
-                  minutosAvisoPrevio: event.target.value,
-                }))
-              }
+              onChange={(event) => actualizarMinutos(event.target.value)}
             />
           </div>
 

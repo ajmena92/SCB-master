@@ -42,7 +42,7 @@ Transformar el panel administrativo actual —que mantiene diez módulos en pest
 - Menú filtrado por permisos, sin usar la interfaz como mecanismo de seguridad.
 - Base preparada para migrar todo el sistema local por oleadas.
 
-El panel actual se encuentra en [AdminPanel.jsx](../frontend/src/pages/AdminPanel.jsx). El patrón visual móvil existente está en [StudentBottomNav.jsx](../frontend/src/components/StudentBottomNav.jsx).
+El panel actual se encuentra en [AdminPanel.jsx](../frontend/src/pages/AdminPanel.jsx). La navegación móvil reutilizable está en [AdminBottomNav.jsx](../frontend/src/compartido/componentes/AdminBottomNav.jsx).
 
 ## 2. Arquitectura aprobada
 
@@ -91,8 +91,8 @@ El portal web todavía no equivale completamente a WinForms. Control biométrico
 | 2 | Rutas reales | ✅ Completada | Build Vite y rutas anidadas verificados |
 | 3 | Shell responsive | ✅ Completada | Build Vite y shell responsive verificados |
 | 4 | Integración de módulos actuales | ✅ Completada | 11/11 archivos de pruebas pasan; 44 casos frontend verificados |
-| 5 | Permisos RBAC | ✅ Completada | `/api/auth/me`, navegación y todos los endpoints administrativos actuales aplican roles/permisos; pruebas unitarias 4/4 |
-| 6 | Pruebas y despliegue gradual | ◐ En progreso | Build y 92 pruebas automatizadas pasan; falta staging y validación multidispositivo |
+| 5 | Permisos RBAC | ✅ Completada | `/api/v1/sesion`, navegación y todos los endpoints administrativos actuales aplican roles/permisos; pruebas unitarias aprobadas |
+| 6 | Pruebas y despliegue gradual | ◐ En progreso | Build y pruebas de módulos pasan; falta staging y validación multidispositivo |
 | 7 | Incorporación a la migración total | ☐ No iniciada | Acta de aceptación por dominio y plan de corte único |
 
 Estados permitidos: `No iniciada`, `En progreso`, `Bloqueada`, `Completada`.
@@ -152,7 +152,7 @@ Estados permitidos: `No iniciada`, `En progreso`, `Bloqueada`, `Completada`.
 
 - `lazy` y `Suspense` desde [AdminPanel.jsx](../frontend/src/pages/AdminPanel.jsx).
 - `NavLink`, `Routes`, `Route`, `Navigate`, `Outlet`, `useLocation` y `useNavigate` desde la versión instalada de React Router.
-- Pruebas DOM con `createRoot`, `act` y eventos nativos, siguiendo [StudentBottomNav.test.jsx](../frontend/src/components/StudentBottomNav.test.jsx).
+- Pruebas DOM con `createRoot`, `act` y eventos nativos, siguiendo las pruebas del shell administrativo.
 
 ### Evidencia de comprobación
 
@@ -183,9 +183,9 @@ Estados permitidos: `No iniciada`, `En progreso`, `Bloqueada`, `Completada`.
 
 ### Referencias
 
-- [App.js](../frontend/src/App.js:17)
+- [App.jsx](../frontend/src/App.jsx:17)
 - [ProtectedRoute.jsx](../frontend/src/components/ProtectedRoute.jsx:5)
-- [API_CONTRACT.md](../frontend/API_CONTRACT.md:29)
+- [Contratos de la API](CONTRATOS_API.md)
 - [default.conf](../ops/nginx/default.conf:46)
 
 ### Verificación y guardas
@@ -197,9 +197,9 @@ Estados permitidos: `No iniciada`, `En progreso`, `Bloqueada`, `Completada`.
 
 ### Evidencia de implementación
 
-- `App.js` contiene las diez rutas de módulo bajo el layout protegido `/admin/panel` y una redirección por defecto a `inicio`.
+- `App.jsx` contiene las rutas de módulo bajo el layout protegido `/admin/panel` y una redirección por defecto a `inicio`.
 - `AdminModule.jsx` resuelve el componente lazy desde el catálogo y lo renderiza dentro de `Suspense`.
-- El parser Babel local analiza `App.js`, `AdminPanel.jsx` y los dos componentes de navegación sin errores.
+- El parser local analiza `App.jsx`, `AdminPanel.jsx` y los dos componentes de navegación sin errores.
 - La validación en tiempo de ejecución ya no depende de Craco/Jest; se ejecuta mediante Vitest.
 
 
@@ -224,7 +224,7 @@ Estados permitidos: `No iniciada`, `En progreso`, `Bloqueada`, `Completada`.
 
 ### Referencias
 
-- [StudentBottomNav.jsx](../frontend/src/components/StudentBottomNav.jsx:8)
+- [AdminBottomNav.jsx](../frontend/src/compartido/componentes/AdminBottomNav.jsx:1)
 - [drawer.jsx](../frontend/src/components/ui/drawer.jsx:6)
 - [design_guidelines.json](../design_guidelines.json:89)
 
@@ -263,7 +263,7 @@ Estados permitidos: `No iniciada`, `En progreso`, `Bloqueada`, `Completada`.
 - [x] Pasan las pruebas existentes de Dashboard, Rutas, Parámetros, Auditoría y AdminPanel.
 - [x] Plantillas incluye cobertura para títulos extensos, contención responsive, error visible y reintento.
 - [ ] Smoke test de los diez módulos con cuentas autorizadas en staging.
-- [x] No se modifican contratos de API sin actualizar [API_CONTRACT.md](../frontend/API_CONTRACT.md).
+- [x] No se modifican contratos de API sin regenerar y verificar [Contratos de la API](CONTRATOS_API.md).
 
 ### Evidencia de implementación
 
@@ -281,7 +281,7 @@ Esta fase debe completarse antes de migrar módulos administrativos sensibles.
 ### Backend
 
 - [x] Leer roles y permisos desde `Seguridad.UsuarioRol`, `Seguridad.RolPermiso` y `Seguridad.Permiso`.
-- [x] Ampliar `/api/auth/me` con `roles[]` y `permisos[]`.
+- [x] Exponer sesión y permisos mediante `/api/v1/sesion`.
 - [x] Crear una dependencia `require_permission(...)`.
 - [x] Aplicar permisos por familia de endpoint en parámetros, rutas, estudiantes, menú, calendario, dashboard, reportes, correcciones y auditoría.
 - [ ] Definir permisos nuevos para correcciones, auditoría, menú, PIN, fotografía y beneficios cuando no exista una clave equivalente.
@@ -338,7 +338,7 @@ No promover a producción sin evidencia de build, pruebas, smoke test, respaldo 
 ### Evidencia actual
 
 - `npm run build`: ✅ Vite 8 transforma 2.389 módulos y genera `dist/`.
-- `npm test -- --reporter=dot`: 11/11 archivos y 44/44 casos pasan.
+- `npm test`: la suite se ejecuta con Vitest; la validación de staging y multidispositivo permanece pendiente.
 - `/tmp/scb-web-venv/bin/pytest -q`: 50/50 casos backend pasan.
 - Verificación HTTP local: Vite responde con `Comedor SCSC` y carga `/src/index.jsx`.
 - Verificación HTTP de ruta profunda: `/admin/panel/inicio` responde `200` con el shell SPA.
@@ -401,9 +401,9 @@ Cada módulo debe tener una ficha de paridad con: flujo local, flujo web, datos 
 - `npm test` usa `vitest run` con entorno `jsdom`.
 - Se creó `vite.config.mjs`, `index.html` raíz y `src/testSetup.js`.
 - Se renombraron entradas JSX a `.jsx` para evitar parsers ambiguos.
-- `src/lib/api.js` usa `import.meta.env.VITE_API_BASE_URL`.
+- `src/compartido/consultas/cliente_http.ts` configura el cliente HTTP relativo y sus interceptores.
 - Se eliminó `craco.config.js`, `public/index.html`, `react-scripts` y `@craco/craco`.
-- Node actual: `v20.20.0`, compatible con Vite 8 (`^20.19.0 || >=22.12.0`). No se requiere cambiar Node en este entorno.
+- Node requerido: `24.19.0` LTS, con npm `12.0.2`, según `.nvmrc` y `package.json`.
 
 ### Evidencia
 
@@ -459,4 +459,4 @@ Cada módulo debe tener una ficha de paridad con: flujo local, flujo web, datos 
 | --- | --- | --- | --- | --- |
 | 2026-08-24 | 0 | [PRD.md](../memory/PRD.md), [MATRIZ_MIGRACION_MENU_ADMIN.md](MATRIZ_MIGRACION_MENU_ADMIN.md), fuentes WinForms y registro de verificación de la [Fase 0](#4-fase-0-alcance-y-matriz-funcional) | Cierre documental completado: alcance, matriz, cinco destinos inferiores y guardas verificadas; Fase 1 no iniciada | Codex |
 | 2026-08-25 | Arquitectura | [Plan de migración total](PLAN_MIGRACION_TOTAL_WEB.md), [arquitectura](ARQUITECTURA.md), [convenciones](CONVENCIONES_NOMBRES.md) y [ADR-0001](decisiones/0001-monolito-modular-por-dominios.md) | Fase 0 documental de la estandarización completada; implementación técnica aún no iniciada | Codex |
-| 2026-08-24 | 1–4 | `node` + parser Babel, `git diff --check`, inspección estática de `App.js` y catálogo | 7 archivos JSX/JS analizados, 10 módulos con rutas, 3 hubs, fallback global y sin referencias `TabsList`/`TabsContent` en el layout | Codex |
+| 2026-08-24 | 1–4 | `node` + parser local, `git diff --check`, inspección estática de `App.jsx` y catálogo | 7 archivos JSX/JS analizados, 10 módulos con rutas, 3 hubs, fallback global y sin referencias `TabsList`/`TabsContent` en el layout | Codex |

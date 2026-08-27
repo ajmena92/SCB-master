@@ -7,6 +7,8 @@ import secrets
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
+from threading import Lock
+from typing import Protocol
 
 from .esquemas import ResultadoAutenticacion, SesionPersistida
 from .repositorio import RepositorioSesiones, RepositorioUsuarios
@@ -25,6 +27,68 @@ class AutenticacionFallida(ValueError):
     """Error uniforme para credenciales inexistentes, inválidas o inactivas."""
 
 
+class AutenticacionBloqueada(AutenticacionFallida):
+    """Indica que el identificador superó el límite temporal de intentos."""
+
+
+@dataclass(frozen=True)
+class PoliticaBloqueo:
+    max_intentos: int
+    minutos_bloqueo: int
+
+
+class ControlIntentos(Protocol):
+    def verificar(self, identificador: str, ahora: datetime, politica: PoliticaBloqueo) -> None: ...
+
+    def registrar_fallo(
+        self, identificador: str, ahora: datetime, politica: PoliticaBloqueo
+    ) -> None: ...
+
+    def registrar_exito(self, identificador: str) -> None: ...
+
+
+class ControlIntentosAutenticacion:
+    """Control local para pruebas y ejecuciones sin persistencia."""
+
+    def __init__(self) -> None:
+        self._intentos: dict[str, tuple[int, datetime]] = {}
+        self._candado = Lock()
+
+    def verificar(self, identificador: str, ahora: datetime, politica: PoliticaBloqueo) -> None:
+        with self._candado:
+            registro = self._intentos.get(identificador)
+            if registro is None:
+                return
+            intentos, bloqueado_hasta = registro
+            if intentos < politica.max_intentos:
+                return
+            if bloqueado_hasta > ahora:
+                raise AutenticacionBloqueada(
+                    "Demasiados intentos. Intente nuevamente más tarde"
+                )
+            del self._intentos[identificador]
+
+    def registrar_fallo(
+        self, identificador: str, ahora: datetime, politica: PoliticaBloqueo
+    ) -> None:
+        with self._candado:
+            intentos, bloqueado_hasta = self._intentos.get(identificador, (0, ahora))
+            if bloqueado_hasta > ahora:
+                return
+            intentos += 1
+            if intentos >= politica.max_intentos:
+                self._intentos[identificador] = (
+                    intentos,
+                    ahora + timedelta(minutes=politica.minutos_bloqueo),
+                )
+            else:
+                self._intentos[identificador] = (intentos, ahora)
+
+    def registrar_exito(self, identificador: str) -> None:
+        with self._candado:
+            self._intentos.pop(identificador, None)
+
+
 class ServicioIdentidad:
     def __init__(
         self,
@@ -32,22 +96,29 @@ class ServicioIdentidad:
         sesiones: RepositorioSesiones,
         duracion_sesion: timedelta = timedelta(hours=8),
         reloj: Callable[[], datetime] | None = None,
+        politica_bloqueo: PoliticaBloqueo | None = None,
+        control_intentos: ControlIntentos | None = None,
     ) -> None:
         self._usuarios = usuarios
         self._sesiones = sesiones
         self._duracion_sesion = duracion_sesion
         self._reloj = reloj or (lambda: datetime.now(timezone.utc))
+        self._politica_bloqueo = politica_bloqueo
+        self._control_intentos = control_intentos
 
     def autenticar(self, nombre_usuario: str, contrasena: str) -> ResultadoAutenticacion:
+        ahora = self._reloj()
+        self._verificar_bloqueo(nombre_usuario, ahora)
         usuario = self._usuarios.buscar_por_nombre(nombre_usuario)
         if (
             usuario is None
             or not usuario.activo
             or not verificar_contrasena(contrasena, usuario.hash_contrasena)
         ):
+            self._registrar_fallo(nombre_usuario, ahora)
             raise AutenticacionFallida("Las credenciales no son válidas")
 
-        ahora = self._reloj()
+        self._registrar_exito(nombre_usuario)
         expira_en = ahora + self._duracion_sesion
         secreto = crear_secreto_sesion()
         id_sesion = secrets.token_urlsafe(24)
@@ -67,6 +138,27 @@ class ServicioIdentidad:
             expiraEn=expira_en,
             permisos=usuario.permisos,
         )
+
+    def verificar_bloqueo(self, identificador: str) -> None:
+        self._verificar_bloqueo(identificador, self._reloj())
+
+    def registrar_fallo_autenticacion(self, identificador: str) -> None:
+        self._registrar_fallo(identificador, self._reloj())
+
+    def registrar_exito_autenticacion(self, identificador: str) -> None:
+        self._registrar_exito(identificador)
+
+    def _verificar_bloqueo(self, identificador: str, ahora: datetime) -> None:
+        if self._politica_bloqueo and self._control_intentos:
+            self._control_intentos.verificar(identificador, ahora, self._politica_bloqueo)
+
+    def _registrar_fallo(self, identificador: str, ahora: datetime) -> None:
+        if self._politica_bloqueo and self._control_intentos:
+            self._control_intentos.registrar_fallo(identificador, ahora, self._politica_bloqueo)
+
+    def _registrar_exito(self, identificador: str) -> None:
+        if self._control_intentos:
+            self._control_intentos.registrar_exito(identificador)
 
     def crear_sesion(
         self, id_usuario: int, nombre_usuario: str, permisos: frozenset[str] = frozenset()
@@ -178,7 +270,7 @@ class ServicioSesiones:
             if self._estudiantes is None:
                 raise AutenticacionFallida("La sesión no es válida")
             sesion = self._estudiantes.validar_sesion(id_sesion, secreto)
-            perfil = (
+            perfil: dict[str, object] = (
                 self._perfil_estudiante(sesion.id_usuario)
                 if self._perfil_estudiante
                 else {"idEstudiante": sesion.id_usuario}

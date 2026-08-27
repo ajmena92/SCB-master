@@ -4,20 +4,21 @@ import { MemoryRouter } from "react-router-dom";
 import { vi } from "vitest";
 
 import { ProveedorAutenticacion } from "@/aplicacion/estado/ContextoAutenticacion";
-import { api } from "@/lib/api";
+import { api } from "@/compartido/consultas/cliente_http";
 import {
   clasificarErrorAutenticacion,
   useInicioSesionAdministrativo,
   useInicioSesionEstudiantil,
 } from "./useInicioSesion";
 
-vi.mock("@/lib/api", () => ({
+vi.mock("@/compartido/consultas/cliente_http", () => ({
   api: { get: vi.fn(), post: vi.fn() },
-  errMsg: vi.fn(() => "Error de autenticación"),
 }));
 
 function MontarHook({ tipo, alCambiar }) {
-  const hook = tipo === "admin" ? useInicioSesionAdministrativo() : useInicioSesionEstudiantil();
+  const administrativo = useInicioSesionAdministrativo();
+  const estudiantil = useInicioSesionEstudiantil();
+  const hook = tipo === "admin" ? administrativo : estudiantil;
   alCambiar(hook);
   return null;
 }

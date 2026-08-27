@@ -20,7 +20,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { IdCard, KeyRound } from "lucide-react";
-import { CardThumbnail } from "@/funcionalidades/estudiantes/componentes/CarnetEstudiante";
+import { CardThumbnail } from "@/funcionalidades/estudiantes/componentes/CardThumbnail";
 import type { EstudianteAdministrativo } from "@/funcionalidades/estudiantes/modelo/contratos";
 
 type Props = {

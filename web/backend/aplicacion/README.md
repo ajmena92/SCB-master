@@ -1,13 +1,15 @@
 # Composición de la plataforma web
 
 `entrada.py` es el punto de entrada canónico. `crear_aplicacion` compone las
-rutas versionadas de salud, identidad y transporte mediante fábricas explícitas.
+rutas versionadas mediante fábricas explícitas y delega la composición de dominios a
+`composicion.py`.
 
 - En producción, `DependenciasAplicacion` se construye desde `Settings` y usa
   `FabricaConexionSql`; no existen dobles ni datos de desarrollo implícitos.
 - En pruebas, se puede inyectar una fábrica compatible para inspeccionar rutas
   o ejecutar casos aislados sin conexión SQL.
-- La autorización y CSRF se resuelven como dependencias FastAPI en la entrada,
+- La autorización, las sesiones y CSRF se resuelven mediante dependencias FastAPI
+  en `seguridad_dependencias.py`; `entrada.py` solo ensambla la aplicación,
   mientras cada módulo conserva sus casos de uso y repositorios.
 - Este paquete no importa componentes históricos ni módulos de persistencia globales ni
   `database.py`. Las rutas históricas no se registran en esta aplicación.

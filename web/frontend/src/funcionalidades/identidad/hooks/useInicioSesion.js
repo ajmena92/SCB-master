@@ -2,7 +2,8 @@ import { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useAutenticacion } from "@/aplicacion/estado/ContextoAutenticacion";
-import { api, errMsg } from "@/lib/api";
+import { api } from "@/compartido/consultas/cliente_http";
+import { errMsg } from "@/compartido/consultas/errores_api";
 
 export function clasificarErrorAutenticacion(error) {
   const estado = error?.response?.status;

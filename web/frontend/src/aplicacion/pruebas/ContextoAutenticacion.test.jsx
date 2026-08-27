@@ -2,10 +2,10 @@ import { act } from "react";
 import { createRoot } from "react-dom/client";
 import { vi } from "vitest";
 
-import { api } from "@/lib/api";
+import { api } from "@/compartido/consultas/cliente_http";
 import { ProveedorAutenticacion, useAutenticacion } from "../estado/ContextoAutenticacion";
 
-vi.mock("@/lib/api", () => ({
+vi.mock("@/compartido/consultas/cliente_http", () => ({
   api: { get: vi.fn(), post: vi.fn() },
 }));
 

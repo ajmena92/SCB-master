@@ -9,7 +9,12 @@ from datetime import date
 from fastapi import APIRouter, Cookie, Depends, Header, HTTPException, Response, status
 
 from aplicacion.modulos.identidad.seguridad import hash_contrasena, verificar_contrasena
-from aplicacion.modulos.identidad.servicio import AutenticacionFallida, ServicioIdentidad
+from aplicacion.modulos.identidad.servicio import (
+    AutenticacionBloqueada,
+    AutenticacionFallida,
+    ServicioIdentidad,
+)
+from aplicacion.nucleo.tiempo import fecha_local
 
 from .esquemas import AccesoEstudiante, CambioPinEstudiante
 
@@ -22,10 +27,13 @@ def crear_enrutador_portal(
     obtener_asistencia: Callable[[], Iterator] | None = None,
     cookies_seguras: bool = True,
     duracion_sesion_estudiante: int = 31536000,
+    exigir_csrf: Callable[..., object] | None = None,
+    obtener_fecha_local: Callable[[], date] | None = None,
 ) -> APIRouter:
     """Construye las rutas autenticadas que consume el portal estudiantil."""
     enrutador = APIRouter()
     identidad_portal = obtener_identidad_estudiante or obtener_identidad
+    fecha_hoy = obtener_fecha_local or (lambda: fecha_local("America/Costa_Rica"))
 
     def estudiante_actual(repo, identidad, id_sesion, secreto):
         if identidad is None or not id_sesion or not secreto:
@@ -129,7 +137,7 @@ def crear_enrutador_portal(
             raise HTTPException(503, "La asistencia no está configurada")
         marcas = [
             marca
-            for marca in asistencia_repo.listar(date.today())
+            for marca in asistencia_repo.listar(fecha_hoy())
             if int(marca["id_estudiante"]) == int(estudiante["idEstudiante"])
         ]
         return {"marcas": marcas}
@@ -142,6 +150,7 @@ def crear_enrutador_portal(
         id_sesion: str | None = Cookie(default=None),
         secreto: str | None = Cookie(default=None),
         asistencia_repo=Depends(obtener_asistencia) if obtener_asistencia else None,
+        __=Depends(exigir_csrf) if exigir_csrf else None,
     ):
         estudiante = estudiante_actual(repo, identidad, id_sesion, secreto)
         if asistencia_repo is None:
@@ -153,7 +162,7 @@ def crear_enrutador_portal(
         return asistencia_repo.registrar(
             {
                 "id_estudiante": int(estudiante["idEstudiante"]),
-                "fecha": date.today(),
+                "fecha": fecha_hoy(),
                 "estado": estado,
                 "observacion": None,
             },
@@ -172,6 +181,10 @@ def crear_enrutador_portal(
     ):
         if identidad is None:
             raise HTTPException(503, "La identidad no está configurada")
+        try:
+            identidad.verificar_bloqueo(datos.carne)
+        except AutenticacionBloqueada as exc:
+            raise HTTPException(status.HTTP_429_TOO_MANY_REQUESTS, str(exc)) from exc
         credencial = repo.buscar_credencial(datos.carne)
         if (
             not credencial
@@ -179,7 +192,9 @@ def crear_enrutador_portal(
             or not credencial.get("hash_contrasena")
             or not verificar_contrasena(datos.pin, str(credencial["hash_contrasena"]))
         ):
+            identidad.registrar_fallo_autenticacion(datos.carne)
             raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Las credenciales no son válidas")
+        identidad.registrar_exito_autenticacion(datos.carne)
         resultado = identidad.crear_sesion(
             int(credencial["id_estudiante"]), str(credencial["carne"])
         )

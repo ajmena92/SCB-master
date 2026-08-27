@@ -1,10 +1,7 @@
-import { useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { api, errMsg } from "@/lib/api";
+import { useCalendario } from "@/funcionalidades/administracion/hooks/useCalendario";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { toast } from "sonner";
 import { ChevronLeft, ChevronRight, Replace as ReplaceIcon, CalendarRange } from "lucide-react";
 
 const MESES = [
@@ -24,40 +21,7 @@ const MESES = [
 const DIAS = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes"];
 
 export default function CalendarioTab() {
-  const [hoy] = useState(() => new Date());
-  const [anio, setAnio] = useState(hoy.getFullYear());
-  const [mes, setMes] = useState(hoy.getMonth() + 1);
-  const hoyISO = hoy.toISOString().slice(0, 10);
-  const {
-    data: dias = [],
-    error,
-    isPending: loading,
-  } = useQuery({
-    queryKey: ["admin", "menu", "calendario", anio, mes],
-    queryFn: async () =>
-      (await api.get(`/v1/parametros/calendario?anio=${anio}&mes=${mes}`)).data.dias,
-  });
-
-  useEffect(() => {
-    if (error) toast.error(errMsg(error));
-  }, [error]);
-
-  const mover = (delta) => {
-    let m = mes + delta,
-      a = anio;
-    if (m < 1) {
-      m = 12;
-      a -= 1;
-    }
-    if (m > 12) {
-      m = 1;
-      a += 1;
-    }
-    setMes(m);
-    setAnio(a);
-  };
-
-  const semanas = [1, 2, 3, 4, 5].filter((s) => dias.some((d) => d.semanaMes === s));
+  const { anio, mes, hoyISO, dias, loading, mover, semanas } = useCalendario();
 
   return (
     <div className="space-y-6">

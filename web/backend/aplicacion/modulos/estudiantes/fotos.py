@@ -1,3 +1,4 @@
+from collections.abc import Callable, Iterator
 from typing import Protocol
 
 from fastapi import APIRouter, Depends, File, HTTPException, Response, UploadFile
@@ -14,7 +15,11 @@ class RepositorioFotos(Protocol):
 MAXIMO_FOTO_BYTES = 5_000_000
 
 
-def crear_enrutador_fotos(obtener_repositorio, exigir_permiso, exigir_csrf, **_kwargs) -> APIRouter:
+def crear_enrutador_fotos(
+    obtener_repositorio: Callable[[], Iterator[RepositorioFotos]],
+    exigir_permiso: Callable[[str], Callable[..., object]],
+    exigir_csrf: Callable[..., object],
+) -> APIRouter:
     r = APIRouter(prefix="/estudiantes", tags=["fotografias"])
 
     @r.get("/{id_estudiante}/foto")

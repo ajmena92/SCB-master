@@ -28,7 +28,7 @@ npm run lint
 npm run build
 ```
 
-Las pruebas unitarias se ejecutan mediante Vitest; TypeScript se incorpora de forma estricta e incremental sin exigir una conversión masiva de los archivos JavaScript existentes. Se usa TypeScript `6.0.3`, máxima versión admitida por el analizador vigente de ESLint/React; TypeScript 7 no se fuerza mientras ese contrato declare una versión menor a 6.1.
+Las pruebas unitarias se ejecutan mediante Vitest y el código nuevo se mantiene en TypeScript estricto. Los contratos OpenAPI generados por dominio se documentan en [Contratos de la API](../docs/CONTRATOS_API.md). Se usa TypeScript `6.0.3`, máxima versión admitida por el analizador vigente de ESLint/React; TypeScript 7 no se fuerza mientras ese contrato declare una versión menor a 6.1.
 
 ## Puertas de calidad
 
@@ -45,4 +45,4 @@ Para el despliegue institucional use exclusivamente `web/ops/compose.production.
 - No configurar una URL absoluta pública: `VITE_API_BASE_URL` debe ser una ruta relativa y en producción queda como `/api`.
 - No se guardan credenciales, JWT ni datos de sesión en `localStorage`.
 - Las sesiones son cookies `HttpOnly`, `Secure`, `SameSite=Strict`; las solicitudes que modifican datos usan una cookie CSRF separada y un encabezado coincidente.
-- La API debe implementar el contrato de [API_CONTRACT.md](API_CONTRACT.md). No desplegar el frontend contra producción hasta que la API lo cumpla.
+- La API y el cliente deben mantenerse sincronizados mediante [Contratos de la API](../docs/CONTRATOS_API.md). No desplegar cambios de rutas o esquemas sin ejecutar `npm run verificar:cliente`.

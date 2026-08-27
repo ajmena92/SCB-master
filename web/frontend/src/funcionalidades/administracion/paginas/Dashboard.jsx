@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { api, errMsg } from "@/lib/api";
+import { useDashboard } from "@/funcionalidades/administracion/hooks/useDashboard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -68,15 +67,7 @@ function Chart({ title, data, icon: Icon }) {
 export default function DashboardTab() {
   const [fecha, setFecha] = useState(() => new Date().toISOString().slice(0, 10));
   const [busqueda, setBusqueda] = useState("");
-  const {
-    data = null,
-    error,
-    isPending: loading,
-    refetch,
-  } = useQuery({
-    queryKey: ["admin", "dashboard", fecha],
-    queryFn: async () => (await api.get("/v1/dashboard")).data,
-  });
+  const { data = null, error, isPending: loading, refetch, mensajeError } = useDashboard(fecha);
   const nominal = data?.nominal || [];
 
   const nominalFiltrado = filterNominal(nominal, busqueda);
@@ -126,7 +117,7 @@ export default function DashboardTab() {
           role="alert"
           className="rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive"
         >
-          {errMsg(error)}{" "}
+          {mensajeError}{" "}
           <Button variant="link" className="h-auto p-0 text-destructive" onClick={() => refetch()}>
             Reintentar
           </Button>

@@ -18,6 +18,11 @@ Variables requeridas para producción: `SQL_CONNECTION_STRING` (ODBC Driver 18 c
 permanecer en `true`; los límites de sesión y bloqueo tienen valores seguros documentados en
 `web/ops/.env.example`.
 
+El bloqueo de autenticación se persiste en `identidad.intento_autenticacion`; por eso la
+migración `0013_intentos_autenticacion` de Alembic (o `017_intentos_autenticacion.sql` en el
+flujo SQL manual) debe aplicarse antes de habilitar el servicio con varios workers. El portal
+usa 8 intentos y 5 minutos para estudiantes, y 5 intentos y 15 minutos para administrativos.
+
 ## Prerrequisitos de staging
 
 - Docker Engine y Docker Compose v2 en un host Linux institucional.

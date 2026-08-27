@@ -1,6 +1,13 @@
 {
-  "archivos_largos_exentos": [
-    "frontend/src/compartido/contratos/api.ts"
-  ],
-  "terminos_ingleses_propios_permitidos": []
+  "archivos_largos_exentos": [],
+  "terminos_ingleses_propios_permitidos": [
+    "admin",
+    "app",
+    "axios",
+    "config",
+    "module",
+    "request",
+    "skip",
+    "student"
+  ]
 }

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable, Iterator
+from datetime import date
 
 from fastapi import APIRouter
 
@@ -22,6 +23,7 @@ def crear_enrutador_operaciones(
     obtener_asistencia: Callable[[], Iterator] | None = None,
     cookies_seguras: bool = True,
     duracion_sesion_estudiante: int = 31536000,
+    obtener_fecha_local: Callable[[], date] | None = None,
 ) -> APIRouter:
     """Compone las rutas públicas del portal y la administración estudiantil."""
     enrutador = APIRouter(prefix="/estudiantes", tags=["estudiantes-administracion"])
@@ -34,6 +36,8 @@ def crear_enrutador_operaciones(
             obtener_asistencia=obtener_asistencia,
             cookies_seguras=cookies_seguras,
             duracion_sesion_estudiante=duracion_sesion_estudiante,
+            exigir_csrf=exigir_csrf,
+            obtener_fecha_local=obtener_fecha_local,
         )
     )
     enrutador.include_router(

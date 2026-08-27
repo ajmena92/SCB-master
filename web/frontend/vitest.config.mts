@@ -28,7 +28,7 @@ export default defineConfig({
       provider: "v8",
       reporter: ["text", "json-summary", "html"],
       reportsDirectory: "./coverage",
-      exclude: ["src/testSetup.js", "src/**/*.test.*", "src/compartido/contratos/api.ts"],
+      exclude: ["src/testSetup.js", "src/**/*.test.*"],
       thresholds: { lines: 80, functions: 80, statements: 80, branches: 75 },
     },
   },

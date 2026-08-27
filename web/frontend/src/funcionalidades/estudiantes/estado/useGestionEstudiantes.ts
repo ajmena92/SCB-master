@@ -1,14 +1,15 @@
 import { useEffect, useState, type ChangeEvent } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { api, errMsg } from "@/lib/api";
+import { api } from "@/compartido/consultas/cliente_http";
+import { errMsg } from "@/compartido/consultas/errores_api";
 import { toast } from "sonner";
+import type { BeneficioSalida } from "@/compartido/contratos/beneficios";
 import type {
-  BeneficioSalida,
-  EstudianteSalida,
   PaginaEstudiantes,
   PinGenerado,
-  RutaSalida,
-} from "@/compartido/contratos/api";
+  EstudianteSalida,
+} from "@/compartido/contratos/estudiantes";
+import type { RutaSalida } from "@/compartido/contratos/transporte";
 import type {
   PerfilEstudiante,
   ReportePinesEstudiantes,

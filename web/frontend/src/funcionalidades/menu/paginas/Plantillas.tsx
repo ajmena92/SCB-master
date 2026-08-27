@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { api, errMsg } from "@/lib/api";
+import { api } from "@/compartido/consultas/cliente_http";
+import { errMsg } from "@/compartido/consultas/errores_api";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";

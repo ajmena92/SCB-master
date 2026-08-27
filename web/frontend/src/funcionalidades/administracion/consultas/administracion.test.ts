@@ -7,7 +7,7 @@ import {
   crearRol,
   editarUsuario,
 } from "./administracion";
-import { api } from "@/lib/api";
+import { api } from "@/compartido/consultas/cliente_http";
 describe("consultas de administración", () => {
   it("consulta usuarios por la API canónica", async () => {
     vi.spyOn(api, "get").mockResolvedValueOnce({ data: [] } as never);

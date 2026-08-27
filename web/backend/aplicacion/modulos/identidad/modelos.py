@@ -93,3 +93,14 @@ class Sesion(BaseDeclarativa):
     expira_en: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     csrf_hash: Mapped[str | None] = mapped_column(String(64), nullable=True)
     revocada: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+
+
+class IntentoAutenticacion(BaseDeclarativa):
+    """Estado compartido de bloqueo, sin conservar el identificador en claro."""
+
+    __tablename__ = "intento_autenticacion"
+    __table_args__ = {"schema": "identidad"}
+    identificador_hash: Mapped[str] = mapped_column(String(64), primary_key=True)
+    intentos_fallidos: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    bloqueado_hasta: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    fecha_actualizacion: Mapped[datetime] = mapped_column(DateTime, nullable=False)

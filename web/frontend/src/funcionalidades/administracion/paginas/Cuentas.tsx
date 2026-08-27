@@ -1,39 +1,17 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { api, errMsg } from "@/lib/api";
-import type { MovimientoEntrada, MovimientoSalida, SaldoSalida } from "@/compartido/contratos/api";
+import { useCuentas } from "@/funcionalidades/administracion/hooks/useCuentas";
 export default function Cuentas() {
-  const [id, setId] = useState("");
-  const [saldo, setSaldo] = useState<SaldoSalida>();
-  const [mov, setMov] = useState<MovimientoSalida>();
-  const [error, setError] = useState("");
-  const consultar = async () => {
-    try {
-      setError("");
-      setSaldo((await api.get<SaldoSalida>(`/v1/cuentas/${Number(id)}/saldo`)).data);
-    } catch (e) {
-      setError(errMsg(e));
-    }
-  };
-  const registrar = async (e: React.FormEvent<HTMLFormElement>) => {
+  const { id, setId, saldo, movimiento, error, cargando, consultar, registrar } = useCuentas();
+  const enviarMovimiento = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    try {
-      const d = Object.fromEntries(new FormData(e.currentTarget));
-      const datos: MovimientoEntrada = {
-        tipo: d.tipo as MovimientoEntrada["tipo"],
-        monto: String(d.monto),
-        concepto: String(d.concepto || ""),
-        claveIdempotencia: crypto.randomUUID(),
-      };
-      setMov(
-        (await api.post<MovimientoSalida>(`/v1/cuentas/${Number(id)}/movimientos`, datos)).data,
-      );
-      await consultar();
-      e.currentTarget.reset();
-    } catch (x) {
-      setError(errMsg(x));
-    }
+    const datos = Object.fromEntries(new FormData(e.currentTarget));
+    await registrar({
+      tipo: datos.tipo as "recarga" | "consumo" | "ajuste",
+      monto: String(datos.monto),
+      concepto: String(datos.concepto || ""),
+    });
+    e.currentTarget.reset();
   };
   return (
     <main className="space-y-6 p-6">
@@ -47,7 +25,7 @@ export default function Cuentas() {
           placeholder="ID del estudiante"
           aria-label="ID del estudiante"
         />
-        <Button onClick={() => void consultar()} disabled={!id}>
+        <Button onClick={() => void consultar()} disabled={!id || cargando}>
           Consultar saldo
         </Button>
       </div>
@@ -57,7 +35,7 @@ export default function Cuentas() {
           Saldo actual: <strong>{saldo.saldo}</strong>
         </p>
       )}
-      <form className="space-y-3 rounded-xl border p-4" onSubmit={registrar}>
+      <form className="space-y-3 rounded-xl border p-4" onSubmit={enviarMovimiento}>
         <h2 className="font-semibold">Registrar movimiento</h2>
         <select name="tipo" defaultValue="recarga" aria-label="Tipo">
           <option value="recarga">Recarga</option>
@@ -74,13 +52,13 @@ export default function Cuentas() {
           aria-label="Monto"
         />
         <Input name="concepto" placeholder="Concepto" aria-label="Concepto" />
-        <Button type="submit" disabled={!id}>
+        <Button type="submit" disabled={!id || cargando}>
           Guardar movimiento
         </Button>
       </form>
-      {mov && (
+      {movimiento && (
         <p role="status">
-          Movimiento #{mov.idMovimiento} guardado. Nuevo saldo: {mov.saldoNuevo}
+          Movimiento #{movimiento.idMovimiento} guardado. Nuevo saldo: {movimiento.saldoNuevo}
         </p>
       )}
     </main>

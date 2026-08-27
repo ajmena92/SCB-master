@@ -1,7 +1,7 @@
 import { FormEvent, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { errMsg } from "@/lib/api";
+import { errMsg } from "@/compartido/consultas/errores_api";
 import {
   crearRol,
   crearUsuario,

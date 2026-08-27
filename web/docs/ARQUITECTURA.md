@@ -37,7 +37,7 @@ web/
 │   ├── nucleo/               # Configuración, DB, seguridad y observabilidad
 │   └── modulos/              # Módulos de dominio
 ├── sql/                      # Estado actual y transición de migraciones
-├── migraciones/              # Objetivo: migraciones versionadas del modelo web
+├── sql/migrations/           # Migraciones versionadas del modelo web
 └── docs/                     # Arquitectura, ADR, operación y control
 ```
 
@@ -66,6 +66,9 @@ interfaz/API → servicio de aplicación → dominio → puerto de repositorio
 - Las rutas nuevas usan `/api/v1/` y sustantivos en español.
 - Los JSON usan `camelCase` en español; los contratos backend son esquemas Pydantic explícitos.
 - El cliente TypeScript se genera desde OpenAPI; no se duplican contratos manualmente.
+- Los esquemas TypeScript generados viven en `frontend/src/compartido/contratos/<dominio>.ts`;
+  `operaciones/` contiene el inventario HTTP por dominio, `operaciones.ts` lo compone y `api.ts`
+  solo reexporta los módulos.
 - Los errores públicos incluyen código estable, mensaje, detalles de validación cuando correspondan e identificador de trazabilidad.
 - Las rupturas futuras se versionan; no se mantienen aliases heredados permanentes.
 - SQL Server continúa como motor, con esquemas web canónicos y nombres `snake_case` en español.

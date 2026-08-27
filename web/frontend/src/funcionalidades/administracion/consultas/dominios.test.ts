@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { DOMINIOS } from "./dominios";
-import { api } from "@/lib/api";
+import { api } from "@/compartido/consultas/cliente_http";
 
 describe("catálogo de dominios administrativos", () => {
   it("expone los dominios web canónicos", () => {

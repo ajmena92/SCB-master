@@ -1,28 +1,9 @@
-import { useState } from "react";
-import { api, errMsg } from "@/lib/api";
+import { useRegistroConsumo } from "@/funcionalidades/comedor/hooks/useRegistroConsumo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { toast } from "sonner";
 export default function Comedor() {
-  const [idEstudiante, setIdEstudiante] = useState("");
-  const [fecha, setFecha] = useState(() => new Date().toISOString().slice(0, 10));
-  const [guardando, setGuardando] = useState(false);
-  async function registrar() {
-    if (!idEstudiante) {
-      toast.error("Indique el estudiante");
-      return;
-    }
-    setGuardando(true);
-    try {
-      await api.post("/v1/comedor/registros", { idEstudiante: Number(idEstudiante), fecha });
-      toast.success("Consumo registrado");
-      setIdEstudiante("");
-    } catch (e) {
-      toast.error(errMsg(e));
-    } finally {
-      setGuardando(false);
-    }
-  }
+  const { idEstudiante, fecha, guardando, setIdEstudiante, setFecha, registrar } =
+    useRegistroConsumo();
   return (
     <section className="space-y-6">
       <h2 className="font-display text-2xl font-black">Registro de comedor</h2>

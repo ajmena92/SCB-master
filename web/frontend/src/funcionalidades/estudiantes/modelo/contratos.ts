@@ -1,4 +1,6 @@
-import type { BeneficioSalida, EstudianteSalida, RutaSalida } from "@/compartido/contratos/api";
+import type { BeneficioSalida } from "@/compartido/contratos/beneficios";
+import type { EstudianteSalida } from "@/compartido/contratos/estudiantes";
+import type { RutaSalida } from "@/compartido/contratos/transporte";
 
 export type EstudianteAdministrativo = EstudianteSalida;
 export type BeneficioEstudiante = BeneficioSalida;

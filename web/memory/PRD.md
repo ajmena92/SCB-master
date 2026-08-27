@@ -4,11 +4,11 @@
 Portal web (en español, móvil-primero) para que estudiantes confirmen/cancelen su asistencia al comedor del día actual antes de la hora límite de su horario. Las confirmaciones alimentan `dbo.RegistroTransporte` (compartida con el reporte WinForms existente). Usuarios administrativos (Operador, Administrador) gestionan menús, sustituciones, PIN de estudiantes, dashboard en tiempo real y correcciones auditadas.
 
 ## Arquitectura
-- **Frontend**: React (CRA + craco), TailwindCSS, shadcn/ui, recharts, framer-motion. Tipografía Chivo/Karla. Rutas: `/` (login estudiante), `/cambiar-pin`, `/estudiante`, `/admin`, `/admin/panel`.
+- **Frontend**: React 19 con Vite 8, TypeScript estricto para código nuevo, TailwindCSS, shadcn/ui, recharts y framer-motion. Rutas: `/` (login estudiante), `/cambiar-pin`, `/estudiante`, `/admin`, `/admin/panel`.
 - **Backend**: FastAPI + pyodbc contra SQL Server institucional. Todas las rutas con prefijo `/api`; no se usa MongoDB ni datos semilla.
-- **Auth**: sesiones opacas revocables en cookie `HttpOnly` y CSRF de doble envío; no JWT ni `localStorage`. PBKDF2-HMAC-SHA256 con salt+iteraciones para PIN y compatibilidad con hashes administrativos de `Seguridad.Usuario`. Bloqueo tras 5 intentos fallidos.
+- **Auth**: sesiones opacas revocables en cookie `HttpOnly` y CSRF de doble envío; no JWT ni `localStorage`. Argon2id para credenciales nuevas y rechazo de hashes heredados. Estudiantes: 8 intentos y 5 minutos de bloqueo; administrativos: 5 intentos y 15 minutos.
 - **Zona horaria servidor**: America/Costa_Rica. Cierres: Diurno 09:40, Nocturno 18:40.
-- **Modelo de datos**: tablas existentes `dbo.Usuario`, `dbo.Horario`, `dbo.RegistroTransporte`, `Seguridad.Usuario`/roles, y tablas nuevas en `ComedorPortal`. No se modifica ninguna tabla existente. `ConfirmacionAsistencia` relaciona una confirmación con su marca y `MarcaCreadaPorPortal` evita borrar o reinterpretar marcas originadas por escritorio.
+- **Modelo de datos**: SQL Server con esquemas canónicos por dominio y migraciones en `web/sql/migrations`. Los modelos ORM se encuentran en `backend/aplicacion/modulos/<dominio>/modelos.py`; `nucleo` conserva únicamente infraestructura transversal.
 
 ## Personas
 - Estudiante: consulta menú, confirma/cancela asistencia, cambia PIN.
