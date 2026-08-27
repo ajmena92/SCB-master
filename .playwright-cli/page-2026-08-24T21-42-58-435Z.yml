@@ -1,0 +1,763 @@
+- generic:
+  - generic:
+    - generic:
+      - generic:
+        - banner:
+          - generic:
+            - generic: Comedor SCSC · Administración
+            - generic:
+              - generic:
+                - paragraph: Profesor de pruebas del portal
+                - generic: Operador
+              - button
+        - main:
+          - generic:
+            - tablist:
+              - tab: Dashboard
+              - tab: Menú
+              - tab: Calendario
+              - tab: Sustituciones
+              - tab [selected]: Estudiantes / PIN
+              - tab: Parámetros
+              - tab: Auditoría
+              - tab: Reporte WinForms
+            - tabpanel:
+              - generic:
+                - generic:
+                  - heading [level=2]: Estudiantes y gestión de PIN
+                  - paragraph: Reiniciá el PIN; el estudiante deberá cambiarlo en su próximo ingreso.
+                - generic:
+                  - generic:
+                    - generic:
+                      - heading [level=3]: Reporte de PIN por sección
+                      - paragraph: Seleccioná una sección para generar nuevos PIN temporales e imprimirlos o guardarlos como PDF.
+                  - generic:
+                    - generic:
+                      - text: Turno
+                      - combobox
+                    - generic:
+                      - text: Sección
+                      - combobox
+                    - button [disabled]: Generar reporte
+                - generic:
+                  - textbox:
+                    - /placeholder: Buscar por nombre o cédula
+                - generic:
+                  - generic:
+                    - table:
+                      - rowgroup:
+                        - row:
+                          - columnheader: Estudiante
+                          - columnheader: Carnet
+                          - columnheader: Cédula
+                          - columnheader: Horario
+                          - columnheader: Sección
+                          - columnheader: Ruta
+                          - columnheader: Beca
+                          - columnheader: Estado PIN
+                          - columnheader: Acción
+                      - rowgroup:
+                        - row:
+                          - cell: ABBY ALEXANDRA SANCHEZ CHANTO
+                          - cell
+                          - cell: "120910218"
+                          - cell: DIURNO
+                          - cell: 10-4
+                          - cell: "416701"
+                          - cell: "2"
+                          - cell:
+                            - generic: Debe cambiar
+                          - cell:
+                            - button: Carnet
+                            - button: Reiniciar PIN
+                        - row:
+                          - cell: ABIGAIL FABIOLA FERNANDEZ ELIZONDO
+                          - cell
+                          - cell: "120170960"
+                          - cell: DIURNO
+                          - cell: 12-2
+                          - cell: "1115307"
+                          - cell: "2"
+                          - cell:
+                            - generic: Debe cambiar
+                          - cell:
+                            - button: Carnet
+                            - button: Reiniciar PIN
+                        - row:
+                          - cell: ABIGAIL LUCRECIA MORALES MORA
+                          - cell
+                          - cell: "120140382"
+                          - cell: DIURNO
+                          - cell: 12-2
+                          - cell: "1115306"
+                          - cell: "2"
+                          - cell:
+                            - generic: Debe cambiar
+                          - cell:
+                            - button: Carnet
+                            - button: Reiniciar PIN
+                        - row:
+                          - cell: ABIGAIL VILLALOBOS GARRO
+                          - cell
+                          - cell: "121690310"
+                          - cell: DIURNO
+                          - cell: 7-2
+                          - cell: "0000"
+                          - cell: "1"
+                          - cell:
+                            - generic: Debe cambiar
+                          - cell:
+                            - button: Carnet
+                            - button: Reiniciar PIN
+                        - row:
+                          - cell: ABRAHAM ELIZONDO ARIAS
+                          - cell
+                          - cell: "121140039"
+                          - cell: DIURNO
+                          - cell: 8-5
+                          - cell: "0000"
+                          - cell: "1"
+                          - cell:
+                            - generic: Debe cambiar
+                          - cell:
+                            - button: Carnet
+                            - button: Reiniciar PIN
+                        - row:
+                          - cell: ADELA FERNANDA SOLANO CISNEROS
+                          - cell
+                          - cell: "117760591"
+                          - cell: SECCIÓN NOCTURNA
+                          - cell: 11-2
+                          - cell: "416705"
+                          - cell: "1"
+                          - cell:
+                            - generic: Debe cambiar
+                          - cell:
+                            - button: Carnet
+                            - button: Reiniciar PIN
+                        - row:
+                          - cell: ADEYKA YULEY GODINEZ TENORIO
+                          - cell
+                          - cell: "121550892"
+                          - cell: DIURNO
+                          - cell: 8-5
+                          - cell: "0000"
+                          - cell: "2"
+                          - cell:
+                            - generic: Debe cambiar
+                          - cell:
+                            - button: Carnet
+                            - button: Reiniciar PIN
+                        - row:
+                          - cell: ADIS DINARA MONTES MORA
+                          - cell
+                          - cell: "120810964"
+                          - cell: DIURNO
+                          - cell: 10-2
+                          - cell: "0000"
+                          - cell: "2"
+                          - cell:
+                            - generic: Debe cambiar
+                          - cell:
+                            - button: Carnet
+                            - button: Reiniciar PIN
+                        - row:
+                          - cell: ADRIAN ALBERTO VINDAS FERNANDEZ
+                          - cell
+                          - cell: "118860604"
+                          - cell: SECCIÓN NOCTURNA
+                          - cell: 10-2
+                          - cell: "0000"
+                          - cell: "1"
+                          - cell:
+                            - generic: Debe cambiar
+                          - cell:
+                            - button: Carnet
+                            - button: Reiniciar PIN
+                        - row:
+                          - cell: ADRIAN JOSE GONZALEZ JIMENEZ
+                          - cell
+                          - cell: "121440139"
+                          - cell: DIURNO
+                          - cell: 8-1
+                          - cell: "0000"
+                          - cell: "2"
+                          - cell:
+                            - generic: Debe cambiar
+                          - cell:
+                            - button: Carnet
+                            - button: Reiniciar PIN
+                        - row:
+                          - cell: ADRIAN MIGUEL FERNANDEZ NAVARRO
+                          - cell
+                          - cell: "121270122"
+                          - cell: DIURNO
+                          - cell: 9-3
+                          - cell: "0000"
+                          - cell: "2"
+                          - cell:
+                            - generic: Debe cambiar
+                          - cell:
+                            - button: Carnet
+                            - button: Reiniciar PIN
+                        - row:
+                          - cell: ADRIANA ALENIS FERNANDEZ MUÑOZ
+                          - cell
+                          - cell: "121000626"
+                          - cell: DIURNO
+                          - cell: 10-2
+                          - cell: "0000"
+                          - cell: "1"
+                          - cell:
+                            - generic: Debe cambiar
+                          - cell:
+                            - button: Carnet
+                            - button: Reiniciar PIN
+                        - row:
+                          - cell: ADRIANA BRIYITH ROJAS HIDALGO
+                          - cell
+                          - cell: "121270374"
+                          - cell: DIURNO
+                          - cell: 9-2
+                          - cell: "0000"
+                          - cell: "2"
+                          - cell:
+                            - generic: Debe cambiar
+                          - cell:
+                            - button: Carnet
+                            - button: Reiniciar PIN
+                        - row:
+                          - cell: ADRIANA DE LOS ANGELES ARAYA MARIN
+                          - cell
+                          - cell: "113080031"
+                          - cell: SECCIÓN NOCTURNA
+                          - cell: 10-2
+                          - cell: "0000"
+                          - cell: "1"
+                          - cell:
+                            - generic: Debe cambiar
+                          - cell:
+                            - button: Carnet
+                            - button: Reiniciar PIN
+                        - row:
+                          - cell: ADRIANA LUCIA ARROYO VARGAS
+                          - cell
+                          - cell: "121860209"
+                          - cell: DIURNO
+                          - cell: 7-4
+                          - cell: "0000"
+                          - cell: "2"
+                          - cell:
+                            - generic: Debe cambiar
+                          - cell:
+                            - button: Carnet
+                            - button: Reiniciar PIN
+                        - row:
+                          - cell: ADRIANA SOFIA APARICIO FERNANDEZ
+                          - cell
+                          - cell: "121850551"
+                          - cell: DIURNO
+                          - cell: 7-5
+                          - cell: "0000"
+                          - cell: "2"
+                          - cell:
+                            - generic: Debe cambiar
+                          - cell:
+                            - button: Carnet
+                            - button: Reiniciar PIN
+                        - row:
+                          - cell: AGUSTIN DE JESUS ELIZONDO BERMUDEZ
+                          - cell
+                          - cell: "120310674"
+                          - cell: DIURNO
+                          - cell: 12-2
+                          - cell: "1115307"
+                          - cell: "1"
+                          - cell:
+                            - generic: Debe cambiar
+                          - cell:
+                            - button: Carnet
+                            - button: Reiniciar PIN
+                        - row:
+                          - cell: AIDAM EMMANUEL ROJAS CORDERO
+                          - cell
+                          - cell: "121190476"
+                          - cell: DIURNO
+                          - cell: 8-3
+                          - cell: "0000"
+                          - cell: "1"
+                          - cell:
+                            - generic: Debe cambiar
+                          - cell:
+                            - button: Carnet
+                            - button: Reiniciar PIN
+                        - row:
+                          - cell: AKCEL DARIEL CHACON ARAYA
+                          - cell
+                          - cell: "120140012"
+                          - cell: DIURNO
+                          - cell: 12-3
+                          - cell: "0000"
+                          - cell: "2"
+                          - cell:
+                            - generic: Debe cambiar
+                          - cell:
+                            - button: Carnet
+                            - button: Reiniciar PIN
+                        - row:
+                          - cell: AKEMY LORENA VINDAS AMADOR
+                          - cell
+                          - cell: "120710538"
+                          - cell: DIURNO
+                          - cell: 10-4
+                          - cell: "0000"
+                          - cell: "2"
+                          - cell:
+                            - generic: Debe cambiar
+                          - cell:
+                            - button: Carnet
+                            - button: Reiniciar PIN
+                        - row:
+                          - cell: AKSANA BEITA ARRONIS
+                          - cell
+                          - cell: "120840641"
+                          - cell: DIURNO
+                          - cell: 10-2
+                          - cell: "0000"
+                          - cell: "1"
+                          - cell:
+                            - generic: Debe cambiar
+                          - cell:
+                            - button: Carnet
+                            - button: Reiniciar PIN
+                        - row:
+                          - cell: ALANA GABRIEL HERNANDEZ VASQUEZ
+                          - cell
+                          - cell: "119920200"
+                          - cell: DIURNO
+                          - cell: E
+                          - cell: "416713"
+                          - cell: "2"
+                          - cell:
+                            - generic: Debe cambiar
+                          - cell:
+                            - button: Carnet
+                            - button: Reiniciar PIN
+                        - row:
+                          - cell: ALBERTO BLANCO VALVERDE
+                          - cell
+                          - cell: "104420064"
+                          - cell: DIURNO
+                          - cell: NA
+                          - cell: "0000"
+                          - cell: "1"
+                          - cell:
+                            - generic: Debe cambiar
+                          - cell:
+                            - button: Carnet
+                            - button: Reiniciar PIN
+                        - row:
+                          - cell: ALEJANDRA ELIZONDO JIMENEZ
+                          - cell
+                          - cell: "115040878"
+                          - cell: DIURNO
+                          - cell: NA
+                          - cell: "0000"
+                          - cell: "1"
+                          - cell:
+                            - generic: Debe cambiar
+                          - cell:
+                            - button: Carnet
+                            - button: Reiniciar PIN
+                        - row:
+                          - cell: ALEJANDRA MARIA ELIZONDO ARAYA
+                          - cell
+                          - cell: "120650108"
+                          - cell: DIURNO
+                          - cell: 10-2
+                          - cell: "0000"
+                          - cell: "2"
+                          - cell:
+                            - generic: Debe cambiar
+                          - cell:
+                            - button: Carnet
+                            - button: Reiniciar PIN
+                        - row:
+                          - cell: ALEJANDRA ROJAS BRAND
+                          - cell
+                          - cell: "121350326"
+                          - cell: DIURNO
+                          - cell: 9-3
+                          - cell: "0000"
+                          - cell: "2"
+                          - cell:
+                            - generic: Debe cambiar
+                          - cell:
+                            - button: Carnet
+                            - button: Reiniciar PIN
+                        - row:
+                          - cell: ALEJANDRO ANTONIO MARTINEZ RODRIGUEZ
+                          - cell
+                          - cell: "118360767"
+                          - cell: SECCIÓN NOCTURNA
+                          - cell: 12-2
+                          - cell: "416705"
+                          - cell: "1"
+                          - cell:
+                            - generic: Debe cambiar
+                          - cell:
+                            - button: Carnet
+                            - button: Reiniciar PIN
+                        - row:
+                          - cell: ALESSANDRO JAHEL NAVARRO JIMENEZ
+                          - cell
+                          - cell: "121860774"
+                          - cell: DIURNO
+                          - cell: 7-4
+                          - cell: "0000"
+                          - cell: "2"
+                          - cell:
+                            - generic: Debe cambiar
+                          - cell:
+                            - button: Carnet
+                            - button: Reiniciar PIN
+                        - row:
+                          - cell: ALEX EMANUELL MENA ANCHIA
+                          - cell
+                          - cell: "120750121"
+                          - cell: DIURNO
+                          - cell: 10-3
+                          - cell: "0000"
+                          - cell: "1"
+                          - cell:
+                            - generic: Debe cambiar
+                          - cell:
+                            - button: Carnet
+                            - button: Reiniciar PIN
+                        - row:
+                          - cell: ALEX GUILLEN GARRO
+                          - cell
+                          - cell: "121250545"
+                          - cell: DIURNO
+                          - cell: 9-1
+                          - cell: "0000"
+                          - cell: "1"
+                          - cell:
+                            - generic: Debe cambiar
+                          - cell:
+                            - button: Carnet
+                            - button: Reiniciar PIN
+                        - row:
+                          - cell: ALEX MANUEL ARIAS JIMENEZ
+                          - cell
+                          - cell: "121320626"
+                          - cell: DIURNO
+                          - cell: 9-1
+                          - cell: "0000"
+                          - cell: "1"
+                          - cell:
+                            - generic: Debe cambiar
+                          - cell:
+                            - button: Carnet
+                            - button: Reiniciar PIN
+                        - row:
+                          - cell: ALEX STEVEN ELIZONDO MENA
+                          - cell
+                          - cell: "121230188"
+                          - cell: DIURNO
+                          - cell: 9-1
+                          - cell: "0000"
+                          - cell: "1"
+                          - cell:
+                            - generic: Debe cambiar
+                          - cell:
+                            - button: Carnet
+                            - button: Reiniciar PIN
+                        - row:
+                          - cell: ALEX XAVIER FERNANDEZ QUIROS
+                          - cell
+                          - cell: "121310548"
+                          - cell: DIURNO
+                          - cell: 9-4
+                          - cell: "0000"
+                          - cell: "2"
+                          - cell:
+                            - generic: Debe cambiar
+                          - cell:
+                            - button: Carnet
+                            - button: Reiniciar PIN
+                        - row:
+                          - cell: ALEXA DE LOS ANGELES ARAYA ARRIETA
+                          - cell
+                          - cell: "121560536"
+                          - cell: DIURNO
+                          - cell: 8-2
+                          - cell: "0000"
+                          - cell: "2"
+                          - cell:
+                            - generic: Debe cambiar
+                          - cell:
+                            - button: Carnet
+                            - button: Reiniciar PIN
+                        - row:
+                          - cell: ALEXA MARIANA HIDALGO VARGAS
+                          - cell
+                          - cell: "121070336"
+                          - cell: DIURNO
+                          - cell: 9-5
+                          - cell: "0000"
+                          - cell: "2"
+                          - cell:
+                            - generic: Debe cambiar
+                          - cell:
+                            - button: Carnet
+                            - button: Reiniciar PIN
+                        - row:
+                          - cell: ALEXANDER ALBERTO DE SEGURA CASTRO
+                          - cell
+                          - cell: "107770446"
+                          - cell: DIURNO
+                          - cell: NA
+                          - cell: "0000"
+                          - cell: "1"
+                          - cell:
+                            - generic: Debe cambiar
+                          - cell:
+                            - button: Carnet
+                            - button: Reiniciar PIN
+                        - row:
+                          - cell: ALEXANDER MOISES MORA AGUERO
+                          - cell
+                          - cell: "120450074"
+                          - cell: DIURNO
+                          - cell: 11-3
+                          - cell: "0000"
+                          - cell: "2"
+                          - cell:
+                            - generic: Debe cambiar
+                          - cell:
+                            - button: Carnet
+                            - button: Reiniciar PIN
+                        - row:
+                          - cell: ALEXANDRA MONTERO VARGAS
+                          - cell
+                          - cell: "121370805"
+                          - cell: DIURNO
+                          - cell: 8-4
+                          - cell: "0000"
+                          - cell: "2"
+                          - cell:
+                            - generic: Debe cambiar
+                          - cell:
+                            - button: Carnet
+                            - button: Reiniciar PIN
+                        - row:
+                          - cell: ALEXANDRA VARGAS GUTIERREZ
+                          - cell
+                          - cell: "503130248"
+                          - cell: DIURNO
+                          - cell: NA
+                          - cell: "0000"
+                          - cell: "1"
+                          - cell:
+                            - generic: Debe cambiar
+                          - cell:
+                            - button: Carnet
+                            - button: Reiniciar PIN
+                        - row:
+                          - cell: ALEXANDRO MORA MORALES
+                          - cell
+                          - cell: "120260821"
+                          - cell: DIURNO
+                          - cell: 12-1
+                          - cell: "0000"
+                          - cell: "2"
+                          - cell:
+                            - generic: Debe cambiar
+                          - cell:
+                            - button: Carnet
+                            - button: Reiniciar PIN
+                        - row:
+                          - cell: ALEXIA LUCIA ROJAS MARIN
+                          - cell
+                          - cell: "121790921"
+                          - cell: DIURNO
+                          - cell: 7-1
+                          - cell: "0000"
+                          - cell: "2"
+                          - cell:
+                            - generic: Debe cambiar
+                          - cell:
+                            - button: Carnet
+                            - button: Reiniciar PIN
+                        - row:
+                          - cell: ALEXIA SOFIA SANCHEZ HIDALGO
+                          - cell
+                          - cell: "121850465"
+                          - cell: DIURNO
+                          - cell: 7-5
+                          - cell: "0000"
+                          - cell: "2"
+                          - cell:
+                            - generic: Debe cambiar
+                          - cell:
+                            - button: Carnet
+                            - button: Reiniciar PIN
+                        - row:
+                          - cell: ALEXIS DE LOS ANGELES GARRO DIAZ
+                          - cell
+                          - cell: "105430081"
+                          - cell: DIURNO
+                          - cell: NA
+                          - cell: "0000"
+                          - cell: "1"
+                          - cell:
+                            - generic: Debe cambiar
+                          - cell:
+                            - button: Carnet
+                            - button: Reiniciar PIN
+                        - row:
+                          - cell: ALISON DE LOS ANGELES CRUZ CORDERO
+                          - cell
+                          - cell: "121100139"
+                          - cell: DIURNO
+                          - cell: 9-1
+                          - cell: "0000"
+                          - cell: "2"
+                          - cell:
+                            - generic: Debe cambiar
+                          - cell:
+                            - button: Carnet
+                            - button: Reiniciar PIN
+                        - row:
+                          - cell: ALISON JARIELA QUESADA CALDERON
+                          - cell
+                          - cell: "120270903"
+                          - cell: DIURNO
+                          - cell: 12-1
+                          - cell: "1115308"
+                          - cell: "2"
+                          - cell:
+                            - generic: Debe cambiar
+                          - cell:
+                            - button: Carnet
+                            - button: Reiniciar PIN
+                        - row:
+                          - cell: ALISON JIMENA JIMENEZ VARGAS
+                          - cell
+                          - cell: "120190841"
+                          - cell: DIURNO
+                          - cell: 12-1
+                          - cell: "5371"
+                          - cell: "2"
+                          - cell:
+                            - generic: Debe cambiar
+                          - cell:
+                            - button: Carnet
+                            - button: Reiniciar PIN
+                        - row:
+                          - cell: ALISON VALERIA VILLALOBOS ARIAS
+                          - cell
+                          - cell: "605140410"
+                          - cell: DIURNO
+                          - cell: 12-2
+                          - cell: "1115306"
+                          - cell: "1"
+                          - cell:
+                            - generic: Debe cambiar
+                          - cell:
+                            - button: Carnet
+                            - button: Reiniciar PIN
+                        - row:
+                          - cell: ALISSON CAMILA GONZALEZ VARELA
+                          - cell
+                          - cell: "121180901"
+                          - cell: DIURNO
+                          - cell: 9-4
+                          - cell: "0000"
+                          - cell: "1"
+                          - cell:
+                            - generic: Debe cambiar
+                          - cell:
+                            - button: Carnet
+                            - button: Reiniciar PIN
+                        - row:
+                          - cell: ALISSON LEONELA CASTRO CORDERO
+                          - cell
+                          - cell: "120640334"
+                          - cell: DIURNO
+                          - cell: 11-2
+                          - cell: "0000"
+                          - cell: "2"
+                          - cell:
+                            - generic: Debe cambiar
+                          - cell:
+                            - button: Carnet
+                            - button: Reiniciar PIN
+                        - row:
+                          - cell: ALLAN FABRICIO VARGAS UREÑA
+                          - cell
+                          - cell: "120280201"
+                          - cell: DIURNO
+                          - cell: 12-1
+                          - cell: "1115309"
+                          - cell: "2"
+                          - cell:
+                            - generic: Debe cambiar
+                          - cell:
+                            - button: Carnet
+                            - button: Reiniciar PIN
+                - generic:
+                  - generic: 1093 estudiante(s) · Página 1 de 22
+                  - generic:
+                    - button [disabled]: Anterior
+                    - button: Siguiente
+      - region "Notifications alt+T"
+  - generic: "1"
+  - dialog [ref=f3e1106]:
+    - generic [ref=f3e1107]:
+      - heading "Carnet y beneficio" [level=2] [ref=f3e1108]
+      - paragraph [ref=f3e1109]: ABBY ALEXANDRA SANCHEZ CHANTO
+    - generic [ref=f3e1110]:
+      - generic [ref=f3e1111]:
+        - generic [ref=f3e1112]:
+          - text: Beneficio de comedor
+          - combobox [ref=f3e1113]:
+            - option "Sin beca"
+            - option "NO BENEFICIARIO · 00000"
+            - option "COMPLETA · 65432" [selected]
+          - paragraph [ref=f3e1114]: Se conserva la regla local de días definidos en TipoBeca.
+          - generic [ref=f3e1115]: Ruta de transporte
+          - combobox "Ruta de transporte" [ref=f3e1116]:
+            - option "Sin ruta"
+            - option "0000 · SIN RUTA"
+            - option "416701 · 01-SAN CARLOS" [selected]
+            - option "416702 · 02-NARANJO"
+            - option "416707 · 07-SAN GERARDO"
+            - option "416708 · 08-CONCEPCIÓN"
+            - option "416709 · 09-SOCORRO"
+            - option "416705 · 05-CAJÓN"
+            - option "5369 · 5369-LOS ANGELES"
+            - option "5370 · 5370-VISTA MAR"
+            - option "5371 · 5371-CRISTO REY"
+            - option "1115306 · 1115306-SAN BOSCO-AGUAS BUENAS-SUIZA"
+            - option "1115307 · 1115307-BOLIVIA"
+            - option "1115308 · 1115308-SIERRA"
+            - option "1115309 · 1115309-PILAR"
+            - option "1115311 · 1115311-SAN CARLOS"
+            - option "1115336 · 1115336-CONCEPCION"
+            - option "416713 · 416713-PEJIBAYE"
+            - option "416714 · 416714-PEJIBAYE"
+            - option "110551 · 110551-CAJON"
+          - paragraph [ref=f3e1117]: Este color identifica visualmente el carnet.
+        - img "Vista previa del carnet" [ref=f3e1119]
+      - generic [ref=f3e1120]:
+        - generic [ref=f3e1121]: Fotografía
+        - button "Choose File" [ref=f3e1126]
+        - generic [ref=f3e1127]:
+          - button "Cargar fotografía" [disabled]
+          - button "Marcar pendiente" [ref=f3e1128] [cursor=pointer]
+        - paragraph [ref=f3e1129]: JPG, PNG o WEBP. Máximo 5 MB. Si falta, se genera un carnet provisional.
+    - link "Descargar PDF" [ref=f3e1131] [cursor=pointer]:
+      - /url: /api/admin/estudiantes/7501/carnet.pdf
+    - button "Close" [active] [ref=f3e1132] [cursor=pointer]

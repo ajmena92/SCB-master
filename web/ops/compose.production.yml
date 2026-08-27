@@ -1,0 +1,59 @@
+name: scsc-comedor
+
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: ops/Dockerfile.api
+    env_file:
+      - .env
+    restart: unless-stopped
+    networks:
+      - private
+    expose:
+      - "8000"
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+
+  web:
+    build:
+      context: ..
+      dockerfile: ops/Dockerfile.frontend
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - private
+    # The institutional TLS proxy is the only public ingress. Keep this bound
+    # to loopback unless the infrastructure team explicitly changes the design.
+    ports:
+      - "127.0.0.1:8081:8080"
+    read_only: true
+    tmpfs:
+      - /var/cache/nginx
+      - /var/run
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    # The official Nginx image starts its master process as root, then changes
+    # ownership of its tmpfs-backed temporary directories and drops workers to
+    # the bundled `nginx` account.  These are the only three capabilities that
+    # sequence requires; all others remain removed.
+    cap_add:
+      - CHOWN
+      - SETGID
+      - SETUID
+
+networks:
+  private:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: ${COMPOSE_PRIVATE_SUBNET}

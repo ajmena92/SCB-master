@@ -6,11 +6,11 @@ Fecha: 2026-03-09
 - Entorno oficial: Windows con Visual Studio 2019+ o MSBuild compatible con .NET Framework 4.6.1.
 - Restauracion:
 ```bash
-nuget restore SCSC_Marcas.sln
+nuget restore escritorio/SCSC_Marcas.sln
 ```
 - Build base:
 ```bash
-msbuild SCSC_Marcas.sln /p:Configuration=Debug /p:Platform="Any CPU"
+msbuild escritorio/SCSC_Marcas.sln /p:Configuration=Debug /p:Platform="Any CPU"
 ```
 
 ## Estado actual del workspace

@@ -4,7 +4,7 @@
 
 ## Resumen
 - Fecha de indexación: 2026-03-04
-- Solución principal: `SCSC_Marcas.sln`
+- Solución principal: `escritorio/SCSC_Marcas.sln`
 - Archivos VB totales: 55
 - Archivos VB (sin designer): 33
 - Métodos/Subs/Functions detectados (total): 369
@@ -16,19 +16,19 @@
 - Estandar visual oficial 2026 (hibrido): `docs/refactor/UI_HYBRID_STANDARD_2026.md`.
 
 ## Estructura de Carpetas Relevante
-- `SCSC/Clases`: utilidades, acceso a datos, encriptación, variables globales.
-- `SCSC/Formularios`: pantallas operativas (comedor, transporte, estudiantes, importación).
-- `SCSC/Seguridad`: login/autenticación.
-- `SCSC/Reportes`: parámetros y visualización Crystal Reports.
-- `SCSC/My Project`: settings/recursos de VB.
+- `escritorio/SCSC/Clases`: utilidades, acceso a datos, encriptación, variables globales.
+- `escritorio/SCSC/Formularios`: pantallas operativas (comedor, transporte, estudiantes, importación).
+- `escritorio/SCSC/Seguridad`: login/autenticación.
+- `escritorio/SCSC/Reportes`: parámetros y visualización Crystal Reports.
+- `escritorio/SCSC/My Project`: settings/recursos de VB.
 
 ## Inventario de Funciones (Detalle por Archivo)
 
-### SCSC/Busqueda.designer.vb
+### escritorio/SCSC/Busqueda.designer.vb
 - Línea 7:    Protected Overrides Sub Dispose(ByVal disposing As Boolean)
 - Línea 24:    Private Sub InitializeComponent()
 
-### SCSC/Busqueda.vb
+### escritorio/SCSC/Busqueda.vb
 - Línea 6:    Sub CargarGrid()
 - Línea 56:    Private Sub GridConsulta_CellClick(ByVal sender As Object, ByVal e As System.Windows.Forms.DataGridViewCellEventArgs) Handles GridConsulta.CellClick
 - Línea 68:    Private Sub GridConsulta_CellContentClick(ByVal sender As System.Object, ByVal e As System.Windows.Forms.DataGridViewCellEventArgs) Handles GridConsulta.CellContentClick
@@ -42,10 +42,10 @@
 - Línea 181:    Private Sub TxtFiltro_Click(sender As Object, e As EventArgs) Handles TxtFiltro.Click, TxtFiltro.Enter
 - Línea 185:    Private Sub LblTitulo_Click(sender As Object, e As EventArgs) Handles LblTitulo.Click
 
-### SCSC/Clases/AppData.vb
+### escritorio/SCSC/Clases/AppData.vb
 - Línea 12:	Public Sub Update()
 
-### SCSC/Clases/CodigoGeneral.vb
+### escritorio/SCSC/Clases/CodigoGeneral.vb
 - Línea 3:    Public Sub LimpiarSession()
 - Línea 44:    Public Function KeyAscii(ByVal UserKeyArgument As KeyPressEventArgs) As Short
 - Línea 58:    Function GetAppConfig(Optional ByVal NombreConfiguracion As String = "Conexion") As String
@@ -60,7 +60,7 @@
 - Línea 167:    Function ConvertDate(ByVal Campo As String, ByVal signo As String, ByVal Fecha As Date)
 - Línea 171:    Function ObtenerParametroConexion(ByVal pBuscar As String, Optional ByVal pBuscarAuxiliar As String = ".") As String
 
-### SCSC/Clases/Encriptacion64.vb
+### escritorio/SCSC/Clases/Encriptacion64.vb
 - Línea 12:        Function EncriptaPossic(ByVal pClave As String) As String
 - Línea 20:        Private Function Encrypt(ByVal stringToEncrypt As String, ByVal SEncryptionKey As String) As String
 - Línea 35:        Public Function encryptQueryString(ByVal strQueryString As String, ByVal pkey As String) As String
@@ -74,7 +74,7 @@
 - Línea 296:        Function PinGenera(ByVal Info As SysFile) As String
 - Línea 321:        Function PinDesEncripta(ByVal lPIN As String) As String
 
-### SCSC/Clases/FunccionesDB.vb
+### escritorio/SCSC/Clases/FunccionesDB.vb
 - Línea 21:    Function Redondear(ValorNumero)
 - Línea 81:    Public Sub AbrirConexion(ByRef pCn As SqlConnection, ByVal pUsarTransaccion As Boolean, Optional ByRef pTran As SqlTransaction = Nothing, Optional ByVal Conexion As String = "Conexion")
 - Línea 105:    Public Sub CerrarConexion(ByRef pCn As SqlConnection, Optional ByRef pTran As SqlTransaction = Nothing)
@@ -103,18 +103,18 @@
 - Línea 1343:    Public Sub RollSQL(ByRef pTran As SqlTransaction)
 - Línea 1355:    Public Function VereficaCarnet(ByRef pCedula As String) As Boolean
 
-### SCSC/Clases/LBItem.vb
+### escritorio/SCSC/Clases/LBItem.vb
 - Línea 7:    Public Sub New(ByVal pValor As String, ByVal pDescripcion As String, Optional ByVal pValor2 As Object = Nothing)
 - Línea 17:    Public Overrides Function ToString() As String
 - Línea 21:    Public Overloads Function ToString(ByVal pFormato As Short) As String
 
-### SCSC/Clases/VariablesGlobales.vb
+### escritorio/SCSC/Clases/VariablesGlobales.vb
 
-### SCSC/Formularios/ControlComedor.Designer.vb
+### escritorio/SCSC/Formularios/ControlComedor.Designer.vb
 - Línea 7:    Protected Overrides Sub Dispose(ByVal disposing As Boolean)
 - Línea 24:    Private Sub InitializeComponent()
 
-### SCSC/Formularios/ControlComedor.vb
+### escritorio/SCSC/Formularios/ControlComedor.vb
 - Línea 22:    Public Sub Verify(ByVal template As DPFP.Template)
 - Línea 26:    Private Sub BtnSalir_Click(sender As Object, e As EventArgs) Handles BtnSalir.Click
 - Línea 46:    Protected Sub Process(ByVal Sample As DPFP.Sample)
@@ -149,11 +149,11 @@
 - Línea 433:    Private Sub lblProcesando_Click(sender As Object, e As EventArgs) Handles lblProcesando.Click
 - Línea 437:    Private Sub _MensajeVisual(ByVal TipoImagen As Int16)
 
-### SCSC/Formularios/ControlTransporte.Designer.vb
+### escritorio/SCSC/Formularios/ControlTransporte.Designer.vb
 - Línea 7:    Protected Overrides Sub Dispose(ByVal disposing As Boolean)
 - Línea 24:    Private Sub InitializeComponent()
 
-### SCSC/Formularios/ControlTransporte.vb
+### escritorio/SCSC/Formularios/ControlTransporte.vb
 - Línea 20:    Public Sub Verify(ByVal template As DPFP.Template)
 - Línea 24:    Private Sub BtnSalir_Click(sender As Object, e As EventArgs) Handles BtnCerrar.Click
 - Línea 45:    Protected Sub Process(ByVal Sample As DPFP.Sample)
@@ -194,11 +194,11 @@
 - Línea 507:    Private Sub PanelResult_Paint(sender As Object, e As PaintEventArgs) Handles PanelResult.Paint
 - Línea 511:    Private Sub ControlTransporte_Closed(sender As Object, e As EventArgs) Handles Me.Closed
 
-### SCSC/Formularios/FrmAgregarEstudiante.Designer.vb
+### escritorio/SCSC/Formularios/FrmAgregarEstudiante.Designer.vb
 - Línea 7:    Protected Overrides Sub Dispose(ByVal disposing As Boolean)
 - Línea 24:    Private Sub InitializeComponent()
 
-### SCSC/Formularios/FrmAgregarEstudiante.vb
+### escritorio/SCSC/Formularios/FrmAgregarEstudiante.vb
 - Línea 8:    Private Sub FrmEstudiantes_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 - Línea 24:    Sub CargaEspecialidad(ByRef Combo As ComboBox)
 - Línea 40:    Sub CargaHorarios(ByRef Combo As ComboBox)
@@ -212,21 +212,21 @@
 - Línea 209:    Private Sub BtnEliminar_Click(sender As Object, e As EventArgs) Handles BtnEliminar.Click
 - Línea 248:    Private Sub CaptureForm_FormClosed(ByVal sender As System.Object, ByVal e As System.Windows.Forms.FormClosedEventArgs) Handles MyBase.FormClosed
 
-### SCSC/Formularios/FrmAyuda.Designer.vb
+### escritorio/SCSC/Formularios/FrmAyuda.Designer.vb
 - Línea 7:    Protected Overrides Sub Dispose(ByVal disposing As Boolean)
 - Línea 32:    Private Sub InitializeComponent()
 
-### SCSC/Formularios/FrmAyuda.vb
+### escritorio/SCSC/Formularios/FrmAyuda.vb
 - Línea 3:    Private Sub FrmAyuda_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
 - Línea 22:    Private Sub OKButton_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles OKButton.Click
 - Línea 26:    Private Sub LabelProductName_Click(sender As Object, e As EventArgs) Handles LabelProductName.Click
 - Línea 30:    Private Sub TextBoxDescription_TextChanged(sender As Object, e As EventArgs) Handles TextBoxDescription.TextChanged
 
-### SCSC/Formularios/FrmBecas.designer.vb
+### escritorio/SCSC/Formularios/FrmBecas.designer.vb
 - Línea 7:    Protected Overrides Sub Dispose(ByVal disposing As Boolean)
 - Línea 24:    Private Sub InitializeComponent()
 
-### SCSC/Formularios/FrmBecas.vb
+### escritorio/SCSC/Formularios/FrmBecas.vb
 - Línea 8:    Sub LimpiarPantalla()
 - Línea 17:    Sub LimpiarChek()
 - Línea 25:    Private Sub FrmRecarga_FormClosed(sender As Object, e As FormClosedEventArgs) Handles MyBase.FormClosed
@@ -244,11 +244,11 @@
 - Línea 241:    Private Sub BtnCancelar_Click(sender As Object, e As EventArgs) Handles BtnCancelar.Click
 - Línea 247:    Private Sub dia_CheckedChanged(sender As Object, e As EventArgs) Handles Ck2.CheckedChanged, Ck3.CheckedChanged, Ck4.CheckedChanged, Ck5.CheckedChanged, Ck6.CheckedChanged
 
-### SCSC/Formularios/FrmEstudiantes.Designer.vb
+### escritorio/SCSC/Formularios/FrmEstudiantes.Designer.vb
 - Línea 7:    Protected Overrides Sub Dispose(ByVal disposing As Boolean)
 - Línea 24:    Private Sub InitializeComponent()
 
-### SCSC/Formularios/FrmEstudiantes.vb
+### escritorio/SCSC/Formularios/FrmEstudiantes.vb
 - Línea 15:    Private Sub FrmEstudiantes_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 - Línea 33:    Sub CargaGenero(ByRef Combo As ComboBox)
 - Línea 38:    Sub CargaPermiso(ByRef Combo As ComboBox)
@@ -286,11 +286,11 @@
 - Línea 480:    Private Sub CBRuta_SelectedIndexChanged(sender As Object, e As EventArgs) Handles CBRuta.SelectedIndexChanged
 - Línea 491:    Private Sub Label16_Click(sender As Object, e As EventArgs) Handles Label16.Click
 
-### SCSC/Formularios/FrmImportarDatos.designer.vb
+### escritorio/SCSC/Formularios/FrmImportarDatos.designer.vb
 - Línea 7:    Protected Overrides Sub Dispose(ByVal disposing As Boolean)
 - Línea 24:    Private Sub InitializeComponent()
 
-### SCSC/Formularios/FrmImportarDatos.vb
+### escritorio/SCSC/Formularios/FrmImportarDatos.vb
 - Línea 8:    Sub LimpiarPantalla()
 - Línea 13:    Private Sub FrmRecarga_FormClosed(sender As Object, e As FormClosedEventArgs) Handles Me.FormClosed
 - Línea 23:    Private Sub FrmEstudiantes_Load(sender As Object, e As EventArgs) Handles MyBase.Load
@@ -303,11 +303,11 @@
 - Línea 152:    Private Sub TxtRecarga_TextChanged(sender As Object, e As EventArgs)
 - Línea 156:    Private Sub Label1_Click(sender As Object, e As EventArgs) Handles Label1.Click
 
-### SCSC/Formularios/FrmImportarExcel.designer.vb
+### escritorio/SCSC/Formularios/FrmImportarExcel.designer.vb
 - Línea 7:    Protected Overrides Sub Dispose(ByVal disposing As Boolean)
 - Línea 24:    Private Sub InitializeComponent()
 
-### SCSC/Formularios/FrmImportarExcel.vb
+### escritorio/SCSC/Formularios/FrmImportarExcel.vb
 - Línea 13:    Sub LimpiarPantalla()
 - Línea 21:    Private Sub BtnCancelar_Click(sender As Object, e As EventArgs) Handles BtnCancelar.Click
 - Línea 25:    Function Validaciion() As Boolean
@@ -316,11 +316,11 @@
 - Línea 119:    Private Sub BtnGuardar_Click(sender As Object, e As EventArgs) Handles BtnGuardar.Click
 - Línea 239:    Sub CargaHorarios(ByRef Combo As ComboBox)
 
-### SCSC/Formularios/FrmRecargas.designer.vb
+### escritorio/SCSC/Formularios/FrmRecargas.designer.vb
 - Línea 7:    Protected Overrides Sub Dispose(ByVal disposing As Boolean)
 - Línea 24:    Private Sub InitializeComponent()
 
-### SCSC/Formularios/FrmRecargas.vb
+### escritorio/SCSC/Formularios/FrmRecargas.vb
 - Línea 16:    Sub LimpiarPantalla()
 - Línea 27:    Private Sub FrmRecarga_FormClosed(sender As Object, e As FormClosedEventArgs) Handles Me.FormClosed
 - Línea 38:    Private Sub FrmEstudiantes_Load(sender As Object, e As EventArgs) Handles MyBase.Load
@@ -334,11 +334,11 @@
 - Línea 189:    Private Sub BtnGuardar_Click(sender As Object, e As EventArgs) Handles BtnGuardar.Click
 - Línea 250:    Private Sub BtnRegresar_Click(sender As Object, e As EventArgs) Handles BtnRegresar.Click
 
-### SCSC/Formularios/FrmRutas.designer.vb
+### escritorio/SCSC/Formularios/FrmRutas.designer.vb
 - Línea 7:    Protected Overrides Sub Dispose(ByVal disposing As Boolean)
 - Línea 24:    Private Sub InitializeComponent()
 
-### SCSC/Formularios/FrmRutas.vb
+### escritorio/SCSC/Formularios/FrmRutas.vb
 - Línea 7:    Sub LimpiarPantalla(Optional PCodigo = True)
 - Línea 18:    Private Sub FrmRecarga_FormClosed(sender As Object, e As FormClosedEventArgs) Handles Me.FormClosed
 - Línea 29:    Private Sub FrmEstudiantes_Load(sender As Object, e As EventArgs) Handles MyBase.Load
@@ -354,11 +354,11 @@
 - Línea 180:    Private Sub CkActivo_CheckedChanged(sender As Object, e As EventArgs) Handles CkActivo.CheckedChanged
 - Línea 190:    Private Sub BtnEliminar_Click(sender As Object, e As EventArgs) Handles BtnEliminar.Click
 
-### SCSC/Formularios/IMPRIMIR.Designer.vb
+### escritorio/SCSC/Formularios/IMPRIMIR.Designer.vb
 - Línea 7:    Protected Overrides Sub Dispose(ByVal disposing As Boolean)
 - Línea 24:    Private Sub InitializeComponent()
 
-### SCSC/Formularios/IMPRIMIR.vb
+### escritorio/SCSC/Formularios/IMPRIMIR.vb
 - Línea 22:    Private Sub btnCrear_Click(ByVal sender As System.Object, _
 - Línea 42:    Private Sub btnSeleccionarImpresora_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnSeleccionarImpresora.Click
 - Línea 54:    Private Sub prdoDocumento_PrintPage(ByVal sender As System.Object, ByVal e As System.Drawing.Printing.PrintPageEventArgs) Handles prdoDocumento.PrintPage
@@ -366,11 +366,11 @@
 - Línea 90:    Private Sub btnCerrar_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btncerrar.Click
 - Línea 94:    Private Sub prdoDocumento_BeginPrint(ByVal sender As Object, ByVal e As System.Drawing.Printing.PrintEventArgs) Handles prdoDocumento.BeginPrint
 
-### SCSC/FrmPrincipal.Designer.vb
+### escritorio/SCSC/FrmPrincipal.Designer.vb
 - Línea 7:    Protected Overrides Sub Dispose(ByVal disposing As Boolean)
 - Línea 24:    Private Sub InitializeComponent()
 
-### SCSC/FrmPrincipal.vb
+### escritorio/SCSC/FrmPrincipal.vb
 - Línea 5:    Private Sub FrmPrincipal_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 - Línea 10:    Private Sub UsuariosToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles UsuariosToolStripMenuItem.Click
 - Línea 14:    Private Sub ControlDeMarcasToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ControlDeMarcasToolStripMenuItem.Click
@@ -389,29 +389,29 @@
 - Línea 81:    Private Sub ReporteEstudiantesBecadosToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ReporteEstudiantesBecadosToolStripMenuItem.Click
 - Línea 85:    Private Sub AgregarEstudianteManualToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles AgregarEstudianteManualToolStripMenuItem.Click
 
-### SCSC/My Project/Application.Designer.vb
+### escritorio/SCSC/My Project/Application.Designer.vb
 - Línea 25:        Public Sub New()
 - Línea 34:        Protected Overrides Sub OnCreateMainForm()
 
-### SCSC/My Project/AssemblyInfo.vb
+### escritorio/SCSC/My Project/AssemblyInfo.vb
 
-### SCSC/My Project/Resources.Designer.vb
+### escritorio/SCSC/My Project/Resources.Designer.vb
 
-### SCSC/My Project/Settings.Designer.vb
+### escritorio/SCSC/My Project/Settings.Designer.vb
 - Línea 32:    Private Shared Sub AutoSaveSettings(sender As Global.System.Object, e As Global.System.EventArgs)
 
-### SCSC/Reportes/FrmReportViewer.designer.vb
+### escritorio/SCSC/Reportes/FrmReportViewer.designer.vb
 - Línea 7:    Protected Overrides Sub Dispose(ByVal disposing As Boolean)
 - Línea 24:    Private Sub InitializeComponent()
 
-### SCSC/Reportes/FrmReportViewer.vb
+### escritorio/SCSC/Reportes/FrmReportViewer.vb
 - Línea 2:    Private Sub FrmReportViewer_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
-### SCSC/Reportes/Parametros/FrmBecados.Designer.vb
+### escritorio/SCSC/Reportes/Parametros/FrmBecados.Designer.vb
 - Línea 7:    Protected Overrides Sub Dispose(ByVal disposing As Boolean)
 - Línea 24:    Private Sub InitializeComponent()
 
-### SCSC/Reportes/Parametros/FrmBecados.vb
+### escritorio/SCSC/Reportes/Parametros/FrmBecados.vb
 - Línea 6:    Private Sub FrmReporteMarcas_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 - Línea 30:    Private Sub BtnCancelar_Click(sender As Object, e As EventArgs) Handles BtnCancelar.Click
 - Línea 34:    Sub Limpiar()
@@ -421,11 +421,11 @@
 - Línea 94:    Private Sub RbGeneral_CheckedChanged(sender As Object, e As EventArgs) Handles RbGeneral.CheckedChanged
 - Línea 98:    Private Sub RbDetallo_CheckedChanged(sender As Object, e As EventArgs) Handles RbDetallo.CheckedChanged
 
-### SCSC/Reportes/Parametros/FrmProyeccionComedor.Designer.vb
+### escritorio/SCSC/Reportes/Parametros/FrmProyeccionComedor.Designer.vb
 - Línea 7:    Protected Overrides Sub Dispose(ByVal disposing As Boolean)
 - Línea 24:    Private Sub InitializeComponent()
 
-### SCSC/Reportes/Parametros/FrmProyeccionComedor.vb
+### escritorio/SCSC/Reportes/Parametros/FrmProyeccionComedor.vb
 - Línea 6:    Private Sub FrmReporteMarcas_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 - Línea 44:    Private Sub BtnCancelar_Click(sender As Object, e As EventArgs) Handles BtnCancelar.Click
 - Línea 48:    Sub Limpiar()
@@ -433,11 +433,11 @@
 - Línea 56:    Private Sub BtnGuardar_Click(sender As Object, e As EventArgs) Handles BtnGuardar.Click
 - Línea 67:    Function ArmaReporte() As Boolean
 
-### SCSC/Reportes/Parametros/FrmReporteComedor.Designer.vb
+### escritorio/SCSC/Reportes/Parametros/FrmReporteComedor.Designer.vb
 - Línea 8:    Protected Overrides Sub Dispose(ByVal disposing As Boolean)
 - Línea 25:    Private Sub InitializeComponent()
 
-### SCSC/Reportes/Parametros/FrmReporteComedor.vb
+### escritorio/SCSC/Reportes/Parametros/FrmReporteComedor.vb
 - Línea 6:    Private Sub FrmReporteMarcas_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 - Línea 56:    Private Sub BtnCancelar_Click(sender As Object, e As EventArgs) Handles BtnCancelar.Click
 - Línea 60:    Sub Limpiar()
@@ -445,11 +445,11 @@
 - Línea 70:    Private Sub BtnGuardar_Click(sender As Object, e As EventArgs) Handles BtnGuardar.Click
 - Línea 81:    Function ArmaReporte() As Boolean
 
-### SCSC/Reportes/Parametros/FrmReporteRutas.Designer.vb
+### escritorio/SCSC/Reportes/Parametros/FrmReporteRutas.Designer.vb
 - Línea 7:    Protected Overrides Sub Dispose(ByVal disposing As Boolean)
 - Línea 24:    Private Sub InitializeComponent()
 
-### SCSC/Reportes/Parametros/FrmReporteRutas.vb
+### escritorio/SCSC/Reportes/Parametros/FrmReporteRutas.vb
 - Línea 4:    Private Sub FrmReporteMarcas_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 - Línea 36:    Private Sub BtnCancelar_Click(sender As Object, e As EventArgs) Handles BtnCancelar.Click
 - Línea 40:    Sub Limpiar()
@@ -457,37 +457,37 @@
 - Línea 50:    Private Sub BtnGuardar_Click(sender As Object, e As EventArgs) Handles BtnGuardar.Click
 - Línea 61:    Function ArmaReporte() As Boolean
 
-### SCSC/Reportes/Rpt/RptBecadosComedor.vb
+### escritorio/SCSC/Reportes/Rpt/RptBecadosComedor.vb
 - Línea 24:    Public Sub New()
 - Línea 165:    Public Sub New()
 
-### SCSC/Reportes/Rpt/RptBecadosTransporte.vb
+### escritorio/SCSC/Reportes/Rpt/RptBecadosTransporte.vb
 - Línea 24:    Public Sub New()
 - Línea 165:    Public Sub New()
 
-### SCSC/Reportes/Rpt/RptBecadosTransporteDetallado.vb
+### escritorio/SCSC/Reportes/Rpt/RptBecadosTransporteDetallado.vb
 - Línea 24:    Public Sub New()
 - Línea 165:    Public Sub New()
 
-### SCSC/Reportes/Rpt/RptFechaComedor.vb
+### escritorio/SCSC/Reportes/Rpt/RptFechaComedor.vb
 - Línea 24:    Public Sub New()
 - Línea 149:    Public Sub New()
 
-### SCSC/Reportes/Rpt/RptProyecionComedor.vb
+### escritorio/SCSC/Reportes/Rpt/RptProyecionComedor.vb
 - Línea 24:    Public Sub New()
 - Línea 149:    Public Sub New()
 
-### SCSC/Reportes/Rpt/RptRuta_detallado.vb
+### escritorio/SCSC/Reportes/Rpt/RptRuta_detallado.vb
 - Línea 24:    Public Sub New()
 - Línea 181:    Public Sub New()
 
-### SCSC/Reportes/Rpt/RptRuta_general.vb
+### escritorio/SCSC/Reportes/Rpt/RptRuta_general.vb
 - Línea 24:    Public Sub New()
 - Línea 165:    Public Sub New()
 
-### SCSC/Seguridad/LOGIN.designer.vb
+### escritorio/SCSC/Seguridad/LOGIN.designer.vb
 
-### SCSC/Seguridad/LOGIN.vb
+### escritorio/SCSC/Seguridad/LOGIN.vb
 - Línea 12:    Private Sub ClavePaso_Enter(ByVal eventSender As System.Object, ByVal eventArgs As System.EventArgs) Handles ClavePaso.Enter
 - Línea 18:    Private Sub ClavePaso_Leave(ByVal eventSender As System.Object, ByVal eventArgs As System.EventArgs) Handles ClavePaso.Validated
 - Línea 51:    Private Sub CodUsuario_Enter(ByVal eventSender As System.Object, ByVal eventArgs As System.EventArgs)

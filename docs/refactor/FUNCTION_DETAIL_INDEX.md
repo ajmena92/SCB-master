@@ -2,7 +2,7 @@
 
 Este catálogo describe cada `Sub`/`Function` detectada en el código VB (sin archivos designer), con una descripción operativa breve para planificar refactorización.
 
-## SCSC/Busqueda.vb
+## escritorio/SCSC/Busqueda.vb
 - Línea 6: CargarGrid (Sub) - Carga de datos iniciales/catálogos o refresco de UI.
 - Línea 56: GridConsulta_CellClick (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
 - Línea 68: GridConsulta_CellContentClick (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
@@ -16,10 +16,10 @@ Este catálogo describe cada `Sub`/`Function` detectada en el código VB (sin ar
 - Línea 181: TxtFiltro_Click (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
 - Línea 185: LblTitulo_Click (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
 
-## SCSC/Clases/AppData.vb
+## escritorio/SCSC/Clases/AppData.vb
 - Línea 12: Update (Sub) - Operación de acceso a datos (CRUD/consulta SQL).
 
-## SCSC/Clases/CodigoGeneral.vb
+## escritorio/SCSC/Clases/CodigoGeneral.vb
 - Línea 3: LimpiarSession (Sub) - Limpia estado de formulario/controles y reinicia flujo.
 - Línea 44: KeyAscii (Function) - Lógica auxiliar/método interno.
 - Línea 58: GetAppConfig (Function) - Obtención de configuración, parámetros o datos de soporte.
@@ -34,7 +34,7 @@ Este catálogo describe cada `Sub`/`Function` detectada en el código VB (sin ar
 - Línea 167: ConvertDate (Function) - Normalización y construcción de fechas para consultas/reportes.
 - Línea 171: ObtenerParametroConexion (Function) - Obtención de configuración, parámetros o datos de soporte.
 
-## SCSC/Clases/Encriptacion64.vb
+## escritorio/SCSC/Clases/Encriptacion64.vb
 - Línea 12: EncriptaPossic (Function) - Encriptación/desencriptación y utilidades de seguridad local.
 - Línea 20: Encrypt (Function) - Encriptación/desencriptación y utilidades de seguridad local.
 - Línea 35: encryptQueryString (Function) - Encriptación/desencriptación y utilidades de seguridad local.
@@ -48,7 +48,7 @@ Este catálogo describe cada `Sub`/`Function` detectada en el código VB (sin ar
 - Línea 296: PinGenera (Function) - Encriptación/desencriptación y utilidades de seguridad local.
 - Línea 321: PinDesEncripta (Function) - Encriptación/desencriptación y utilidades de seguridad local.
 
-## SCSC/Clases/FunccionesDB.vb
+## escritorio/SCSC/Clases/FunccionesDB.vb
 - Línea 21: Redondear (Function) - Lógica auxiliar/método interno.
 - Línea 81: AbrirConexion (Sub) - Gestión de ciclo de conexión/transacción SQL Server.
 - Línea 105: CerrarConexion (Sub) - Gestión de ciclo de conexión/transacción SQL Server.
@@ -77,15 +77,15 @@ Este catálogo describe cada `Sub`/`Function` detectada en el código VB (sin ar
 - Línea 1343: RollSQL (Sub) - Gestión de ciclo de conexión/transacción SQL Server.
 - Línea 1355: VereficaCarnet (Function) - Lógica auxiliar/método interno.
 
-## SCSC/Clases/LBItem.vb
+## escritorio/SCSC/Clases/LBItem.vb
 - Línea 7: New (Sub) - Lógica auxiliar/método interno.
 - Línea 17: ToString (Function) - Lógica auxiliar/método interno.
 - Línea 21: ToString (Function) - Lógica auxiliar/método interno.
 
-## SCSC/Clases/VariablesGlobales.vb
+## escritorio/SCSC/Clases/VariablesGlobales.vb
 - Sin funciones/subrutinas declaradas.
 
-## SCSC/Formularios/ControlComedor.vb
+## escritorio/SCSC/Formularios/ControlComedor.vb
 - Línea 22: Verify (Sub) - Flujo biométrico: captura, extracción de huella y verificación.
 - Línea 26: BtnSalir_Click (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
 - Línea 46: Process (Sub) - Flujo biométrico: captura, extracción de huella y verificación.
@@ -120,7 +120,7 @@ Este catálogo describe cada `Sub`/`Function` detectada en el código VB (sin ar
 - Línea 433: lblProcesando_Click (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
 - Línea 437: _MensajeVisual (Sub) - Lógica auxiliar/método interno.
 
-## SCSC/Formularios/ControlTransporte.vb
+## escritorio/SCSC/Formularios/ControlTransporte.vb
 - Línea 20: Verify (Sub) - Flujo biométrico: captura, extracción de huella y verificación.
 - Línea 24: BtnSalir_Click (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
 - Línea 45: Process (Sub) - Flujo biométrico: captura, extracción de huella y verificación.
@@ -161,7 +161,7 @@ Este catálogo describe cada `Sub`/`Function` detectada en el código VB (sin ar
 - Línea 507: PanelResult_Paint (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
 - Línea 511: ControlTransporte_Closed (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
 
-## SCSC/Formularios/FrmAgregarEstudiante.vb
+## escritorio/SCSC/Formularios/FrmAgregarEstudiante.vb
 - Línea 8: FrmEstudiantes_Load (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
 - Línea 24: CargaEspecialidad (Sub) - Carga de datos iniciales/catálogos o refresco de UI.
 - Línea 40: CargaHorarios (Sub) - Carga de datos iniciales/catálogos o refresco de UI.
@@ -175,13 +175,13 @@ Este catálogo describe cada `Sub`/`Function` detectada en el código VB (sin ar
 - Línea 209: BtnEliminar_Click (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
 - Línea 248: CaptureForm_FormClosed (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
 
-## SCSC/Formularios/FrmAyuda.vb
+## escritorio/SCSC/Formularios/FrmAyuda.vb
 - Línea 3: FrmAyuda_Load (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
 - Línea 22: OKButton_Click (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
 - Línea 26: LabelProductName_Click (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
 - Línea 30: TextBoxDescription_TextChanged (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
 
-## SCSC/Formularios/FrmBecas.vb
+## escritorio/SCSC/Formularios/FrmBecas.vb
 - Línea 8: LimpiarPantalla (Sub) - Limpia estado de formulario/controles y reinicia flujo.
 - Línea 17: LimpiarChek (Sub) - Limpia estado de formulario/controles y reinicia flujo.
 - Línea 25: FrmRecarga_FormClosed (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
@@ -199,7 +199,7 @@ Este catálogo describe cada `Sub`/`Function` detectada en el código VB (sin ar
 - Línea 241: BtnCancelar_Click (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
 - Línea 247: dia_CheckedChanged (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
 
-## SCSC/Formularios/FrmEstudiantes.vb
+## escritorio/SCSC/Formularios/FrmEstudiantes.vb
 - Línea 15: FrmEstudiantes_Load (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
 - Línea 33: CargaGenero (Sub) - Carga de datos iniciales/catálogos o refresco de UI.
 - Línea 38: CargaPermiso (Sub) - Carga de datos iniciales/catálogos o refresco de UI.
@@ -237,7 +237,7 @@ Este catálogo describe cada `Sub`/`Function` detectada en el código VB (sin ar
 - Línea 480: CBRuta_SelectedIndexChanged (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
 - Línea 491: Label16_Click (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
 
-## SCSC/Formularios/FrmImportarDatos.vb
+## escritorio/SCSC/Formularios/FrmImportarDatos.vb
 - Línea 8: LimpiarPantalla (Sub) - Limpia estado de formulario/controles y reinicia flujo.
 - Línea 13: FrmRecarga_FormClosed (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
 - Línea 23: FrmEstudiantes_Load (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
@@ -250,7 +250,7 @@ Este catálogo describe cada `Sub`/`Function` detectada en el código VB (sin ar
 - Línea 152: TxtRecarga_TextChanged (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
 - Línea 156: Label1_Click (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
 
-## SCSC/Formularios/FrmImportarExcel.vb
+## escritorio/SCSC/Formularios/FrmImportarExcel.vb
 - Línea 13: LimpiarPantalla (Sub) - Limpia estado de formulario/controles y reinicia flujo.
 - Línea 21: BtnCancelar_Click (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
 - Línea 25: Validaciion (Function) - Lógica auxiliar/método interno.
@@ -259,7 +259,7 @@ Este catálogo describe cada `Sub`/`Function` detectada en el código VB (sin ar
 - Línea 119: BtnGuardar_Click (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
 - Línea 239: CargaHorarios (Sub) - Carga de datos iniciales/catálogos o refresco de UI.
 
-## SCSC/Formularios/FrmRecargas.vb
+## escritorio/SCSC/Formularios/FrmRecargas.vb
 - Línea 16: LimpiarPantalla (Sub) - Limpia estado de formulario/controles y reinicia flujo.
 - Línea 27: FrmRecarga_FormClosed (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
 - Línea 38: FrmEstudiantes_Load (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
@@ -273,7 +273,7 @@ Este catálogo describe cada `Sub`/`Function` detectada en el código VB (sin ar
 - Línea 189: BtnGuardar_Click (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
 - Línea 250: BtnRegresar_Click (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
 
-## SCSC/Formularios/FrmRutas.vb
+## escritorio/SCSC/Formularios/FrmRutas.vb
 - Línea 7: LimpiarPantalla (Sub) - Limpia estado de formulario/controles y reinicia flujo.
 - Línea 18: FrmRecarga_FormClosed (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
 - Línea 29: FrmEstudiantes_Load (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
@@ -289,7 +289,7 @@ Este catálogo describe cada `Sub`/`Function` detectada en el código VB (sin ar
 - Línea 180: CkActivo_CheckedChanged (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
 - Línea 190: BtnEliminar_Click (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
 
-## SCSC/Formularios/IMPRIMIR.vb
+## escritorio/SCSC/Formularios/IMPRIMIR.vb
 - Línea 22: btnCrear_Click (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
 - Línea 42: btnSeleccionarImpresora_Click (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
 - Línea 54: prdoDocumento_PrintPage (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
@@ -297,7 +297,7 @@ Este catálogo describe cada `Sub`/`Function` detectada en el código VB (sin ar
 - Línea 90: btnCerrar_Click (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
 - Línea 94: prdoDocumento_BeginPrint (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
 
-## SCSC/FrmPrincipal.vb
+## escritorio/SCSC/FrmPrincipal.vb
 - Línea 5: FrmPrincipal_Load (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
 - Línea 10: UsuariosToolStripMenuItem_Click (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
 - Línea 14: ControlDeMarcasToolStripMenuItem_Click (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
@@ -316,13 +316,13 @@ Este catálogo describe cada `Sub`/`Function` detectada en el código VB (sin ar
 - Línea 81: ReporteEstudiantesBecadosToolStripMenuItem_Click (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
 - Línea 85: AgregarEstudianteManualToolStripMenuItem_Click (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
 
-## SCSC/My Project/AssemblyInfo.vb
+## escritorio/SCSC/My Project/AssemblyInfo.vb
 - Sin funciones/subrutinas declaradas.
 
-## SCSC/Reportes/FrmReportViewer.vb
+## escritorio/SCSC/Reportes/FrmReportViewer.vb
 - Línea 2: FrmReportViewer_Load (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
 
-## SCSC/Reportes/Parametros/FrmBecados.vb
+## escritorio/SCSC/Reportes/Parametros/FrmBecados.vb
 - Línea 6: FrmReporteMarcas_Load (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
 - Línea 30: BtnCancelar_Click (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
 - Línea 34: Limpiar (Sub) - Limpia estado de formulario/controles y reinicia flujo.
@@ -332,7 +332,7 @@ Este catálogo describe cada `Sub`/`Function` detectada en el código VB (sin ar
 - Línea 94: RbGeneral_CheckedChanged (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
 - Línea 98: RbDetallo_CheckedChanged (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
 
-## SCSC/Reportes/Parametros/FrmProyeccionComedor.vb
+## escritorio/SCSC/Reportes/Parametros/FrmProyeccionComedor.vb
 - Línea 6: FrmReporteMarcas_Load (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
 - Línea 44: BtnCancelar_Click (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
 - Línea 48: Limpiar (Sub) - Limpia estado de formulario/controles y reinicia flujo.
@@ -340,7 +340,7 @@ Este catálogo describe cada `Sub`/`Function` detectada en el código VB (sin ar
 - Línea 56: BtnGuardar_Click (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
 - Línea 67: ArmaReporte (Function) - Preparación/ejecución de reportes o salida impresa.
 
-## SCSC/Reportes/Parametros/FrmReporteComedor.vb
+## escritorio/SCSC/Reportes/Parametros/FrmReporteComedor.vb
 - Línea 6: FrmReporteMarcas_Load (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
 - Línea 56: BtnCancelar_Click (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
 - Línea 60: Limpiar (Sub) - Limpia estado de formulario/controles y reinicia flujo.
@@ -348,7 +348,7 @@ Este catálogo describe cada `Sub`/`Function` detectada en el código VB (sin ar
 - Línea 70: BtnGuardar_Click (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
 - Línea 81: ArmaReporte (Function) - Preparación/ejecución de reportes o salida impresa.
 
-## SCSC/Reportes/Parametros/FrmReporteRutas.vb
+## escritorio/SCSC/Reportes/Parametros/FrmReporteRutas.vb
 - Línea 4: FrmReporteMarcas_Load (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
 - Línea 36: BtnCancelar_Click (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
 - Línea 40: Limpiar (Sub) - Limpia estado de formulario/controles y reinicia flujo.
@@ -356,35 +356,35 @@ Este catálogo describe cada `Sub`/`Function` detectada en el código VB (sin ar
 - Línea 50: BtnGuardar_Click (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
 - Línea 61: ArmaReporte (Function) - Preparación/ejecución de reportes o salida impresa.
 
-## SCSC/Reportes/Rpt/RptBecadosComedor.vb
+## escritorio/SCSC/Reportes/Rpt/RptBecadosComedor.vb
 - Línea 24: New (Sub) - Lógica auxiliar/método interno.
 - Línea 165: New (Sub) - Lógica auxiliar/método interno.
 
-## SCSC/Reportes/Rpt/RptBecadosTransporte.vb
+## escritorio/SCSC/Reportes/Rpt/RptBecadosTransporte.vb
 - Línea 24: New (Sub) - Lógica auxiliar/método interno.
 - Línea 165: New (Sub) - Lógica auxiliar/método interno.
 
-## SCSC/Reportes/Rpt/RptBecadosTransporteDetallado.vb
+## escritorio/SCSC/Reportes/Rpt/RptBecadosTransporteDetallado.vb
 - Línea 24: New (Sub) - Lógica auxiliar/método interno.
 - Línea 165: New (Sub) - Lógica auxiliar/método interno.
 
-## SCSC/Reportes/Rpt/RptFechaComedor.vb
+## escritorio/SCSC/Reportes/Rpt/RptFechaComedor.vb
 - Línea 24: New (Sub) - Lógica auxiliar/método interno.
 - Línea 149: New (Sub) - Lógica auxiliar/método interno.
 
-## SCSC/Reportes/Rpt/RptProyecionComedor.vb
+## escritorio/SCSC/Reportes/Rpt/RptProyecionComedor.vb
 - Línea 24: New (Sub) - Lógica auxiliar/método interno.
 - Línea 149: New (Sub) - Lógica auxiliar/método interno.
 
-## SCSC/Reportes/Rpt/RptRuta_detallado.vb
+## escritorio/SCSC/Reportes/Rpt/RptRuta_detallado.vb
 - Línea 24: New (Sub) - Lógica auxiliar/método interno.
 - Línea 181: New (Sub) - Lógica auxiliar/método interno.
 
-## SCSC/Reportes/Rpt/RptRuta_general.vb
+## escritorio/SCSC/Reportes/Rpt/RptRuta_general.vb
 - Línea 24: New (Sub) - Lógica auxiliar/método interno.
 - Línea 165: New (Sub) - Lógica auxiliar/método interno.
 
-## SCSC/Seguridad/LOGIN.vb
+## escritorio/SCSC/Seguridad/LOGIN.vb
 - Línea 12: ClavePaso_Enter (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
 - Línea 18: ClavePaso_Leave (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.
 - Línea 51: CodUsuario_Enter (Sub) - Manejador de evento de UI; coordina interacción de usuario y flujo de pantalla.

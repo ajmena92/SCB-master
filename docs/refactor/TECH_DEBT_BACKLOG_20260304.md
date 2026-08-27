@@ -53,52 +53,52 @@ Cerrar primero estabilidad de Designer/compilacion y luego terminar la estandari
 
 ## Avance aplicado (2026-03-04 noche)
 - Build automation:
-  - `scripts/autobuild.ps1` reforzado con parametros (`Configuration`, `Platform`, `DebounceSeconds`, `MaxLogFiles`).
+  - `escritorio/scripts/autobuild.ps1` reforzado con parametros (`Configuration`, `Platform`, `DebounceSeconds`, `MaxLogFiles`).
   - Watcher extendido a `.vb`, `.vbproj`, `.resx`, `.config`.
   - Validacion temprana de rutas y limpieza automatica de logs.
 - Deuda de tipado (fase incremental):
-  - `SCSC/Clases/CodigoGeneral.vb`: funciones de fecha SQL ahora con tipo de retorno explicito (`As String`).
+  - `escritorio/SCSC/Clases/CodigoGeneral.vb`: funciones de fecha SQL ahora con tipo de retorno explicito (`As String`).
   - Objetivo: reducir warnings de tipo `Function without an 'As' clause`.
-  - `SCSC/Clases/FunccionesDB.vb`: primer bloque de conversiones implicitas corregido (redondeo, fechas, scalar identity, llaves `Object`, `PadLeft` con `Char`, combo y carnet).
-  - `SCSC/Clases/Servicios/ComedorDataService.vb`: conversiones explicitas en validacion de beca y tiquetes.
-  - `SCSC/Clases/Servicios/TransporteDataService.vb`: conversiones explicitas para `CodTipo` e `IdUsuario` en SQL.
-  - `SCSC/Busqueda.vb`: comparacion de columnas por igualdad explicita (`String.Equals`) y lectura segura de celdas nulas al construir `gSession.Resultado`.
-  - `SCSC/Reportes/FrmReportViewer.vb`: eliminado late binding (reporte tipado como `ReportDocument`) y parametros `IIf` migrados a `If` con `String.IsNullOrEmpty`.
-  - `SCSC/Reportes/Parametros/*.vb`: casteo explicito de `LBItem`, uso de `DateTimePicker.Value.Date`, inicializacion de `Criterio` y retorno booleano real en `ArmaReporte()`.
-  - `SCSC/Formularios/ControlComedor.vb`: parseo robusto de `PermitirSinMarcaTransporte` (bool/int/string) y conversion segura de `HoraLimite`/`HoraMarca` a `TimeSpan`.
-  - `SCSC/Formularios/FrmRecargas.vb`: conversiones explicitas en carga de usuario/tiquetes, recarga tipada, transaccion inicializada y `LblTotal` consistente como texto.
-  - `SCSC/Formularios/FrmRutas.vb`: tipado de `Tag`/`IdRuta`, `MsgBox` tipado (`MsgBoxResult`) y limpieza de variables no usadas.
-  - `SCSC/Formularios/FrmEstudiantes.vb`: normalizacion de `LBItem` en combos, acceso tipado a `DataRow`, asignaciones de `SelectedValue`/`Tag` con `CInt`, y manejo seguro de ruta seleccionada nula.
-  - `SCSC/Formularios/FrmBecas.vb`: tipado de `Tag`, `DataRow` tipado, `DiasBecados` inicializado, cast explicito de `CheckBox` y `MsgBoxResult` en eliminacion.
-  - `SCSC/Formularios/FrmImportarExcel.vb`: transaccion inicializada a `Nothing`, rollback condicionado, concatenaciones seguras con `&`, cierre seguro de `conn`, y carga de horarios con `LBItem` tipado.
-  - `SCSC/Formularios/FrmAgregarEstudiante.vb`: `DataRow` tipado, conversiones explicitas (`CInt/CStr/CDate`) y confirmaciones tipadas con `MsgBoxResult`.
-  - `SCSC/Formularios/ControlTransporte.vb`: conversión booleana robusta (`ConvertirABooleano`) para `PermisoSalida` y eliminación de casteos directos frágiles desde `Object`.
-  - `SCSC/Clases/FunccionesDB.vb`: helper `EsValorSqlNull` para evitar `ToString` sobre `Object` potencialmente nulo, comparación segura de `IS NOT NULL` y limpieza de variables locales sin uso en métodos de cadena de conexión.
-  - `SCSC/Clases/Encriptacion64.vb` y `SCSC/Reportes/FrmReportViewer.vb`: eliminación de declaraciones múltiples ambiguas (`Dim a, b As ...`) para evitar inferencia accidental a `Object`.
-  - `SCSC/Formularios/FrmImportarDatos.vb`: tipado de `Validaciion` como `Private Function`, cast seguro de `CbCursoLectivo.SelectedItem` a `LBItem`, conversiones explicitas de `DataRow` y manejo seguro de rollback/cierre en error de importación.
-  - `SCSC/Clases/Encriptacion64.vb`: eliminación de código inalcanzable y estandarización de acceso a archivos con `Using` en lectura/escritura para evitar fugas de recursos y bloqueos de archivo.
-  - `SCSC/Formularios/FrmBecas.vb` y `SCSC/Formularios/FrmRutas.vb`: normalización de lecturas `DataRow`, validaciones con retorno explícito (`Private Function ... As Boolean`) y concatenaciones/control de `Tag` con conversiones seguras para reducir warnings de conversión implícita.
-  - `SCSC/Clases/FunccionesDB.vb`: limpieza de `Throw ex` (rethrow correcto), retorno explícito en utilidades de fecha/redondeo y refuerzo de estabilidad en manejo de excepciones.
-  - `SCSC/Busqueda.vb`: eliminación de mutación de `gSession.Valor3` durante selección de columnas (usa copia local), tipado explícito de variables de parsing y menor riesgo de efectos secundarios en búsquedas consecutivas.
-  - `SCSC/Formularios/FrmRecargas.vb`: parseo de recarga centralizado, validación con retornos explícitos y lecturas de `DataRow` con acceso tipado (`row("Campo")`) para reducir conversiones implícitas.
-  - `SCSC/Formularios/FrmImportarExcel.vb`: validación tipada (`Private Function`) y limpieza de concatenación/variable no usada al abrir archivo Excel.
-  - `SCSC/Formularios/FrmAgregarEstudiante.vb`: lecturas `DataRow` tipadas, eliminación de campos duplicados en consulta, validaciones de longitud con `Trim().Length` y guardado seguro de valores de combo (`Especialidad`/`IdHorario`).
-  - `SCSC/Formularios/FrmEstudiantes.vb`: normalización de acceso a `DataRow`, reducción de ramas booleanas redundantes, validaciones por `Trim().Length` y guardado seguro de `SelectedValue` para ruta/beca.
-  - `SCSC/Formularios/FrmBecas.vb`, `SCSC/Formularios/FrmRutas.vb`, `SCSC/Formularios/FrmRecargas.vb`: reemplazo incremental de `Len(...)` por validaciones explícitas de texto para disminuir conversiones implícitas.
-  - `SCSC/Formularios/ControlComedor.vb` y `SCSC/Formularios/ControlTransporte.vb`: barrido amplio de `DataRow` para eliminar accesos `!Campo`, conversiones explícitas y mayor consistencia en historial/estado operativo.
-  - `SCSC/Clases/Servicios/ComedorDataService.vb` y `SCSC/Clases/Servicios/TransporteDataService.vb`: tipado de claves (`IdUsuario`, `IdHorario`, `CodTipo`, `TipoBeca`) y normalización de asignaciones/consultas para reducir conversiones implícitas y errores por `Object`.
-  - `SCSC/Seguridad/LOGIN.vb`: limpieza de validaciones `Len(...)`, acceso tipado a parámetros de configuración (`DataRow`) y conversiones explícitas para precio/fecha/permisos.
-  - `SCSC/Reportes/Parametros/*`: normalización de `ArmaReporte()` a `Private Function` con retorno explícito y eliminación de filtros duplicados de beca en reportes de comedor/proyección.
-  - `SCSC/Reportes/Parametros/FrmReporteComedor.vb`, `FrmProyeccionComedor.vb`, `FrmReporteRutas.vb`, `FrmBecados.vb`: uso consistente de `LBItem` tipado en combos y construcción de criterios sin duplicados; retorno booleano correcto (`True` solo en éxito).
-  - `SCSC/Formularios/FrmRecargas.vb`: `Validacion()` corregida para retornar `False` en recarga inválida y parseo seguro (`Integer.TryParse`) en cantidad.
-  - `SCSC/Formularios/FrmRutas.vb`: centralización de parseo de `IdRuta` desde `Tag` (`ObtenerIdRutaDesdeTag`) para eliminar conversiones repetitivas con `Val`.
-  - `SCSC/Clases/CodigoGeneral.vb` y `SCSC/Clases/Encriptacion64.vb`: reducción incremental de `Len/Val` legacy en puntos seguros, con uso de `.Length` y `Integer.TryParse`.
+  - `escritorio/SCSC/Clases/FunccionesDB.vb`: primer bloque de conversiones implicitas corregido (redondeo, fechas, scalar identity, llaves `Object`, `PadLeft` con `Char`, combo y carnet).
+  - `escritorio/SCSC/Clases/Servicios/ComedorDataService.vb`: conversiones explicitas en validacion de beca y tiquetes.
+  - `escritorio/SCSC/Clases/Servicios/TransporteDataService.vb`: conversiones explicitas para `CodTipo` e `IdUsuario` en SQL.
+  - `escritorio/SCSC/Busqueda.vb`: comparacion de columnas por igualdad explicita (`String.Equals`) y lectura segura de celdas nulas al construir `gSession.Resultado`.
+  - `escritorio/SCSC/Reportes/FrmReportViewer.vb`: eliminado late binding (reporte tipado como `ReportDocument`) y parametros `IIf` migrados a `If` con `String.IsNullOrEmpty`.
+  - `escritorio/SCSC/Reportes/Parametros/*.vb`: casteo explicito de `LBItem`, uso de `DateTimePicker.Value.Date`, inicializacion de `Criterio` y retorno booleano real en `ArmaReporte()`.
+  - `escritorio/SCSC/Formularios/ControlComedor.vb`: parseo robusto de `PermitirSinMarcaTransporte` (bool/int/string) y conversion segura de `HoraLimite`/`HoraMarca` a `TimeSpan`.
+  - `escritorio/SCSC/Formularios/FrmRecargas.vb`: conversiones explicitas en carga de usuario/tiquetes, recarga tipada, transaccion inicializada y `LblTotal` consistente como texto.
+  - `escritorio/SCSC/Formularios/FrmRutas.vb`: tipado de `Tag`/`IdRuta`, `MsgBox` tipado (`MsgBoxResult`) y limpieza de variables no usadas.
+  - `escritorio/SCSC/Formularios/FrmEstudiantes.vb`: normalizacion de `LBItem` en combos, acceso tipado a `DataRow`, asignaciones de `SelectedValue`/`Tag` con `CInt`, y manejo seguro de ruta seleccionada nula.
+  - `escritorio/SCSC/Formularios/FrmBecas.vb`: tipado de `Tag`, `DataRow` tipado, `DiasBecados` inicializado, cast explicito de `CheckBox` y `MsgBoxResult` en eliminacion.
+  - `escritorio/SCSC/Formularios/FrmImportarExcel.vb`: transaccion inicializada a `Nothing`, rollback condicionado, concatenaciones seguras con `&`, cierre seguro de `conn`, y carga de horarios con `LBItem` tipado.
+  - `escritorio/SCSC/Formularios/FrmAgregarEstudiante.vb`: `DataRow` tipado, conversiones explicitas (`CInt/CStr/CDate`) y confirmaciones tipadas con `MsgBoxResult`.
+  - `escritorio/SCSC/Formularios/ControlTransporte.vb`: conversión booleana robusta (`ConvertirABooleano`) para `PermisoSalida` y eliminación de casteos directos frágiles desde `Object`.
+  - `escritorio/SCSC/Clases/FunccionesDB.vb`: helper `EsValorSqlNull` para evitar `ToString` sobre `Object` potencialmente nulo, comparación segura de `IS NOT NULL` y limpieza de variables locales sin uso en métodos de cadena de conexión.
+  - `escritorio/SCSC/Clases/Encriptacion64.vb` y `escritorio/SCSC/Reportes/FrmReportViewer.vb`: eliminación de declaraciones múltiples ambiguas (`Dim a, b As ...`) para evitar inferencia accidental a `Object`.
+  - `escritorio/SCSC/Formularios/FrmImportarDatos.vb`: tipado de `Validaciion` como `Private Function`, cast seguro de `CbCursoLectivo.SelectedItem` a `LBItem`, conversiones explicitas de `DataRow` y manejo seguro de rollback/cierre en error de importación.
+  - `escritorio/SCSC/Clases/Encriptacion64.vb`: eliminación de código inalcanzable y estandarización de acceso a archivos con `Using` en lectura/escritura para evitar fugas de recursos y bloqueos de archivo.
+  - `escritorio/SCSC/Formularios/FrmBecas.vb` y `escritorio/SCSC/Formularios/FrmRutas.vb`: normalización de lecturas `DataRow`, validaciones con retorno explícito (`Private Function ... As Boolean`) y concatenaciones/control de `Tag` con conversiones seguras para reducir warnings de conversión implícita.
+  - `escritorio/SCSC/Clases/FunccionesDB.vb`: limpieza de `Throw ex` (rethrow correcto), retorno explícito en utilidades de fecha/redondeo y refuerzo de estabilidad en manejo de excepciones.
+  - `escritorio/SCSC/Busqueda.vb`: eliminación de mutación de `gSession.Valor3` durante selección de columnas (usa copia local), tipado explícito de variables de parsing y menor riesgo de efectos secundarios en búsquedas consecutivas.
+  - `escritorio/SCSC/Formularios/FrmRecargas.vb`: parseo de recarga centralizado, validación con retornos explícitos y lecturas de `DataRow` con acceso tipado (`row("Campo")`) para reducir conversiones implícitas.
+  - `escritorio/SCSC/Formularios/FrmImportarExcel.vb`: validación tipada (`Private Function`) y limpieza de concatenación/variable no usada al abrir archivo Excel.
+  - `escritorio/SCSC/Formularios/FrmAgregarEstudiante.vb`: lecturas `DataRow` tipadas, eliminación de campos duplicados en consulta, validaciones de longitud con `Trim().Length` y guardado seguro de valores de combo (`Especialidad`/`IdHorario`).
+  - `escritorio/SCSC/Formularios/FrmEstudiantes.vb`: normalización de acceso a `DataRow`, reducción de ramas booleanas redundantes, validaciones por `Trim().Length` y guardado seguro de `SelectedValue` para ruta/beca.
+  - `escritorio/SCSC/Formularios/FrmBecas.vb`, `escritorio/SCSC/Formularios/FrmRutas.vb`, `escritorio/SCSC/Formularios/FrmRecargas.vb`: reemplazo incremental de `Len(...)` por validaciones explícitas de texto para disminuir conversiones implícitas.
+  - `escritorio/SCSC/Formularios/ControlComedor.vb` y `escritorio/SCSC/Formularios/ControlTransporte.vb`: barrido amplio de `DataRow` para eliminar accesos `!Campo`, conversiones explícitas y mayor consistencia en historial/estado operativo.
+  - `escritorio/SCSC/Clases/Servicios/ComedorDataService.vb` y `escritorio/SCSC/Clases/Servicios/TransporteDataService.vb`: tipado de claves (`IdUsuario`, `IdHorario`, `CodTipo`, `TipoBeca`) y normalización de asignaciones/consultas para reducir conversiones implícitas y errores por `Object`.
+  - `escritorio/SCSC/Seguridad/LOGIN.vb`: limpieza de validaciones `Len(...)`, acceso tipado a parámetros de configuración (`DataRow`) y conversiones explícitas para precio/fecha/permisos.
+  - `escritorio/SCSC/Reportes/Parametros/*`: normalización de `ArmaReporte()` a `Private Function` con retorno explícito y eliminación de filtros duplicados de beca en reportes de comedor/proyección.
+  - `escritorio/SCSC/Reportes/Parametros/FrmReporteComedor.vb`, `FrmProyeccionComedor.vb`, `FrmReporteRutas.vb`, `FrmBecados.vb`: uso consistente de `LBItem` tipado en combos y construcción de criterios sin duplicados; retorno booleano correcto (`True` solo en éxito).
+  - `escritorio/SCSC/Formularios/FrmRecargas.vb`: `Validacion()` corregida para retornar `False` en recarga inválida y parseo seguro (`Integer.TryParse`) en cantidad.
+  - `escritorio/SCSC/Formularios/FrmRutas.vb`: centralización de parseo de `IdRuta` desde `Tag` (`ObtenerIdRutaDesdeTag`) para eliminar conversiones repetitivas con `Val`.
+  - `escritorio/SCSC/Clases/CodigoGeneral.vb` y `escritorio/SCSC/Clases/Encriptacion64.vb`: reducción incremental de `Len/Val` legacy en puntos seguros, con uso de `.Length` y `Integer.TryParse`.
 
 ## Avance aplicado (2026-03-05 tarde)
 - Unificacion visual/operativa de CRUD:
-  - Nuevo helper compartido `SCSC/Clases/CrudVisualHelper.vb` para cromado estandar, grids y visibilidad de acciones.
-  - Nuevo helper `SCSC/Clases/CrudOperationHelper.vb` para confirmaciones y utilidades seguras.
-  - Base comun `SCSC/Clases/CrudFormBase.vb` preparada para migracion gradual de formularios.
+  - Nuevo helper compartido `escritorio/SCSC/Clases/CrudVisualHelper.vb` para cromado estandar, grids y visibilidad de acciones.
+  - Nuevo helper `escritorio/SCSC/Clases/CrudOperationHelper.vb` para confirmaciones y utilidades seguras.
+  - Base comun `escritorio/SCSC/Clases/CrudFormBase.vb` preparada para migracion gradual de formularios.
 - Estabilidad de Designer (P0):
   - Guardas de diseño (`CrudVisualHelper.IsInDesignMode(Me)`) aplicadas en cargas de formularios CRUD, reportes y operativos para evitar ejecucion de conexiones/consultas durante diseño.
   - Alcance: `FrmEstudiantes`, `FrmAgregarEstudiante`, `FrmBecas`, `FrmRutas`, `FrmRecargas`, `FrmImportarExcel`, `FrmImportarDatos`, `FrmParametrosSistema`, `FrmAyuda`, `IMPRIMIR`, `Busqueda`, `ControlComedor`, `ControlTransporte`, `FrmReportViewer`, `Reportes/Parametros/*`.
@@ -113,30 +113,30 @@ Cerrar primero estabilidad de Designer/compilacion y luego terminar la estandari
 
 ## Avance aplicado (2026-03-05 noche)
 - Warnings y supresiones:
-  - Removida la supresion global `NoWarn` en `SCSC/SCSC_Marcas.vbproj` para recuperar visibilidad real de warnings del compilador.
+  - Removida la supresion global `NoWarn` en `escritorio/SCSC/SCSC_Marcas.vbproj` para recuperar visibilidad real de warnings del compilador.
   - Build validado en VS/MSBuild con resultado `0 Warning(s), 0 Error(s)`.
 - Option Strict On (fase incremental completada sin regresion de build):
-  - `SCSC/Busqueda.vb`
-  - `SCSC/Seguridad/LOGIN.vb`
-  - `SCSC/Formularios/FrmEstudiantes.vb`
-  - `SCSC/Formularios/FrmAgregarEstudiante.vb`
-  - `SCSC/Formularios/FrmBecas.vb`
-  - `SCSC/Formularios/FrmRutas.vb`
-  - `SCSC/Formularios/FrmRecargas.vb`
-  - `SCSC/Formularios/FrmImportarDatos.vb`
-  - `SCSC/Formularios/FrmImportarExcel.vb`
-  - `SCSC/Formularios/FrmParametrosSistema.vb`
-  - `SCSC/Formularios/FrmAyuda.vb`
-  - `SCSC/Formularios/IMPRIMIR.vb`
-  - `SCSC/Reportes/FrmReportViewer.vb`
-  - `SCSC/Reportes/Parametros/FrmBecados.vb`
-  - `SCSC/Reportes/Parametros/FrmProyeccionComedor.vb`
-  - `SCSC/Reportes/Parametros/FrmReporteComedor.vb`
-  - `SCSC/Reportes/Parametros/FrmReporteRutas.vb`
+  - `escritorio/SCSC/Busqueda.vb`
+  - `escritorio/SCSC/Seguridad/LOGIN.vb`
+  - `escritorio/SCSC/Formularios/FrmEstudiantes.vb`
+  - `escritorio/SCSC/Formularios/FrmAgregarEstudiante.vb`
+  - `escritorio/SCSC/Formularios/FrmBecas.vb`
+  - `escritorio/SCSC/Formularios/FrmRutas.vb`
+  - `escritorio/SCSC/Formularios/FrmRecargas.vb`
+  - `escritorio/SCSC/Formularios/FrmImportarDatos.vb`
+  - `escritorio/SCSC/Formularios/FrmImportarExcel.vb`
+  - `escritorio/SCSC/Formularios/FrmParametrosSistema.vb`
+  - `escritorio/SCSC/Formularios/FrmAyuda.vb`
+  - `escritorio/SCSC/Formularios/IMPRIMIR.vb`
+  - `escritorio/SCSC/Reportes/FrmReportViewer.vb`
+  - `escritorio/SCSC/Reportes/Parametros/FrmBecados.vb`
+  - `escritorio/SCSC/Reportes/Parametros/FrmProyeccionComedor.vb`
+  - `escritorio/SCSC/Reportes/Parametros/FrmReporteComedor.vb`
+  - `escritorio/SCSC/Reportes/Parametros/FrmReporteRutas.vb`
 - Hardening adicional:
   - Formularios modales migrados a `Using ... End Using` en busquedas y visualizacion de reportes.
   - Guardas de diseño estandarizadas para prevenir ejecucion de carga/consultas en modo Designer.
-  - Quedan con `Option Strict Off` solo wrappers autogenerados de Crystal Reports (`SCSC/Reportes/Rpt/*.vb`), fuera de alcance de tipado manual.
+  - Quedan con `Option Strict Off` solo wrappers autogenerados de Crystal Reports (`escritorio/SCSC/Reportes/Rpt/*.vb`), fuera de alcance de tipado manual.
 
 ## Avance aplicado (2026-03-05 cierre)
 - `FrmSeguridadRBAC` (P2 visual/operativo):
@@ -159,23 +159,23 @@ Cerrar primero estabilidad de Designer/compilacion y luego terminar la estandari
 
 ## Avance aplicado (2026-03-05 cierre bloque 2)
 - Renombrado semantico de controles (Designer-first) en CRUD/importacion:
-  - `SCSC/Formularios/FrmImportarExcel.designer.vb`: `Panel4` -> `PanelAcciones`, `Label1` -> `LblTituloModulo`, `GroupBox1` -> `GroupConfiguracionImportacion`, `DGV1` -> `DgvVistaPrevia`.
-  - `SCSC/Formularios/FrmImportarExcel.vb`: referencias runtime actualizadas al nuevo naming para layout y carga de vista previa.
-  - `SCSC/Formularios/FrmRecargas.designer.vb`: `GroupBox1` -> `GroupDatosCompra`, `GroupBox2` -> `GroupDatosUsuario`, `Panel4` -> `PanelAcciones`, `Label1` -> `LblTituloModulo`, `Label2/3/4` -> `LblCantidadRecarga/LblNombreBusqueda/LblCedulaBusqueda`, `PictureBox1` -> `PicUsuario`.
+  - `escritorio/SCSC/Formularios/FrmImportarExcel.designer.vb`: `Panel4` -> `PanelAcciones`, `Label1` -> `LblTituloModulo`, `GroupBox1` -> `GroupConfiguracionImportacion`, `DGV1` -> `DgvVistaPrevia`.
+  - `escritorio/SCSC/Formularios/FrmImportarExcel.vb`: referencias runtime actualizadas al nuevo naming para layout y carga de vista previa.
+  - `escritorio/SCSC/Formularios/FrmRecargas.designer.vb`: `GroupBox1` -> `GroupDatosCompra`, `GroupBox2` -> `GroupDatosUsuario`, `Panel4` -> `PanelAcciones`, `Label1` -> `LblTituloModulo`, `Label2/3/4` -> `LblCantidadRecarga/LblNombreBusqueda/LblCedulaBusqueda`, `PictureBox1` -> `PicUsuario`.
 - Renombrado semantico de shell principal:
-  - `SCSC/FrmPrincipal.Designer.vb` y `SCSC/FrmPrincipal.vb`: `Panel1` -> `PanelMenuLateral`, `Panel2` -> `PanelCabeceraModulo`.
+  - `escritorio/SCSC/FrmPrincipal.Designer.vb` y `escritorio/SCSC/FrmPrincipal.vb`: `Panel1` -> `PanelMenuLateral`, `Panel2` -> `PanelCabeceraModulo`.
 - Nota de validacion:
   - Nota historica de sesion anterior: en ese momento no fue posible ejecutar MSBuild desde WSL.
   - Estado actual: validacion de compilacion ya resuelta en bloque 6 (MSBuild Windows exitoso).
 
 ## Avance aplicado (2026-03-05 cierre bloque 3)
 - Renombrado semantico en modulos operativos (kiosko) para reducir deuda de Designer:
-  - `SCSC/Formularios/ControlComedor.Designer.vb` y `SCSC/Formularios/ControlComedor.vb`:
+  - `escritorio/SCSC/Formularios/ControlComedor.Designer.vb` y `escritorio/SCSC/Formularios/ControlComedor.vb`:
     - `Label2` -> `LblUsuarioCaption`
     - `Label3` -> `LblTiquetesCaption`
     - `Label4` -> `LblCarnetCaption`
     - `Label5` -> `LblTipoCaption`
-  - `SCSC/Formularios/ControlTransporte.Designer.vb` y `SCSC/Formularios/ControlTransporte.vb`:
+  - `escritorio/SCSC/Formularios/ControlTransporte.Designer.vb` y `escritorio/SCSC/Formularios/ControlTransporte.vb`:
     - `Panel1` -> `PanelTopBar`
     - `Label1` -> `LblPermisoSalidaCaption`
     - `Label2` -> `LblUsuarioCaption`
@@ -192,7 +192,7 @@ Cerrar primero estabilidad de Designer/compilacion y luego terminar la estandari
 
 ## Avance aplicado (2026-03-05 cierre bloque 4)
 - Renombrado semantico adicional en utilitario de impresion:
-  - `SCSC/Formularios/IMPRIMIR.Designer.vb` y `SCSC/Formularios/IMPRIMIR.vb`:
+  - `escritorio/SCSC/Formularios/IMPRIMIR.Designer.vb` y `escritorio/SCSC/Formularios/IMPRIMIR.vb`:
     - `Label1` -> `LblNombreCaption`
     - `Label2` -> `LblAltoCaption`
     - `Label3` -> `LblAnchoCaption`
@@ -202,32 +202,32 @@ Cerrar primero estabilidad de Designer/compilacion y luego terminar la estandari
 
 ## Avance aplicado (2026-03-05 cierre bloque 5)
 - Renombrado semantico en importacion legacy (`FrmImportarDatos`):
-  - `SCSC/Formularios/FrmImportarDatos.designer.vb`:
+  - `escritorio/SCSC/Formularios/FrmImportarDatos.designer.vb`:
     - `Panel4` -> `PanelAcciones`
     - `Label1` -> `LblTituloModulo`
     - `GroupBox1` -> `GroupConfiguracionImportacion`
     - `Label2` -> `LblCursoLectivoCaption`
-  - `SCSC/Formularios/FrmImportarDatos.vb`:
+  - `escritorio/SCSC/Formularios/FrmImportarDatos.vb`:
     - referencias y handler actualizados (`LblTituloModulo_Click`).
 - Resultado:
   - Consistencia con naming semantico ya aplicado en `FrmImportarExcel`.
 
 ## Avance aplicado (2026-03-06 cierre bloque 6)
 - Estabilidad shell principal (`FrmPrincipal` + `UIShellHost`):
-  - `SCSC/FrmPrincipal.vb`: modal de formularios con owner (`ShowDialog(Me)`), guarda defensiva en `BuildModernShell()` y refuerzo de z-order de `BtnCerrar` en `Resize`.
-  - `SCSC/FrmPrincipal.Designer.vb`: `BtnCerrar` anclado a top-right y titulo de ventana normalizado (`SCSC - Panel Principal`).
-  - `SCSC/Clases/UIShellHost.vb`: hardening del titulo topbar (`_titleLabel`) con tamaño fijo y elipsis para evitar solape visual.
+  - `escritorio/SCSC/FrmPrincipal.vb`: modal de formularios con owner (`ShowDialog(Me)`), guarda defensiva en `BuildModernShell()` y refuerzo de z-order de `BtnCerrar` en `Resize`.
+  - `escritorio/SCSC/FrmPrincipal.Designer.vb`: `BtnCerrar` anclado a top-right y titulo de ventana normalizado (`SCSC - Panel Principal`).
+  - `escritorio/SCSC/Clases/UIShellHost.vb`: hardening del titulo topbar (`_titleLabel`) con tamaño fijo y elipsis para evitar solape visual.
 - FrmSeguridadRBAC (acciones visibles):
-  - `SCSC/Formularios/FrmSeguridadRBAC.vb`: flows de acciones configurados en `DockStyle.Fill` para evitar colapso/ocultamiento de botoneras por pestaña.
+  - `escritorio/SCSC/Formularios/FrmSeguridadRBAC.vb`: flows de acciones configurados en `DockStyle.Fill` para evitar colapso/ocultamiento de botoneras por pestaña.
 - Estandarizacion reportes parametros (Designer-first, naming semantico):
-  - `SCSC/Reportes/Parametros/FrmReporteComedor.Designer.vb`
-  - `SCSC/Reportes/Parametros/FrmReporteRutas.Designer.vb`
-  - `SCSC/Reportes/Parametros/FrmBecados.Designer.vb`
-  - `SCSC/Reportes/Parametros/FrmProyeccionComedor.Designer.vb`
+  - `escritorio/SCSC/Reportes/Parametros/FrmReporteComedor.Designer.vb`
+  - `escritorio/SCSC/Reportes/Parametros/FrmReporteRutas.Designer.vb`
+  - `escritorio/SCSC/Reportes/Parametros/FrmBecados.Designer.vb`
+  - `escritorio/SCSC/Reportes/Parametros/FrmProyeccionComedor.Designer.vb`
   - Cambios: eliminacion de identificadores genericos (`Label1`, `Panel4`, `GroupBox1`, etc.) por naming semantico (`LblTituloReporte`, `PanelAcciones`, `GroupParametros`, `LblHorarioCaption`, etc.).
 - Limpieza adicional:
-  - `SCSC/Formularios/FrmAyuda.vb`: removido comentario legacy `TODO`.
-  - `SCSC/Formularios/FrmParametrosSistema.vb`: mensajes de estado/error alineados a fila unica `Parametro(Id=0)`.
-  - `SCSC/Reportes/Parametros/FrmReporteRutas.Designer.vb`: correccion ortografica de titulo (`Transporte`).
+  - `escritorio/SCSC/Formularios/FrmAyuda.vb`: removido comentario legacy `TODO`.
+  - `escritorio/SCSC/Formularios/FrmParametrosSistema.vb`: mensajes de estado/error alineados a fila unica `Parametro(Id=0)`.
+  - `escritorio/SCSC/Reportes/Parametros/FrmReporteRutas.Designer.vb`: correccion ortografica de titulo (`Transporte`).
 - Validacion:
   - Build local ejecutado con MSBuild Windows (`VS2019`), solucion `Debug | Any CPU`: `0 Error(s)`, `1 Warning(s)` COM interop (`MSB3305`, no bloqueante).

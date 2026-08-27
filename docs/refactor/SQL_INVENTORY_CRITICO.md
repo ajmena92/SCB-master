@@ -1,9 +1,9 @@
 # Inventario SQL Crítico (2026-03-04)
 
 ## Alcance
-- `SCSC/Formularios/ControlTransporte.vb`
-- `SCSC/Formularios/ControlComedor.vb`
-- `SCSC/Formularios/FrmImportarExcel.vb`
+- `escritorio/SCSC/Formularios/ControlTransporte.vb`
+- `escritorio/SCSC/Formularios/ControlComedor.vb`
+- `escritorio/SCSC/Formularios/FrmImportarExcel.vb`
 
 ## 1) ControlTransporte
 

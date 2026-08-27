@@ -1,0 +1,125 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+    <Fragment>
+        <DirectoryRef Id="INSTALLFOLDER">
+            <Component Id="cmp3251BF6D90F53345FB80934F74471D6E" Guid="{BAE01035-4BA2-4CBF-8A10-0C596C03B3B2}">
+                <File Id="filCB12719729B5BD768D50AB90CF5E6745" KeyPath="yes" Source="$(var.SourceDir)\CrystalDecisions.CrystalReports.Engine.dll" />
+            </Component>
+            <Component Id="cmp06E3C27EAD1679A54477FC55A5FF9B82" Guid="{D92A7B67-D8D8-41FA-9BCE-4635D3DCE8CD}">
+                <File Id="fil718D651EC927A66C733E7065B0B4C7D5" KeyPath="yes" Source="$(var.SourceDir)\CrystalDecisions.ReportAppServer.ClientDoc.dll" />
+            </Component>
+            <Component Id="cmpC39202A7595A345B5053F43A3DA9E73D" Guid="{4AF77FA9-505E-4758-86DD-84E4202BFDAE}">
+                <File Id="fil29F4C5EF0051245C233297ABA3C13E37" KeyPath="yes" Source="$(var.SourceDir)\CrystalDecisions.ReportAppServer.CommLayer.dll" />
+            </Component>
+            <Component Id="cmpE392AEB7C03E7089CFFA82A9CC9483EB" Guid="{87923386-301C-4DB6-B34D-D77487190EC9}">
+                <File Id="fil0C01E9A5B032A4D9D206A3BA5A5DE7BA" KeyPath="yes" Source="$(var.SourceDir)\CrystalDecisions.ReportAppServer.CommonControls.dll" />
+            </Component>
+            <Component Id="cmp00EF1058540E5A5E07DD5594ACD9A66F" Guid="{F571238E-EDAF-4E29-89BF-8B255785D31F}">
+                <File Id="fil94A5016ECD7F9B442E2B54807C1DE989" KeyPath="yes" Source="$(var.SourceDir)\CrystalDecisions.ReportAppServer.CommonObjectModel.dll" />
+            </Component>
+            <Component Id="cmp41DDDBCEF8097DD5C27C3DAF0FCB9026" Guid="{556C42FB-2885-4DB3-BC6D-3DA8422453DA}">
+                <File Id="fil0AA591CD7B8FD5070254523AD2D44CAE" KeyPath="yes" Source="$(var.SourceDir)\CrystalDecisions.ReportAppServer.Controllers.dll" />
+            </Component>
+            <Component Id="cmpED09512BDDD5F1B2F8F322FA8924BD8A" Guid="{80BC6FE9-53EB-4A54-8D28-F6045BC5E740}">
+                <File Id="filE5DEE495511F7651AB33D266A9B35299" KeyPath="yes" Source="$(var.SourceDir)\CrystalDecisions.ReportAppServer.CubeDefModel.dll" />
+            </Component>
+            <Component Id="cmpDD6A9401E06184E24C86D76E057555B2" Guid="{BEB1AC55-F34F-47F5-8375-E181330610F1}">
+                <File Id="fil496603CA7A50B0FA5A9ABD680B18AADF" KeyPath="yes" Source="$(var.SourceDir)\CrystalDecisions.ReportAppServer.DataDefModel.dll" />
+            </Component>
+            <Component Id="cmp34A5F2BE6FA0E65CB6D1D5E631DA69F2" Guid="{6170C9E5-917C-476D-9072-5A27CF305D63}">
+                <File Id="filC6E84A630A22861EF106275F4FA8655F" KeyPath="yes" Source="$(var.SourceDir)\CrystalDecisions.ReportAppServer.DataSetConversion.dll" />
+            </Component>
+            <Component Id="cmp4E58BF7E1FDBBE57CE0C7065DC1BEBE8" Guid="{12C409C4-49DE-412A-8ED3-684BC1D5B63A}">
+                <File Id="fil8360E966B2D4E65018D966059579245A" KeyPath="yes" Source="$(var.SourceDir)\CrystalDecisions.ReportAppServer.ObjectFactory.dll" />
+            </Component>
+            <Component Id="cmpE6479272D54575F40D4CFCCE1E4F805E" Guid="{5BC00F1F-64E1-4F1A-9FB2-34653AD1BBF2}">
+                <File Id="filCA7BB56EA35C3754CC6C5C8E06C4A746" KeyPath="yes" Source="$(var.SourceDir)\CrystalDecisions.ReportAppServer.Prompting.dll" />
+            </Component>
+            <Component Id="cmp45EAE4D4D1427E34E14D88710DDC1980" Guid="{8F53D2C5-299F-4A0D-8D2D-E17F3BE616B3}">
+                <File Id="filAAE98F89DDC697A5E3AE39C3714B33D2" KeyPath="yes" Source="$(var.SourceDir)\CrystalDecisions.ReportAppServer.ReportDefModel.dll" />
+            </Component>
+            <Component Id="cmpA981C986E1FCAA8F94B6839139FE6198" Guid="{91BFC8A7-056B-49C1-A6F9-FC4607472FBA}">
+                <File Id="fil8D5F1D634327A32E81D3A05FB0746ACF" KeyPath="yes" Source="$(var.SourceDir)\CrystalDecisions.ReportAppServer.XmlSerialize.dll" />
+            </Component>
+            <Component Id="cmp2076B5EA7E9870C8FF712EE24EABD081" Guid="{9E515FEF-7E82-46E5-A89F-19E92F9D5F5B}">
+                <File Id="fil9F66D779A97CA20236FA7519925A8FBD" KeyPath="yes" Source="$(var.SourceDir)\CrystalDecisions.ReportSource.dll" />
+            </Component>
+            <Component Id="cmp7451EA1AC4B0C2205B3A8B80CC503B46" Guid="{B3F9FC1B-B05B-48A3-8B4D-E6B1750E1E69}">
+                <File Id="fil649535D027AE2AE7EA776B0EF3B94776" KeyPath="yes" Source="$(var.SourceDir)\CrystalDecisions.Shared.dll" />
+            </Component>
+            <Component Id="cmpC5DD1B52C01D37FFD6FEDE8BCB5CD7F2" Guid="{55DAA377-1EEE-423B-B6F9-35E27DF2F3C1}">
+                <File Id="fil445252B35B532DCA5568B52876A0B485" KeyPath="yes" Source="$(var.SourceDir)\CrystalDecisions.Windows.Forms.dll" />
+            </Component>
+            <Component Id="cmp8E0BA9345D6467C6CE87127468E2DA60" Guid="{F24A46F2-DF0D-4276-AD0B-43DA91C16FE1}">
+                <File Id="fil425B2C707904C74CBB8D3C690296B481" KeyPath="yes" Source="$(var.SourceDir)\DocumentFormat.OpenXml.dll" />
+            </Component>
+            <Component Id="cmpC7A2B15EF720E305BDA95993E528AA63" Guid="{89E6A9E3-F956-47B9-8546-C982B7371618}">
+                <File Id="fil4BC7F109C3A83AD398A8B9AF0750A8FB" KeyPath="yes" Source="$(var.SourceDir)\DocumentFormat.OpenXml.Framework.dll" />
+            </Component>
+            <Component Id="cmp0FF1085AFF44839736BF1CF6AC86CDE7" Guid="{1A11AA18-B78E-42E7-B80B-7A2B1DC7CE78}">
+                <File Id="filAD7623CA8BD0C0CB0681ACD75217D1A8" KeyPath="yes" Source="$(var.SourceDir)\DocumentFormat.OpenXml.Framework.xml" />
+            </Component>
+            <Component Id="cmp497857C5CC0A98968F92450C07017DCA" Guid="{F6B9A029-A940-4598-8788-AD1C7DF4E573}">
+                <File Id="filAE9C8B356AAE693C0D4EA8955655CE44" KeyPath="yes" Source="$(var.SourceDir)\DocumentFormat.OpenXml.xml" />
+            </Component>
+            <Component Id="cmp8588E3AEA73143CE3FF437DCBD633F14" Guid="{672FCCD5-C954-4C44-951B-5E3FB49E5E1A}">
+                <File Id="filE73B67823FB274B1D5745F93A4505C7C" KeyPath="yes" Source="$(var.SourceDir)\SCSC_Marcas.exe" />
+            </Component>
+            <Component Id="cmpA05A35207405EF2402A8E21B1E1FAFB0" Guid="{D6EF7170-D203-4E2D-A347-F4556F038316}">
+                <File Id="fil41933B65A8B1C8889617C1A9967E7A47" KeyPath="yes" Source="$(var.SourceDir)\SCSC_Marcas.exe.config" />
+            </Component>
+            <Component Id="cmp7817FA5AEEE567A0A4E3E7251E16BB1B" Guid="{F705E9E9-600A-42AA-955A-5438139AACF9}">
+                <File Id="filF0141A5E2E2096A710ED074C39550656" KeyPath="yes" Source="$(var.SourceDir)\SCSC_Marcas.pdb" />
+            </Component>
+            <Component Id="cmp30FED7008E39E87219FF87C5DFFD5C24" Guid="{C51D16B1-4CD5-4956-8906-52A6372FD64A}">
+                <File Id="fil53F28FC058C597F714E212B945F1406B" KeyPath="yes" Source="$(var.SourceDir)\SCSC_Marcas.xml" />
+            </Component>
+            <Component Id="cmp4BDE66C47408472440AA728C58DFA235" Guid="{E0329B84-D1AE-4CA9-9031-FF6B80CA8331}">
+                <File Id="filCA906AF36C8DDB492BE0DC52C6F97188" KeyPath="yes" Source="$(var.SourceDir)\stdole.dll" />
+            </Component>
+            <Directory Id="dir41772C233BE465DE0D167364B3BB566C" Name="Resources">
+                <Component Id="cmpE1217A0ECD79C194049E5741B23ED441" Guid="{8A7F9737-3E3F-406A-AAB8-642136FF3DD0}">
+                    <File Id="filD3BAFDFB70E36AB99144D814C8E7CFC7" KeyPath="yes" Source="$(var.SourceDir)\Resources\LogoHero.png" />
+                </Component>
+                <Component Id="cmp3D7C08B50E500E3C27A41F0DF022C5F6" Guid="{680C0A2F-F06B-4FC8-B101-C3B8C4924D96}">
+                    <File Id="fil874123A827149AB80EE7A465DB1B8A19" KeyPath="yes" Source="$(var.SourceDir)\Resources\LogoHorizontal.png" />
+                </Component>
+                <Component Id="cmp7B2B9A61DFE27D577B5AC152C3B54032" Guid="{D803E7AA-CF49-4E08-B5EF-2DC3C2CC1C1C}">
+                    <File Id="filA94260B4209EB725935625BADF61CF47" KeyPath="yes" Source="$(var.SourceDir)\Resources\LogoIcon.png" />
+                </Component>
+            </Directory>
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <ComponentGroup Id="AppFiles">
+            <ComponentRef Id="cmp3251BF6D90F53345FB80934F74471D6E" />
+            <ComponentRef Id="cmp06E3C27EAD1679A54477FC55A5FF9B82" />
+            <ComponentRef Id="cmpC39202A7595A345B5053F43A3DA9E73D" />
+            <ComponentRef Id="cmpE392AEB7C03E7089CFFA82A9CC9483EB" />
+            <ComponentRef Id="cmp00EF1058540E5A5E07DD5594ACD9A66F" />
+            <ComponentRef Id="cmp41DDDBCEF8097DD5C27C3DAF0FCB9026" />
+            <ComponentRef Id="cmpED09512BDDD5F1B2F8F322FA8924BD8A" />
+            <ComponentRef Id="cmpDD6A9401E06184E24C86D76E057555B2" />
+            <ComponentRef Id="cmp34A5F2BE6FA0E65CB6D1D5E631DA69F2" />
+            <ComponentRef Id="cmp4E58BF7E1FDBBE57CE0C7065DC1BEBE8" />
+            <ComponentRef Id="cmpE6479272D54575F40D4CFCCE1E4F805E" />
+            <ComponentRef Id="cmp45EAE4D4D1427E34E14D88710DDC1980" />
+            <ComponentRef Id="cmpA981C986E1FCAA8F94B6839139FE6198" />
+            <ComponentRef Id="cmp2076B5EA7E9870C8FF712EE24EABD081" />
+            <ComponentRef Id="cmp7451EA1AC4B0C2205B3A8B80CC503B46" />
+            <ComponentRef Id="cmpC5DD1B52C01D37FFD6FEDE8BCB5CD7F2" />
+            <ComponentRef Id="cmp8E0BA9345D6467C6CE87127468E2DA60" />
+            <ComponentRef Id="cmpC7A2B15EF720E305BDA95993E528AA63" />
+            <ComponentRef Id="cmp0FF1085AFF44839736BF1CF6AC86CDE7" />
+            <ComponentRef Id="cmp497857C5CC0A98968F92450C07017DCA" />
+            <ComponentRef Id="cmp8588E3AEA73143CE3FF437DCBD633F14" />
+            <ComponentRef Id="cmpA05A35207405EF2402A8E21B1E1FAFB0" />
+            <ComponentRef Id="cmp7817FA5AEEE567A0A4E3E7251E16BB1B" />
+            <ComponentRef Id="cmp30FED7008E39E87219FF87C5DFFD5C24" />
+            <ComponentRef Id="cmp4BDE66C47408472440AA728C58DFA235" />
+            <ComponentRef Id="cmpE1217A0ECD79C194049E5741B23ED441" />
+            <ComponentRef Id="cmp3D7C08B50E500E3C27A41F0DF022C5F6" />
+            <ComponentRef Id="cmp7B2B9A61DFE27D577B5AC152C3B54032" />
+        </ComponentGroup>
+    </Fragment>
+</Wix>

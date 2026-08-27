@@ -1,0 +1,6 @@
+node_modules/
+node_modules.incompleto-*/
+dist/
+build/
+coverage/
+public/**/*.{avif,png,jpg,jpeg,gif,webp,ico,svg}

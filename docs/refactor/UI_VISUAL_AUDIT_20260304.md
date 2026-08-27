@@ -10,41 +10,41 @@ Revision de consistencia visual en formularios WinForms bajo estandar hibrido 20
 
 ## Completado (alineado)
 1. Login y autenticacion:
-   - `SCSC/Seguridad/LOGIN.vb`
+   - `escritorio/SCSC/Seguridad/LOGIN.vb`
 
 2. Shell principal y dashboard:
-   - `SCSC/FrmPrincipal.vb`
-   - `SCSC/Clases/UIShellHost.vb`
+   - `escritorio/SCSC/FrmPrincipal.vb`
+   - `escritorio/SCSC/Clases/UIShellHost.vb`
 
 3. Comedor (kiosko/operacion):
-   - `SCSC/Formularios/ControlComedor.vb`
+   - `escritorio/SCSC/Formularios/ControlComedor.vb`
 
 4. Transporte (kiosko/operacion):
-   - `SCSC/Formularios/ControlTransporte.vb`
+   - `escritorio/SCSC/Formularios/ControlTransporte.vb`
 
 5. CRUD estandarizados (cromado comun):
-   - `SCSC/Formularios/FrmEstudiantes.vb`
-   - `SCSC/Formularios/FrmBecas.vb`
-   - `SCSC/Formularios/FrmRutas.vb`
-   - `SCSC/Formularios/FrmRecargas.vb`
-   - `SCSC/Formularios/FrmAgregarEstudiante.vb`
-   - `SCSC/Formularios/FrmImportarDatos.vb`
-   - `SCSC/Formularios/FrmImportarExcel.vb`
-   - `SCSC/Formularios/FrmSeguridadRBAC.vb`
-   - `SCSC/Formularios/FrmParametrosSistema.vb`
+   - `escritorio/SCSC/Formularios/FrmEstudiantes.vb`
+   - `escritorio/SCSC/Formularios/FrmBecas.vb`
+   - `escritorio/SCSC/Formularios/FrmRutas.vb`
+   - `escritorio/SCSC/Formularios/FrmRecargas.vb`
+   - `escritorio/SCSC/Formularios/FrmAgregarEstudiante.vb`
+   - `escritorio/SCSC/Formularios/FrmImportarDatos.vb`
+   - `escritorio/SCSC/Formularios/FrmImportarExcel.vb`
+   - `escritorio/SCSC/Formularios/FrmSeguridadRBAC.vb`
+   - `escritorio/SCSC/Formularios/FrmParametrosSistema.vb`
 
 6. Parametros de reportes alineados:
-   - `SCSC/Reportes/Parametros/FrmReporteComedor.vb`
-   - `SCSC/Reportes/Parametros/FrmReporteRutas.vb`
-   - `SCSC/Reportes/Parametros/FrmBecados.vb`
-   - `SCSC/Reportes/Parametros/FrmProyeccionComedor.vb`
+   - `escritorio/SCSC/Reportes/Parametros/FrmReporteComedor.vb`
+   - `escritorio/SCSC/Reportes/Parametros/FrmReporteRutas.vb`
+   - `escritorio/SCSC/Reportes/Parametros/FrmBecados.vb`
+   - `escritorio/SCSC/Reportes/Parametros/FrmProyeccionComedor.vb`
 
 7. Utilitarios alineados:
-   - `SCSC/Formularios/FrmAyuda.vb`
-   - `SCSC/Formularios/IMPRIMIR.vb`
+   - `escritorio/SCSC/Formularios/FrmAyuda.vb`
+   - `escritorio/SCSC/Formularios/IMPRIMIR.vb`
 
 8. Infraestructura visual comun:
-   - `SCSC/Clases/UIThemeManagerV2.vb` (`ApplyCrudModuleChrome`, layout de barra de acciones, estilo de campos)
+   - `escritorio/SCSC/Clases/UIThemeManagerV2.vb` (`ApplyCrudModuleChrome`, layout de barra de acciones, estilo de campos)
 
 ## Pendientes de diseno (siguiente fase)
 1. Ajuste fino final por DPI:

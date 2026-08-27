@@ -1,0 +1,24 @@
+- generic [ref=e3]:
+  - generic [ref=e26]:
+    - banner [ref=e27]:
+      - generic [ref=e28]:
+        - generic [ref=e29]: Comedor SCSC · Administración
+        - generic [ref=e34]:
+          - generic [ref=e35]:
+            - paragraph [ref=e36]: Profesor de pruebas del portal
+            - generic [ref=e37]: Operador
+          - button [ref=e38] [cursor=pointer]
+    - main [ref=e39]:
+      - generic [ref=e40]:
+        - tablist [ref=e41]:
+          - tab "Dashboard" [selected] [ref=e42] [cursor=pointer]
+          - tab "Menú" [ref=e48] [cursor=pointer]
+          - tab "Calendario" [ref=e51] [cursor=pointer]
+          - tab "Sustituciones" [ref=e54] [cursor=pointer]
+          - tab "Estudiantes / PIN" [ref=e63] [cursor=pointer]
+          - tab "Parámetros" [ref=e69] [cursor=pointer]
+          - tab "Auditoría" [ref=e73] [cursor=pointer]
+          - tab "Reporte WinForms" [ref=e77] [cursor=pointer]
+        - tabpanel "Dashboard" [ref=e81]:
+          - generic "Cargando sección" [ref=e82]
+  - region "Notifications alt+T"

@@ -7,11 +7,11 @@ SCB es una aplicacion WinForms VB.NET sobre .NET Framework 4.6.1 con una base le
 
 El estado general es de sistema operativo-productivo con deuda tecnica acumulada. El mayor riesgo pendiente ya no es solo visual o de Designer; ahora es de configuracion, seguridad operativa y mantenibilidad estructural.
 
-Nota de actualizacion del mismo dia: durante esta revision se saneo `SCSC/app.config` y `My Project/Settings*` para dejar de versionar secretos reales; la operacion ahora depende de variables de entorno. La deuda remanente es asegurar despliegue por entorno y rotar credenciales historicamente expuestas.
+Nota de actualizacion del mismo dia: durante esta revision se saneo `escritorio/SCSC/app.config` y `My Project/Settings*` para dejar de versionar secretos reales; la operacion ahora depende de variables de entorno. La deuda remanente es asegurar despliegue por entorno y rotar credenciales historicamente expuestas.
 
 ## Inventario base verificado
-- Solucion principal: `SCSC_Marcas.sln`
-- Proyecto principal: `SCSC/SCSC_Marcas.vbproj`
+- Solucion principal: `escritorio/SCSC_Marcas.sln`
+- Proyecto principal: `escritorio/SCSC/SCSC_Marcas.vbproj`
 - Archivos `.vb`: 80
 - Archivos `.vb` no designer: 64
 - Archivos operativos/no infrastructure en `Formularios`, `Seguridad`, `Reportes`: 33
@@ -24,11 +24,11 @@ Nota de actualizacion del mismo dia: durante esta revision se saneo `SCSC/app.co
 
 ## Arquitectura observada
 ### Shell y navegacion
-- `SCSC/FrmPrincipal.vb` controla el arranque, login, shell legacy y shell moderno.
-- `SCSC/Clases/UIShellHost.vb` contiene una capa visual importante para el shell nuevo y dashboard.
+- `escritorio/SCSC/FrmPrincipal.vb` controla el arranque, login, shell legacy y shell moderno.
+- `escritorio/SCSC/Clases/UIShellHost.vb` contiene una capa visual importante para el shell nuevo y dashboard.
 
 ### Formularios de operacion
-- `SCSC/Formularios/ControlComedor.vb` y `SCSC/Formularios/ControlTransporte.vb` siguen siendo piezas centrales y pesadas.
+- `escritorio/SCSC/Formularios/ControlComedor.vb` y `escritorio/SCSC/Formularios/ControlTransporte.vb` siguen siendo piezas centrales y pesadas.
 - Ambos formularios concentran UI, lectura de huella, validacion operativa, feedback visual/sonoro e historial en una sola clase.
 
 ### Mantenimientos e importacion
@@ -37,15 +37,15 @@ Nota de actualizacion del mismo dia: durante esta revision se saneo `SCSC/app.co
 - Ya existe una base comun de estandarizacion visual (`CrudVisualHelper`, `CrudOperationHelper`, `CrudFormBase`), pero la migracion todavia es incremental.
 
 ### Acceso a datos
-- `SCSC/Clases/FunccionesDB.vb` sigue siendo la fachada legacy dominante para CRUD, transacciones y SQL genérico.
-- `SCSC/Clases/Servicios/` introduce una capa mas segura y explicita para comedor, transporte, dashboard, importacion, parametros y RBAC.
+- `escritorio/SCSC/Clases/FunccionesDB.vb` sigue siendo la fachada legacy dominante para CRUD, transacciones y SQL genérico.
+- `escritorio/SCSC/Clases/Servicios/` introduce una capa mas segura y explicita para comedor, transporte, dashboard, importacion, parametros y RBAC.
 - El proyecto esta en estado mixto: parte del sistema usa `SqlCommand` parametrizado y parte depende aun de `ConsultarTSQL`, `AplicaSQL`, `Insert`, `Update`, `Delete`.
 
 ### Estado global y reporting
-- `SCSC/Clases/VariablesGlobales.vb` mantiene configuracion y contexto global del sistema.
-- `SCSC/Clases/CodigoGeneral.vb` ya no expone `gSession`; conserva utilidades generales de formato/configuracion.
-- `SCSC/Reportes/FrmReportViewer.vb` ya consume un contrato explicito (`ReportRequest`) para seleccionar y parametrizar reportes.
-- `SCSC/Busqueda.vb` ya exige un contrato explicito (`SearchRequest`) para cada flujo de busqueda.
+- `escritorio/SCSC/Clases/VariablesGlobales.vb` mantiene configuracion y contexto global del sistema.
+- `escritorio/SCSC/Clases/CodigoGeneral.vb` ya no expone `gSession`; conserva utilidades generales de formato/configuracion.
+- `escritorio/SCSC/Reportes/FrmReportViewer.vb` ya consume un contrato explicito (`ReportRequest`) para seleccionar y parametrizar reportes.
+- `escritorio/SCSC/Busqueda.vb` ya exige un contrato explicito (`SearchRequest`) para cada flujo de busqueda.
 
 ## Hallazgos tecnicos
 ### Fortalezas actuales
@@ -59,15 +59,15 @@ Nota de actualizacion del mismo dia: durante esta revision se saneo `SCSC/app.co
 1. Configuracion sensible historicamente expuesta.
    - El repositorio ya fue saneado en esta revision, pero la operacion ahora depende de variables de entorno y sigue pendiente rotacion de credenciales historicas.
 2. La compilacion vuelve a exponer warnings, pero falta baseline validado.
-   - `SCSC/SCSC_Marcas.vbproj` ya usa `WarningLevel=4`; resta ejecutar build real en Windows y clasificar warnings.
+   - `escritorio/SCSC/SCSC_Marcas.vbproj` ya usa `WarningLevel=4`; resta ejecutar build real en Windows y clasificar warnings.
 3. El acceso a datos legacy sigue siendo demasiado generico.
-   - `SCSC/Clases/FunccionesDB.vb` tiene 1384 lineas y concentra demasiadas responsabilidades.
+   - `escritorio/SCSC/Clases/FunccionesDB.vb` tiene 1384 lineas y concentra demasiadas responsabilidades.
 4. Persisten formularios monoliticos.
-   - `SCSC/Formularios/ControlComedor.vb` tiene 1743 lineas.
-   - `SCSC/Formularios/ControlTransporte.vb` tiene 1380 lineas.
-   - `SCSC/Formularios/FrmImportarExcel.vb` tiene 1135 lineas.
-   - `SCSC/Formularios/FrmSeguridadRBAC.vb` tiene 1136 lineas.
-   - `SCSC/Clases/UIShellHost.vb` tiene 1349 lineas.
+   - `escritorio/SCSC/Formularios/ControlComedor.vb` tiene 1743 lineas.
+   - `escritorio/SCSC/Formularios/ControlTransporte.vb` tiene 1380 lineas.
+   - `escritorio/SCSC/Formularios/FrmImportarExcel.vb` tiene 1135 lineas.
+   - `escritorio/SCSC/Formularios/FrmSeguridadRBAC.vb` tiene 1136 lineas.
+   - `escritorio/SCSC/Clases/UIShellHost.vb` tiene 1349 lineas.
 5. Estado compartido global.
    - `VariablesGlobales` y `gSession` siguen siendo dependencias transversales de alto acoplamiento.
 6. Cobertura de pruebas inexistente.
@@ -75,27 +75,27 @@ Nota de actualizacion del mismo dia: durante esta revision se saneo `SCSC/app.co
 
 ## Evidencia puntual
 ### Seguridad/configuracion
-- `SCSC/app.config` y `SCSC/My Project/Settings*`: saneados para usar placeholders y variables de entorno.
+- `escritorio/SCSC/app.config` y `escritorio/SCSC/My Project/Settings*`: saneados para usar placeholders y variables de entorno.
 - El login de soporte queda deshabilitado por defecto si no se define configuracion externa.
 
 ### Build/calidad
-- `SCSC/SCSC_Marcas.vbproj`: `WarningLevel=4` en configuraciones principales.
+- `escritorio/SCSC/SCSC_Marcas.vbproj`: `WarningLevel=4` en configuraciones principales.
 - En este entorno no fue posible ejecutar `msbuild` ni `nuget`; no estan instalados en WSL actual.
 
 ### Tipado
 - `Option Strict Off` persiste en wrappers autogenerados de Crystal:
-  - `SCSC/Reportes/Rpt/RptRuta_general.vb`
-  - `SCSC/Reportes/Rpt/RptRuta_detallado.vb`
-  - `SCSC/Reportes/Rpt/RptBecadosTransporte.vb`
-  - `SCSC/Reportes/Rpt/RptBecadosTransporteDetallado.vb`
-  - `SCSC/Reportes/Rpt/RptBecadosComedor.vb`
-  - `SCSC/Reportes/Rpt/RptProyecionComedor.vb`
-  - `SCSC/Reportes/Rpt/RptFechaComedor.vb`
+  - `escritorio/SCSC/Reportes/Rpt/RptRuta_general.vb`
+  - `escritorio/SCSC/Reportes/Rpt/RptRuta_detallado.vb`
+  - `escritorio/SCSC/Reportes/Rpt/RptBecadosTransporte.vb`
+  - `escritorio/SCSC/Reportes/Rpt/RptBecadosTransporteDetallado.vb`
+  - `escritorio/SCSC/Reportes/Rpt/RptBecadosComedor.vb`
+  - `escritorio/SCSC/Reportes/Rpt/RptProyecionComedor.vb`
+  - `escritorio/SCSC/Reportes/Rpt/RptFechaComedor.vb`
 
 ### SQL y acoplamiento
-- `SCSC/Formularios/FrmRecargas.vb`: recarga movida a `RecargaService`, pero el formulario aun conserva dependencias legacy para busqueda/modal.
-- `SCSC/Clases/FunccionesDB.vb`: expone CRUD dinamico y consultas genericas de uso transversal.
-- `SCSC/Clases/CodigoGeneral.vb`: usa `gSession` como bus de estado para busquedas legacy.
+- `escritorio/SCSC/Formularios/FrmRecargas.vb`: recarga movida a `RecargaService`, pero el formulario aun conserva dependencias legacy para busqueda/modal.
+- `escritorio/SCSC/Clases/FunccionesDB.vb`: expone CRUD dinamico y consultas genericas de uso transversal.
+- `escritorio/SCSC/Clases/CodigoGeneral.vb`: usa `gSession` como bus de estado para busquedas legacy.
 
 ## Direccion recomendada
 1. Resolver configuracion sensible fuera del repositorio.

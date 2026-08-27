@@ -4,7 +4,7 @@
 Definir un estandar visual y tecnico unico para modernizar WinForms con apariencia Windows 11 sin romper compatibilidad legacy del sistema SCB.
 
 ## Referencia Canonica
-- Formulario piloto oficial: `SCSC/Seguridad/LOGIN.vb` + `SCSC/Seguridad/LOGIN.designer.vb`.
+- Formulario piloto oficial: `escritorio/SCSC/Seguridad/LOGIN.vb` + `escritorio/SCSC/Seguridad/LOGIN.designer.vb`.
 - Todo formulario nuevo o migrado debe tomar `LOGIN` como baseline de:
   - Jerarquia visual.
   - Escalado y espaciado.
@@ -20,7 +20,7 @@ Definir un estandar visual y tecnico unico para modernizar WinForms con aparienc
   - Runtime no debe contradecir ni reemplazar el layout base definido en Designer.
 
 ## Paleta Oficial 2026
-Fuente principal de tokens: `SCSC/Clases/UIConstants.vb`.
+Fuente principal de tokens: `escritorio/SCSC/Clases/UIConstants.vb`.
 
 ### Base
 - `AppBackground`: `#F6F8FB` (246, 248, 251)
@@ -124,21 +124,21 @@ Fuente principal de tokens: `SCSC/Clases/UIConstants.vb`.
 - Si Designer y runtime no coinciden, prevalece `Designer-first` y se corrige runtime.
 
 ## Autobuild estandar (MSBuild local)
-- Script oficial: `scripts/autobuild.ps1`.
+- Script oficial: `escritorio/scripts/autobuild.ps1`.
 - Objetivo:
   - Detectar cambios de UI/codigo y compilar automaticamente para validar que Designer/runtime siguen coherentes.
 - Archivos que disparan build:
   - `.vb`, `.vbproj`, `.resx`, `.config`.
 - Parametros principales:
   - `-Repo` (default `C:\Dev\SCB-master`)
-  - `-Solution` (default `SCSC_Marcas.sln`)
+  - `-Solution` (default `escritorio/SCSC_Marcas.sln`)
   - `-MSBuildPath` (ruta local validada)
   - `-Configuration` (default `Debug`)
   - `-Platform` (default `Any CPU`)
   - `-DebounceSeconds` (default `2`)
   - `-MaxLogFiles` (default `120`)
 - Ejecucion recomendada:
-  - `powershell -ExecutionPolicy Bypass -File C:\Dev\SCB-master\scripts\autobuild.ps1`
+  - `powershell -ExecutionPolicy Bypass -File C:\Dev\SCB-master\escritorio\scripts\autobuild.ps1`
 - Salida esperada:
   - Consola: `RUNNING`, `OK` o `FAIL`.
   - Logs en `C:\Dev\SCB-master\logs`:
@@ -150,25 +150,25 @@ Fuente principal de tokens: `SCSC/Clases/UIConstants.vb`.
 
 ## Estado de adopcion actual (2026-03-04)
 - Baseline completo:
-  - `SCSC/Seguridad/LOGIN.vb`
+  - `escritorio/SCSC/Seguridad/LOGIN.vb`
 - Shell moderno y dashboard:
-  - `SCSC/FrmPrincipal.vb`
-  - `SCSC/Clases/UIShellHost.vb`
+  - `escritorio/SCSC/FrmPrincipal.vb`
+  - `escritorio/SCSC/Clases/UIShellHost.vb`
   - Ajuste responsive 2026-03-04: modo ancho/compacto para evitar perdida de graficas en resoluciones menores.
 - Operacion comedor (hibrido con `designer-first` estricto):
-  - `SCSC/Formularios/ControlComedor.vb`
+  - `escritorio/SCSC/Formularios/ControlComedor.vb`
 - Operacion transporte (hibrido con `designer-first` estricto):
-  - `SCSC/Formularios/ControlTransporte.vb`
+  - `escritorio/SCSC/Formularios/ControlTransporte.vb`
 - CRUD con cromado estandar (`ApplyCrudModuleChrome`):
-  - `SCSC/Formularios/FrmEstudiantes.vb`
-  - `SCSC/Formularios/FrmBecas.vb`
-  - `SCSC/Formularios/FrmRutas.vb`
-  - `SCSC/Formularios/FrmRecargas.vb`
-  - `SCSC/Formularios/FrmAgregarEstudiante.vb`
-  - `SCSC/Formularios/FrmImportarDatos.vb`
-  - `SCSC/Formularios/FrmImportarExcel.vb`
+  - `escritorio/SCSC/Formularios/FrmEstudiantes.vb`
+  - `escritorio/SCSC/Formularios/FrmBecas.vb`
+  - `escritorio/SCSC/Formularios/FrmRutas.vb`
+  - `escritorio/SCSC/Formularios/FrmRecargas.vb`
+  - `escritorio/SCSC/Formularios/FrmAgregarEstudiante.vb`
+  - `escritorio/SCSC/Formularios/FrmImportarDatos.vb`
+  - `escritorio/SCSC/Formularios/FrmImportarExcel.vb`
 - Utilitarios alineados al estandar visual:
-  - `SCSC/Formularios/FrmAyuda.vb`
-  - `SCSC/Formularios/IMPRIMIR.vb`
+  - `escritorio/SCSC/Formularios/FrmAyuda.vb`
+  - `escritorio/SCSC/Formularios/IMPRIMIR.vb`
 - Auditoria de cierre de fase:
   - `docs/refactor/UI_VISUAL_AUDIT_20260304.md`

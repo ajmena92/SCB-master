@@ -1,0 +1,121 @@
+"""Casos de uso de autenticación y autorización de la plataforma web."""
+
+from __future__ import annotations
+
+import hashlib
+import secrets
+from datetime import datetime, timedelta, timezone
+from typing import Callable
+
+from .esquemas import ResultadoAutenticacion, SesionPersistida
+from .repositorio import RepositorioSesiones, RepositorioUsuarios
+from .seguridad import (
+    comparar_secreto_sesion,
+    crear_secreto_sesion,
+    hash_contrasena,
+    hash_secreto_sesion,
+    verificar_contrasena,
+)
+
+PERMISO_RUTAS_ADMINISTRAR = "rutas.administrar"
+
+
+class AutenticacionFallida(ValueError):
+    """Error uniforme para credenciales inexistentes, inválidas o inactivas."""
+
+
+class ServicioIdentidad:
+    def __init__(
+        self,
+        usuarios: RepositorioUsuarios,
+        sesiones: RepositorioSesiones,
+        duracion_sesion: timedelta = timedelta(hours=8),
+        reloj: Callable[[], datetime] | None = None,
+    ) -> None:
+        self._usuarios = usuarios
+        self._sesiones = sesiones
+        self._duracion_sesion = duracion_sesion
+        self._reloj = reloj or (lambda: datetime.now(timezone.utc))
+
+    def autenticar(self, nombre_usuario: str, contrasena: str) -> ResultadoAutenticacion:
+        usuario = self._usuarios.buscar_por_nombre(nombre_usuario)
+        if usuario is None or not usuario.activo or not verificar_contrasena(
+            contrasena, usuario.hash_contrasena
+        ):
+            raise AutenticacionFallida("Las credenciales no son válidas")
+
+        ahora = self._reloj()
+        expira_en = ahora + self._duracion_sesion
+        secreto = crear_secreto_sesion()
+        id_sesion = secrets.token_urlsafe(24)
+        self._sesiones.guardar(
+            SesionPersistida(
+                idSesion=id_sesion,
+                idUsuario=usuario.id_usuario,
+                secretoHash=hash_secreto_sesion(secreto),
+                expiraEn=expira_en,
+            )
+        )
+        return ResultadoAutenticacion(
+            idSesion=id_sesion,
+            idUsuario=usuario.id_usuario,
+            nombreUsuario=usuario.nombre_usuario,
+            secretoSesion=secreto,
+            expiraEn=expira_en,
+            permisos=usuario.permisos,
+        )
+
+    def crear_sesion(self, id_usuario: int, nombre_usuario: str, permisos: frozenset[str] = frozenset()) -> ResultadoAutenticacion:
+        ahora = self._reloj()
+        expira_en = ahora + self._duracion_sesion
+        secreto = crear_secreto_sesion()
+        id_sesion = secrets.token_urlsafe(24)
+        self._sesiones.guardar(SesionPersistida(idSesion=id_sesion, idUsuario=id_usuario, secretoHash=hash_secreto_sesion(secreto), expiraEn=expira_en))
+        return ResultadoAutenticacion(idSesion=id_sesion, idUsuario=id_usuario, nombreUsuario=nombre_usuario, secretoSesion=secreto, expiraEn=expira_en, permisos=permisos)
+
+    def validar_sesion(self, id_sesion: str, secreto: str) -> SesionPersistida:
+        sesion = self._sesiones.buscar_vigente(id_sesion, self._reloj())
+        if sesion is None or sesion.revocada or not comparar_secreto_sesion(
+            secreto, sesion.secreto_hash
+        ):
+            raise AutenticacionFallida("La sesión no es válida")
+        return sesion
+
+    def cerrar_sesion(self, id_sesion: str) -> None:
+        self._sesiones.revocar(id_sesion, self._reloj())
+
+    def establecer_csrf(self, id_sesion: str, token: str) -> None:
+        """Asocia un token CSRF al ciclo de vida de una sesión."""
+        if not token:
+            raise ValueError("El token CSRF no puede estar vacío")
+        self._sesiones.actualizar_csrf(
+            id_sesion, hashlib.sha256(token.encode("utf-8")).hexdigest()
+        )
+
+    def validar_csrf(self, sesion: SesionPersistida, token: str) -> bool:
+        """Valida CSRF sin comparar secretos en claro ni aceptar sesiones sin token."""
+        if not token or not sesion.csrf_hash:
+            return False
+        return secrets.compare_digest(
+            hashlib.sha256(token.encode("utf-8")).hexdigest(), sesion.csrf_hash
+        )
+
+    def permisos_de_sesion(self, sesion: SesionPersistida) -> frozenset[str]:
+        """Obtiene permisos actuales; nunca confía en datos enviados por el cliente."""
+        usuario = self._usuarios.buscar_por_id(sesion.id_usuario)
+        if usuario is None or not usuario.activo:
+            raise AutenticacionFallida("El usuario no está disponible")
+        return usuario.permisos
+
+
+class ServicioPermisos:
+    """Evalúa permisos entregados por el repositorio, sin confiar en el frontend."""
+
+    @staticmethod
+    def tiene(permisos: frozenset[str] | set[str], permiso: str) -> bool:
+        return permiso in permisos
+
+
+def preparar_hash_contrasena(contrasena: str) -> str:
+    """Punto explícito para alta o restablecimiento de credenciales web."""
+    return hash_contrasena(contrasena)

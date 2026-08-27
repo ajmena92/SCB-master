@@ -1,0 +1,744 @@
+- generic [active] [ref=f3e1]:
+  - generic [ref=f3e3]:
+    - generic [ref=f3e7]:
+      - banner [ref=f3e8]:
+        - generic [ref=f3e9]:
+          - generic [ref=f3e10]: Comedor SCSC · Administración
+          - generic [ref=f3e15]:
+            - generic [ref=f3e16]:
+              - paragraph [ref=f3e17]: Profesor de pruebas del portal
+              - generic [ref=f3e18]: Operador
+            - button [ref=f3e19] [cursor=pointer]
+      - main [ref=f3e20]:
+        - generic [ref=f3e21]:
+          - tablist [ref=f3e22]:
+            - tab "Dashboard" [ref=f3e23] [cursor=pointer]
+            - tab "Menú" [ref=f3e29] [cursor=pointer]
+            - tab "Calendario" [ref=f3e32] [cursor=pointer]
+            - tab "Sustituciones" [ref=f3e35] [cursor=pointer]
+            - tab "Estudiantes / PIN" [selected] [ref=f3e44] [cursor=pointer]
+            - tab "Parámetros" [ref=f3e50] [cursor=pointer]
+            - tab "Auditoría" [ref=f3e54] [cursor=pointer]
+            - tab "Reporte WinForms" [ref=f3e58] [cursor=pointer]
+          - tabpanel "Estudiantes / PIN" [ref=f3e287]:
+            - generic [ref=f3e288]:
+              - generic [ref=f3e289]:
+                - heading "Estudiantes y gestión de PIN" [level=2] [ref=f3e290]
+                - paragraph [ref=f3e291]: Reiniciá el PIN; el estudiante deberá cambiarlo en su próximo ingreso.
+              - generic [ref=f3e292]:
+                - generic [ref=f3e297]:
+                  - heading "Reporte de PIN por sección" [level=3] [ref=f3e298]
+                  - paragraph [ref=f3e299]: Seleccioná una sección para generar nuevos PIN temporales e imprimirlos o guardarlos como PDF.
+                - generic [ref=f3e300]:
+                  - generic [ref=f3e301]:
+                    - text: Turno
+                    - combobox "Turno" [ref=f3e302]:
+                      - option "Diurno" [selected]
+                      - option "Nocturno"
+                  - generic [ref=f3e303]:
+                    - text: Sección
+                    - combobox "Sección" [ref=f3e304]:
+                      - option "Seleccioná una sección" [selected]
+                      - option "10-1 (24)"
+                      - option "10-2 (23)"
+                      - option "10-3 (23)"
+                      - option "10-4 (27)"
+                      - option "11-1 (31)"
+                      - option "11-2 (29)"
+                      - option "11-3 (26)"
+                      - option "12-1 (28)"
+                      - option "12-2 (26)"
+                      - option "12-3 (28)"
+                      - option "7-1 (28)"
+                      - option "7-2 (28)"
+                      - option "7-3 (27)"
+                      - option "7-4 (27)"
+                      - option "7-5 (28)"
+                      - option "8-1 (27)"
+                      - option "8-2 (28)"
+                      - option "8-3 (26)"
+                      - option "8-4 (28)"
+                      - option "8-5 (28)"
+                      - option "9-1 (30)"
+                      - option "9-2 (30)"
+                      - option "9-3 (27)"
+                      - option "9-4 (27)"
+                      - option "9-5 (29)"
+                      - option "A (8)"
+                      - option "B (7)"
+                      - option "C (12)"
+                      - option "D (10)"
+                      - option "E (9)"
+                      - option "NA (119)"
+                  - button "Generar reporte" [disabled]
+              - textbox "Buscar por nombre o cédula" [ref=f3e309]
+              - table [ref=f3e312]:
+                - rowgroup [ref=f3e313]:
+                  - row [ref=f3e314]:
+                    - columnheader "Estudiante" [ref=f3e315]
+                    - columnheader "Carnet" [ref=f3e316]
+                    - columnheader "Cédula" [ref=f3e317]
+                    - columnheader "Horario" [ref=f3e318]
+                    - columnheader "Sección" [ref=f3e319]
+                    - columnheader "Ruta" [ref=f3e320]
+                    - columnheader "Beca" [ref=f3e321]
+                    - columnheader "Estado PIN" [ref=f3e322]
+                    - columnheader "Acción" [ref=f3e323]
+                - rowgroup [ref=f3e324]:
+                  - row "ABBY ALEXANDRA SANCHEZ CHANTO 120910218 DIURNO 10-4 416701 2 Debe cambiar Carnet Reiniciar PIN" [ref=f3e325]:
+                    - cell "ABBY ALEXANDRA SANCHEZ CHANTO" [ref=f3e326]
+                    - cell [ref=f3e327]:
+                      - generic "Fotografía cargada" [ref=f3e328]
+                    - cell "120910218" [ref=f3e329]
+                    - cell "DIURNO" [ref=f3e330]
+                    - cell "10-4" [ref=f3e331]
+                    - cell "416701" [ref=f3e332]
+                    - cell "2" [ref=f3e333]
+                    - cell "Debe cambiar" [ref=f3e334]
+                    - cell [ref=f3e336]:
+                      - button "Carnet" [ref=f3e337] [cursor=pointer]
+                      - button "Reiniciar PIN" [ref=f3e338] [cursor=pointer]
+                  - row "ABIGAIL FABIOLA FERNANDEZ ELIZONDO 120170960 DIURNO 12-2 1115307 2 Debe cambiar Carnet Reiniciar PIN" [ref=f3e339]:
+                    - cell "ABIGAIL FABIOLA FERNANDEZ ELIZONDO" [ref=f3e340]
+                    - cell [ref=f3e341]:
+                      - generic "Fotografía cargada" [ref=f3e342]
+                    - cell "120170960" [ref=f3e343]
+                    - cell "DIURNO" [ref=f3e344]
+                    - cell "12-2" [ref=f3e345]
+                    - cell "1115307" [ref=f3e346]
+                    - cell "2" [ref=f3e347]
+                    - cell "Debe cambiar" [ref=f3e348]
+                    - cell [ref=f3e350]:
+                      - button "Carnet" [ref=f3e351] [cursor=pointer]
+                      - button "Reiniciar PIN" [ref=f3e352] [cursor=pointer]
+                  - row "ABIGAIL LUCRECIA MORALES MORA 120140382 DIURNO 12-2 1115306 2 Debe cambiar Carnet Reiniciar PIN" [ref=f3e353]:
+                    - cell "ABIGAIL LUCRECIA MORALES MORA" [ref=f3e354]
+                    - cell [ref=f3e355]:
+                      - generic "Fotografía cargada" [ref=f3e356]
+                    - cell "120140382" [ref=f3e357]
+                    - cell "DIURNO" [ref=f3e358]
+                    - cell "12-2" [ref=f3e359]
+                    - cell "1115306" [ref=f3e360]
+                    - cell "2" [ref=f3e361]
+                    - cell "Debe cambiar" [ref=f3e362]
+                    - cell [ref=f3e364]:
+                      - button "Carnet" [ref=f3e365] [cursor=pointer]
+                      - button "Reiniciar PIN" [ref=f3e366] [cursor=pointer]
+                  - row [ref=f3e367]:
+                    - cell "ABIGAIL VILLALOBOS GARRO" [ref=f3e368]
+                    - cell [ref=f3e369]:
+                      - generic "Foto pendiente" [ref=f3e370]
+                    - cell "121690310" [ref=f3e375]
+                    - cell "DIURNO" [ref=f3e376]
+                    - cell "7-2" [ref=f3e377]
+                    - cell "0000" [ref=f3e378]
+                    - cell "1" [ref=f3e379]
+                    - cell "Debe cambiar" [ref=f3e380]
+                    - cell [ref=f3e382]:
+                      - button "Carnet" [ref=f3e383] [cursor=pointer]
+                      - button "Reiniciar PIN" [ref=f3e384] [cursor=pointer]
+                  - row "ABRAHAM ELIZONDO ARIAS 121140039 DIURNO 8-5 0000 1 Debe cambiar Carnet Reiniciar PIN" [ref=f3e385]:
+                    - cell "ABRAHAM ELIZONDO ARIAS" [ref=f3e386]
+                    - cell [ref=f3e387]:
+                      - generic "Fotografía cargada" [ref=f3e388]
+                    - cell "121140039" [ref=f3e389]
+                    - cell "DIURNO" [ref=f3e390]
+                    - cell "8-5" [ref=f3e391]
+                    - cell "0000" [ref=f3e392]
+                    - cell "1" [ref=f3e393]
+                    - cell "Debe cambiar" [ref=f3e394]
+                    - cell [ref=f3e396]:
+                      - button "Carnet" [ref=f3e397] [cursor=pointer]
+                      - button "Reiniciar PIN" [ref=f3e398] [cursor=pointer]
+                  - row [ref=f3e399]:
+                    - cell "ADELA FERNANDA SOLANO CISNEROS" [ref=f3e400]
+                    - cell [ref=f3e401]:
+                      - generic "Foto pendiente" [ref=f3e402]
+                    - cell "117760591" [ref=f3e407]
+                    - cell "SECCIÓN NOCTURNA" [ref=f3e408]
+                    - cell "11-2" [ref=f3e409]
+                    - cell "416705" [ref=f3e410]
+                    - cell "1" [ref=f3e411]
+                    - cell "Debe cambiar" [ref=f3e412]
+                    - cell [ref=f3e414]:
+                      - button "Carnet" [ref=f3e415] [cursor=pointer]
+                      - button "Reiniciar PIN" [ref=f3e416] [cursor=pointer]
+                  - row "ADEYKA YULEY GODINEZ TENORIO 121550892 DIURNO 8-5 0000 2 Debe cambiar Carnet Reiniciar PIN" [ref=f3e417]:
+                    - cell "ADEYKA YULEY GODINEZ TENORIO" [ref=f3e418]
+                    - cell [ref=f3e419]:
+                      - generic "Fotografía cargada" [ref=f3e420]
+                    - cell "121550892" [ref=f3e421]
+                    - cell "DIURNO" [ref=f3e422]
+                    - cell "8-5" [ref=f3e423]
+                    - cell "0000" [ref=f3e424]
+                    - cell "2" [ref=f3e425]
+                    - cell "Debe cambiar" [ref=f3e426]
+                    - cell [ref=f3e428]:
+                      - button "Carnet" [ref=f3e429] [cursor=pointer]
+                      - button "Reiniciar PIN" [ref=f3e430] [cursor=pointer]
+                  - row "ADIS DINARA MONTES MORA 120810964 DIURNO 10-2 0000 2 Debe cambiar Carnet Reiniciar PIN" [ref=f3e431]:
+                    - cell "ADIS DINARA MONTES MORA" [ref=f3e432]
+                    - cell [ref=f3e433]:
+                      - generic "Fotografía cargada" [ref=f3e434]
+                    - cell "120810964" [ref=f3e435]
+                    - cell "DIURNO" [ref=f3e436]
+                    - cell "10-2" [ref=f3e437]
+                    - cell "0000" [ref=f3e438]
+                    - cell "2" [ref=f3e439]
+                    - cell "Debe cambiar" [ref=f3e440]
+                    - cell [ref=f3e442]:
+                      - button "Carnet" [ref=f3e443] [cursor=pointer]
+                      - button "Reiniciar PIN" [ref=f3e444] [cursor=pointer]
+                  - row [ref=f3e445]:
+                    - cell "ADRIAN ALBERTO VINDAS FERNANDEZ" [ref=f3e446]
+                    - cell [ref=f3e447]:
+                      - generic "Foto pendiente" [ref=f3e448]
+                    - cell "118860604" [ref=f3e453]
+                    - cell "SECCIÓN NOCTURNA" [ref=f3e454]
+                    - cell "10-2" [ref=f3e455]
+                    - cell "0000" [ref=f3e456]
+                    - cell "1" [ref=f3e457]
+                    - cell "Debe cambiar" [ref=f3e458]
+                    - cell [ref=f3e460]:
+                      - button "Carnet" [ref=f3e461] [cursor=pointer]
+                      - button "Reiniciar PIN" [ref=f3e462] [cursor=pointer]
+                  - row "ADRIAN JOSE GONZALEZ JIMENEZ 121440139 DIURNO 8-1 0000 2 Debe cambiar Carnet Reiniciar PIN" [ref=f3e463]:
+                    - cell "ADRIAN JOSE GONZALEZ JIMENEZ" [ref=f3e464]
+                    - cell [ref=f3e465]:
+                      - generic "Fotografía cargada" [ref=f3e466]
+                    - cell "121440139" [ref=f3e467]
+                    - cell "DIURNO" [ref=f3e468]
+                    - cell "8-1" [ref=f3e469]
+                    - cell "0000" [ref=f3e470]
+                    - cell "2" [ref=f3e471]
+                    - cell "Debe cambiar" [ref=f3e472]
+                    - cell [ref=f3e474]:
+                      - button "Carnet" [ref=f3e475] [cursor=pointer]
+                      - button "Reiniciar PIN" [ref=f3e476] [cursor=pointer]
+                  - row "ADRIAN MIGUEL FERNANDEZ NAVARRO 121270122 DIURNO 9-3 0000 2 Debe cambiar Carnet Reiniciar PIN" [ref=f3e477]:
+                    - cell "ADRIAN MIGUEL FERNANDEZ NAVARRO" [ref=f3e478]
+                    - cell [ref=f3e479]:
+                      - generic "Fotografía cargada" [ref=f3e480]
+                    - cell "121270122" [ref=f3e481]
+                    - cell "DIURNO" [ref=f3e482]
+                    - cell "9-3" [ref=f3e483]
+                    - cell "0000" [ref=f3e484]
+                    - cell "2" [ref=f3e485]
+                    - cell "Debe cambiar" [ref=f3e486]
+                    - cell [ref=f3e488]:
+                      - button "Carnet" [ref=f3e489] [cursor=pointer]
+                      - button "Reiniciar PIN" [ref=f3e490] [cursor=pointer]
+                  - row [ref=f3e491]:
+                    - cell "ADRIANA ALENIS FERNANDEZ MUÑOZ" [ref=f3e492]
+                    - cell [ref=f3e493]:
+                      - generic "Foto pendiente" [ref=f3e494]
+                    - cell "121000626" [ref=f3e499]
+                    - cell "DIURNO" [ref=f3e500]
+                    - cell "10-2" [ref=f3e501]
+                    - cell "0000" [ref=f3e502]
+                    - cell "1" [ref=f3e503]
+                    - cell "Debe cambiar" [ref=f3e504]
+                    - cell [ref=f3e506]:
+                      - button "Carnet" [ref=f3e507] [cursor=pointer]
+                      - button "Reiniciar PIN" [ref=f3e508] [cursor=pointer]
+                  - row "ADRIANA BRIYITH ROJAS HIDALGO 121270374 DIURNO 9-2 0000 2 Debe cambiar Carnet Reiniciar PIN" [ref=f3e509]:
+                    - cell "ADRIANA BRIYITH ROJAS HIDALGO" [ref=f3e510]
+                    - cell [ref=f3e511]:
+                      - generic "Fotografía cargada" [ref=f3e512]
+                    - cell "121270374" [ref=f3e513]
+                    - cell "DIURNO" [ref=f3e514]
+                    - cell "9-2" [ref=f3e515]
+                    - cell "0000" [ref=f3e516]
+                    - cell "2" [ref=f3e517]
+                    - cell "Debe cambiar" [ref=f3e518]
+                    - cell [ref=f3e520]:
+                      - button "Carnet" [ref=f3e521] [cursor=pointer]
+                      - button "Reiniciar PIN" [ref=f3e522] [cursor=pointer]
+                  - row [ref=f3e523]:
+                    - cell "ADRIANA DE LOS ANGELES ARAYA MARIN" [ref=f3e524]
+                    - cell [ref=f3e525]:
+                      - generic "Foto pendiente" [ref=f3e526]
+                    - cell "113080031" [ref=f3e531]
+                    - cell "SECCIÓN NOCTURNA" [ref=f3e532]
+                    - cell "10-2" [ref=f3e533]
+                    - cell "0000" [ref=f3e534]
+                    - cell "1" [ref=f3e535]
+                    - cell "Debe cambiar" [ref=f3e536]
+                    - cell [ref=f3e538]:
+                      - button "Carnet" [ref=f3e539] [cursor=pointer]
+                      - button "Reiniciar PIN" [ref=f3e540] [cursor=pointer]
+                  - row "ADRIANA LUCIA ARROYO VARGAS 121860209 DIURNO 7-4 0000 2 Debe cambiar Carnet Reiniciar PIN" [ref=f3e541]:
+                    - cell "ADRIANA LUCIA ARROYO VARGAS" [ref=f3e542]
+                    - cell [ref=f3e543]:
+                      - generic "Fotografía cargada" [ref=f3e544]
+                    - cell "121860209" [ref=f3e545]
+                    - cell "DIURNO" [ref=f3e546]
+                    - cell "7-4" [ref=f3e547]
+                    - cell "0000" [ref=f3e548]
+                    - cell "2" [ref=f3e549]
+                    - cell "Debe cambiar" [ref=f3e550]
+                    - cell [ref=f3e552]:
+                      - button "Carnet" [ref=f3e553] [cursor=pointer]
+                      - button "Reiniciar PIN" [ref=f3e554] [cursor=pointer]
+                  - row "ADRIANA SOFIA APARICIO FERNANDEZ 121850551 DIURNO 7-5 0000 2 Debe cambiar Carnet Reiniciar PIN" [ref=f3e555]:
+                    - cell "ADRIANA SOFIA APARICIO FERNANDEZ" [ref=f3e556]
+                    - cell [ref=f3e557]:
+                      - generic "Fotografía cargada" [ref=f3e558]
+                    - cell "121850551" [ref=f3e559]
+                    - cell "DIURNO" [ref=f3e560]
+                    - cell "7-5" [ref=f3e561]
+                    - cell "0000" [ref=f3e562]
+                    - cell "2" [ref=f3e563]
+                    - cell "Debe cambiar" [ref=f3e564]
+                    - cell [ref=f3e566]:
+                      - button "Carnet" [ref=f3e567] [cursor=pointer]
+                      - button "Reiniciar PIN" [ref=f3e568] [cursor=pointer]
+                  - row [ref=f3e569]:
+                    - cell "AGUSTIN DE JESUS ELIZONDO BERMUDEZ" [ref=f3e570]
+                    - cell [ref=f3e571]:
+                      - generic "Foto pendiente" [ref=f3e572]
+                    - cell "120310674" [ref=f3e577]
+                    - cell "DIURNO" [ref=f3e578]
+                    - cell "12-2" [ref=f3e579]
+                    - cell "1115307" [ref=f3e580]
+                    - cell "1" [ref=f3e581]
+                    - cell "Debe cambiar" [ref=f3e582]
+                    - cell [ref=f3e584]:
+                      - button "Carnet" [ref=f3e585] [cursor=pointer]
+                      - button "Reiniciar PIN" [ref=f3e586] [cursor=pointer]
+                  - row [ref=f3e587]:
+                    - cell "AIDAM EMMANUEL ROJAS CORDERO" [ref=f3e588]
+                    - cell [ref=f3e589]:
+                      - generic "Foto pendiente" [ref=f3e590]
+                    - cell "121190476" [ref=f3e595]
+                    - cell "DIURNO" [ref=f3e596]
+                    - cell "8-3" [ref=f3e597]
+                    - cell "0000" [ref=f3e598]
+                    - cell "1" [ref=f3e599]
+                    - cell "Debe cambiar" [ref=f3e600]
+                    - cell [ref=f3e602]:
+                      - button "Carnet" [ref=f3e603] [cursor=pointer]
+                      - button "Reiniciar PIN" [ref=f3e604] [cursor=pointer]
+                  - row "AKCEL DARIEL CHACON ARAYA 120140012 DIURNO 12-3 0000 2 Debe cambiar Carnet Reiniciar PIN" [ref=f3e605]:
+                    - cell "AKCEL DARIEL CHACON ARAYA" [ref=f3e606]
+                    - cell [ref=f3e607]:
+                      - generic "Fotografía cargada" [ref=f3e608]
+                    - cell "120140012" [ref=f3e609]
+                    - cell "DIURNO" [ref=f3e610]
+                    - cell "12-3" [ref=f3e611]
+                    - cell "0000" [ref=f3e612]
+                    - cell "2" [ref=f3e613]
+                    - cell "Debe cambiar" [ref=f3e614]
+                    - cell [ref=f3e616]:
+                      - button "Carnet" [ref=f3e617] [cursor=pointer]
+                      - button "Reiniciar PIN" [ref=f3e618] [cursor=pointer]
+                  - row "AKEMY LORENA VINDAS AMADOR 120710538 DIURNO 10-4 0000 2 Debe cambiar Carnet Reiniciar PIN" [ref=f3e619]:
+                    - cell "AKEMY LORENA VINDAS AMADOR" [ref=f3e620]
+                    - cell [ref=f3e621]:
+                      - generic "Fotografía cargada" [ref=f3e622]
+                    - cell "120710538" [ref=f3e623]
+                    - cell "DIURNO" [ref=f3e624]
+                    - cell "10-4" [ref=f3e625]
+                    - cell "0000" [ref=f3e626]
+                    - cell "2" [ref=f3e627]
+                    - cell "Debe cambiar" [ref=f3e628]
+                    - cell [ref=f3e630]:
+                      - button "Carnet" [ref=f3e631] [cursor=pointer]
+                      - button "Reiniciar PIN" [ref=f3e632] [cursor=pointer]
+                  - row [ref=f3e633]:
+                    - cell "AKSANA BEITA ARRONIS" [ref=f3e634]
+                    - cell [ref=f3e635]:
+                      - generic "Foto pendiente" [ref=f3e636]
+                    - cell "120840641" [ref=f3e641]
+                    - cell "DIURNO" [ref=f3e642]
+                    - cell "10-2" [ref=f3e643]
+                    - cell "0000" [ref=f3e644]
+                    - cell "1" [ref=f3e645]
+                    - cell "Debe cambiar" [ref=f3e646]
+                    - cell [ref=f3e648]:
+                      - button "Carnet" [ref=f3e649] [cursor=pointer]
+                      - button "Reiniciar PIN" [ref=f3e650] [cursor=pointer]
+                  - row "ALANA GABRIEL HERNANDEZ VASQUEZ 119920200 DIURNO E 416713 2 Debe cambiar Carnet Reiniciar PIN" [ref=f3e651]:
+                    - cell "ALANA GABRIEL HERNANDEZ VASQUEZ" [ref=f3e652]
+                    - cell [ref=f3e653]:
+                      - generic "Fotografía cargada" [ref=f3e654]
+                    - cell "119920200" [ref=f3e655]
+                    - cell "DIURNO" [ref=f3e656]
+                    - cell "E" [ref=f3e657]
+                    - cell "416713" [ref=f3e658]
+                    - cell "2" [ref=f3e659]
+                    - cell "Debe cambiar" [ref=f3e660]
+                    - cell [ref=f3e662]:
+                      - button "Carnet" [ref=f3e663] [cursor=pointer]
+                      - button "Reiniciar PIN" [ref=f3e664] [cursor=pointer]
+                  - row [ref=f3e665]:
+                    - cell "ALBERTO BLANCO VALVERDE" [ref=f3e666]
+                    - cell [ref=f3e667]:
+                      - generic "Foto pendiente" [ref=f3e668]
+                    - cell "104420064" [ref=f3e673]
+                    - cell "DIURNO" [ref=f3e674]
+                    - cell "NA" [ref=f3e675]
+                    - cell "0000" [ref=f3e676]
+                    - cell "1" [ref=f3e677]
+                    - cell "Debe cambiar" [ref=f3e678]
+                    - cell [ref=f3e680]:
+                      - button "Carnet" [ref=f3e681] [cursor=pointer]
+                      - button "Reiniciar PIN" [ref=f3e682] [cursor=pointer]
+                  - row [ref=f3e683]:
+                    - cell "ALEJANDRA ELIZONDO JIMENEZ" [ref=f3e684]
+                    - cell [ref=f3e685]:
+                      - generic "Foto pendiente" [ref=f3e686]
+                    - cell "115040878" [ref=f3e691]
+                    - cell "DIURNO" [ref=f3e692]
+                    - cell "NA" [ref=f3e693]
+                    - cell "0000" [ref=f3e694]
+                    - cell "1" [ref=f3e695]
+                    - cell "Debe cambiar" [ref=f3e696]
+                    - cell [ref=f3e698]:
+                      - button "Carnet" [ref=f3e699] [cursor=pointer]
+                      - button "Reiniciar PIN" [ref=f3e700] [cursor=pointer]
+                  - row "ALEJANDRA MARIA ELIZONDO ARAYA 120650108 DIURNO 10-2 0000 2 Debe cambiar Carnet Reiniciar PIN" [ref=f3e701]:
+                    - cell "ALEJANDRA MARIA ELIZONDO ARAYA" [ref=f3e702]
+                    - cell [ref=f3e703]:
+                      - generic "Fotografía cargada" [ref=f3e704]
+                    - cell "120650108" [ref=f3e705]
+                    - cell "DIURNO" [ref=f3e706]
+                    - cell "10-2" [ref=f3e707]
+                    - cell "0000" [ref=f3e708]
+                    - cell "2" [ref=f3e709]
+                    - cell "Debe cambiar" [ref=f3e710]
+                    - cell [ref=f3e712]:
+                      - button "Carnet" [ref=f3e713] [cursor=pointer]
+                      - button "Reiniciar PIN" [ref=f3e714] [cursor=pointer]
+                  - row "ALEJANDRA ROJAS BRAND 121350326 DIURNO 9-3 0000 2 Debe cambiar Carnet Reiniciar PIN" [ref=f3e715]:
+                    - cell "ALEJANDRA ROJAS BRAND" [ref=f3e716]
+                    - cell [ref=f3e717]:
+                      - generic "Fotografía cargada" [ref=f3e718]
+                    - cell "121350326" [ref=f3e719]
+                    - cell "DIURNO" [ref=f3e720]
+                    - cell "9-3" [ref=f3e721]
+                    - cell "0000" [ref=f3e722]
+                    - cell "2" [ref=f3e723]
+                    - cell "Debe cambiar" [ref=f3e724]
+                    - cell [ref=f3e726]:
+                      - button "Carnet" [ref=f3e727] [cursor=pointer]
+                      - button "Reiniciar PIN" [ref=f3e728] [cursor=pointer]
+                  - row [ref=f3e729]:
+                    - cell "ALEJANDRO ANTONIO MARTINEZ RODRIGUEZ" [ref=f3e730]
+                    - cell [ref=f3e731]:
+                      - generic "Foto pendiente" [ref=f3e732]
+                    - cell "118360767" [ref=f3e737]
+                    - cell "SECCIÓN NOCTURNA" [ref=f3e738]
+                    - cell "12-2" [ref=f3e739]
+                    - cell "416705" [ref=f3e740]
+                    - cell "1" [ref=f3e741]
+                    - cell "Debe cambiar" [ref=f3e742]
+                    - cell [ref=f3e744]:
+                      - button "Carnet" [ref=f3e745] [cursor=pointer]
+                      - button "Reiniciar PIN" [ref=f3e746] [cursor=pointer]
+                  - row "ALESSANDRO JAHEL NAVARRO JIMENEZ 121860774 DIURNO 7-4 0000 2 Debe cambiar Carnet Reiniciar PIN" [ref=f3e747]:
+                    - cell "ALESSANDRO JAHEL NAVARRO JIMENEZ" [ref=f3e748]
+                    - cell [ref=f3e749]:
+                      - generic "Fotografía cargada" [ref=f3e750]
+                    - cell "121860774" [ref=f3e751]
+                    - cell "DIURNO" [ref=f3e752]
+                    - cell "7-4" [ref=f3e753]
+                    - cell "0000" [ref=f3e754]
+                    - cell "2" [ref=f3e755]
+                    - cell "Debe cambiar" [ref=f3e756]
+                    - cell [ref=f3e758]:
+                      - button "Carnet" [ref=f3e759] [cursor=pointer]
+                      - button "Reiniciar PIN" [ref=f3e760] [cursor=pointer]
+                  - row [ref=f3e761]:
+                    - cell "ALEX EMANUELL MENA ANCHIA" [ref=f3e762]
+                    - cell [ref=f3e763]:
+                      - generic "Foto pendiente" [ref=f3e764]
+                    - cell "120750121" [ref=f3e769]
+                    - cell "DIURNO" [ref=f3e770]
+                    - cell "10-3" [ref=f3e771]
+                    - cell "0000" [ref=f3e772]
+                    - cell "1" [ref=f3e773]
+                    - cell "Debe cambiar" [ref=f3e774]
+                    - cell [ref=f3e776]:
+                      - button "Carnet" [ref=f3e777] [cursor=pointer]
+                      - button "Reiniciar PIN" [ref=f3e778] [cursor=pointer]
+                  - row [ref=f3e779]:
+                    - cell "ALEX GUILLEN GARRO" [ref=f3e780]
+                    - cell [ref=f3e781]:
+                      - generic "Foto pendiente" [ref=f3e782]
+                    - cell "121250545" [ref=f3e787]
+                    - cell "DIURNO" [ref=f3e788]
+                    - cell "9-1" [ref=f3e789]
+                    - cell "0000" [ref=f3e790]
+                    - cell "1" [ref=f3e791]
+                    - cell "Debe cambiar" [ref=f3e792]
+                    - cell [ref=f3e794]:
+                      - button "Carnet" [ref=f3e795] [cursor=pointer]
+                      - button "Reiniciar PIN" [ref=f3e796] [cursor=pointer]
+                  - row [ref=f3e797]:
+                    - cell "ALEX MANUEL ARIAS JIMENEZ" [ref=f3e798]
+                    - cell [ref=f3e799]:
+                      - generic "Foto pendiente" [ref=f3e800]
+                    - cell "121320626" [ref=f3e805]
+                    - cell "DIURNO" [ref=f3e806]
+                    - cell "9-1" [ref=f3e807]
+                    - cell "0000" [ref=f3e808]
+                    - cell "1" [ref=f3e809]
+                    - cell "Debe cambiar" [ref=f3e810]
+                    - cell [ref=f3e812]:
+                      - button "Carnet" [ref=f3e813] [cursor=pointer]
+                      - button "Reiniciar PIN" [ref=f3e814] [cursor=pointer]
+                  - row "ALEX STEVEN ELIZONDO MENA 121230188 DIURNO 9-1 0000 1 Debe cambiar Carnet Reiniciar PIN" [ref=f3e815]:
+                    - cell "ALEX STEVEN ELIZONDO MENA" [ref=f3e816]
+                    - cell [ref=f3e817]:
+                      - generic "Fotografía cargada" [ref=f3e818]
+                    - cell "121230188" [ref=f3e819]
+                    - cell "DIURNO" [ref=f3e820]
+                    - cell "9-1" [ref=f3e821]
+                    - cell "0000" [ref=f3e822]
+                    - cell "1" [ref=f3e823]
+                    - cell "Debe cambiar" [ref=f3e824]
+                    - cell [ref=f3e826]:
+                      - button "Carnet" [ref=f3e827] [cursor=pointer]
+                      - button "Reiniciar PIN" [ref=f3e828] [cursor=pointer]
+                  - row "ALEX XAVIER FERNANDEZ QUIROS 121310548 DIURNO 9-4 0000 2 Debe cambiar Carnet Reiniciar PIN" [ref=f3e829]:
+                    - cell "ALEX XAVIER FERNANDEZ QUIROS" [ref=f3e830]
+                    - cell [ref=f3e831]:
+                      - generic "Fotografía cargada" [ref=f3e832]
+                    - cell "121310548" [ref=f3e833]
+                    - cell "DIURNO" [ref=f3e834]
+                    - cell "9-4" [ref=f3e835]
+                    - cell "0000" [ref=f3e836]
+                    - cell "2" [ref=f3e837]
+                    - cell "Debe cambiar" [ref=f3e838]
+                    - cell [ref=f3e840]:
+                      - button "Carnet" [ref=f3e841] [cursor=pointer]
+                      - button "Reiniciar PIN" [ref=f3e842] [cursor=pointer]
+                  - row "ALEXA DE LOS ANGELES ARAYA ARRIETA 121560536 DIURNO 8-2 0000 2 Debe cambiar Carnet Reiniciar PIN" [ref=f3e843]:
+                    - cell "ALEXA DE LOS ANGELES ARAYA ARRIETA" [ref=f3e844]
+                    - cell [ref=f3e845]:
+                      - generic "Fotografía cargada" [ref=f3e846]
+                    - cell "121560536" [ref=f3e847]
+                    - cell "DIURNO" [ref=f3e848]
+                    - cell "8-2" [ref=f3e849]
+                    - cell "0000" [ref=f3e850]
+                    - cell "2" [ref=f3e851]
+                    - cell "Debe cambiar" [ref=f3e852]
+                    - cell [ref=f3e854]:
+                      - button "Carnet" [ref=f3e855] [cursor=pointer]
+                      - button "Reiniciar PIN" [ref=f3e856] [cursor=pointer]
+                  - row "ALEXA MARIANA HIDALGO VARGAS 121070336 DIURNO 9-5 0000 2 Debe cambiar Carnet Reiniciar PIN" [ref=f3e857]:
+                    - cell "ALEXA MARIANA HIDALGO VARGAS" [ref=f3e858]
+                    - cell [ref=f3e859]:
+                      - generic "Fotografía cargada" [ref=f3e860]
+                    - cell "121070336" [ref=f3e861]
+                    - cell "DIURNO" [ref=f3e862]
+                    - cell "9-5" [ref=f3e863]
+                    - cell "0000" [ref=f3e864]
+                    - cell "2" [ref=f3e865]
+                    - cell "Debe cambiar" [ref=f3e866]
+                    - cell [ref=f3e868]:
+                      - button "Carnet" [ref=f3e869] [cursor=pointer]
+                      - button "Reiniciar PIN" [ref=f3e870] [cursor=pointer]
+                  - row [ref=f3e871]:
+                    - cell "ALEXANDER ALBERTO DE SEGURA CASTRO" [ref=f3e872]
+                    - cell [ref=f3e873]:
+                      - generic "Foto pendiente" [ref=f3e874]
+                    - cell "107770446" [ref=f3e879]
+                    - cell "DIURNO" [ref=f3e880]
+                    - cell "NA" [ref=f3e881]
+                    - cell "0000" [ref=f3e882]
+                    - cell "1" [ref=f3e883]
+                    - cell "Debe cambiar" [ref=f3e884]
+                    - cell [ref=f3e886]:
+                      - button "Carnet" [ref=f3e887] [cursor=pointer]
+                      - button "Reiniciar PIN" [ref=f3e888] [cursor=pointer]
+                  - row "ALEXANDER MOISES MORA AGUERO 120450074 DIURNO 11-3 0000 2 Debe cambiar Carnet Reiniciar PIN" [ref=f3e889]:
+                    - cell "ALEXANDER MOISES MORA AGUERO" [ref=f3e890]
+                    - cell [ref=f3e891]:
+                      - generic "Fotografía cargada" [ref=f3e892]
+                    - cell "120450074" [ref=f3e893]
+                    - cell "DIURNO" [ref=f3e894]
+                    - cell "11-3" [ref=f3e895]
+                    - cell "0000" [ref=f3e896]
+                    - cell "2" [ref=f3e897]
+                    - cell "Debe cambiar" [ref=f3e898]
+                    - cell [ref=f3e900]:
+                      - button "Carnet" [ref=f3e901] [cursor=pointer]
+                      - button "Reiniciar PIN" [ref=f3e902] [cursor=pointer]
+                  - row "ALEXANDRA MONTERO VARGAS 121370805 DIURNO 8-4 0000 2 Debe cambiar Carnet Reiniciar PIN" [ref=f3e903]:
+                    - cell "ALEXANDRA MONTERO VARGAS" [ref=f3e904]
+                    - cell [ref=f3e905]:
+                      - generic "Fotografía cargada" [ref=f3e906]
+                    - cell "121370805" [ref=f3e907]
+                    - cell "DIURNO" [ref=f3e908]
+                    - cell "8-4" [ref=f3e909]
+                    - cell "0000" [ref=f3e910]
+                    - cell "2" [ref=f3e911]
+                    - cell "Debe cambiar" [ref=f3e912]
+                    - cell [ref=f3e914]:
+                      - button "Carnet" [ref=f3e915] [cursor=pointer]
+                      - button "Reiniciar PIN" [ref=f3e916] [cursor=pointer]
+                  - row [ref=f3e917]:
+                    - cell "ALEXANDRA VARGAS GUTIERREZ" [ref=f3e918]
+                    - cell [ref=f3e919]:
+                      - generic "Foto pendiente" [ref=f3e920]
+                    - cell "503130248" [ref=f3e925]
+                    - cell "DIURNO" [ref=f3e926]
+                    - cell "NA" [ref=f3e927]
+                    - cell "0000" [ref=f3e928]
+                    - cell "1" [ref=f3e929]
+                    - cell "Debe cambiar" [ref=f3e930]
+                    - cell [ref=f3e932]:
+                      - button "Carnet" [ref=f3e933] [cursor=pointer]
+                      - button "Reiniciar PIN" [ref=f3e934] [cursor=pointer]
+                  - row "ALEXANDRO MORA MORALES 120260821 DIURNO 12-1 0000 2 Debe cambiar Carnet Reiniciar PIN" [ref=f3e935]:
+                    - cell "ALEXANDRO MORA MORALES" [ref=f3e936]
+                    - cell [ref=f3e937]:
+                      - generic "Fotografía cargada" [ref=f3e938]
+                    - cell "120260821" [ref=f3e939]
+                    - cell "DIURNO" [ref=f3e940]
+                    - cell "12-1" [ref=f3e941]
+                    - cell "0000" [ref=f3e942]
+                    - cell "2" [ref=f3e943]
+                    - cell "Debe cambiar" [ref=f3e944]
+                    - cell [ref=f3e946]:
+                      - button "Carnet" [ref=f3e947] [cursor=pointer]
+                      - button "Reiniciar PIN" [ref=f3e948] [cursor=pointer]
+                  - row "ALEXIA LUCIA ROJAS MARIN 121790921 DIURNO 7-1 0000 2 Debe cambiar Carnet Reiniciar PIN" [ref=f3e949]:
+                    - cell "ALEXIA LUCIA ROJAS MARIN" [ref=f3e950]
+                    - cell [ref=f3e951]:
+                      - generic "Fotografía cargada" [ref=f3e952]
+                    - cell "121790921" [ref=f3e953]
+                    - cell "DIURNO" [ref=f3e954]
+                    - cell "7-1" [ref=f3e955]
+                    - cell "0000" [ref=f3e956]
+                    - cell "2" [ref=f3e957]
+                    - cell "Debe cambiar" [ref=f3e958]
+                    - cell [ref=f3e960]:
+                      - button "Carnet" [ref=f3e961] [cursor=pointer]
+                      - button "Reiniciar PIN" [ref=f3e962] [cursor=pointer]
+                  - row "ALEXIA SOFIA SANCHEZ HIDALGO 121850465 DIURNO 7-5 0000 2 Debe cambiar Carnet Reiniciar PIN" [ref=f3e963]:
+                    - cell "ALEXIA SOFIA SANCHEZ HIDALGO" [ref=f3e964]
+                    - cell [ref=f3e965]:
+                      - generic "Fotografía cargada" [ref=f3e966]
+                    - cell "121850465" [ref=f3e967]
+                    - cell "DIURNO" [ref=f3e968]
+                    - cell "7-5" [ref=f3e969]
+                    - cell "0000" [ref=f3e970]
+                    - cell "2" [ref=f3e971]
+                    - cell "Debe cambiar" [ref=f3e972]
+                    - cell [ref=f3e974]:
+                      - button "Carnet" [ref=f3e975] [cursor=pointer]
+                      - button "Reiniciar PIN" [ref=f3e976] [cursor=pointer]
+                  - row [ref=f3e977]:
+                    - cell "ALEXIS DE LOS ANGELES GARRO DIAZ" [ref=f3e978]
+                    - cell [ref=f3e979]:
+                      - generic "Foto pendiente" [ref=f3e980]
+                    - cell "105430081" [ref=f3e985]
+                    - cell "DIURNO" [ref=f3e986]
+                    - cell "NA" [ref=f3e987]
+                    - cell "0000" [ref=f3e988]
+                    - cell "1" [ref=f3e989]
+                    - cell "Debe cambiar" [ref=f3e990]
+                    - cell [ref=f3e992]:
+                      - button "Carnet" [ref=f3e993] [cursor=pointer]
+                      - button "Reiniciar PIN" [ref=f3e994] [cursor=pointer]
+                  - row "ALISON DE LOS ANGELES CRUZ CORDERO 121100139 DIURNO 9-1 0000 2 Debe cambiar Carnet Reiniciar PIN" [ref=f3e995]:
+                    - cell "ALISON DE LOS ANGELES CRUZ CORDERO" [ref=f3e996]
+                    - cell [ref=f3e997]:
+                      - generic "Fotografía cargada" [ref=f3e998]
+                    - cell "121100139" [ref=f3e999]
+                    - cell "DIURNO" [ref=f3e1000]
+                    - cell "9-1" [ref=f3e1001]
+                    - cell "0000" [ref=f3e1002]
+                    - cell "2" [ref=f3e1003]
+                    - cell "Debe cambiar" [ref=f3e1004]
+                    - cell [ref=f3e1006]:
+                      - button "Carnet" [ref=f3e1007] [cursor=pointer]
+                      - button "Reiniciar PIN" [ref=f3e1008] [cursor=pointer]
+                  - row "ALISON JARIELA QUESADA CALDERON 120270903 DIURNO 12-1 1115308 2 Debe cambiar Carnet Reiniciar PIN" [ref=f3e1009]:
+                    - cell "ALISON JARIELA QUESADA CALDERON" [ref=f3e1010]
+                    - cell [ref=f3e1011]:
+                      - generic "Fotografía cargada" [ref=f3e1012]
+                    - cell "120270903" [ref=f3e1013]
+                    - cell "DIURNO" [ref=f3e1014]
+                    - cell "12-1" [ref=f3e1015]
+                    - cell "1115308" [ref=f3e1016]
+                    - cell "2" [ref=f3e1017]
+                    - cell "Debe cambiar" [ref=f3e1018]
+                    - cell [ref=f3e1020]:
+                      - button "Carnet" [ref=f3e1021] [cursor=pointer]
+                      - button "Reiniciar PIN" [ref=f3e1022] [cursor=pointer]
+                  - row "ALISON JIMENA JIMENEZ VARGAS 120190841 DIURNO 12-1 5371 2 Debe cambiar Carnet Reiniciar PIN" [ref=f3e1023]:
+                    - cell "ALISON JIMENA JIMENEZ VARGAS" [ref=f3e1024]
+                    - cell [ref=f3e1025]:
+                      - generic "Fotografía cargada" [ref=f3e1026]
+                    - cell "120190841" [ref=f3e1027]
+                    - cell "DIURNO" [ref=f3e1028]
+                    - cell "12-1" [ref=f3e1029]
+                    - cell "5371" [ref=f3e1030]
+                    - cell "2" [ref=f3e1031]
+                    - cell "Debe cambiar" [ref=f3e1032]
+                    - cell [ref=f3e1034]:
+                      - button "Carnet" [ref=f3e1035] [cursor=pointer]
+                      - button "Reiniciar PIN" [ref=f3e1036] [cursor=pointer]
+                  - row [ref=f3e1037]:
+                    - cell "ALISON VALERIA VILLALOBOS ARIAS" [ref=f3e1038]
+                    - cell [ref=f3e1039]:
+                      - generic "Foto pendiente" [ref=f3e1040]
+                    - cell "605140410" [ref=f3e1045]
+                    - cell "DIURNO" [ref=f3e1046]
+                    - cell "12-2" [ref=f3e1047]
+                    - cell "1115306" [ref=f3e1048]
+                    - cell "1" [ref=f3e1049]
+                    - cell "Debe cambiar" [ref=f3e1050]
+                    - cell [ref=f3e1052]:
+                      - button "Carnet" [ref=f3e1053] [cursor=pointer]
+                      - button "Reiniciar PIN" [ref=f3e1054] [cursor=pointer]
+                  - row "ALISSON CAMILA GONZALEZ VARELA 121180901 DIURNO 9-4 0000 1 Debe cambiar Carnet Reiniciar PIN" [ref=f3e1055]:
+                    - cell "ALISSON CAMILA GONZALEZ VARELA" [ref=f3e1056]
+                    - cell [ref=f3e1057]:
+                      - generic "Fotografía cargada" [ref=f3e1058]
+                    - cell "121180901" [ref=f3e1059]
+                    - cell "DIURNO" [ref=f3e1060]
+                    - cell "9-4" [ref=f3e1061]
+                    - cell "0000" [ref=f3e1062]
+                    - cell "1" [ref=f3e1063]
+                    - cell "Debe cambiar" [ref=f3e1064]
+                    - cell [ref=f3e1066]:
+                      - button "Carnet" [ref=f3e1067] [cursor=pointer]
+                      - button "Reiniciar PIN" [ref=f3e1068] [cursor=pointer]
+                  - row [ref=f3e1069]:
+                    - cell "ALISSON LEONELA CASTRO CORDERO" [ref=f3e1070]
+                    - cell [ref=f3e1071]:
+                      - generic "Foto pendiente" [ref=f3e1072]
+                    - cell "120640334" [ref=f3e1077]
+                    - cell "DIURNO" [ref=f3e1078]
+                    - cell "11-2" [ref=f3e1079]
+                    - cell "0000" [ref=f3e1080]
+                    - cell "2" [ref=f3e1081]
+                    - cell "Debe cambiar" [ref=f3e1082]
+                    - cell [ref=f3e1084]:
+                      - button "Carnet" [ref=f3e1085] [cursor=pointer]
+                      - button "Reiniciar PIN" [ref=f3e1086] [cursor=pointer]
+                  - row "ALLAN FABRICIO VARGAS UREÑA 120280201 DIURNO 12-1 1115309 2 Debe cambiar Carnet Reiniciar PIN" [ref=f3e1087]:
+                    - cell "ALLAN FABRICIO VARGAS UREÑA" [ref=f3e1088]
+                    - cell [ref=f3e1089]:
+                      - generic "Fotografía cargada" [ref=f3e1090]
+                    - cell "120280201" [ref=f3e1091]
+                    - cell "DIURNO" [ref=f3e1092]
+                    - cell "12-1" [ref=f3e1093]
+                    - cell "1115309" [ref=f3e1094]
+                    - cell "2" [ref=f3e1095]
+                    - cell "Debe cambiar" [ref=f3e1096]
+                    - cell [ref=f3e1098]:
+                      - button "Carnet" [ref=f3e1099] [cursor=pointer]
+                      - button "Reiniciar PIN" [ref=f3e1100] [cursor=pointer]
+              - generic [ref=f3e1101]:
+                - generic [ref=f3e1102]: 1093 estudiante(s) · Página 1 de 22
+                - generic [ref=f3e1103]:
+                  - button "Anterior" [disabled]
+                  - button "Siguiente" [ref=f3e1104] [cursor=pointer]
+    - region "Notifications alt+T"
+  - generic [ref=f3e286]: "1"
