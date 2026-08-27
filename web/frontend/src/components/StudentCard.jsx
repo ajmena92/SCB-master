@@ -83,13 +83,13 @@ function routeTextColor(color) {
 }
 
 function HtmlStudentCard({ data, hasPhoto }) {
-  const student = data.estudiante || {};
-  const routeColor = safeRouteColor(student.RutaColor);
+  const student = data || {};
+  const routeColor = safeRouteColor(student.rutaColor);
   const headerText = routeTextColor(routeColor);
-  const fullName = [student.Nombre, student.PrimerApellido, student.SegundoApellido]
+  const fullName = [student.nombre, student.primerApellido, student.segundoApellido]
     .filter(Boolean)
     .join(" ");
-  const photoUrl = `/api/student/foto?v=${student.IdUsuario || "student"}`;
+  const photoUrl = `/api/v1/estudiantes/carnet/foto?v=${student.idEstudiante || "student"}`;
 
   return (
     <div
@@ -142,27 +142,27 @@ function HtmlStudentCard({ data, hasPhoto }) {
             <p className="text-[0.62rem] font-black uppercase tracking-wider text-muted-foreground">
               Cédula
             </p>
-            <p className="mt-1 font-bold">{student.Cedula || "Pendiente"}</p>
+            <p className="mt-1 font-bold">{student.cedula || "Pendiente"}</p>
           </div>
           <div>
             <p className="text-[0.62rem] font-black uppercase tracking-wider text-muted-foreground">
               Sección
             </p>
-            <p className="mt-1 font-bold">{student.Seccion || "Sin sección"}</p>
+            <p className="mt-1 font-bold">{student.seccion || "Sin sección"}</p>
           </div>
           <div>
             <p className="text-[0.62rem] font-black uppercase tracking-wider text-muted-foreground">
               Ruta
             </p>
             <p className="mt-1 font-bold">
-              {student.RutaDescripcion || student.RutaCodigo || "Sin ruta"}
+              {student.rutaDescripcion || student.rutaCodigo || "Sin ruta"}
             </p>
           </div>
           <div>
             <p className="text-[0.62rem] font-black uppercase tracking-wider text-muted-foreground">
               Beneficio
             </p>
-            <p className="mt-1 font-bold">{student.TipoBecaDescripcion || "Sin beca"}</p>
+            <p className="mt-1 font-bold">{student.tipoBeca || "Sin beca"}</p>
           </div>
         </div>
         <div
@@ -190,10 +190,10 @@ export function StudentCardPreview({
 }) {
   const [version] = useState(() => Date.now());
   const photoAvailable = studentId ? hasPhoto : (hasPhoto ?? Boolean(cardData?.tieneFoto));
-  const base = studentId ? `/api/v1/estudiantes/${studentId}` : "/api/student";
+  const base = studentId ? `/api/v1/estudiantes/${studentId}` : "/api/v1/estudiantes";
   // El contrato canónico entrega la fotografía como imagen y el carnet como PDF.
-  const png = studentId ? `${base}/foto?v=${version}` : `${base}/carnet.png?v=${version}`;
-  const pdf = studentId ? `${base}/carnet.pdf` : `${base}/carnet.pdf`;
+  const png = studentId ? `${base}/foto?v=${version}` : null;
+  const pdf = studentId ? `${base}/carnet.pdf` : "/api/v1/estudiantes/carnet.pdf";
 
   return (
     <section
@@ -248,11 +248,11 @@ export function StudentCardPreview({
         <HtmlStudentCard data={cardData} hasPhoto={photoAvailable} />
       )}
       <div className="mt-4 flex flex-wrap gap-2">
-        <Button asChild className="rounded-full">
+        {png && <Button asChild className="rounded-full">
           <a href={png} download>
             <Download className="mr-2 h-4 w-4" /> Descargar PNG
           </a>
-        </Button>
+        </Button>}
         <Button asChild variant="outline" className="rounded-full">
           <a href={pdf} download>
             <Download className="mr-2 h-4 w-4" /> Descargar PDF

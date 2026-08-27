@@ -82,3 +82,13 @@ def test_rutas_literales_preceden_a_parametros_dinamicos() -> None:
     )
     rutas = [r.path for r in router.routes if isinstance(r, APIRoute)]
     assert rutas.index("/estudiantes/secciones") < rutas.index("/estudiantes/{id_estudiante}/perfil")
+
+
+def test_carnet_expone_contrato_canonico_y_descargas_sin_rutas_historicas() -> None:
+    fuente = inspect.getsource(crear_enrutador_operaciones)
+    assert '"idEstudiante"' in fuente
+    assert '"primerApellido"' in fuente
+    assert '"rutaDescripcion"' in fuente
+    assert '"/carnet.pdf"' in fuente
+    assert '"/carnet/foto"' in fuente
+    assert "/api/student" not in fuente
