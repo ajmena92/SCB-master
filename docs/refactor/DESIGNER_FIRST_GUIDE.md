@@ -90,7 +90,7 @@ Para formularios críticos (`LOGIN`, `FrmSeguridadRBAC`) se aplica modo estricto
 
 ## Alcance
 Este modo aplica a:
-- `SCSC/Seguridad/*`
-- `SCSC/Formularios/*`
-- `SCSC/Reportes/Parametros/*`
+- `escritorio/SCSC/Seguridad/*`
+- `escritorio/SCSC/Formularios/*`
+- `escritorio/SCSC/Reportes/Parametros/*`
 - Cualquier formulario WinForms agregado en adelante.

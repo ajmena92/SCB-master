@@ -1,0 +1,8 @@
+{
+  "archivos_largos_exentos": [
+    "frontend/src/components/admin/EstudiantesTab.jsx",
+    "frontend/src/pages/StudentPortal.jsx",
+    "frontend/src/pages/StudentPortal.test.jsx"
+  ],
+  "terminos_ingleses_propios_permitidos": []
+}

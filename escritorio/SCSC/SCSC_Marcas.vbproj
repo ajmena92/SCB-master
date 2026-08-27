@@ -1,0 +1,612 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="12.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{FA5E9C39-1E29-4A99-8590-8D4501BF29EF}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <StartupObject>SCSC.My.MyApplication</StartupObject>
+    <RootNamespace>SCSC</RootNamespace>
+    <AssemblyName>SCSC_Marcas</AssemblyName>
+    <MyType>WindowsForms</MyType>
+    <SccProjectName>
+    </SccProjectName>
+    <SccLocalPath>
+    </SccLocalPath>
+    <SccAuxPath>
+    </SccAuxPath>
+    <SccProvider>
+    </SccProvider>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>2.0</OldToolsVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <TargetFrameworkProfile />
+    <PublishUrl>C:\Users\ajmen\Documents\Aplicacion de Control Marcas\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <AutorunEnabled>true</AutorunEnabled>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <DefineDebug>true</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <BaseIntermediateOutputPath>obj\AnyCPU\</BaseIntermediateOutputPath>
+    <IntermediateOutputPath>obj\AnyCPU\Debug\</IntermediateOutputPath>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DocumentationFile>SCSC_Marcas.xml</DocumentationFile>
+    <PlatformTarget>x64</PlatformTarget>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <DefineDebug>false</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <Optimize>true</Optimize>
+    <BaseIntermediateOutputPath>obj\AnyCPU\</BaseIntermediateOutputPath>
+    <IntermediateOutputPath>obj\AnyCPU\Release\</IntermediateOutputPath>
+    <OutputPath>bin\Release\</OutputPath>
+    <DocumentationFile>SCSC_Marcas.xml</DocumentationFile>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>logo.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup>
+    <TargetZone>LocalIntranet</TargetZone>
+  </PropertyGroup>
+  <PropertyGroup>
+    <GenerateManifests>false</GenerateManifests>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>My Project\app.manifest</ApplicationManifest>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <PlatformTarget>x86</PlatformTarget>
+    <BaseIntermediateOutputPath>obj\x86\</BaseIntermediateOutputPath>
+    <IntermediateOutputPath>obj\x86\Debug\</IntermediateOutputPath>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <Prefer32Bit>false</Prefer32Bit>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <PlatformTarget>x86</PlatformTarget>
+    <BaseIntermediateOutputPath>obj\x86\</BaseIntermediateOutputPath>
+    <IntermediateOutputPath>obj\x86\Release\</IntermediateOutputPath>
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <Prefer32Bit>false</Prefer32Bit>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <PlatformTarget>x64</PlatformTarget>
+    <BaseIntermediateOutputPath>obj\x64\</BaseIntermediateOutputPath>
+    <IntermediateOutputPath>obj\x64\Debug\</IntermediateOutputPath>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <Prefer32Bit>false</Prefer32Bit>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <PlatformTarget>x64</PlatformTarget>
+    <BaseIntermediateOutputPath>obj\x64\</BaseIntermediateOutputPath>
+    <IntermediateOutputPath>obj\x64\Release\</IntermediateOutputPath>
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <Prefer32Bit>false</Prefer32Bit>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="CrystalDecisions.CrystalReports.Engine, Version=13.0.4000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=MSIL" />
+    <Reference Include="CrystalDecisions.ReportSource, Version=13.0.4000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=MSIL" />
+    <Reference Include="CrystalDecisions.Shared, Version=13.0.4000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=MSIL" />
+    <Reference Include="CrystalDecisions.Windows.Forms, Version=13.0.4000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=MSIL" />
+    <Reference Include="DocumentFormat.OpenXml">
+      <HintPath>..\packages\DocumentFormat.OpenXml.3.4.1\lib\net46\DocumentFormat.OpenXml.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="DocumentFormat.OpenXml.Framework">
+      <HintPath>..\packages\DocumentFormat.OpenXml.Framework.3.4.1\lib\net46\DocumentFormat.OpenXml.Framework.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Import Include="Microsoft.VisualBasic" />
+    <Import Include="System" />
+    <Import Include="System.Collections" />
+    <Import Include="System.Collections.Generic" />
+    <Import Include="System.Data" />
+    <Import Include="System.Drawing" />
+    <Import Include="System.Diagnostics" />
+    <Import Include="System.Windows.Forms" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Busqueda.designer.vb">
+      <DependentUpon>Busqueda.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Busqueda.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Clases\AppRuntimeSupport.vb" />
+    <Compile Include="Clases\CrystalReportCatalog.vb" />
+    <Compile Include="Clases\DeploymentBootstrapper.vb" />
+    <Compile Include="Clases\DeploymentConfigService.vb" />
+    <Compile Include="Clases\DashboardContracts.vb" />
+    <Compile Include="Clases\CodigoGeneral.vb" />
+    <Compile Include="Clases\CrudFormBase.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Clases\CrudOperationHelper.vb" />
+    <Compile Include="Clases\CrudVisualHelper.vb" />
+    <Compile Include="Clases\ErrorLogger.vb" />
+    <Compile Include="Clases\FunctionCallDelegate.vb" />
+    <Compile Include="Clases\OperativeDialogHelper.vb" />
+    <Compile Include="Clases\OperativeUiHelper.vb" />
+    <Compile Include="Clases\ServerClock.vb" />
+    <Compile Include="Clases\UIConstants.vb" />
+    <Compile Include="Clases\BrandTypography.vb" />
+    <Compile Include="Clases\UIComponentFactory.vb" />
+    <Compile Include="Clases\UIThemeManagerV2.vb" />
+    <Compile Include="Clases\UIShellHost.vb" />
+    <Compile Include="Clases\UIShellHost.Refresh.vb" />
+    <Compile Include="Clases\Encriptacion64.vb" />
+    <Compile Include="Clases\LBItem.vb" />
+    <Compile Include="Clases\ReportRequest.vb" />
+    <Compile Include="Clases\SearchRequest.vb" />
+    <Compile Include="Clases\SearchDialogHelper.vb" />
+    <Compile Include="Clases\SeguridadPermisosSistema.vb" />
+    <Compile Include="Clases\LicenseService.vb" />
+    <Compile Include="Clases\FunccionesDB.vb" />
+    <Compile Include="Clases\Servicios\ComedorDataService.vb" />
+    <Compile Include="Clases\Servicios\ComedorOperacionService.vb" />
+    <Compile Include="Clases\Servicios\DashboardDataService.vb" />
+    <Compile Include="Clases\Servicios\ImportacionExcelEtlService.vb" />
+    <Compile Include="Clases\Servicios\ImportacionExcelService.vb" />
+    <Compile Include="Clases\Servicios\ParametroSistemaService.vb" />
+    <Compile Include="Clases\Servicios\RecargaService.vb" />
+    <Compile Include="Clases\Servicios\SeguridadRbacService.vb" />
+    <Compile Include="Clases\Servicios\TransporteDataService.vb" />
+    <Compile Include="Clases\Servicios\TransporteOperacionService.vb" />
+    <Compile Include="Formularios\ControlTransporte.Designer.vb">
+      <DependentUpon>ControlTransporte.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Formularios\ControlTransporte.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Formularios\ControlComedor.Designer.vb">
+      <DependentUpon>ControlComedor.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Formularios\ControlComedor.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Formularios\FrmAyuda.Designer.vb">
+      <DependentUpon>FrmAyuda.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Formularios\FrmAyuda.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Formularios\FrmAgregarEstudiante.Designer.vb">
+      <DependentUpon>FrmAgregarEstudiante.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Formularios\FrmAgregarEstudiante.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Formularios\FrmEstudiantes.Designer.vb">
+      <DependentUpon>FrmEstudiantes.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Formularios\FrmEstudiantes.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Formularios\FrmImportarExcel.designer.vb">
+      <DependentUpon>FrmImportarExcel.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Formularios\FrmImportarExcel.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Formularios\FrmParametrosSistema.Designer.vb">
+      <DependentUpon>FrmParametrosSistema.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Formularios\FrmParametrosSistema.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Formularios\FrmBecas.designer.vb">
+      <DependentUpon>FrmBecas.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Formularios\FrmBecas.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Formularios\FrmRutas.designer.vb">
+      <DependentUpon>FrmRutas.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Formularios\FrmRutas.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Formularios\FrmRecargas.designer.vb">
+      <DependentUpon>FrmRecargas.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Formularios\FrmRecargas.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Formularios\FrmCambiarContrasenaUsuarioModal.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Formularios\FrmSeguridadRBAC.Designer.vb">
+      <DependentUpon>FrmSeguridadRBAC.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Formularios\FrmSeguridadRBAC.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Formularios\FrmRolRbacModal.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Formularios\FrmUsuarioRbacModal.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Formularios\FrmDeploymentSetup.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Formularios\IMPRIMIR.Designer.vb">
+      <DependentUpon>IMPRIMIR.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Formularios\IMPRIMIR.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmPrincipal.Designer.vb">
+      <DependentUpon>FrmPrincipal.vb</DependentUpon>
+    </Compile>
+    <Compile Include="FrmPrincipal.vb" />
+    <Compile Include="FrmPrincipal.DashboardRefresh.vb">
+      <DependentUpon>FrmPrincipal.vb</DependentUpon>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="My Project\AssemblyInfo.vb" />
+    <Compile Include="My Project\Application.Designer.vb">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Application.myapp</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="My Project\Resources.Designer.vb">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="My Project\Settings.Designer.vb">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <Compile Include="Clases\VariablesGlobales.vb" />
+    <Compile Include="Reportes\FrmReportViewer.designer.vb">
+      <DependentUpon>FrmReportViewer.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Reportes\FrmReportViewer.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Reportes\Parametros\FrmBecados.Designer.vb">
+      <DependentUpon>FrmBecados.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Reportes\Parametros\FrmBecados.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Reportes\Parametros\FrmProyeccionComedor.Designer.vb">
+      <DependentUpon>FrmProyeccionComedor.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Reportes\Parametros\FrmProyeccionComedor.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Reportes\Parametros\FrmReporteRutas.Designer.vb">
+      <DependentUpon>FrmReporteRutas.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Reportes\Parametros\FrmReporteRutas.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Reportes\Parametros\FrmReporteComedor.Designer.vb">
+      <DependentUpon>FrmReporteComedor.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Reportes\Parametros\FrmReporteComedor.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Reportes\Rpt\RptBecadosComedor.vb">
+      <DependentUpon>RptBecadosComedor.rpt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <SubType>Component</SubType>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Reportes\Rpt\RptBecadosTransporteDetallado.vb">
+      <DependentUpon>RptBecadosTransporteDetallado.rpt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <SubType>Component</SubType>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Reportes\Rpt\RptFechaComedor.vb">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>RptFechaComedor.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Reportes\Rpt\RptBecadosTransporte.vb">
+      <DependentUpon>RptBecadosTransporte.rpt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <SubType>Component</SubType>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Reportes\Rpt\RptRuta_detallado.vb">
+      <DependentUpon>RptRuta_detallado.rpt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <SubType>Component</SubType>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Reportes\Rpt\RptProyecionComedor.vb">
+      <DependentUpon>RptProyecionComedor.rpt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <SubType>Component</SubType>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Reportes\Rpt\RptRuta_general.vb">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>RptRuta_general.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Seguridad\LOGIN.designer.vb">
+      <DependentUpon>LOGIN.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Seguridad\LOGIN.vb">
+      <SubType>Form</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Busqueda.resx">
+      <DependentUpon>Busqueda.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Formularios\ControlTransporte.resx">
+      <DependentUpon>ControlTransporte.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Formularios\ControlComedor.resx">
+      <DependentUpon>ControlComedor.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Formularios\FrmAyuda.resx">
+      <DependentUpon>FrmAyuda.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Formularios\FrmAgregarEstudiante.resx">
+      <DependentUpon>FrmAgregarEstudiante.vb</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Formularios\FrmEstudiantes.resx">
+      <DependentUpon>FrmEstudiantes.vb</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Formularios\FrmImportarExcel.resx">
+      <DependentUpon>FrmImportarExcel.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Formularios\FrmBecas.resx">
+      <DependentUpon>FrmBecas.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Formularios\FrmRutas.resx">
+      <DependentUpon>FrmRutas.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Formularios\FrmRecargas.resx">
+      <DependentUpon>FrmRecargas.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Formularios\FrmSeguridadRBAC.resx">
+      <DependentUpon>FrmSeguridadRBAC.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Formularios\IMPRIMIR.resx">
+      <DependentUpon>IMPRIMIR.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrmPrincipal.resx">
+      <DependentUpon>FrmPrincipal.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="My Project\Resources.resx">
+      <Generator>VbMyResourcesResXFileCodeGenerator</Generator>
+      <CustomToolNamespace>My.Resources</CustomToolNamespace>
+      <SubType>Designer</SubType>
+      <LastGenOutput>Resources.Designer.vb</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Reportes\FrmReportViewer.resx">
+      <DependentUpon>FrmReportViewer.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Reportes\Parametros\FrmBecados.resx">
+      <DependentUpon>FrmBecados.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Reportes\Parametros\FrmProyeccionComedor.resx">
+      <DependentUpon>FrmProyeccionComedor.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Reportes\Parametros\FrmReporteRutas.resx">
+      <DependentUpon>FrmReporteRutas.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Reportes\Parametros\FrmReporteComedor.resx">
+      <DependentUpon>FrmReporteComedor.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Reportes\Rpt\RptBecadosComedor.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>RptBecadosComedor.vb</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Reportes\Rpt\RptBecadosTransporteDetallado.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>RptBecadosTransporteDetallado.vb</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Reportes\Rpt\RptFechaComedor.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>RptFechaComedor.vb</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Reportes\Rpt\RptBecadosTransporte.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>RptBecadosTransporte.vb</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Reportes\Rpt\RptRuta_detallado.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>RptRuta_detallado.vb</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Reportes\Rpt\RptProyecionComedor.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>RptProyecionComedor.vb</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Reportes\Rpt\RptRuta_general.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>RptRuta_general.vb</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Seguridad\LOGIN.resx">
+      <DependentUpon>LOGIN.vb</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="My Project\app.manifest" />
+    <None Include="My Project\Application.myapp">
+      <Generator>MyApplicationCodeGenerator</Generator>
+      <LastGenOutput>Application.Designer.vb</LastGenOutput>
+    </None>
+    <None Include="My Project\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <CustomToolNamespace>My</CustomToolNamespace>
+      <LastGenOutput>Settings.Designer.vb</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Buscar-30x30.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Cancelar.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Eliminar.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\FlechaDerecha.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\FlechaDerecha1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\FlechaDerechaDoble.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\FlechaDerechaDoble1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\FlechaIzquierda.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\FlechaIzquierda1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\FlechaIzquierdaDoble.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\FlechaIzquierdaDoble1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Guardar2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Impresora.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Pantalla.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Regresar.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Aceptar.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="favicon.ico" />
+    <Content Include="logo.ico" />
+    <Content Include="Resources\LogoHero.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\LogoIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\LogoHorizontal.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\EscudoCtpPlatanares.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\Fonts\Montserrat-Variable.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\Fonts\OFL.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Include="Resources\login_wh.png" />
+    <None Include="Resources\comedor_w1.png" />
+    <None Include="packages.config" />
+    <None Include="Resources\Ingreso.png" />
+    <None Include="Resources\Verificado2.png" />
+    <None Include="Resources\Users.png" />
+    <None Include="Resources\Salir.png" />
+    <None Include="Resources\Login.png" />
+    <None Include="Resources\Info.png" />
+    <None Include="Resources\Gif_cargando.gif" />
+    <None Include="Resources\Error2.png" />
+    <None Include="Resources\Double check.png" />
+    <None Include="Resources\Procesado.jpg" />
+    <None Include="Resources\ErrorAcceso.jpg" />
+    <None Include="Resources\DOBLEVERIFICACION.jpg" />
+    <None Include="Resources\huella_dactilar.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{C0C07587-41A7-46C8-8FBD-3F9C8EBE2DDC}" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
+  <Target Name="CollectCopyToOutputDirectoryItemDesignTime" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

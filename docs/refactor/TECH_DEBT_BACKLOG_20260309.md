@@ -5,7 +5,7 @@ Fecha: 2026-03-09
 ## P0
 ### 1. Sacar secretos y credenciales del repositorio
 - Estado: mitigado parcialmente en esta revision.
-- Evidencia: `SCSC/app.config`, `SCSC/My Project/Settings.settings`, `SCSC/My Project/Settings.Designer.vb`
+- Evidencia: `escritorio/SCSC/app.config`, `escritorio/SCSC/My Project/Settings.settings`, `escritorio/SCSC/My Project/Settings.Designer.vb`
 - Riesgo remanente: despliegues sin variables de entorno y credenciales historicas ya expuestas fuera de git.
 - Accion recomendada:
   - rotar credenciales ya expuestas;
@@ -14,7 +14,7 @@ Fecha: 2026-03-09
 
 ### 2. Rehabilitar warnings del compilador
 - Estado: mitigado parcialmente en esta revision.
-- Evidencia: `SCSC/SCSC_Marcas.vbproj`
+- Evidencia: `escritorio/SCSC/SCSC_Marcas.vbproj`
 - Riesgo remanente: warnings visibles pero aun no clasificados en build Windows real.
 - Accion recomendada:
   - subir `WarningLevel`;
@@ -23,7 +23,7 @@ Fecha: 2026-03-09
 
 ## P1
 ### 3. Reducir dependencia de `FuncionesDB`
-- Evidencia: `SCSC/Clases/FunccionesDB.vb`
+- Evidencia: `escritorio/SCSC/Clases/FunccionesDB.vb`
 - Riesgo: clase dios para CRUD, transacciones, configuracion y consultas dinamicas.
 - Accion recomendada:
   - congelar nuevas llamadas directas desde formularios;
@@ -32,11 +32,11 @@ Fecha: 2026-03-09
 
 ### 4. Romper formularios monoliticos
 - Evidencia:
-  - `SCSC/Formularios/ControlComedor.vb`
-  - `SCSC/Formularios/ControlTransporte.vb`
-  - `SCSC/Formularios/FrmImportarExcel.vb`
-  - `SCSC/Formularios/FrmSeguridadRBAC.vb`
-  - `SCSC/Clases/UIShellHost.vb`
+  - `escritorio/SCSC/Formularios/ControlComedor.vb`
+  - `escritorio/SCSC/Formularios/ControlTransporte.vb`
+  - `escritorio/SCSC/Formularios/FrmImportarExcel.vb`
+  - `escritorio/SCSC/Formularios/FrmSeguridadRBAC.vb`
+  - `escritorio/SCSC/Clases/UIShellHost.vb`
 - Riesgo: regresiones frecuentes, baja legibilidad y pruebas muy costosas.
 - Accion recomendada:
   - extraer componentes de UI;
@@ -46,8 +46,8 @@ Fecha: 2026-03-09
 ### 5. Eliminar estado global compartido
 - Estado: mitigado parcialmente en reportes y busquedas.
 - Evidencia:
-  - `SCSC/Clases/VariablesGlobales.vb`
-  - `SCSC/Clases/CodigoGeneral.vb`
+  - `escritorio/SCSC/Clases/VariablesGlobales.vb`
+  - `escritorio/SCSC/Clases/CodigoGeneral.vb`
 - Riesgo remanente concentrado en `VariablesGlobales` y formularios que leen/modifican estado compartido del modulo.
 - Riesgo: efectos secundarios entre pantallas, trazabilidad baja y acoplamiento fuerte.
 - Accion recomendada:
@@ -57,8 +57,8 @@ Fecha: 2026-03-09
 ### 6. Completar migracion a consultas parametrizadas
 - Estado: mitigado parcialmente en `FrmRecargas`.
 - Evidencia:
-  - `SCSC/Formularios/FrmRecargas.vb`
-  - `SCSC/Clases/FunccionesDB.vb`
+  - `escritorio/SCSC/Formularios/FrmRecargas.vb`
+  - `escritorio/SCSC/Clases/FunccionesDB.vb`
   - llamadas a `ConsultarTSQL` con SQL texto desde formularios
 - Riesgo: SQL fragil, mas dificil de revisar y de testear.
 - Accion recomendada:
@@ -84,9 +84,9 @@ Fecha: 2026-03-09
 
 ### 9. Consolidar acceso a recursos visuales y archivos
 - Evidencia:
-  - `SCSC/Seguridad/LOGIN.vb`
-  - `SCSC/Clases/UIShellHost.vb`
-  - `SCSC/Formularios/ControlComedor.vb`
+  - `escritorio/SCSC/Seguridad/LOGIN.vb`
+  - `escritorio/SCSC/Clases/UIShellHost.vb`
+  - `escritorio/SCSC/Formularios/ControlComedor.vb`
 - Riesgo: resolucion duplicada de rutas y fallos dependientes del directorio de ejecucion.
 - Accion recomendada:
   - crear un helper unico para ubicacion de recursos;

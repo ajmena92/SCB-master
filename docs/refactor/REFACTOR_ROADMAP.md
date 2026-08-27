@@ -3,14 +3,14 @@
 ## 1. Estado actual validado
 - Arquitectura: WinForms VB.NET (.NET Framework 4.6.1) con acoplamiento UI + reglas + acceso SQL.
 - Código: 55 archivos `.vb` (22 designer), total aproximado de 13,647 líneas.
-- Núcleo técnico: `SCSC/Clases/FunccionesDB.vb` (1,384 líneas) centraliza CRUD y transacciones.
+- Núcleo técnico: `escritorio/SCSC/Clases/FunccionesDB.vb` (1,384 líneas) centraliza CRUD y transacciones.
 - Dependencias críticas: DigitalPersona (captura/huella) y Crystal Reports.
 - Base de datos SQL Server accesible y validada en ambiente tecnico controlado.
 - Tablas núcleo operativas confirmadas: `Usuario`, `RegistroComedor`, `RegistroTransporte`, `RegistroDocentes`, `TipoBeca`, `Horario`, `Ruta`, `Parametro`, `TablaSeguridad`.
 
 ## 2. Riesgos principales
 - Riesgo alto de regresión por lógica de negocio embebida en eventos de formularios.
-- Seguridad: credenciales en `SCSC/app.config` y validación de login en texto plano para rutas legacy.
+- Seguridad: credenciales en `escritorio/SCSC/app.config` y validación de login en texto plano para rutas legacy.
 - SQL dinámico por concatenación en varios puntos de formularios/importación.
 - Estado global compartido (`VariablesGlobales`, `gSession`) dificulta trazabilidad y pruebas.
 - Manejo de errores heterogéneo (`MsgBox`, `On Error GoTo`, `Throw ex`, `End`) con baja consistencia operativa.
@@ -35,7 +35,7 @@ Reducir riesgo operativo sin romper flujos de producción, separando gradualment
 - Registrar incidentes actuales conocidos para distinguir bug existente vs regresión.
 
 ## Fase 1: Endurecimiento de acceso a datos (sin cambiar funcionalidad)
-- Crear carpeta `SCSC/Clases/Servicios` con servicios orientados a caso de uso.
+- Crear carpeta `escritorio/SCSC/Clases/Servicios` con servicios orientados a caso de uso.
 - Introducir una fachada de datos para reemplazar SQL ad-hoc en formularios críticos.
 - Priorizar consultas de:
   - `ControlComedor`

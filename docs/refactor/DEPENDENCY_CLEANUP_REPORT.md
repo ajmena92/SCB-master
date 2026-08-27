@@ -12,18 +12,18 @@ Se removieron referencias .NET no usadas en código VB del proyecto:
 - `System.Web.Services`
 
 Archivo afectado:
-- `SCSC/SCSC_Marcas.vbproj`
+- `escritorio/SCSC/SCSC_Marcas.vbproj`
 
 ## Referencias mantenidas por compatibilidad
 - `CrystalDecisions.*` (motor de reportes activo)
 
 ## Refactor de dependencia UI legacy completado (Fase actual)
 - Se eliminaron todas las referencias `Bunifu.*` del archivo de proyecto:
-  - `SCSC/SCSC_Marcas.vbproj`
+  - `escritorio/SCSC/SCSC_Marcas.vbproj`
 - Se removió el paquete NuGet `Bunifu.UI.WinForms` de:
-  - `SCSC/packages.config`
+  - `escritorio/SCSC/packages.config`
 - Se agregó capa interna de compatibilidad para no romper los `*.Designer.vb` actuales:
-  - `SCSC/Clases/BunifuLegacyCompat.vb`
+  - `escritorio/SCSC/Clases/BunifuLegacyCompat.vb`
   - Namespace mantenido: `Bunifu.Framework.UI`
 
 ## Próxima limpieza

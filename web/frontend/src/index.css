@@ -1,0 +1,117 @@
+@import url("https://fonts.googleapis.com/css2?family=Chivo:wght@400;500;600;700;800;900&family=Karla:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap");
+
+@import "tailwindcss";
+@config "../tailwind.config.js";
+
+@layer base {
+  :root {
+    --background: 233 100% 98%;
+    --foreground: 232 58% 21%;
+    --card: 0 0% 100%;
+    --card-foreground: 232 58% 21%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 232 58% 21%;
+    --primary: 237 100% 73%;
+    --brand-primary: 116 123 255;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 232 58% 21%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 234 100% 97%;
+    --muted-foreground: 234 26% 54%;
+    --accent: 236 100% 83%;
+    --accent-foreground: 232 58% 21%;
+    --destructive: 353 100% 71%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 151 62% 59%;
+    --border: 233 100% 93%;
+    --input: 233 100% 91%;
+    --ring: 237 100% 73%;
+    --chart-1: 237 100% 73%;
+    --chart-2: 236 100% 83%;
+    --chart-3: 262 78% 69%;
+    --chart-4: 232 58% 21%;
+    --chart-5: 353 100% 71%;
+    --radius: 0.75rem;
+  }
+  .dark {
+    --background: 232 47% 13%;
+    --foreground: 235 100% 98%;
+    --card: 233 44% 18%;
+    --card-foreground: 235 100% 98%;
+    --popover: 233 44% 18%;
+    --popover-foreground: 235 100% 98%;
+    --primary: 236 100% 76%;
+    --brand-primary: 135 144 255;
+    --primary-foreground: 232 47% 13%;
+    --secondary: 233 45% 24%;
+    --secondary-foreground: 235 100% 98%;
+    --muted: 233 44% 22%;
+    --muted-foreground: 234 50% 78%;
+    --accent: 233 42% 36%;
+    --accent-foreground: 235 100% 90%;
+    --destructive: 353 100% 75%;
+    --destructive-foreground: 232 47% 13%;
+    --success: 151 66% 65%;
+    --border: 233 40% 33%;
+    --input: 233 40% 38%;
+    --ring: 236 100% 76%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    margin: 0;
+    font-family: "Karla", ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  .font-display {
+    font-family: "Chivo", ui-sans-serif, system-ui, sans-serif;
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fade-up {
+  animation: fade-up 0.5s ease forwards;
+  opacity: 0;
+}
+
+@media print {
+  body * {
+    visibility: hidden !important;
+  }
+  .pin-report,
+  .pin-report * {
+    visibility: visible !important;
+  }
+  .pin-report {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    padding: 0;
+  }
+  .pin-report-actions {
+    display: none !important;
+  }
+  .pin-report table {
+    width: 100%;
+  }
+}

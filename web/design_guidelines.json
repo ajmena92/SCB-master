@@ -1,0 +1,141 @@
+{
+  "theme": "light_and_dark_supported",
+  "archetype": "Periwinkle Mobile App: mobile-first workflows for every role, luminous blue-violet accents, crisp white cards, friendly rounded geometry, and calm institutional clarity",
+  "typography": {
+    "fonts": {
+      "headings": "Chivo",
+      "body": "Karla"
+    },
+    "hierarchy": {
+      "h1": "text-4xl sm:text-5xl tracking-tighter leading-none font-black",
+      "h2": "text-2xl sm:text-3xl tracking-tight leading-tight font-bold",
+      "h3": "text-xl sm:text-2xl font-bold",
+      "h4": "text-lg sm:text-xl font-semibold",
+      "body": "text-base leading-relaxed font-normal",
+      "labels_overlines": "text-xs sm:text-sm uppercase tracking-[0.2em] font-bold"
+    },
+    "rules": [
+      "Do NOT use Inter, Roboto, Open Sans, or Lato.",
+      "Ensure the gap between headings and subheadings does not exceed 2 Tailwind steps.",
+      "Body text must use Karla, headings must use Chivo.",
+      "Use bold/black weights for institutional authority, balanced with the periwinkle primary and white surfaces."
+    ]
+  },
+  "colors": {
+    "light_mode": {
+      "background": "#F7F8FF",
+      "foreground": "#182052",
+      "primary": "#747BFF",
+      "primary_foreground": "#FFFFFF",
+      "secondary": "#182052",
+      "secondary_foreground": "#FFFFFF",
+      "accent": "#A9B1FF",
+      "accent_foreground": "#182052",
+      "muted": "#EEF0FF",
+      "muted_foreground": "#6B72A8",
+      "border": "#DDE1FF",
+      "surface": "#FFFFFF",
+      "success": "#51D89A",
+      "destructive": "#FF6B7A"
+    },
+    "dark_mode": {
+      "background": "#11152F",
+      "foreground": "#F4F5FF",
+      "primary": "#8790FF",
+      "primary_foreground": "#11152F",
+      "secondary": "#242B60",
+      "secondary_foreground": "#FFFFFF",
+      "accent": "#353D83",
+      "accent_foreground": "#DCE0FF",
+      "muted": "#202652",
+      "muted_foreground": "#AAB1E5",
+      "border": "#353D73",
+      "surface": "#191E43",
+      "success": "#67E2AA",
+      "destructive": "#FF8090"
+    },
+    "rules": [
+      "Use white #FFFFFF for cards and high-contrast content surfaces; never use pure black for backgrounds.",
+      "Do not use gradients for primary surfaces, buttons, text, or route identifiers.",
+      "Always explicitly set text color on hover.",
+      "Use #747BFF (Periwinkle) for primary actions, active navigation, focus rings, and key highlights.",
+      "Use #182052 (Midnight Indigo) for headers, institutional navigation, and primary text.",
+      "Use #A9B1FF only as a soft supporting accent, never as the primary text color.",
+      "Use #51D89A and #FF6B7A only for semantic success and destructive states; they never identify transport routes.",
+      "Transport route colors come exclusively from the route palette and remain independent from application states.",
+      "Every role uses the same mobile-first app language; desktop layouts expand the app without changing its workflows or interaction model."
+    ]
+  },
+  "visual_enhancers": {
+    "surfaces": [
+      "Student App: Soft rounded corners (16px/xl), periwinkle primary actions, white cards, and tactile but restrained controls.",
+      "Admin App: Crisp white surfaces, midnight-indigo navigation, periwinkle active states, 1px lavender borders, and touch-friendly controls that remain comfortable on desktop."
+    ],
+    "shadows": [
+      "Student App: Soft ambient shadows (shadow-[0_8px_30px_rgb(45_54_150_/_0.12)]) for floating cards.",
+      "Admin App: Flat white layouts with 1px lavender borders and subtle periwinkle-tinted shadows only on hover."
+    ],
+    "glassmorphism": [
+      "For fixed headers/navs: backdrop-blur-xl bg-background/80 with a 1px solid #DDE1FF border at the bottom.",
+      "NEVER use completely transparent backgrounds over content."
+    ]
+  },
+  "spacing_and_layout": {
+    "philosophy": "Generous Mobile Product Philosophy: use breathable spacing, clear white surfaces, and strong periwinkle focus states. Containers with borders MUST have internal padding (p-6 or p-8).",
+    "student_portal": {
+      "strategy": "Mobile-first, stacked white cards over a pale periwinkle canvas. Huge touch targets (min h-12) for PIN entry and attendance confirmation.",
+      "grids": "grid-cols-1 gap-6"
+    },
+    "admin_app": {
+      "strategy": "Mobile-first administrative app with stacked white surfaces, bottom-sheet or drawer workflows, midnight navigation, and periwinkle active states.",
+      "grids": "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6",
+      "widgets": "Prioritize one-thumb scanning on mobile; progressively reveal denser summaries, charts, and nominal lists on larger screens."
+    }
+  },
+  "components": {
+    "buttons": "Pill-shaped (rounded-full) across the entire app, with #747BFF primary fill, minimum h-12 touch targets, and clear primary/secondary hierarchy. Use restrained micro-interactions (active:scale-[0.98], transition-transform).",
+    "cards": "White cards with soft 16px corners, 1px lavender borders, and elevation only when hierarchy requires it; the same language applies to student, operator, and admin flows.",
+    "inputs": "Shadcn standard inputs, customized with our border radius and focus:ring-primary. Use Shadcn InputOTP for the 6-digit PIN.",
+    "tables": "Responsive data views: stacked cards or horizontal scrolling on mobile, expanding into Shadcn Table layouts on larger screens.",
+    "charts": "Shadcn Chart components (recharts) for Dashboard real-time totals.",
+    "toasts": "Sonner (from /app/frontend/src/components/ui/sonner.tsx) for post-cutoff correction success, PIN changes, and attendance confirmation.",
+    "forms": "Use Shadcn Form, Select, and DatePicker with label-above-input blocks; use drawers or bottom sheets for mobile CRUD and full-page forms when the task is complex."
+  },
+  "motion_and_interactions": {
+    "hover_states": "Buttons must elevate and increase contrast without changing semantic meaning; active and focus-visible states must also be clear for touch and keyboard users. Table rows must subtly highlight with pale periwinkle.",
+    "transitions": "Use specific properties (e.g., transition: transform 0.2s ease, opacity 0.2s ease), NOT transition: all.",
+    "animations": "Staggered entrance animations for menu items and dashboard widgets.",
+    "loading": "Skeleton loaders (Shadcn) for real-time dashboard data and menu fetching."
+  },
+  "icons": {
+    "library": "@phosphor-icons/react",
+    "installation": "yarn add @phosphor-icons/react",
+    "style": "Duotone weight for student app, Regular for admin dashboard."
+  },
+  "media": {
+    "images": [],
+    "rules": "No remote stock images or external image URLs in production. Use only reviewed institutional assets committed under frontend/public/assets/ (with documented license) or render the screen without an image. Use max-h-[80vh] for mobile images. Hero image overlays max bg-black/50."
+  },
+  "testing": {
+    "accessibility": "Minimum 4.5:1 contrast for text. Provide visual state changes.",
+    "attributes": "All interactive and key informational elements MUST include a data-testid attribute (e.g., data-testid='login-submit-button')."
+  },
+  "instructions_to_main_agent": [
+    "You MUST build out a Spanish-language UI ('Portal Web de Comedor SCSC').",
+    "Implement a mobile-first app experience for students, operators, and administrators; desktop may expose more density but must preserve the same app workflows.",
+    "NEVER use generic centered layouts or simplistic gradients.",
+    "Create depth through layered design elements with z-index hierarchy.",
+    "Avoid the 'AI slop' aesthetic by ensuring tight typography tracking on headings and generous paddings.",
+    "Do NOT add .App { text-align: center; } in CSS.",
+    "Apply all Shadcn components intelligently. Use InputOTP for the 6-digit PIN login.",
+    "Override default component classes if they contradict the Generous Spacing Philosophy.",
+    "Include empty/loading/error states explicitly in the UI.",
+    "Do NOT output markdown blocks for this JSON file."
+  ],
+  "universal_guidelines_for_main_agent": [
+    "Prioritize using pre-existing components from src/components/ui.",
+    "Create new components that match the style of existing ones.",
+    "Do not use emojis for icons. Use @phosphor-icons/react or lucide-react.",
+    "Apply robust data-testid to every button, form input, and key dynamic text field."
+  ]
+}

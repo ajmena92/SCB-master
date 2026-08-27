@@ -1,0 +1,8 @@
+<Project>
+  <PropertyGroup>
+    <SCSCVersion>2026.04.21.1</SCSCVersion>
+    <SCSCInstallerVersion>26.4.21</SCSCInstallerVersion>
+    <SCSCProductName>SCSC</SCSCProductName>
+    <SCSCManufacturer>CTP Platanares</SCSCManufacturer>
+  </PropertyGroup>
+</Project>

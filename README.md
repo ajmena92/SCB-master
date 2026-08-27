@@ -1,59 +1,111 @@
 # SCB / SCSC_Marcas
 
-Aplicación WinForms en VB.NET (.NET Framework 4.6.1) para control de marcas de comedor y transporte, mantenimiento de estudiantes, recargas, reportes Crystal Reports e importación de datos desde Excel/PIAD.
+Aplicación WinForms en VB.NET (.NET Framework 4.8) para control de marcas de comedor y transporte, mantenimiento de estudiantes, recargas, reportes Crystal Reports e importación de datos desde Excel/PIAD.
 
 ## Estado actual
-- Solución principal: `SCSC_Marcas.sln`
-- Proyecto principal: `SCSC/SCSC_Marcas.vbproj`
+- Solución principal de escritorio: `escritorio/SCSC_Marcas.sln`
+- Proyecto principal: `escritorio/SCSC/SCSC_Marcas.vbproj`
 - Código VB detectado: 80 archivos `.vb`
 - Código VB no autogenerado: 64 archivos `.vb`
 - Módulos/pantallas/reportes operativos: 33 archivos `.vb` bajo `Formularios`, `Seguridad` y `Reportes`
-- Framework: `.NET Framework 4.6.1`
+- Framework: `.NET Framework 4.8`
 - Dependencias sensibles de entorno: SQL Server, Crystal Reports, SDK DigitalPersona
 
 ## Módulos principales
-- `SCSC/FrmPrincipal.vb`: shell principal, navegación y dashboard.
-- `SCSC/Seguridad/LOGIN.vb`: autenticación y carga inicial de parámetros.
-- `SCSC/Formularios/ControlComedor.vb`: registro operativo de comedor.
-- `SCSC/Formularios/ControlTransporte.vb`: registro operativo de transporte.
-- `SCSC/Formularios/FrmEstudiantes.vb`: mantenimiento principal de estudiantes.
-- `SCSC/Formularios/FrmImportarExcel.vb` y `SCSC/Formularios/FrmImportarDatos.vb`: importación masiva.
-- `SCSC/Reportes/FrmReportViewer.vb`: salida de reportes Crystal Reports.
-- `SCSC/Clases/FunccionesDB.vb`: utilidades CRUD/SQL legacy.
-- `SCSC/Clases/Servicios/`: capa de servicios introducida para desacoplar lógica crítica.
+- `escritorio/SCSC/FrmPrincipal.vb`: shell principal, navegación y dashboard.
+- `escritorio/SCSC/Seguridad/LOGIN.vb`: autenticación y carga inicial de parámetros.
+- `escritorio/SCSC/Formularios/ControlComedor.vb`: registro operativo de comedor.
+- `escritorio/SCSC/Formularios/ControlTransporte.vb`: registro operativo de transporte.
+- `escritorio/SCSC/Formularios/FrmEstudiantes.vb`: mantenimiento principal de estudiantes.
+- `escritorio/SCSC/Formularios/FrmImportarExcel.vb` y `escritorio/SCSC/Formularios/FrmImportarDatos.vb`: importación masiva.
+- `escritorio/SCSC/Reportes/FrmReportViewer.vb`: salida de reportes Crystal Reports.
+- `escritorio/SCSC/Clases/FunccionesDB.vb`: utilidades CRUD/SQL legacy.
+- `escritorio/SCSC/Clases/Servicios/`: capa de servicios introducida para desacoplar lógica crítica.
 
 ## Estructura
-- `SCSC/Clases`: utilidades, acceso a datos, globals, theming y servicios.
-- `SCSC/Formularios`: CRUDs y pantallas operativas.
-- `SCSC/Seguridad`: login.
-- `SCSC/Reportes`: formularios de parámetros y `.rpt`.
+- `escritorio/`: solución WinForms, pruebas, instalador, utilitarios y dependencias.
+- `web/`: documentación y futura aplicación web del comedor; no contiene código generado todavía.
+- `RESPALDO_BD/`, `backups/`, `Lista inicial/` y `Lista 2023/`: datos y respaldos operativos mantenidos en la raíz.
 - `docs/refactor`: documentación técnica, roadmap y backlog.
-- `scripts/autobuild.ps1`: automatización de build en entorno Windows.
+- `escritorio/build/` y `escritorio/scripts/`: configuración y automatización de build en Windows.
 
 ## Build y ejecución
 Restaurar paquetes:
 
 ```bash
-nuget restore SCSC_Marcas.sln
+nuget restore escritorio/SCSC_Marcas.sln
 ```
 
 Compilar en Windows con MSBuild/Visual Studio:
 
 ```bash
-msbuild SCSC_Marcas.sln /p:Configuration=Debug /p:Platform="Any CPU"
+msbuild escritorio/SCSC_Marcas.sln /p:Configuration=Debug /p:Platform="Any CPU"
 ```
 
 En este workspace WSL no hay `msbuild` ni `nuget` disponibles por defecto, así que la validación completa de compilación sigue dependiendo del entorno Windows/Visual Studio.
 
-## Configuración sensible
-El repositorio ya no debe guardar secretos reales en `SCSC/app.config`. Antes de ejecutar en un entorno real, definir como variables de entorno:
+## Comando deploy
+Para generar el instalador completo desde Windows y abrir la carpeta final del artefacto:
 
-- `SCSC_CONNECTION_STRING`
+```powershell
+powershell -ExecutionPolicy Bypass -File "C:\Dev\SCB-master\escritorio\scripts\deploy.ps1"
+```
+
+`deploy.ps1` ahora:
+- sincroniza version
+- sincroniza icono embebido
+- valida prerequisitos de build y despliegue
+- compila la aplicacion
+- ejecuta las pruebas de `SCSC.Tests`
+- solo si las pruebas pasan, genera MSI y `SCSC-Setup.exe`
+- crea una carpeta de release versionada con artefactos, payloads externos del bundle, checksums y manifest
+- puede firmar `MSI` y `Setup.exe` si se usa `-SignArtifacts`
+
+Si ocupas saltar las pruebas manualmente:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File "C:\Dev\SCB-master\escritorio\scripts\deploy.ps1" -SkipTests
+```
+
+Firma digital opcional:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File "C:\Dev\SCB-master\escritorio\scripts\deploy.ps1" -SignArtifacts -PfxPath "C:\Certs\scsc-code-sign.pfx" -PfxPassword "CLAVE_AQUI"
+```
+
+Smoke automático de build y despliegue:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File "C:\Dev\SCB-master\escritorio\scripts\smoke-build.ps1"
+```
+
+Proyecto base de pruebas:
+- `escritorio/SCSC.Tests/SCSC.Tests.vbproj`
+- Cobertura inicial: licencia, configuracion de despliegue, `CodigoGeneral` y seguridad pura
+
+Ejecutar pruebas desde Windows con MSBuild/VSTest de Visual Studio:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File "C:\Dev\SCB-master\escritorio\scripts\test.ps1"
+```
+
+Artefacto final esperado:
+- `C:\Dev\SCB-master\escritorio\Installer\Bundle\bin\Release\SCSC-Setup.exe`
+- `C:\Dev\SCB-master\artifacts\releases\<version>\SCSC-Setup.exe`
+
+## Configuración sensible
+El repositorio ya no debe guardar secretos reales en `escritorio/SCSC/app.config`. Antes de ejecutar en un entorno real, definir como variables de entorno:
+
 - `SCSC_APPSETTING_LLAVEENCRIPTACION`
 - `SCSC_APPSETTING_ADMINUSUARIO`
 - `SCSC_APPSETTING_ADMINCLAVESOPORTE`
 
-El código ahora prioriza variables de entorno sobre `appSettings`.
+Resolución actual de conexión:
+
+- `DB_PROFILE=LOCAL`: usa `ConexionLocal` en `app.config`.
+- `DB_PROFILE=INSTALLED`: usa `%ProgramData%\SCSC\deployment.config.json`.
+- `DB_PROFILE=LEGACY`: usa `Conexion` en `app.config`.
+- Si el perfil es inválido, se usa `INSTALLED`.
 
 ## Documentación recomendada
 - [Análisis actual del proyecto](docs/refactor/PROJECT_ANALYSIS_20260309.md)
@@ -62,6 +114,10 @@ El código ahora prioriza variables de entorno sobre `appSettings`.
 - [Índice técnico histórico](docs/refactor/PROJECT_INDEX.md)
 - [Roadmap de refactor](docs/refactor/REFACTOR_ROADMAP.md)
 - [Guía Designer-first](docs/refactor/DESIGNER_FIRST_GUIDE.md)
+- [Politica de versionado y actualizacion](docs/deployment/VERSIONING.md)
+- [Checklist de smoke test de release](docs/deployment/SMOKE_TEST_CHECKLIST.md)
+- [Terminos generales de licencia](docs/legal/TERMINOS_LICENCIA_CR.md)
+- [Guía y requisitos del futuro portal web](web/README.md)
 
 ## Hallazgos relevantes al 2026-03-09
 - El proyecto combina código legacy orientado a formularios con una capa de servicios nueva, pero la separación todavía es parcial.

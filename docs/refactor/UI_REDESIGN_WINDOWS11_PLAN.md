@@ -5,7 +5,7 @@ Modernizar la interfaz completa para que se perciba nativa de Windows 11 y reduc
 
 ## Documento rector vigente
 - Estandar visual y tecnico oficial: `docs/refactor/UI_HYBRID_STANDARD_2026.md`.
-- Prototipo canonico implementado: `SCSC/Seguridad/LOGIN.vb` + `SCSC/Seguridad/LOGIN.designer.vb`.
+- Prototipo canonico implementado: `escritorio/SCSC/Seguridad/LOGIN.vb` + `escritorio/SCSC/Seguridad/LOGIN.designer.vb`.
 
 ## Estado actual
 - UI legacy desacoplada de binarios `Bunifu.UI.WinForms.*` mediante compatibilidad interna.

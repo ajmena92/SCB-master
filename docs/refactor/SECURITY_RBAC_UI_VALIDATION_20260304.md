@@ -1,8 +1,8 @@
 # Validación UI - FrmSeguridadRBAC (2026-03-04)
 
 ## Alcance
-- Formulario: `SCSC/Formularios/FrmSeguridadRBAC.vb`
-- Designer: `SCSC/Formularios/FrmSeguridadRBAC.Designer.vb`
+- Formulario: `escritorio/SCSC/Formularios/FrmSeguridadRBAC.vb`
+- Designer: `escritorio/SCSC/Formularios/FrmSeguridadRBAC.Designer.vb`
 - Estándares aplicados:
   - `docs/refactor/UI_HYBRID_STANDARD_2026.md`
   - `docs/refactor/DESIGNER_FIRST_GUIDE.md`

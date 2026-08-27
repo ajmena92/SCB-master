@@ -9,6 +9,9 @@
 *.userosscache
 *.sln.docstates
 
+# Sensitive, one-time student PIN delivery exports (never version these).
+web/ops/credenciales-estudiantes-*.csv
+
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
@@ -23,6 +26,21 @@ bld/
 [Bb]in/
 [Oo]bj/
 [Ll]og/
+
+# Legacy desktop build outputs and local signing material
+escritorio/**/bin/
+escritorio/**/obj/
+escritorio/.vs/
+escritorio/packages/
+escritorio/Installer/**/bin/
+escritorio/Installer/**/obj/
+escritorio/Installer/Redist/
+escritorio/Utilitarios/
+escritorio/Backup/
+escritorio/Archivos de copia de seguridad de Crystal Reports/
+escritorio/UpgradeLog.htm
+escritorio/SCSC/SCSC_Marcas_TemporaryKey.pfx
+escritorio/**/~BROMIUM/
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
@@ -329,3 +347,7 @@ ASALocalRun/
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
 /logs
+Installer/Redist/CRRuntime_64bit_13_0_40.msi
+Installer/Redist/CRRuntime_64bit_13_0_40.msi
+
+escritorio/Installer/Redist/CRRuntime_64bit_13_0_40.msi

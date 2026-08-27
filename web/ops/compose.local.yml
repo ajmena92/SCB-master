@@ -1,0 +1,64 @@
+name: scsc-comedor-local
+
+# Local-only profile. Run it explicitly with:
+# docker compose --env-file .env.local -f compose.local.yml up --build
+#
+# It deliberately does not include compose.production.yml, so production .env
+# values and the institutional portal on port 8080 are never reused locally.
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: ops/Dockerfile.api
+    env_file:
+      - .env.local
+    environment:
+      # Permite que una variable temporal de la sesión redirija el entorno local
+      # a una base de pruebas autorizada sin modificar .env.local.
+      SQL_CONNECTION_STRING: ${SQL_CONNECTION_STRING}
+    extra_hosts:
+      - "AJMENA92:172.21.0.1"
+    restart: "no"
+    networks:
+      - private
+    expose:
+      - "8000"
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+
+  web:
+    build:
+      context: ..
+      dockerfile: ops/Dockerfile.frontend
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: "no"
+    networks:
+      - private
+    ports:
+      - "127.0.0.1:8081:8080"
+    read_only: true
+    tmpfs:
+      - /var/cache/nginx
+      - /var/run
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETGID
+      - SETUID
+
+networks:
+  private:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: ${COMPOSE_PRIVATE_SUBNET}
