@@ -13,7 +13,7 @@ function rolPrincipal(roles) {
 }
 
 async function obtenerSesion() {
-  const { data } = await api.get("/v1/sesion", { skipAuthFailureHandling: true });
+  const { data } = await api.get("/v1/sesion", { omitirManejoFalloAutenticacion: true });
   const roles = data.tipo === "admin" ? listaExplicita(data.usuario?.roles) : [];
   const permisos = data.tipo === "admin" ? listaExplicita(data.usuario?.permisos) : [];
   const usuario =
@@ -76,7 +76,7 @@ export function ProveedorAutenticacion({ children }) {
 
   const logout = async () => {
     try {
-      await api.post("/v1/sesion/cerrar", undefined, { skipAuthFailureHandling: true });
+      await api.post("/v1/sesion/cerrar", undefined, { omitirManejoFalloAutenticacion: true });
     } catch {
       // Close the local UI even if a stale server session cannot be revoked.
     }

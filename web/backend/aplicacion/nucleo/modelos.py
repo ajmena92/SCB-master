@@ -51,21 +51,29 @@ class Rol(BaseDeclarativa):
 class UsuarioPermiso(BaseDeclarativa):
     __tablename__ = "usuario_permiso"
     __table_args__ = {"schema": "identidad"}
-    id_usuario: Mapped[int] = mapped_column(ForeignKey("identidad.usuario.id_usuario"), primary_key=True)
-    id_permiso: Mapped[int] = mapped_column(ForeignKey("identidad.permiso.id_permiso"), primary_key=True)
+    id_usuario: Mapped[int] = mapped_column(
+        ForeignKey("identidad.usuario.id_usuario"), primary_key=True
+    )
+    id_permiso: Mapped[int] = mapped_column(
+        ForeignKey("identidad.permiso.id_permiso"), primary_key=True
+    )
 
 
 class RolPermiso(BaseDeclarativa):
     __tablename__ = "rol_permiso"
     __table_args__ = {"schema": "identidad"}
     id_rol: Mapped[int] = mapped_column(ForeignKey("identidad.rol.id_rol"), primary_key=True)
-    id_permiso: Mapped[int] = mapped_column(ForeignKey("identidad.permiso.id_permiso"), primary_key=True)
+    id_permiso: Mapped[int] = mapped_column(
+        ForeignKey("identidad.permiso.id_permiso"), primary_key=True
+    )
 
 
 class UsuarioRol(BaseDeclarativa):
     __tablename__ = "usuario_rol"
     __table_args__ = {"schema": "identidad"}
-    id_usuario: Mapped[int] = mapped_column(ForeignKey("identidad.usuario.id_usuario"), primary_key=True)
+    id_usuario: Mapped[int] = mapped_column(
+        ForeignKey("identidad.usuario.id_usuario"), primary_key=True
+    )
     id_rol: Mapped[int] = mapped_column(ForeignKey("identidad.rol.id_rol"), primary_key=True)
 
 
@@ -73,7 +81,9 @@ class SesionEstudiante(BaseDeclarativa):
     __tablename__ = "sesion_estudiante"
     __table_args__ = {"schema": "identidad"}
     id_sesion: Mapped[str] = mapped_column(String(100), primary_key=True)
-    id_usuario: Mapped[int] = mapped_column(ForeignKey("estudiantes.estudiante.id_estudiante"), nullable=False)
+    id_usuario: Mapped[int] = mapped_column(
+        ForeignKey("estudiantes.estudiante.id_estudiante"), nullable=False
+    )
     secreto_hash: Mapped[str] = mapped_column(String(64), nullable=False)
     expira_en: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     csrf_hash: Mapped[str | None] = mapped_column(String(64), nullable=True)
@@ -85,7 +95,9 @@ class Sesion(BaseDeclarativa):
     __tablename__ = "sesion"
     __table_args__ = {"schema": "identidad"}
     id_sesion: Mapped[str] = mapped_column(String(64), primary_key=True)
-    id_usuario: Mapped[int] = mapped_column(ForeignKey("identidad.usuario.id_usuario"), nullable=False)
+    id_usuario: Mapped[int] = mapped_column(
+        ForeignKey("identidad.usuario.id_usuario"), nullable=False
+    )
     secreto_hash: Mapped[str] = mapped_column(String(64), nullable=False)
     expira_en: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     csrf_hash: Mapped[str | None] = mapped_column(String(64), nullable=True)
@@ -127,7 +139,8 @@ class MarcaAsistencia(BaseDeclarativa):
     __table_args__ = {"schema": "asistencia"}
     id_marca: Mapped[int] = mapped_column(Integer, primary_key=True)
     id_estudiante: Mapped[int] = mapped_column(
-        ForeignKey("estudiantes.estudiante.id_estudiante", name="fk_marca_estudiante"), nullable=False
+        ForeignKey("estudiantes.estudiante.id_estudiante", name="fk_marca_estudiante"),
+        nullable=False,
     )
     fecha_hora: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     estado: Mapped[str] = mapped_column(String(30), nullable=False)
@@ -150,7 +163,9 @@ class BeneficioEstudiante(BaseDeclarativa):
         primary_key=True,
     )
     id_estudiante: Mapped[int] = mapped_column(
-        ForeignKey("estudiantes.estudiante.id_estudiante", name="fk_beneficio_estudiante_estudiante"),
+        ForeignKey(
+            "estudiantes.estudiante.id_estudiante", name="fk_beneficio_estudiante_estudiante"
+        ),
         primary_key=True,
     )
     beneficio: Mapped[Beneficio] = relationship()
@@ -161,7 +176,8 @@ class CuentaEstudiante(BaseDeclarativa):
     __table_args__ = {"schema": "cuentas"}
     id_cuenta: Mapped[int] = mapped_column(Integer, primary_key=True)
     id_estudiante: Mapped[int] = mapped_column(
-        ForeignKey("estudiantes.estudiante.id_estudiante", name="fk_cuenta_estudiante"), nullable=False,
+        ForeignKey("estudiantes.estudiante.id_estudiante", name="fk_cuenta_estudiante"),
+        nullable=False,
         unique=True,
     )
     saldo: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
@@ -242,7 +258,8 @@ class FotografiaEstudiante(BaseDeclarativa):
     __table_args__ = {"schema": "estudiantes"}
     id_fotografia: Mapped[int] = mapped_column(Integer, primary_key=True)
     id_estudiante: Mapped[int] = mapped_column(
-        ForeignKey("estudiantes.estudiante.id_estudiante", name="fk_fotografia_estudiante"), nullable=False,
+        ForeignKey("estudiantes.estudiante.id_estudiante", name="fk_fotografia_estudiante"),
+        nullable=False,
         unique=True,
     )
     contenido: Mapped[bytes] = mapped_column(nullable=False)

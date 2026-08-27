@@ -39,8 +39,10 @@ class ServicioIdentidad:
 
     def autenticar(self, nombre_usuario: str, contrasena: str) -> ResultadoAutenticacion:
         usuario = self._usuarios.buscar_por_nombre(nombre_usuario)
-        if usuario is None or not usuario.activo or not verificar_contrasena(
-            contrasena, usuario.hash_contrasena
+        if (
+            usuario is None
+            or not usuario.activo
+            or not verificar_contrasena(contrasena, usuario.hash_contrasena)
         ):
             raise AutenticacionFallida("Las credenciales no son válidas")
 
@@ -65,18 +67,36 @@ class ServicioIdentidad:
             permisos=usuario.permisos,
         )
 
-    def crear_sesion(self, id_usuario: int, nombre_usuario: str, permisos: frozenset[str] = frozenset()) -> ResultadoAutenticacion:
+    def crear_sesion(
+        self, id_usuario: int, nombre_usuario: str, permisos: frozenset[str] = frozenset()
+    ) -> ResultadoAutenticacion:
         ahora = self._reloj()
         expira_en = ahora + self._duracion_sesion
         secreto = crear_secreto_sesion()
         id_sesion = secrets.token_urlsafe(24)
-        self._sesiones.guardar(SesionPersistida(idSesion=id_sesion, idUsuario=id_usuario, secretoHash=hash_secreto_sesion(secreto), expiraEn=expira_en))
-        return ResultadoAutenticacion(idSesion=id_sesion, idUsuario=id_usuario, nombreUsuario=nombre_usuario, secretoSesion=secreto, expiraEn=expira_en, permisos=permisos)
+        self._sesiones.guardar(
+            SesionPersistida(
+                idSesion=id_sesion,
+                idUsuario=id_usuario,
+                secretoHash=hash_secreto_sesion(secreto),
+                expiraEn=expira_en,
+            )
+        )
+        return ResultadoAutenticacion(
+            idSesion=id_sesion,
+            idUsuario=id_usuario,
+            nombreUsuario=nombre_usuario,
+            secretoSesion=secreto,
+            expiraEn=expira_en,
+            permisos=permisos,
+        )
 
     def validar_sesion(self, id_sesion: str, secreto: str) -> SesionPersistida:
         sesion = self._sesiones.buscar_vigente(id_sesion, self._reloj())
-        if sesion is None or sesion.revocada or not comparar_secreto_sesion(
-            secreto, sesion.secreto_hash
+        if (
+            sesion is None
+            or sesion.revocada
+            or not comparar_secreto_sesion(secreto, sesion.secreto_hash)
         ):
             raise AutenticacionFallida("La sesión no es válida")
         return sesion
@@ -88,9 +108,7 @@ class ServicioIdentidad:
         """Asocia un token CSRF al ciclo de vida de una sesión."""
         if not token:
             raise ValueError("El token CSRF no puede estar vacío")
-        self._sesiones.actualizar_csrf(
-            id_sesion, hashlib.sha256(token.encode("utf-8")).hexdigest()
-        )
+        self._sesiones.actualizar_csrf(id_sesion, hashlib.sha256(token.encode("utf-8")).hexdigest())
 
     def validar_csrf(self, sesion: SesionPersistida, token: str) -> bool:
         """Valida CSRF sin comparar secretos en claro ni aceptar sesiones sin token."""

@@ -60,7 +60,9 @@ def test_usuarios_sql_agrega_permisos_de_filas_repetidas() -> None:
             (7, "operador", "$argon2id$v=19$hash", True, "menu.leer"),
         ]
     )
-    usuario = RepositorioSqlUsuarios(cast(FabricaConexionSql, FabricaDoble([ConexionDoble(cursor)]))).buscar_por_nombre("operador")
+    usuario = RepositorioSqlUsuarios(
+        cast(FabricaConexionSql, FabricaDoble([ConexionDoble(cursor)]))
+    ).buscar_por_nombre("operador")
     assert usuario is not None
     assert usuario.id_usuario == 7
     assert usuario.permisos == frozenset({"rutas.administrar", "menu.leer"})
@@ -75,13 +77,13 @@ def test_usuarios_sql_devuelve_none_si_no_existe() -> None:
 
 def test_sesiones_sql_persiste_busca_y_revoca_sin_secreto_en_claro() -> None:
     ahora = datetime(2026, 1, 1, tzinfo=timezone.utc)
-    cursor = CursorDoble(
-        [("sesion-1", 7, "a" * 64, datetime(2026, 1, 1, 1), None, False)]
-    )
+    cursor = CursorDoble([("sesion-1", 7, "a" * 64, datetime(2026, 1, 1, 1), None, False)])
     conexion = ConexionDoble(cursor)
     fabrica = cast(FabricaConexionSql, FabricaDoble([conexion, conexion, conexion]))
     repositorio = RepositorioSqlSesiones(fabrica)
-    sesion = SesionPersistida(idSesion="sesion-1", idUsuario=7, secretoHash="a" * 64, expiraEn=ahora)
+    sesion = SesionPersistida(
+        idSesion="sesion-1", idUsuario=7, secretoHash="a" * 64, expiraEn=ahora
+    )
     repositorio.guardar(sesion)
     encontrada = repositorio.buscar_vigente("sesion-1", ahora)
     repositorio.revocar("sesion-1", ahora)

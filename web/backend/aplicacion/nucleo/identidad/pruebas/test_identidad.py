@@ -21,7 +21,9 @@ class UsuariosMemoria:
         self.usuario = usuario
 
     def buscar_por_nombre(self, nombre_usuario: str) -> CredencialesUsuario | None:
-        return self.usuario if self.usuario and self.usuario.nombre_usuario == nombre_usuario else None
+        return (
+            self.usuario if self.usuario and self.usuario.nombre_usuario == nombre_usuario else None
+        )
 
     def buscar_por_id(self, id_usuario: int) -> CredencialesUsuario | None:
         return self.usuario if self.usuario and self.usuario.id_usuario == id_usuario else None
@@ -41,10 +43,14 @@ class SesionesMemoria:
     def revocar(self, id_sesion: str, ahora: datetime) -> None:
         del ahora
         if id_sesion in self.sesiones:
-            self.sesiones[id_sesion] = self.sesiones[id_sesion].model_copy(update={"revocada": True})
+            self.sesiones[id_sesion] = self.sesiones[id_sesion].model_copy(
+                update={"revocada": True}
+            )
 
     def actualizar_csrf(self, id_sesion: str, csrf_hash: str) -> None:
-        self.sesiones[id_sesion] = self.sesiones[id_sesion].model_copy(update={"csrf_hash": csrf_hash})
+        self.sesiones[id_sesion] = self.sesiones[id_sesion].model_copy(
+            update={"csrf_hash": csrf_hash}
+        )
 
 
 def usuario_prueba(activo: bool = True) -> CredencialesUsuario:
@@ -71,9 +77,7 @@ def test_no_acepta_hash_legacy() -> None:
 def test_autentica_emite_secreto_y_solo_persiste_su_digest() -> None:
     sesiones = SesionesMemoria()
     ahora = datetime(2026, 1, 1, tzinfo=timezone.utc)
-    servicio = ServicioIdentidad(
-        UsuariosMemoria(usuario_prueba()), sesiones, reloj=lambda: ahora
-    )
+    servicio = ServicioIdentidad(UsuariosMemoria(usuario_prueba()), sesiones, reloj=lambda: ahora)
     resultado = servicio.autenticar("operador", "Clave segura 2026")
     sesion = next(iter(sesiones.sesiones.values()))
     assert resultado.secreto_sesion != sesion.secreto_hash
@@ -99,7 +103,9 @@ def test_duracion_estudiantil_de_un_ano_y_expiracion_rechazada() -> None:
 def test_rechaza_usuario_inactivo_clave_incorrecta_y_sesion_invalida() -> None:
     ahora = datetime(2026, 1, 1, tzinfo=timezone.utc)
     sesiones = SesionesMemoria()
-    inactivo = ServicioIdentidad(UsuariosMemoria(usuario_prueba(False)), sesiones, reloj=lambda: ahora)
+    inactivo = ServicioIdentidad(
+        UsuariosMemoria(usuario_prueba(False)), sesiones, reloj=lambda: ahora
+    )
     with pytest.raises(AutenticacionFallida):
         inactivo.autenticar("operador", "Clave segura 2026")
     activo = ServicioIdentidad(UsuariosMemoria(usuario_prueba()), sesiones, reloj=lambda: ahora)

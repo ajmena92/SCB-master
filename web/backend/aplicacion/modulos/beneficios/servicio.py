@@ -18,18 +18,26 @@ class ServicioBeneficios:
     def crear(self, datos: BeneficioEntrada, id_usuario: int, ip: str) -> BeneficioSalida:
         return _salida(self._repositorio.crear(self._normalizar(datos), id_usuario, ip))
 
-    def editar(self, id_beneficio: int, datos: BeneficioEntrada, id_usuario: int, ip: str) -> BeneficioSalida:
-        return _salida(self._repositorio.actualizar(id_beneficio, self._normalizar(datos), id_usuario, ip))
+    def editar(
+        self, id_beneficio: int, datos: BeneficioEntrada, id_usuario: int, ip: str
+    ) -> BeneficioSalida:
+        return _salida(
+            self._repositorio.actualizar(id_beneficio, self._normalizar(datos), id_usuario, ip)
+        )
 
     def obtener_asignacion(self, id_estudiante: int) -> AsignacionSalida:
         if id_estudiante < 1:
             raise ValueError("El estudiante no es válido")
         return AsignacionSalida(**self._repositorio.asignacion(id_estudiante))
 
-    def asignar(self, id_estudiante: int, datos: AsignacionEntrada, id_usuario: int, ip: str) -> AsignacionSalida:
+    def asignar(
+        self, id_estudiante: int, datos: AsignacionEntrada, id_usuario: int, ip: str
+    ) -> AsignacionSalida:
         if id_estudiante < 1:
             raise ValueError("El estudiante no es válido")
-        return AsignacionSalida(**self._repositorio.asignar(id_estudiante, datos.id_beneficio, id_usuario, ip))
+        return AsignacionSalida(
+            **self._repositorio.asignar(id_estudiante, datos.id_beneficio, id_usuario, ip)
+        )
 
     @staticmethod
     def _normalizar(datos: BeneficioEntrada) -> dict:

@@ -79,10 +79,18 @@ def crear_aplicacion(dependencias: DependenciasAplicacion | None = None) -> Fast
     repositorio_salud = RepositorioSalud(fabrica)
 
     def obtener_identidad() -> ServicioIdentidad:
-        return ServicioIdentidad(RepositorioSqlUsuarios(fabrica), RepositorioSqlSesiones(fabrica), timedelta(minutes=(configuracion.admin_session_minutes if configuracion else 60)))
+        return ServicioIdentidad(
+            RepositorioSqlUsuarios(fabrica),
+            RepositorioSqlSesiones(fabrica),
+            timedelta(minutes=(configuracion.admin_session_minutes if configuracion else 60)),
+        )
 
     def obtener_identidad_estudiante() -> ServicioIdentidad:
-        return ServicioIdentidad(RepositorioSqlUsuarios(fabrica), RepositorioSqlSesionesEstudiante(fabrica), timedelta(days=(configuracion.dias_sesion_estudiante if configuracion else 365)))
+        return ServicioIdentidad(
+            RepositorioSqlUsuarios(fabrica),
+            RepositorioSqlSesionesEstudiante(fabrica),
+            timedelta(days=(configuracion.dias_sesion_estudiante if configuracion else 365)),
+        )
 
     def obtener_rutas() -> Iterator[RepositorioSqlRutas]:
         yield RepositorioSqlRutas(fabrica)
@@ -205,7 +213,9 @@ def crear_aplicacion(dependencias: DependenciasAplicacion | None = None) -> Fast
             "obtener_menu": obtener_menu,
             "obtener_asistencia": obtener_asistencia,
             "cookies_seguras": dependencias.cookies_seguras,
-            "duracion_sesion_estudiante": configuracion.dias_sesion_estudiante * 24 * 60 * 60 if configuracion else 31536000,
+            "duracion_sesion_estudiante": configuracion.dias_sesion_estudiante * 24 * 60 * 60
+            if configuracion
+            else 31536000,
         },
         dependencias_identidad={
             "obtener_servicio": obtener_identidad,

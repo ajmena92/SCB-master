@@ -72,9 +72,17 @@ class RepositorioSqlEstudiantes:
             cursor = conexion.cursor()
             cursor.execute(
                 "SELECT seccion, COUNT(*) FROM estudiantes.estudiante WHERE activo=1 AND (? IS NULL OR turno=?) GROUP BY seccion ORDER BY seccion",
-                turno, turno,
+                turno,
+                turno,
             )
-            return [{"seccion": fila[0], "etiqueta": str(fila[0]) if fila[0] is not None else "__SIN_SECCION__", "total": int(str(fila[1]))} for fila in cursor.fetchall()]
+            return [
+                {
+                    "seccion": fila[0],
+                    "etiqueta": str(fila[0]) if fila[0] is not None else "__SIN_SECCION__",
+                    "total": int(str(fila[1])),
+                }
+                for fila in cursor.fetchall()
+            ]
 
     def asignar_beneficio(self, id_estudiante: int, id_beneficio: int | None) -> None:
         with self._fabrica.conexion() as conexion:
@@ -117,13 +125,19 @@ class RepositorioSqlEstudiantes:
             for id_estudiante, hash_pin in hashes.items():
                 cursor.execute(
                     "UPDATE estudiantes.estudiante SET hash_contrasena=?, debe_cambiar_pin=1, fecha_expiracion_pin=DATEADD(day, 1, SYSUTCDATETIME()) WHERE id_estudiante=? AND activo=1 AND ((seccion=? ) OR (seccion IS NULL AND ? IS NULL))",
-                    hash_pin, id_estudiante, seccion, seccion,
+                    hash_pin,
+                    id_estudiante,
+                    seccion,
+                    seccion,
                 )
 
     def buscar_credencial(self, carne: str) -> dict | None:
         with self._fabrica.conexion() as conexion:
             cursor = conexion.cursor()
-            cursor.execute("SELECT id_estudiante, carne, nombre, hash_contrasena, debe_cambiar_pin, fecha_expiracion_pin, activo FROM estudiantes.estudiante WHERE carne=? AND (fecha_expiracion_pin IS NULL OR fecha_expiracion_pin > SYSUTCDATETIME())", carne.strip())
+            cursor.execute(
+                "SELECT id_estudiante, carne, nombre, hash_contrasena, debe_cambiar_pin, fecha_expiracion_pin, activo FROM estudiantes.estudiante WHERE carne=? AND (fecha_expiracion_pin IS NULL OR fecha_expiracion_pin > SYSUTCDATETIME())",
+                carne.strip(),
+            )
             return self._fila(cursor)
 
     def buscar_credencial_por_id(self, id_estudiante: int) -> dict | None:
@@ -150,7 +164,11 @@ class RepositorioSqlEstudiantes:
 
     def actualizar_pin(self, id_estudiante: int, hash_pin: str) -> None:
         with self._fabrica.conexion() as conexion:
-            conexion.cursor().execute("UPDATE estudiantes.estudiante SET hash_contrasena=?, debe_cambiar_pin=0, fecha_expiracion_pin=NULL WHERE id_estudiante=? AND activo=1", hash_pin, id_estudiante)
+            conexion.cursor().execute(
+                "UPDATE estudiantes.estudiante SET hash_contrasena=?, debe_cambiar_pin=0, fecha_expiracion_pin=NULL WHERE id_estudiante=? AND activo=1",
+                hash_pin,
+                id_estudiante,
+            )
 
     @staticmethod
     def _fila(cursor: CursorSql) -> dict | None:

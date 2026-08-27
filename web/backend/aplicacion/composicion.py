@@ -43,7 +43,10 @@ def crear_enrutador_aplicacion(
     enrutador = APIRouter(prefix="/api/v1")
     enrutador.include_router(enrutador_salud)
     if dependencias_estudiantes:
-        dependencias_estudiantes_base = {k: dependencias_estudiantes[k] for k in ("obtener_repositorio", "exigir_permiso", "exigir_csrf", "obtener_ip")}
+        dependencias_estudiantes_base = {
+            k: dependencias_estudiantes[k]
+            for k in ("obtener_repositorio", "exigir_permiso", "exigir_csrf", "obtener_ip")
+        }
         # Las rutas literales del portal deben registrarse antes de
         # /estudiantes/{id_estudiante}, que de lo contrario intentaría
         # convertir "menu", "carnet" o "asistencia" a entero.

@@ -1,4 +1,5 @@
 """Añade credenciales PIN al dominio canónico de estudiantes."""
+
 from typing import Sequence, Union
 
 from alembic import op
@@ -34,7 +35,9 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     op.drop_column("estudiante", "seccion", schema="estudiantes")
-    op.execute("""DECLARE @sql nvarchar(max); SELECT @sql = N'ALTER TABLE estudiantes.estudiante DROP CONSTRAINT [' + dc.name + N']' FROM sys.default_constraints dc JOIN sys.columns c ON c.default_object_id=dc.object_id WHERE dc.parent_object_id=OBJECT_ID(N'estudiantes.estudiante') AND c.name=N'debe_cambiar_pin'; IF @sql IS NOT NULL EXEC sp_executesql @sql;""")
+    op.execute(
+        """DECLARE @sql nvarchar(max); SELECT @sql = N'ALTER TABLE estudiantes.estudiante DROP CONSTRAINT [' + dc.name + N']' FROM sys.default_constraints dc JOIN sys.columns c ON c.default_object_id=dc.object_id WHERE dc.parent_object_id=OBJECT_ID(N'estudiantes.estudiante') AND c.name=N'debe_cambiar_pin'; IF @sql IS NOT NULL EXEC sp_executesql @sql;"""
+    )
     op.drop_column("estudiante", "debe_cambiar_pin", schema="estudiantes")
     op.drop_column("estudiante", "hash_contrasena", schema="estudiantes")
     op.drop_column("estudiante", "id_beneficio", schema="estudiantes")

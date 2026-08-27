@@ -23,7 +23,7 @@ export default function AdminLogin() {
       await api.post(
         "/v1/autenticacion",
         { nombreUsuario, contrasena: password },
-        { skipAuthFailureHandling: true, skipCsrf: true },
+        { omitirManejoFalloAutenticacion: true, omitirCsrf: true },
       );
       await loadMe();
       navigate("/admin/panel", { replace: true });

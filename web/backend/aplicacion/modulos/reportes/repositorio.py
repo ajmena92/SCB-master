@@ -58,10 +58,16 @@ class RepositorioSqlReportes:
             cursor = conexion.cursor()
             cursor.execute("SELECT COUNT(*) estudiantes FROM estudiantes.estudiante WHERE activo=1")
             estudiantes = cursor.fetchone()
-            cursor.execute("SELECT COUNT(*) confirmaciones FROM asistencia.marca WHERE estado='confirmada'")
+            cursor.execute(
+                "SELECT COUNT(*) confirmaciones FROM asistencia.marca WHERE estado='confirmada'"
+            )
             confirmaciones = cursor.fetchone()
-            cursor.execute("SELECT COUNT(*) cancelaciones FROM asistencia.marca WHERE estado='cancelada'")
+            cursor.execute(
+                "SELECT COUNT(*) cancelaciones FROM asistencia.marca WHERE estado='cancelada'"
+            )
             cancelaciones = cursor.fetchone()
-        return {"estudiantes": int(str(estudiantes[0])) if estudiantes else 0,
-                "confirmaciones": int(str(confirmaciones[0])) if confirmaciones else 0,
-                "cancelaciones": int(str(cancelaciones[0])) if cancelaciones else 0}
+        return {
+            "estudiantes": int(str(estudiantes[0])) if estudiantes else 0,
+            "confirmaciones": int(str(confirmaciones[0])) if confirmaciones else 0,
+            "cancelaciones": int(str(cancelaciones[0])) if cancelaciones else 0,
+        }

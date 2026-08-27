@@ -77,7 +77,9 @@ def crear_enrutador(
         except AutenticacionFallida as exc:
             raise HTTPException(status.HTTP_401_UNAUTHORIZED, str(exc)) from exc
 
-    @enrutador.post("/autenticacion", response_model=AutenticacionSalida, response_model_by_alias=True)
+    @enrutador.post(
+        "/autenticacion", response_model=AutenticacionSalida, response_model_by_alias=True
+    )
     def autenticar(
         datos: CredencialesEntrada,
         respuesta: Response,
@@ -90,9 +92,27 @@ def crear_enrutador(
         token_csrf = secrets.token_urlsafe(32)
         caso_uso.establecer_csrf(resultado.id_sesion, token_csrf)
         id_sesion = resultado.id_sesion
-        respuesta.set_cookie(NOMBRE_COOKIE_ID_SESION, id_sesion, httponly=True, secure=cookies_seguras, samesite="strict")
-        respuesta.set_cookie(NOMBRE_COOKIE_SECRETO, resultado.secreto_sesion, httponly=True, secure=cookies_seguras, samesite="strict")
-        respuesta.set_cookie(NOMBRE_COOKIE_CSRF, token_csrf, httponly=False, secure=cookies_seguras, samesite="strict")
+        respuesta.set_cookie(
+            NOMBRE_COOKIE_ID_SESION,
+            id_sesion,
+            httponly=True,
+            secure=cookies_seguras,
+            samesite="strict",
+        )
+        respuesta.set_cookie(
+            NOMBRE_COOKIE_SECRETO,
+            resultado.secreto_sesion,
+            httponly=True,
+            secure=cookies_seguras,
+            samesite="strict",
+        )
+        respuesta.set_cookie(
+            NOMBRE_COOKIE_CSRF,
+            token_csrf,
+            httponly=False,
+            secure=cookies_seguras,
+            samesite="strict",
+        )
         return AutenticacionSalida(
             idUsuario=resultado.id_usuario,
             nombreUsuario=resultado.nombre_usuario,
@@ -137,14 +157,24 @@ def crear_enrutador(
                 buscar = getattr(repositorio, "buscar_por_id", None)
                 if callable(buscar):
                     datos = buscar(sesion.id_usuario) or {}
-                    perfil.update({
-                        "carne": datos.get("carne"),
-                        "nombre": datos.get("nombre"),
-                        "nombreCompleto": " ".join(str(datos.get(c) or "") for c in ("nombre", "primer_apellido", "segundo_apellido")).strip(),
-                        "tieneFoto": bool(datos.get("tiene_foto", False)),
-                        "debeCambiarPin": bool(datos.get("debe_cambiar_pin", False)),
-                    })
-            return SesionActualSalida(idUsuario=sesion.id_usuario, expiraEn=sesion.expira_en, tipo="estudiante", usuario=perfil)
+                    perfil.update(
+                        {
+                            "carne": datos.get("carne"),
+                            "nombre": datos.get("nombre"),
+                            "nombreCompleto": " ".join(
+                                str(datos.get(c) or "")
+                                for c in ("nombre", "primer_apellido", "segundo_apellido")
+                            ).strip(),
+                            "tieneFoto": bool(datos.get("tiene_foto", False)),
+                            "debeCambiarPin": bool(datos.get("debe_cambiar_pin", False)),
+                        }
+                    )
+            return SesionActualSalida(
+                idUsuario=sesion.id_usuario,
+                expiraEn=sesion.expira_en,
+                tipo="estudiante",
+                usuario=perfil,
+            )
 
     @enrutador.post("/sesion/cerrar", status_code=status.HTTP_204_NO_CONTENT)
     def cerrar_sesion(
@@ -169,7 +199,11 @@ def crear_enrutador(
                 servicio_sesion = caso_estudiante
             except AutenticacionFallida as exc:
                 raise HTTPException(status.HTTP_401_UNAUTHORIZED, str(exc)) from exc
-        if not token_csrf or token_csrf != csrf_cookie or not servicio_sesion.validar_csrf(sesion, token_csrf):
+        if (
+            not token_csrf
+            or token_csrf != csrf_cookie
+            or not servicio_sesion.validar_csrf(sesion, token_csrf)
+        ):
             raise HTTPException(status.HTTP_403_FORBIDDEN, "El token CSRF no es válido")
         servicio_sesion.cerrar_sesion(sesion.id_sesion)
         for nombre in (NOMBRE_COOKIE_ID_SESION, NOMBRE_COOKIE_SECRETO, NOMBRE_COOKIE_CSRF):

@@ -17,7 +17,7 @@ vi.mock("@/aplicacion/estado/ContextoAutenticacion", () => ({
 vi.mock("react-router-dom", () => ({ useNavigate: () => vi.fn() }), { virtual: true });
 vi.mock("sonner", () => ({ toast: { success: vi.fn(), warning: vi.fn(), error: vi.fn() } }));
 
-const menuResponse = {
+const respuestaMenu = {
   data: {
     menu: {
       Titulo: "Almuerzo",
@@ -26,7 +26,7 @@ const menuResponse = {
   },
 };
 
-const openAttendance = {
+const asistenciaAbierta = {
   data: {
     estado: null,
     descripcionHorario: "Diurno",
@@ -38,22 +38,22 @@ const openAttendance = {
   },
 };
 
-const beforeOpeningAttendance = {
+const asistenciaAntesDeApertura = {
   data: {
-    ...openAttendance.data,
+    ...asistenciaAbierta.data,
     periodoAbierto: false,
     segundosParaCierre: null,
   },
 };
 
-const justBeforeOpeningAttendance = {
+const asistenciaJustoAntesDeApertura = {
   data: {
-    ...beforeOpeningAttendance.data,
+    ...asistenciaAntesDeApertura.data,
     segundosParaApertura: 1,
   },
 };
 
-function deferred() {
+function diferida() {
   let resolve;
   let reject;
   const promise = new Promise((resolvePromise, rejectPromise) => {
@@ -95,7 +95,7 @@ describe("Portal del estudiante", () => {
 
   it("advances the server clock and remaining time every second between server refreshes", async () => {
     vi.useFakeTimers();
-    api.get.mockResolvedValueOnce(menuResponse).mockResolvedValueOnce(openAttendance);
+    api.get.mockResolvedValueOnce(respuestaMenu).mockResolvedValueOnce(asistenciaAbierta);
 
     await act(async () => {
       root.render(<PortalEstudiantePrueba />);
@@ -124,7 +124,7 @@ describe("Portal del estudiante", () => {
 
   it("keeps the server clock live before the confirmation window opens", async () => {
     vi.useFakeTimers();
-    api.get.mockResolvedValueOnce(menuResponse).mockResolvedValueOnce(beforeOpeningAttendance);
+    api.get.mockResolvedValueOnce(respuestaMenu).mockResolvedValueOnce(asistenciaAntesDeApertura);
 
     await act(async () => {
       root.render(<PortalEstudiantePrueba />);
@@ -142,13 +142,13 @@ describe("Portal del estudiante", () => {
 
   it("refreshes from the server exactly at opening before enabling attendance controls", async () => {
     vi.useFakeTimers();
-    const openingMenu = deferred();
-    const openingAttendance = deferred();
+    const menuApertura = diferida();
+    const asistenciaApertura = diferida();
     api.get
-      .mockResolvedValueOnce(menuResponse)
-      .mockResolvedValueOnce(justBeforeOpeningAttendance)
-      .mockImplementationOnce(() => openingMenu.promise)
-      .mockImplementationOnce(() => openingAttendance.promise);
+      .mockResolvedValueOnce(respuestaMenu)
+      .mockResolvedValueOnce(asistenciaJustoAntesDeApertura)
+      .mockImplementationOnce(() => menuApertura.promise)
+      .mockImplementationOnce(() => asistenciaApertura.promise);
 
     await act(async () => {
       root.render(<PortalEstudiantePrueba />);
@@ -166,8 +166,8 @@ describe("Portal del estudiante", () => {
     expect(container.querySelector('[data-testid="countdown-card"]')).toBeNull();
 
     await act(async () => {
-      openingMenu.resolve(menuResponse);
-      openingAttendance.resolve(openAttendance);
+      menuApertura.resolve(respuestaMenu);
+      asistenciaApertura.resolve(asistenciaAbierta);
       await Promise.resolve();
     });
 

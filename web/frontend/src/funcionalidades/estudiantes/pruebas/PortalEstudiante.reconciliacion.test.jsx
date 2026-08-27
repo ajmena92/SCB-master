@@ -17,7 +17,7 @@ vi.mock("@/aplicacion/estado/ContextoAutenticacion", () => ({
 vi.mock("react-router-dom", () => ({ useNavigate: () => vi.fn() }), { virtual: true });
 vi.mock("sonner", () => ({ toast: { success: vi.fn(), warning: vi.fn(), error: vi.fn() } }));
 
-const menuResponse = {
+const respuestaMenu = {
   data: {
     menu: {
       Titulo: "Almuerzo",
@@ -26,7 +26,7 @@ const menuResponse = {
   },
 };
 
-const openAttendance = {
+const asistenciaAbierta = {
   data: {
     estado: null,
     descripcionHorario: "Diurno",
@@ -38,15 +38,15 @@ const openAttendance = {
   },
 };
 
-const confirmedAttendance = {
+const asistenciaConfirmada = {
   data: {
-    ...openAttendance.data,
+    ...asistenciaAbierta.data,
     estado: "Confirmada",
     fechaHoraConfirmacionServidor: "2026-08-13 10:00:01",
   },
 };
 
-function deferred() {
+function diferida() {
   let resolve;
   let reject;
   const promise = new Promise((resolvePromise, rejectPromise) => {
@@ -88,17 +88,17 @@ describe("Portal del estudiante", () => {
 
   it("waits for a fresh attendance reload after confirming behind an in-flight periodic reload", async () => {
     vi.useFakeTimers();
-    const staleMenu = deferred();
-    const staleAttendance = deferred();
-    const freshMenu = deferred();
-    const freshAttendance = deferred();
+    const menuObsoleto = diferida();
+    const asistenciaObsoleta = diferida();
+    const menuActual = diferida();
+    const asistenciaActual = diferida();
     api.get
-      .mockResolvedValueOnce(menuResponse)
-      .mockResolvedValueOnce(openAttendance)
-      .mockImplementationOnce(() => staleMenu.promise)
-      .mockImplementationOnce(() => staleAttendance.promise)
-      .mockImplementationOnce(() => freshMenu.promise)
-      .mockImplementationOnce(() => freshAttendance.promise);
+      .mockResolvedValueOnce(respuestaMenu)
+      .mockResolvedValueOnce(asistenciaAbierta)
+      .mockImplementationOnce(() => menuObsoleto.promise)
+      .mockImplementationOnce(() => asistenciaObsoleta.promise)
+      .mockImplementationOnce(() => menuActual.promise)
+      .mockImplementationOnce(() => asistenciaActual.promise);
     api.post.mockResolvedValue({ data: { ok: true } });
 
     await act(async () => {
@@ -120,15 +120,15 @@ describe("Portal del estudiante", () => {
     expect(api.get).toHaveBeenCalledTimes(4);
 
     await act(async () => {
-      staleMenu.resolve(menuResponse);
-      staleAttendance.resolve(openAttendance);
+      menuObsoleto.resolve(respuestaMenu);
+      asistenciaObsoleta.resolve(asistenciaAbierta);
       await Promise.resolve();
     });
     expect(api.get).toHaveBeenCalledTimes(6);
 
     await act(async () => {
-      freshMenu.resolve(menuResponse);
-      freshAttendance.resolve(confirmedAttendance);
+      menuActual.resolve(respuestaMenu);
+      asistenciaActual.resolve(asistenciaConfirmada);
       await Promise.resolve();
     });
 
@@ -138,13 +138,13 @@ describe("Portal del estudiante", () => {
 
   it("applies an attendance response when the concurrent menu request fails", async () => {
     vi.useFakeTimers();
-    const failedMenu = deferred();
-    const confirmedAttendanceRefresh = deferred();
+    const menuFallido = diferida();
+    const actualizacionAsistenciaConfirmada = diferida();
     api.get
-      .mockResolvedValueOnce(menuResponse)
-      .mockResolvedValueOnce(openAttendance)
-      .mockImplementationOnce(() => failedMenu.promise)
-      .mockImplementationOnce(() => confirmedAttendanceRefresh.promise);
+      .mockResolvedValueOnce(respuestaMenu)
+      .mockResolvedValueOnce(asistenciaAbierta)
+      .mockImplementationOnce(() => menuFallido.promise)
+      .mockImplementationOnce(() => actualizacionAsistenciaConfirmada.promise);
 
     await act(async () => {
       root.render(<PortalEstudiantePrueba />);
@@ -152,8 +152,8 @@ describe("Portal del estudiante", () => {
 
     await act(async () => {
       vi.advanceTimersByTime(60_000);
-      failedMenu.reject(new Error("menú temporalmente no disponible"));
-      confirmedAttendanceRefresh.resolve(confirmedAttendance);
+      menuFallido.reject(new Error("menú temporalmente no disponible"));
+      actualizacionAsistenciaConfirmada.resolve(asistenciaConfirmada);
       await Promise.resolve();
     });
 

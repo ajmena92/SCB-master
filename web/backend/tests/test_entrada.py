@@ -21,7 +21,9 @@ def test_entrada_publica_rutas_canonicas_y_no_legacy() -> None:
         "/api/v1/parametros",
         "/api/v1/calendario",
     } <= rutas
-    assert not any("/admin/" in ruta or ruta.startswith("/api/admin") or "legacy" in ruta for ruta in rutas)
+    assert not any(
+        "/admin/" in ruta or ruta.startswith("/api/admin") or "legacy" in ruta for ruta in rutas
+    )
     assert isinstance(aplicacion, FastAPI)
 
 

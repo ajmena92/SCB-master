@@ -17,16 +17,32 @@ class ServicioFalso:
     def autenticar(self, nombre_usuario: str, contrasena: str) -> ResultadoAutenticacion:
         assert nombre_usuario == "operador" and contrasena == "Clave segura 2026"
         expira = datetime.now(timezone.utc).replace(microsecond=0)
-        self.sesion = SesionPersistida(idSesion="sesion-1", idUsuario=7, secretoHash="digest", expiraEn=expira)
-        return ResultadoAutenticacion(idSesion="sesion-1", idUsuario=7, nombreUsuario="operador", secretoSesion="secreto", expiraEn=expira, permisos=frozenset({"rutas.administrar"}))
+        self.sesion = SesionPersistida(
+            idSesion="sesion-1", idUsuario=7, secretoHash="digest", expiraEn=expira
+        )
+        return ResultadoAutenticacion(
+            idSesion="sesion-1",
+            idUsuario=7,
+            nombreUsuario="operador",
+            secretoSesion="secreto",
+            expiraEn=expira,
+            permisos=frozenset({"rutas.administrar"}),
+        )
 
     def establecer_csrf(self, id_sesion: str, token: str) -> None:
         assert self.sesion and id_sesion == self.sesion.id_sesion
         self.token_csrf = token
-        self.sesion = self.sesion.model_copy(update={"csrf_hash": __import__("hashlib").sha256(token.encode()).hexdigest()})
+        self.sesion = self.sesion.model_copy(
+            update={"csrf_hash": __import__("hashlib").sha256(token.encode()).hexdigest()}
+        )
 
     def validar_sesion(self, id_sesion: str, secreto: str) -> SesionPersistida:
-        if not self.sesion or id_sesion != self.sesion.id_sesion or secreto != "secreto" or self.sesion.revocada:
+        if (
+            not self.sesion
+            or id_sesion != self.sesion.id_sesion
+            or secreto != "secreto"
+            or self.sesion.revocada
+        ):
             raise AutenticacionFallida("La sesión no es válida")
         return self.sesion
 
@@ -46,10 +62,17 @@ def servicio_falso() -> ServicioFalso:
 def test_autenticacion_emite_cookies_y_sesion_actual() -> None:
     servicio = servicio_falso()
     ruta = next(
-        ruta for ruta in getattr(crear_enrutador(cast(Any, lambda: servicio), cookies_seguras=False), "routes")
+        ruta
+        for ruta in getattr(
+            crear_enrutador(cast(Any, lambda: servicio), cookies_seguras=False), "routes"
+        )
         if isinstance(ruta, RutaAPI) and ruta.path == "/autenticacion"
     )
-    salida = ruta.endpoint(CredencialesEntrada(nombreUsuario="operador", contrasena="Clave segura 2026"), Response(), servicio)
+    salida = ruta.endpoint(
+        CredencialesEntrada(nombreUsuario="operador", contrasena="Clave segura 2026"),
+        Response(),
+        servicio,
+    )
     assert salida.id_usuario == 7
     assert servicio.sesion is not None
 
@@ -58,19 +81,36 @@ def test_cierre_exige_csrf_y_revoca_sesion() -> None:
     servicio = servicio_falso()
     enrutador = crear_enrutador(cast(Any, lambda: servicio), cookies_seguras=False)
     autenticacion = next(
-        ruta for ruta in getattr(enrutador, "routes")
+        ruta
+        for ruta in getattr(enrutador, "routes")
         if isinstance(ruta, RutaAPI) and ruta.path == "/autenticacion"
     )
     cierre = next(
-        ruta for ruta in getattr(enrutador, "routes")
+        ruta
+        for ruta in getattr(enrutador, "routes")
         if isinstance(ruta, RutaAPI) and ruta.path == "/sesion/cerrar"
     )
-    autenticacion.endpoint(CredencialesEntrada(nombreUsuario="operador", contrasena="Clave segura 2026"), Response(), servicio)
+    autenticacion.endpoint(
+        CredencialesEntrada(nombreUsuario="operador", contrasena="Clave segura 2026"),
+        Response(),
+        servicio,
+    )
     assert servicio.sesion is not None
     from fastapi import HTTPException
+
     try:
-        cierre.endpoint(Response(), servicio.sesion.id_sesion, "secreto", None, None, servicio, None)
+        cierre.endpoint(
+            Response(), servicio.sesion.id_sesion, "secreto", None, None, servicio, None
+        )
     except HTTPException as error:
         assert error.status_code == 403
-    cierre.endpoint(Response(), servicio.sesion.id_sesion, "secreto", servicio.token_csrf, servicio.token_csrf, servicio, None)
+    cierre.endpoint(
+        Response(),
+        servicio.sesion.id_sesion,
+        "secreto",
+        servicio.token_csrf,
+        servicio.token_csrf,
+        servicio,
+        None,
+    )
     assert servicio.sesion.revocada
