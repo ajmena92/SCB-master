@@ -84,8 +84,14 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    op.execute("IF OBJECT_ID(N'identidad.usuario_rol', N'U') IS NOT NULL DROP TABLE identidad.usuario_rol")
-    op.execute("IF OBJECT_ID(N'identidad.rol_permiso', N'U') IS NOT NULL DROP TABLE identidad.rol_permiso")
-    op.execute("IF OBJECT_ID(N'identidad.usuario_permiso', N'U') IS NOT NULL DROP TABLE identidad.usuario_permiso")
+    op.execute(
+        "IF OBJECT_ID(N'identidad.usuario_rol', N'U') IS NOT NULL DROP TABLE identidad.usuario_rol"
+    )
+    op.execute(
+        "IF OBJECT_ID(N'identidad.rol_permiso', N'U') IS NOT NULL DROP TABLE identidad.rol_permiso"
+    )
+    op.execute(
+        "IF OBJECT_ID(N'identidad.usuario_permiso', N'U') IS NOT NULL DROP TABLE identidad.usuario_permiso"
+    )
     op.execute("IF OBJECT_ID(N'identidad.rol', N'U') IS NOT NULL DROP TABLE identidad.rol")
     op.execute("IF OBJECT_ID(N'identidad.permiso', N'U') IS NOT NULL DROP TABLE identidad.permiso")

@@ -14,7 +14,12 @@ class RepositorioFalso:
         self.movimientos: dict[str, dict] = {}
 
     def saldo(self, id_estudiante: int) -> dict:
-        return {"id_cuenta": 4, "id_estudiante": id_estudiante, "saldo": self.saldo_actual, "actualizado_en": datetime.now(timezone.utc)}
+        return {
+            "id_cuenta": 4,
+            "id_estudiante": id_estudiante,
+            "saldo": self.saldo_actual,
+            "actualizado_en": datetime.now(timezone.utc),
+        }
 
     def movimiento(self, id_estudiante: int, datos: dict, id_usuario: int, ip: str) -> dict:
         if datos["clave_idempotencia"] in self.movimientos:
@@ -23,12 +28,26 @@ class RepositorioFalso:
         self.saldo_actual += datos["monto"] if datos["tipo"] != "consumo" else -datos["monto"]
         if self.saldo_actual < 0:
             raise ValueError("El saldo no puede quedar negativo")
-        resultado = {"id_movimiento": len(self.movimientos) + 1, "id_cuenta": 4, "tipo": datos["tipo"], "monto": datos["monto"], "saldo_anterior": anterior, "saldo_nuevo": self.saldo_actual, "clave_idempotencia": datos["clave_idempotencia"], "concepto": datos.get("concepto"), "creado_en": datetime.now(timezone.utc)}
+        resultado = {
+            "id_movimiento": len(self.movimientos) + 1,
+            "id_cuenta": 4,
+            "tipo": datos["tipo"],
+            "monto": datos["monto"],
+            "saldo_anterior": anterior,
+            "saldo_nuevo": self.saldo_actual,
+            "clave_idempotencia": datos["clave_idempotencia"],
+            "concepto": datos.get("concepto"),
+            "creado_en": datetime.now(timezone.utc),
+        }
         self.movimientos[datos["clave_idempotencia"]] = resultado
         return resultado
 
 
-def movimiento(tipo: Literal["recarga", "consumo", "ajuste"] = "recarga", monto: str = "5.00", clave: str = "recarga-001") -> MovimientoEntrada:
+def movimiento(
+    tipo: Literal["recarga", "consumo", "ajuste"] = "recarga",
+    monto: str = "5.00",
+    clave: str = "recarga-001",
+) -> MovimientoEntrada:
     return MovimientoEntrada(tipo=tipo, monto=Decimal(monto), claveIdempotencia=clave)
 
 
@@ -50,4 +69,6 @@ def test_clave_idempotencia_no_duplica_movimiento() -> None:
 def test_consumo_no_puede_dejar_saldo_negativo() -> None:
     repo = RepositorioFalso()
     with pytest.raises(ValueError, match="negativo"):
-        ServicioCuentas(repo).registrar_movimiento(8, movimiento("consumo", "11.00", "consumo-001"), 3, "WEB")
+        ServicioCuentas(repo).registrar_movimiento(
+            8, movimiento("consumo", "11.00", "consumo-001"), 3, "WEB"
+        )

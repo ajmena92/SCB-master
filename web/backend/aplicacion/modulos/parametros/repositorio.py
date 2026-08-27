@@ -17,7 +17,9 @@ class RepositorioSqlParametros:
     def obtener(self) -> dict:
         with self._fabrica.conexion() as conexion:
             cursor = conexion.cursor()
-            cursor.execute("SELECT minutos_aviso_previo FROM comedor.parametro WHERE id_parametro=1")
+            cursor.execute(
+                "SELECT minutos_aviso_previo FROM comedor.parametro WHERE id_parametro=1"
+            )
             fila = cursor.fetchone()
         return {"minutos_aviso_previo": int(str(fila[0])) if fila else 15}
 
@@ -27,7 +29,8 @@ class RepositorioSqlParametros:
                 "MERGE comedor.parametro AS t USING (SELECT 1 id_parametro, ? minutos_aviso_previo) s "
                 "ON t.id_parametro=s.id_parametro WHEN MATCHED THEN UPDATE SET minutos_aviso_previo=s.minutos_aviso_previo "
                 "WHEN NOT MATCHED THEN INSERT(id_parametro,minutos_aviso_previo,actualizado_en) VALUES(1,?,SYSUTCDATETIME());",
-                minutos, minutos,
+                minutos,
+                minutos,
             )
         return {"minutos_aviso_previo": minutos}
 
@@ -36,5 +39,9 @@ class RepositorioSqlParametros:
         fin = date(anio + (mes == 12), (mes % 12) + 1, 1)
         with self._fabrica.conexion() as conexion:
             cursor = conexion.cursor()
-            cursor.execute("SELECT fecha,habilitado FROM menu.calendario WHERE fecha>=? AND fecha<? ORDER BY fecha", inicio, fin)
+            cursor.execute(
+                "SELECT fecha,habilitado FROM menu.calendario WHERE fecha>=? AND fecha<? ORDER BY fecha",
+                inicio,
+                fin,
+            )
             return [{"fecha": fila[0], "habilitado": bool(fila[1])} for fila in cursor.fetchall()]

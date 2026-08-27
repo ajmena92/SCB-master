@@ -1,4 +1,5 @@
 """Normaliza la tabla de estudiantes al contrato canónico en español."""
+
 from typing import Sequence, Union
 
 from alembic import op
@@ -7,6 +8,7 @@ revision: str = "0010_normaliza_estudiante"
 down_revision: Union[str, None] = "0009_expiracion_pin"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
+
 
 def upgrade() -> None:
     op.execute("""
@@ -20,6 +22,7 @@ def upgrade() -> None:
        AND COL_LENGTH(N'estudiantes.estudiante', N'nombre_completo') IS NOT NULL
         EXEC sp_executesql N'UPDATE e SET carne=COALESCE(carne, identificacion), nombre=COALESCE(nombre, nombre_completo) FROM estudiantes.estudiante e WHERE (carne IS NULL AND identificacion IS NOT NULL) OR (nombre IS NULL AND nombre_completo IS NOT NULL)';
     """)
+
 
 def downgrade() -> None:
     op.execute("""

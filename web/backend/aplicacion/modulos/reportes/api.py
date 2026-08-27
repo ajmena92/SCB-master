@@ -38,15 +38,21 @@ def crear_enrutador(
         _usuario: dict = Depends(exigir_permiso("reportes.exportar")),
         caso: ServicioReportes = Depends(servicio),
     ) -> Response:
-        return Response(caso.estudiantes_csv(), media_type="text/csv; charset=utf-8",
-                        headers={"Content-Disposition": "attachment; filename=reporte_estudiantes.csv"})
+        return Response(
+            caso.estudiantes_csv(),
+            media_type="text/csv; charset=utf-8",
+            headers={"Content-Disposition": "attachment; filename=reporte_estudiantes.csv"},
+        )
 
     @enrutador.get("/transporte.csv", response_class=Response)
     def transporte_csv(
         _usuario: dict = Depends(exigir_permiso("reportes.exportar")),
         caso: ServicioReportes = Depends(servicio),
     ) -> Response:
-        return Response(caso.transporte_csv(), media_type="text/csv; charset=utf-8",
-                        headers={"Content-Disposition": "attachment; filename=reporte_transporte.csv"})
+        return Response(
+            caso.transporte_csv(),
+            media_type="text/csv; charset=utf-8",
+            headers={"Content-Disposition": "attachment; filename=reporte_transporte.csv"},
+        )
 
     return enrutador

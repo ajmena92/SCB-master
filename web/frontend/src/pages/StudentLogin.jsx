@@ -35,7 +35,7 @@ export default function StudentLogin() {
       const { data } = await api.post(
         "/v1/estudiantes/autenticacion",
         { carne, pin },
-        { skipAuthFailureHandling: true, skipCsrf: true },
+        { omitirManejoFalloAutenticacion: true, omitirCsrf: true },
       );
       await loadMe();
       navigate(data.debeCambiarPin ? "/cambiar-pin" : "/estudiante", { replace: true });

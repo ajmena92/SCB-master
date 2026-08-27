@@ -14,7 +14,9 @@ class ServicioEstudiantes:
 
     def listar(self, pagina: int, tamano: int, buscar: str) -> PaginaEstudiantes:
         elementos, total = self._repositorio.listar(pagina, tamano, buscar)
-        return PaginaEstudiantes(elementos=[_salida(e) for e in elementos], pagina=pagina, tamano=tamano, total=total)
+        return PaginaEstudiantes(
+            elementos=[_salida(e) for e in elementos], pagina=pagina, tamano=tamano, total=total
+        )
 
     def obtener(self, id_estudiante: int) -> EstudianteSalida:
         resultado = self._repositorio.buscar_por_id(id_estudiante)
@@ -25,13 +27,24 @@ class ServicioEstudiantes:
     def crear(self, datos: EstudianteEntrada, id_usuario: int, ip: str) -> EstudianteSalida:
         return _salida(self._repositorio.crear(self._normalizar(datos), id_usuario, ip))
 
-    def editar(self, id_estudiante: int, datos: EstudianteEntrada, id_usuario: int, ip: str) -> EstudianteSalida:
-        return _salida(self._repositorio.actualizar(id_estudiante, self._normalizar(datos), id_usuario, ip))
+    def editar(
+        self, id_estudiante: int, datos: EstudianteEntrada, id_usuario: int, ip: str
+    ) -> EstudianteSalida:
+        return _salida(
+            self._repositorio.actualizar(id_estudiante, self._normalizar(datos), id_usuario, ip)
+        )
 
     @staticmethod
     def _normalizar(datos: EstudianteEntrada) -> dict:
         valores = datos.model_dump()
-        for campo in ("carne", "nombre", "primer_apellido", "segundo_apellido", "cedula", "seccion"):
+        for campo in (
+            "carne",
+            "nombre",
+            "primer_apellido",
+            "segundo_apellido",
+            "cedula",
+            "seccion",
+        ):
             if isinstance(valores[campo], str):
                 valores[campo] = " ".join(valores[campo].split()) or None
         if not valores["carne"] or not valores["nombre"] or not valores["primer_apellido"]:

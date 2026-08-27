@@ -14,14 +14,31 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 target_metadata = BaseDeclarativa.metadata
-_ESQUEMAS_CANONICOS = {"identidad", "estudiantes", "transporte", "asistencia", "beneficios", "cuentas", "reportes", "importaciones", "auditoria", "menu", "comedor", "soporte"}
+_ESQUEMAS_CANONICOS = {
+    "identidad",
+    "estudiantes",
+    "transporte",
+    "asistencia",
+    "beneficios",
+    "cuentas",
+    "reportes",
+    "importaciones",
+    "auditoria",
+    "menu",
+    "comedor",
+    "soporte",
+}
 
 
 def _incluir_objeto(objeto, nombre, tipo, reflejado, comparado):
     """No propone borrar objetos históricos fuera de los esquemas web."""
     if tipo == "table" and reflejado and getattr(objeto, "schema", None) not in _ESQUEMAS_CANONICOS:
         return False
-    if tipo == "column" and getattr(getattr(objeto, "table", None), "schema", None) == "estudiantes" and getattr(getattr(objeto, "table", None), "name", None) == "estudiante":
+    if (
+        tipo == "column"
+        and getattr(getattr(objeto, "table", None), "schema", None) == "estudiantes"
+        and getattr(getattr(objeto, "table", None), "name", None) == "estudiante"
+    ):
         return False
     return True
 
@@ -37,8 +54,14 @@ def _url(*, en_linea: bool) -> str | URL:
 
 
 def run_migrations_offline() -> None:
-    context.configure(url=_url(en_linea=False), target_metadata=target_metadata, literal_binds=True,
-                      dialect_opts={"paramstyle": "named"}, include_schemas=True, include_object=_incluir_objeto)
+    context.configure(
+        url=_url(en_linea=False),
+        target_metadata=target_metadata,
+        literal_binds=True,
+        dialect_opts={"paramstyle": "named"},
+        include_schemas=True,
+        include_object=_incluir_objeto,
+    )
     with context.begin_transaction():
         context.run_migrations()
 
@@ -49,11 +72,16 @@ def run_migrations_online() -> None:
     configuracion.pop("sqlalchemy.url", None)
     from sqlalchemy import create_engine
 
-    conexion = create_engine(str(_url(en_linea=True)), poolclass=pool.NullPool,
-                             dialect=DialectoSqlServerCompatible())
+    conexion = create_engine(
+        str(_url(en_linea=True)), poolclass=pool.NullPool, dialect=DialectoSqlServerCompatible()
+    )
     with conexion.connect() as connection:
-        context.configure(connection=connection, target_metadata=target_metadata,
-                          include_schemas=True, include_object=_incluir_objeto)
+        context.configure(
+            connection=connection,
+            target_metadata=target_metadata,
+            include_schemas=True,
+            include_object=_incluir_objeto,
+        )
         with context.begin_transaction():
             context.run_migrations()
 

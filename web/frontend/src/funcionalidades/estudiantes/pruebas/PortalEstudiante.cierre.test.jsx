@@ -17,7 +17,7 @@ vi.mock("@/aplicacion/estado/ContextoAutenticacion", () => ({
 vi.mock("react-router-dom", () => ({ useNavigate: () => vi.fn() }), { virtual: true });
 vi.mock("sonner", () => ({ toast: { success: vi.fn(), warning: vi.fn(), error: vi.fn() } }));
 
-const menuResponse = {
+const respuestaMenu = {
   data: {
     menu: {
       Titulo: "Almuerzo",
@@ -26,7 +26,7 @@ const menuResponse = {
   },
 };
 
-const openAttendance = {
+const asistenciaAbierta = {
   data: {
     estado: null,
     descripcionHorario: "Diurno",
@@ -38,48 +38,48 @@ const openAttendance = {
   },
 };
 
-const confirmedAttendance = {
+const asistenciaConfirmada = {
   data: {
-    ...openAttendance.data,
+    ...asistenciaAbierta.data,
     estado: "Confirmada",
     fechaHoraConfirmacionServidor: "2026-08-13 10:00:01",
   },
 };
 
-const closedConfirmedAttendance = {
+const asistenciaConfirmadaCerrada = {
   data: {
-    ...confirmedAttendance.data,
+    ...asistenciaConfirmada.data,
     periodoCerrado: true,
     segundosParaCierre: 0,
   },
 };
 
-const closedUnconfirmedAttendance = {
+const asistenciaNoMarcadaCerrada = {
   data: {
-    ...openAttendance.data,
+    ...asistenciaAbierta.data,
     estado: "Cancelada",
     periodoCerrado: true,
     segundosParaCierre: 0,
   },
 };
 
-const justBeforeCloseConfirmedAttendance = {
+const asistenciaConfirmadaJustoAntesDelCierre = {
   data: {
-    ...confirmedAttendance.data,
+    ...asistenciaConfirmada.data,
     segundosParaCierre: 1,
   },
 };
 
-const justBeforeCloseAttendance = {
+const asistenciaJustoAntesDelCierre = {
   data: {
-    ...openAttendance.data,
+    ...asistenciaAbierta.data,
     segundosParaCierre: 1,
   },
 };
 
-const extendedOpenAttendance = {
+const asistenciaAbiertaExtendida = {
   data: {
-    ...openAttendance.data,
+    ...asistenciaAbierta.data,
     horaLimite: "13:00",
     segundosParaCierre: 3_600,
   },
@@ -118,10 +118,10 @@ describe("Portal del estudiante", () => {
   it("transitions from the final visible second to the closed, non-interactive result", async () => {
     vi.useFakeTimers();
     api.get
-      .mockResolvedValueOnce(menuResponse)
-      .mockResolvedValueOnce(justBeforeCloseConfirmedAttendance)
-      .mockResolvedValueOnce(menuResponse)
-      .mockResolvedValueOnce(closedConfirmedAttendance);
+      .mockResolvedValueOnce(respuestaMenu)
+      .mockResolvedValueOnce(asistenciaConfirmadaJustoAntesDelCierre)
+      .mockResolvedValueOnce(respuestaMenu)
+      .mockResolvedValueOnce(asistenciaConfirmadaCerrada);
 
     await act(async () => {
       root.render(<PortalEstudiantePrueba />);
@@ -159,10 +159,10 @@ describe("Portal del estudiante", () => {
   it("reopens local closure controls when the server extends the cutoff dynamically", async () => {
     vi.useFakeTimers();
     api.get
-      .mockResolvedValueOnce(menuResponse)
-      .mockResolvedValueOnce(justBeforeCloseAttendance)
-      .mockResolvedValueOnce(menuResponse)
-      .mockResolvedValueOnce(extendedOpenAttendance);
+      .mockResolvedValueOnce(respuestaMenu)
+      .mockResolvedValueOnce(asistenciaJustoAntesDelCierre)
+      .mockResolvedValueOnce(respuestaMenu)
+      .mockResolvedValueOnce(asistenciaAbiertaExtendida);
 
     await act(async () => {
       root.render(<PortalEstudiantePrueba />);
@@ -182,10 +182,10 @@ describe("Portal del estudiante", () => {
   it("keeps cancellation available immediately before closing and removes it at closing", async () => {
     vi.useFakeTimers();
     api.get
-      .mockResolvedValueOnce(menuResponse)
-      .mockResolvedValueOnce(justBeforeCloseConfirmedAttendance)
-      .mockResolvedValueOnce(menuResponse)
-      .mockResolvedValueOnce(closedConfirmedAttendance);
+      .mockResolvedValueOnce(respuestaMenu)
+      .mockResolvedValueOnce(asistenciaConfirmadaJustoAntesDelCierre)
+      .mockResolvedValueOnce(respuestaMenu)
+      .mockResolvedValueOnce(asistenciaConfirmadaCerrada);
 
     await act(async () => {
       root.render(<PortalEstudiantePrueba />);
@@ -214,12 +214,12 @@ describe("Portal del estudiante", () => {
   });
 
   it.each([
-    ["confirmada", closedConfirmedAttendance, "Marcó asistencia al comedor"],
-    ["cancelada", closedUnconfirmedAttendance, "No marcó asistencia al comedor"],
+    ["confirmada", asistenciaConfirmadaCerrada, "Marcó asistencia al comedor"],
+    ["cancelada", asistenciaNoMarcadaCerrada, "No marcó asistencia al comedor"],
   ])(
     "shows only the final state and no actions after closure for an attendance %s",
-    async (_label, attendance, finalText) => {
-      api.get.mockResolvedValueOnce(menuResponse).mockResolvedValueOnce(attendance);
+    async (_label, asistencia, textoFinal) => {
+      api.get.mockResolvedValueOnce(respuestaMenu).mockResolvedValueOnce(asistencia);
 
       await act(async () => {
         root.render(<PortalEstudiantePrueba />);
@@ -231,7 +231,7 @@ describe("Portal del estudiante", () => {
       expect(container.querySelector('[data-testid="decline-btn"]')).toBeNull();
       expect(
         container.querySelector('[data-testid="final-attendance-status"]').textContent,
-      ).toContain(finalText);
+      ).toContain(textoFinal);
       expect(container.querySelector('[data-testid="menu-card"]')).not.toBeNull();
     },
   );

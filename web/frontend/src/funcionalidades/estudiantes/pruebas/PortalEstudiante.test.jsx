@@ -17,7 +17,7 @@ vi.mock("@/aplicacion/estado/ContextoAutenticacion", () => ({
 vi.mock("react-router-dom", () => ({ useNavigate: () => vi.fn() }), { virtual: true });
 vi.mock("sonner", () => ({ toast: { success: vi.fn(), warning: vi.fn(), error: vi.fn() } }));
 
-const menuResponse = {
+const respuestaMenu = {
   data: {
     menu: {
       Titulo: "Almuerzo",
@@ -26,7 +26,7 @@ const menuResponse = {
   },
 };
 
-const openAttendance = {
+const asistenciaAbierta = {
   data: {
     estado: null,
     descripcionHorario: "Diurno",
@@ -38,17 +38,17 @@ const openAttendance = {
   },
 };
 
-const confirmedAttendance = {
+const asistenciaConfirmada = {
   data: {
-    ...openAttendance.data,
+    ...asistenciaAbierta.data,
     estado: "Confirmada",
     fechaHoraConfirmacionServidor: "2026-08-13 10:00:01",
   },
 };
 
-const declinedOpenAttendance = {
+const asistenciaCanceladaAbierta = {
   data: {
-    ...openAttendance.data,
+    ...asistenciaAbierta.data,
     estado: "Cancelada",
   },
 };
@@ -85,10 +85,10 @@ describe("Portal del estudiante", () => {
 
   it("moves focus to the confirmation card after a successful confirmation", async () => {
     api.get
-      .mockResolvedValueOnce(menuResponse)
-      .mockResolvedValueOnce(openAttendance)
-      .mockResolvedValueOnce(menuResponse)
-      .mockResolvedValueOnce(confirmedAttendance);
+      .mockResolvedValueOnce(respuestaMenu)
+      .mockResolvedValueOnce(asistenciaAbierta)
+      .mockResolvedValueOnce(respuestaMenu)
+      .mockResolvedValueOnce(asistenciaConfirmada);
     api.post.mockResolvedValue({ data: { ok: true } });
 
     await act(async () => {
@@ -122,10 +122,10 @@ describe("Portal del estudiante", () => {
 
   it("keeps confirmation disabled and uses No asistiré to remove a confirmed attendance", async () => {
     api.get
-      .mockResolvedValueOnce(menuResponse)
-      .mockResolvedValueOnce(confirmedAttendance)
-      .mockResolvedValueOnce(menuResponse)
-      .mockResolvedValueOnce(declinedOpenAttendance);
+      .mockResolvedValueOnce(respuestaMenu)
+      .mockResolvedValueOnce(asistenciaConfirmada)
+      .mockResolvedValueOnce(respuestaMenu)
+      .mockResolvedValueOnce(asistenciaCanceladaAbierta);
     api.post.mockResolvedValue({ data: { ok: true } });
 
     await act(async () => {

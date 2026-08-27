@@ -61,9 +61,7 @@ class RepositorioSqlCuentas:
     def movimiento(self, id_estudiante: int, datos: dict, id_usuario: int, ip: str) -> dict:
         with self._fabrica.conexion() as conexion:
             cursor = conexion.cursor()
-            existente = self._buscar_movimiento(
-                cursor, id_estudiante, datos["clave_idempotencia"]
-            )
+            existente = self._buscar_movimiento(cursor, id_estudiante, datos["clave_idempotencia"])
             if existente is not None:
                 return existente
             cursor.execute(
@@ -94,8 +92,16 @@ class RepositorioSqlCuentas:
                     "OUTPUT INSERTED.id_movimiento, INSERTED.id_cuenta, INSERTED.tipo, INSERTED.monto, "
                     "INSERTED.saldo_anterior, INSERTED.saldo_nuevo, INSERTED.clave_idempotencia, "
                     "INSERTED.concepto, INSERTED.creado_en VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                    cuenta["id_cuenta"], id_estudiante, datos["tipo"], datos["monto"], saldo_anterior,
-                    saldo_nuevo, datos["clave_idempotencia"], datos.get("concepto"), id_usuario, ip or "WEB",
+                    cuenta["id_cuenta"],
+                    id_estudiante,
+                    datos["tipo"],
+                    datos["monto"],
+                    saldo_anterior,
+                    saldo_nuevo,
+                    datos["clave_idempotencia"],
+                    datos.get("concepto"),
+                    id_usuario,
+                    ip or "WEB",
                 )
             except Exception as error:
                 if not self._es_conflicto_idempotencia(error):

@@ -8,23 +8,35 @@ class RepositorioFalso:
 
     def listar(self, incluir_inactivas: bool = False) -> list[dict]:
         self.llamadas.append(("listar", incluir_inactivas))
-        return [{
-            "id_ruta": 1, "codigo": "A1", "descripcion": "Ruta central",
-            "activo": True, "color_hex": "#38BDF8", "estudiantes_asignados": 3,
-        }]
+        return [
+            {
+                "id_ruta": 1,
+                "codigo": "A1",
+                "descripcion": "Ruta central",
+                "activo": True,
+                "color_hex": "#38BDF8",
+                "estudiantes_asignados": 3,
+            }
+        ]
 
     def crear(self, *argumentos: object) -> dict:
         self.llamadas.append(("crear", *argumentos))
         return {
-            "id_ruta": 2, "codigo": argumentos[0], "descripcion": argumentos[1],
-            "activo": argumentos[2], "color_hex": argumentos[3],
+            "id_ruta": 2,
+            "codigo": argumentos[0],
+            "descripcion": argumentos[1],
+            "activo": argumentos[2],
+            "color_hex": argumentos[3],
         }
 
     def actualizar(self, *argumentos: object) -> dict:
         self.llamadas.append(("actualizar", *argumentos))
         return {
-            "id_ruta": argumentos[0], "codigo": argumentos[1], "descripcion": argumentos[2],
-            "activo": argumentos[3], "color_hex": argumentos[4],
+            "id_ruta": argumentos[0],
+            "codigo": argumentos[1],
+            "descripcion": argumentos[2],
+            "activo": argumentos[3],
+            "color_hex": argumentos[4],
         }
 
 
@@ -42,7 +54,15 @@ def test_crear_normaliza_texto_y_color() -> None:
     repositorio = RepositorioFalso()
     resultado = ServicioRutas(repositorio).crear(entrada(), 7, "10.0.0.1")
     assert resultado.color_carnet_hex == "#38BDF8"
-    assert repositorio.llamadas[0] == ("crear", "A1", "Ruta central", True, "#38BDF8", 7, "10.0.0.1")
+    assert repositorio.llamadas[0] == (
+        "crear",
+        "A1",
+        "Ruta central",
+        True,
+        "#38BDF8",
+        7,
+        "10.0.0.1",
+    )
 
 
 def test_no_permite_ruta_protegida() -> None:

@@ -15,8 +15,14 @@ class RepositorioRutas(Protocol):
     ) -> dict: ...
 
     def actualizar(
-        self, id_ruta: int, codigo: str, descripcion: str, activo: bool,
-        color_hex: str, id_usuario: int, ip: str
+        self,
+        id_ruta: int,
+        codigo: str,
+        descripcion: str,
+        activo: bool,
+        color_hex: str,
+        id_usuario: int,
+        ip: str,
     ) -> dict: ...
 
 
@@ -56,35 +62,62 @@ class RepositorioSqlRutas:
             cursor.execute(consulta)
             return self._muchas(cursor)
 
-    def crear(self, codigo: str, descripcion: str, activo: bool, color_hex: str,
-              id_usuario: int, ip: str) -> dict:
+    def crear(
+        self, codigo: str, descripcion: str, activo: bool, color_hex: str, id_usuario: int, ip: str
+    ) -> dict:
         with self._fabrica.conexion() as conexion:
             cursor = conexion.cursor()
-            cursor.execute("""
+            cursor.execute(
+                """
                 INSERT INTO transporte.ruta
                     (codigo, descripcion, color_hex, activo, creado_por, direccion_ip)
                 OUTPUT INSERTED.id_ruta, INSERTED.codigo, INSERTED.descripcion,
                        INSERTED.color_hex, INSERTED.activo, CAST(0 AS int) AS estudiantes_asignados
                 VALUES (?, ?, ?, ?, ?, ?)
-            """, codigo, descripcion, color_hex, activo, id_usuario, ip or "WEB")
+            """,
+                codigo,
+                descripcion,
+                color_hex,
+                activo,
+                id_usuario,
+                ip or "WEB",
+            )
             ruta = self._una(cursor)
             if ruta is None:  # pragma: no cover - SQL Server garantiza OUTPUT
                 raise RuntimeError("No se pudo crear la ruta")
             return ruta
 
-    def actualizar(self, id_ruta: int, codigo: str, descripcion: str, activo: bool,
-                   color_hex: str, id_usuario: int, ip: str) -> dict:
+    def actualizar(
+        self,
+        id_ruta: int,
+        codigo: str,
+        descripcion: str,
+        activo: bool,
+        color_hex: str,
+        id_usuario: int,
+        ip: str,
+    ) -> dict:
         with self._fabrica.conexion() as conexion:
             cursor = conexion.cursor()
-            cursor.execute("""
+            cursor.execute(
+                """
                 UPDATE transporte.ruta
                 SET codigo = ?, descripcion = ?, color_hex = ?, activo = ?,
                     actualizado_por = ?, direccion_ip = ?, fecha_actualizacion = SYSUTCDATETIME()
                 WHERE id_ruta = ?
-            """, codigo, descripcion, color_hex, activo, id_usuario, ip or "WEB", id_ruta)
+            """,
+                codigo,
+                descripcion,
+                color_hex,
+                activo,
+                id_usuario,
+                ip or "WEB",
+                id_ruta,
+            )
             if cursor.rowcount == 0:
                 raise ValueError("Ruta no encontrada")
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT r.id_ruta, r.codigo, r.descripcion, r.activo, r.color_hex,
                        COUNT(a.id_estudiante) AS estudiantes_asignados
                 FROM transporte.ruta AS r
@@ -92,7 +125,9 @@ class RepositorioSqlRutas:
                   ON a.id_ruta = r.id_ruta AND a.activa = 1
                 WHERE r.id_ruta = ?
                 GROUP BY r.id_ruta, r.codigo, r.descripcion, r.activo, r.color_hex
-            """, id_ruta)
+            """,
+                id_ruta,
+            )
             ruta = self._una(cursor)
             if ruta is None:  # pragma: no cover
                 raise RuntimeError("No se pudo leer la ruta actualizada")

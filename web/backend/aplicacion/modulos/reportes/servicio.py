@@ -25,14 +25,20 @@ class ServicioReportes:
         reporte = self.estudiantes()
         return self._csv(
             ["idEstudiante", "carne", "nombreCompleto", "seccion", "activo"],
-            [[e.id_estudiante, e.carne, e.nombre_completo, e.seccion or "", e.activo] for e in reporte.elementos],
+            [
+                [e.id_estudiante, e.carne, e.nombre_completo, e.seccion or "", e.activo]
+                for e in reporte.elementos
+            ],
         )
 
     def transporte_csv(self) -> str:
         reporte = self.transporte()
         return self._csv(
             ["idRuta", "codigo", "descripcion", "estudiantesAsignados", "activo"],
-            [[r.id_ruta, r.codigo, r.descripcion, r.estudiantes_asignados, r.activo] for r in reporte.elementos],
+            [
+                [r.id_ruta, r.codigo, r.descripcion, r.estudiantes_asignados, r.activo]
+                for r in reporte.elementos
+            ],
         )
 
     @staticmethod

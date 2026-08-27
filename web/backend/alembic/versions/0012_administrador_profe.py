@@ -4,7 +4,6 @@ from typing import Sequence, Union
 
 from alembic import op
 
-
 revision: str = "0012_administrador_profe"
 down_revision: Union[str, None] = "0011_revocacion_sesion_est"
 branch_labels: Union[str, Sequence[str], None] = None

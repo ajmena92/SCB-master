@@ -8,8 +8,18 @@ RAIZ = Path(__file__).resolve().parents[1]
 def test_modelos_canonicos_declaran_todos_los_dominios() -> None:
     esquemas = {tabla.schema for tabla in BaseDeclarativa.metadata.tables.values()}
     assert esquemas == {
-        "identidad", "transporte", "estudiantes", "asistencia", "beneficios", "cuentas",
-        "reportes", "importaciones", "auditoria", "menu", "comedor", "soporte",
+        "identidad",
+        "transporte",
+        "estudiantes",
+        "asistencia",
+        "beneficios",
+        "cuentas",
+        "reportes",
+        "importaciones",
+        "auditoria",
+        "menu",
+        "comedor",
+        "soporte",
     }
     assert Usuario.__table__.schema == "identidad"
     assert Ruta.__table__.schema == "transporte"

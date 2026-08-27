@@ -70,11 +70,11 @@ function Code128Barcode({ value }) {
   );
 }
 
-function safeRouteColor(value) {
-  return typeof value === "string" && /^#[0-9a-f]{6}$/i.test(value) ? value : "#CBD5E1";
+function obtenerColorRutaSeguro(valor) {
+  return typeof valor === "string" && /^#[0-9a-f]{6}$/i.test(valor) ? valor : "#CBD5E1";
 }
 
-function routeTextColor(color) {
+function obtenerColorTextoRuta(color) {
   const rgb = color
     .slice(1)
     .match(/../g)
@@ -84,8 +84,8 @@ function routeTextColor(color) {
 
 function TarjetaHtmlEstudiante({ datosCarnet, tieneFoto }) {
   const estudiante = datosCarnet || {};
-  const routeColor = safeRouteColor(estudiante.rutaColor);
-  const headerText = routeTextColor(routeColor);
+  const colorRuta = obtenerColorRutaSeguro(estudiante.rutaColor);
+  const colorEncabezado = obtenerColorTextoRuta(colorRuta);
   const fullName = [estudiante.nombre, estudiante.primerApellido, estudiante.segundoApellido]
     .filter(Boolean)
     .join(" ");
@@ -98,7 +98,7 @@ function TarjetaHtmlEstudiante({ datosCarnet, tieneFoto }) {
     >
       <div
         className="relative overflow-hidden px-6 pb-7 pt-7"
-        style={{ backgroundColor: routeColor, color: headerText }}
+        style={{ backgroundColor: colorRuta, color: colorEncabezado }}
       >
         <div className="absolute -right-16 -top-20 h-48 w-48 rounded-full border-[22px] border-current opacity-15" />
         <div className="relative flex items-center justify-between">
@@ -169,7 +169,7 @@ function TarjetaHtmlEstudiante({ datosCarnet, tieneFoto }) {
           className="rounded-2xl bg-primary/5 p-3 text-secondary"
           data-testid="student-card-barcode"
         >
-          <Code128Barcode value={data.barcode} />
+          <Code128Barcode value={datosCarnet?.barcode} />
         </div>
         <p className="text-center text-xs font-semibold text-muted-foreground">
           Presentá este código ante el lector del comedor.
