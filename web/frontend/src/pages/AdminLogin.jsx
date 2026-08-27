@@ -1,40 +1,20 @@
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { api, errMsg } from "@/lib/api";
-import { useAutenticacion } from "@/aplicacion/estado/ContextoAutenticacion";
+import { Link } from "react-router-dom";
+import { useInicioSesionAdministrativo } from "@/funcionalidades/identidad/hooks/useInicioSesion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2, ShieldCheck, ArrowLeft } from "lucide-react";
 
 export default function AdminLogin() {
-  const [nombreUsuario, setNombreUsuario] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const navigate = useNavigate();
-  const { loadMe } = useAutenticacion();
-
-  const submit = async (e) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
-    try {
-      await api.post(
-        "/v1/autenticacion",
-        { nombreUsuario, contrasena: password },
-        { omitirManejoFalloAutenticacion: true, omitirCsrf: true },
-      );
-      await loadMe();
-      navigate("/admin/panel", { replace: true });
-    } catch (err) {
-      // El login no representa una sesión vencida: la API devuelve un detalle
-      // seguro, como "Credenciales inválidas", que debe mostrarse al usuario.
-      setError(errMsg(err, { showUnauthorizedDetail: true }));
-    } finally {
-      setLoading(false);
-    }
-  };
+  const {
+    nombreUsuario,
+    contrasena,
+    cambiarNombreUsuario,
+    cambiarContrasena,
+    enviar,
+    cargando,
+    error,
+  } = useInicioSesionAdministrativo();
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-white p-4 sm:p-6">
@@ -52,14 +32,14 @@ export default function AdminLogin() {
             Usuario de la plataforma web
           </p>
           <h1 className="font-display text-2xl font-bold tracking-tight mb-6">Iniciar sesión</h1>
-          <form onSubmit={submit} className="space-y-5">
+          <form onSubmit={enviar} className="space-y-5">
             <div className="space-y-2">
               <Label htmlFor="usuario">Nombre de usuario</Label>
               <Input
                 id="usuario"
                 data-testid="admin-user-input"
                 value={nombreUsuario}
-                onChange={(e) => setNombreUsuario(e.target.value)}
+                onChange={(e) => cambiarNombreUsuario(e.target.value)}
                 className="h-11"
                 placeholder="usuario o correo"
               />
@@ -70,8 +50,8 @@ export default function AdminLogin() {
                 id="pass"
                 type="password"
                 data-testid="admin-pass-input"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                value={contrasena}
+                onChange={(e) => cambiarContrasena(e.target.value)}
                 className="h-11"
               />
             </div>
@@ -83,10 +63,10 @@ export default function AdminLogin() {
             <Button
               type="submit"
               data-testid="admin-login-submit"
-              disabled={loading}
+              disabled={cargando}
               className="w-full font-bold"
             >
-              {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Ingresar"}
+              {cargando ? <Loader2 className="h-5 w-5 animate-spin" /> : "Ingresar"}
             </Button>
           </form>
         </div>

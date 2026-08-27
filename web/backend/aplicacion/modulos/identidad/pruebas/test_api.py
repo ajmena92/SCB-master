@@ -4,9 +4,13 @@ from typing import Any, cast
 from fastapi import Response
 from fastapi.routing import APIRoute as RutaAPI
 
-from aplicacion.modulos.identidad.api import CredencialesEntrada, crear_enrutador
+from aplicacion.modulos.identidad.api_administracion import (
+    CredencialesEntrada,
+    crear_enrutador_administracion_identidad,
+)
+from aplicacion.modulos.identidad.api_sesion import crear_enrutador_sesion
 from aplicacion.modulos.identidad.esquemas import ResultadoAutenticacion, SesionPersistida
-from aplicacion.modulos.identidad.servicio import AutenticacionFallida
+from aplicacion.modulos.identidad.servicio import AutenticacionFallida, ServicioSesiones
 
 
 class ServicioFalso:
@@ -64,7 +68,10 @@ def test_autenticacion_emite_cookies_y_sesion_actual() -> None:
     ruta = next(
         ruta
         for ruta in getattr(
-            crear_enrutador(cast(Any, lambda: servicio), cookies_seguras=False), "routes"
+            crear_enrutador_administracion_identidad(
+                cast(Any, lambda: servicio), cookies_seguras=False
+            ),
+            "routes",
         )
         if isinstance(ruta, RutaAPI) and ruta.path == "/autenticacion"
     )
@@ -79,16 +86,21 @@ def test_autenticacion_emite_cookies_y_sesion_actual() -> None:
 
 def test_cierre_exige_csrf_y_revoca_sesion() -> None:
     servicio = servicio_falso()
-    enrutador = crear_enrutador(cast(Any, lambda: servicio), cookies_seguras=False)
-    autenticacion = next(
-        ruta
-        for ruta in getattr(enrutador, "routes")
-        if isinstance(ruta, RutaAPI) and ruta.path == "/autenticacion"
-    )
+    enrutador = crear_enrutador_sesion(cast(Any, lambda: ServicioSesiones(cast(Any, servicio))))
     cierre = next(
         ruta
         for ruta in getattr(enrutador, "routes")
         if isinstance(ruta, RutaAPI) and ruta.path == "/sesion/cerrar"
+    )
+    autenticacion = next(
+        ruta
+        for ruta in getattr(
+            crear_enrutador_administracion_identidad(
+                cast(Any, lambda: servicio), cookies_seguras=False
+            ),
+            "routes",
+        )
+        if isinstance(ruta, RutaAPI) and ruta.path == "/autenticacion"
     )
     autenticacion.endpoint(
         CredencialesEntrada(nombreUsuario="operador", contrasena="Clave segura 2026"),
@@ -96,21 +108,17 @@ def test_cierre_exige_csrf_y_revoca_sesion() -> None:
         servicio,
     )
     assert servicio.sesion is not None
-    from fastapi import HTTPException
-
+    servicio_sesiones = ServicioSesiones(cast(Any, servicio))
     try:
-        cierre.endpoint(
-            Response(), servicio.sesion.id_sesion, "secreto", None, None, servicio, None
-        )
-    except HTTPException as error:
-        assert error.status_code == 403
+        servicio_sesiones.cerrar(servicio.sesion.id_sesion, "secreto", "", "")
+    except ValueError as error:
+        assert "CSRF" in str(error)
     cierre.endpoint(
         Response(),
         servicio.sesion.id_sesion,
         "secreto",
         servicio.token_csrf,
         servicio.token_csrf,
-        servicio,
-        None,
+        servicio_sesiones,
     )
     assert servicio.sesion.revocada

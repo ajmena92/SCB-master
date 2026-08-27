@@ -1,7 +1,10 @@
 """Punto único de composición de los módulos canónicos de la aplicación."""
 
+from typing import Any, cast
+
 from fastapi import APIRouter, FastAPI
 
+from aplicacion.dependencias import ContratoDependenciasModulo
 from aplicacion.modulos.administracion.api import crear_enrutador as crear_enrutador_administracion
 from aplicacion.modulos.asistencia.api import crear_enrutador as crear_enrutador_asistencia
 from aplicacion.modulos.auditoria.api import crear_enrutador as crear_enrutador_auditoria
@@ -11,7 +14,10 @@ from aplicacion.modulos.cuentas.api import crear_enrutador as crear_enrutador_cu
 from aplicacion.modulos.estudiantes.api import crear_enrutador as crear_enrutador_estudiantes
 from aplicacion.modulos.estudiantes.fotos import crear_enrutador_fotos
 from aplicacion.modulos.estudiantes.operaciones import crear_enrutador_operaciones
-from aplicacion.modulos.identidad.api import crear_enrutador as crear_enrutador_identidad
+from aplicacion.modulos.identidad.api_administracion import (
+    crear_enrutador_administracion_identidad,
+)
+from aplicacion.modulos.identidad.api_sesion import crear_enrutador_sesion
 from aplicacion.modulos.importaciones.api import crear_enrutador as crear_enrutador_importaciones
 from aplicacion.modulos.menu.api import crear_enrutador as crear_enrutador_menu
 from aplicacion.modulos.parametros.api import crear_enrutador as crear_enrutador_parametros
@@ -23,30 +29,39 @@ from aplicacion.modulos.transporte.api import crear_enrutador as crear_enrutador
 _MARCA_MODULOS_INCLUIDOS = "modulos_aplicacion_incluidos"
 
 
+def _argumentos_router(contrato: ContratoDependenciasModulo) -> dict[str, Any]:
+    """Adapta el contrato tipado al variádico de los adaptadores de cada módulo."""
+
+    return cast(dict[str, Any], contrato)
+
+
 def crear_enrutador_aplicacion(
-    dependencias_transporte: dict | None = None,
-    dependencias_identidad: dict | None = None,
-    dependencias_estudiantes: dict | None = None,
-    dependencias_asistencia: dict | None = None,
-    dependencias_beneficios: dict | None = None,
-    dependencias_cuentas: dict | None = None,
-    dependencias_reportes: dict | None = None,
-    dependencias_importaciones: dict | None = None,
-    dependencias_auditoria: dict | None = None,
-    dependencias_administracion: dict | None = None,
-    dependencias_parametros: dict | None = None,
-    dependencias_menu: dict | None = None,
-    dependencias_comedor: dict | None = None,
-    dependencias_soporte: dict | None = None,
+    dependencias_transporte: ContratoDependenciasModulo | None = None,
+    dependencias_identidad: ContratoDependenciasModulo | None = None,
+    dependencias_estudiantes: ContratoDependenciasModulo | None = None,
+    dependencias_asistencia: ContratoDependenciasModulo | None = None,
+    dependencias_beneficios: ContratoDependenciasModulo | None = None,
+    dependencias_cuentas: ContratoDependenciasModulo | None = None,
+    dependencias_reportes: ContratoDependenciasModulo | None = None,
+    dependencias_importaciones: ContratoDependenciasModulo | None = None,
+    dependencias_auditoria: ContratoDependenciasModulo | None = None,
+    dependencias_administracion: ContratoDependenciasModulo | None = None,
+    dependencias_parametros: ContratoDependenciasModulo | None = None,
+    dependencias_menu: ContratoDependenciasModulo | None = None,
+    dependencias_comedor: ContratoDependenciasModulo | None = None,
+    dependencias_soporte: ContratoDependenciasModulo | None = None,
 ) -> APIRouter:
     """Construye el arbol versionado sin conocer detalles de cada dominio."""
     enrutador = APIRouter(prefix="/api/v1")
     enrutador.include_router(enrutador_salud)
     if dependencias_estudiantes:
-        dependencias_estudiantes_base = {
-            k: dependencias_estudiantes[k]
-            for k in ("obtener_repositorio", "exigir_permiso", "exigir_csrf", "obtener_ip")
-        }
+        dependencias_estudiantes_base = cast(
+            ContratoDependenciasModulo,
+            {
+                k: dependencias_estudiantes[k]
+                for k in ("obtener_repositorio", "exigir_permiso", "exigir_csrf", "obtener_ip")
+            },
+        )
         # Las rutas literales del portal deben registrarse antes de
         # /estudiantes/{id_estudiante}, que de lo contrario intentaría
         # convertir "menu", "carnet" o "asistencia" a entero.
@@ -65,10 +80,24 @@ def crear_enrutador_aplicacion(
                 duracion_sesion_estudiante=dependencias_estudiantes["duracion_sesion_estudiante"],
             )
         )
-        enrutador.include_router(crear_enrutador_estudiantes(**dependencias_estudiantes_base))
-        enrutador.include_router(crear_enrutador_fotos(**dependencias_estudiantes_base))
+        enrutador.include_router(
+            crear_enrutador_estudiantes(**_argumentos_router(dependencias_estudiantes_base))
+        )
+        enrutador.include_router(
+            crear_enrutador_fotos(**_argumentos_router(dependencias_estudiantes_base))
+        )
     if dependencias_identidad:
-        enrutador.include_router(crear_enrutador_identidad(**dependencias_identidad))
+        enrutador.include_router(
+            crear_enrutador_administracion_identidad(
+                obtener_servicio=dependencias_identidad["obtener_servicio"],
+                cookies_seguras=dependencias_identidad["cookies_seguras"],
+            )
+        )
+        enrutador.include_router(
+            crear_enrutador_sesion(
+                obtener_servicio=dependencias_identidad["obtener_sesiones"],
+            )
+        )
     if dependencias_transporte:
         # La composicion conoce unicamente las dependencias del contrato
         # autonomo de Transporte. Las claves sobrantes de integraciones
@@ -116,38 +145,50 @@ def crear_enrutador_aplicacion(
             )
         )
     if dependencias_importaciones:
-        enrutador.include_router(crear_enrutador_importaciones(**dependencias_importaciones))
+        enrutador.include_router(
+            crear_enrutador_importaciones(**_argumentos_router(dependencias_importaciones))
+        )
     if dependencias_auditoria:
-        enrutador.include_router(crear_enrutador_auditoria(**dependencias_auditoria))
+        enrutador.include_router(
+            crear_enrutador_auditoria(**_argumentos_router(dependencias_auditoria))
+        )
     if dependencias_administracion:
-        enrutador.include_router(crear_enrutador_administracion(**dependencias_administracion))
+        enrutador.include_router(
+            crear_enrutador_administracion(**_argumentos_router(dependencias_administracion))
+        )
     if dependencias_parametros:
-        enrutador.include_router(crear_enrutador_parametros(**dependencias_parametros))
+        enrutador.include_router(
+            crear_enrutador_parametros(**_argumentos_router(dependencias_parametros))
+        )
     if dependencias_menu:
-        enrutador.include_router(crear_enrutador_menu(**dependencias_menu))
+        enrutador.include_router(crear_enrutador_menu(**_argumentos_router(dependencias_menu)))
     if dependencias_comedor:
-        enrutador.include_router(crear_enrutador_comedor(**dependencias_comedor))
+        enrutador.include_router(
+            crear_enrutador_comedor(**_argumentos_router(dependencias_comedor))
+        )
     if dependencias_soporte:
-        enrutador.include_router(crear_enrutador_soporte(**dependencias_soporte))
+        enrutador.include_router(
+            crear_enrutador_soporte(**_argumentos_router(dependencias_soporte))
+        )
     return enrutador
 
 
 def incluir_modulos(
     aplicacion: FastAPI,
-    dependencias_transporte: dict | None = None,
-    dependencias_identidad: dict | None = None,
-    dependencias_estudiantes: dict | None = None,
-    dependencias_asistencia: dict | None = None,
-    dependencias_beneficios: dict | None = None,
-    dependencias_cuentas: dict | None = None,
-    dependencias_reportes: dict | None = None,
-    dependencias_importaciones: dict | None = None,
-    dependencias_auditoria: dict | None = None,
-    dependencias_administracion: dict | None = None,
-    dependencias_parametros: dict | None = None,
-    dependencias_menu: dict | None = None,
-    dependencias_comedor: dict | None = None,
-    dependencias_soporte: dict | None = None,
+    dependencias_transporte: ContratoDependenciasModulo | None = None,
+    dependencias_identidad: ContratoDependenciasModulo | None = None,
+    dependencias_estudiantes: ContratoDependenciasModulo | None = None,
+    dependencias_asistencia: ContratoDependenciasModulo | None = None,
+    dependencias_beneficios: ContratoDependenciasModulo | None = None,
+    dependencias_cuentas: ContratoDependenciasModulo | None = None,
+    dependencias_reportes: ContratoDependenciasModulo | None = None,
+    dependencias_importaciones: ContratoDependenciasModulo | None = None,
+    dependencias_auditoria: ContratoDependenciasModulo | None = None,
+    dependencias_administracion: ContratoDependenciasModulo | None = None,
+    dependencias_parametros: ContratoDependenciasModulo | None = None,
+    dependencias_menu: ContratoDependenciasModulo | None = None,
+    dependencias_comedor: ContratoDependenciasModulo | None = None,
+    dependencias_soporte: ContratoDependenciasModulo | None = None,
 ) -> None:
     """Incluye los modulos una sola vez en una instancia FastAPI."""
     if getattr(aplicacion.state, _MARCA_MODULOS_INCLUIDOS, False):
