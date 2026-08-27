@@ -10,7 +10,7 @@ from fastapi import APIRouter, Depends, HTTPException, Response, status
 from pydantic import BaseModel, ConfigDict, Field
 
 from .constantes import NOMBRE_COOKIE_CSRF, NOMBRE_COOKIE_ID_SESION, NOMBRE_COOKIE_SECRETO
-from .servicio import AutenticacionFallida, ServicioIdentidad
+from .servicio import AutenticacionBloqueada, AutenticacionFallida, ServicioIdentidad
 
 
 class CredencialesEntrada(BaseModel):
@@ -49,6 +49,8 @@ def crear_enrutador_administracion_identidad(
     ) -> AutenticacionSalida:
         try:
             resultado = caso_uso.autenticar(datos.nombre_usuario, datos.contrasena)
+        except AutenticacionBloqueada as exc:
+            raise HTTPException(status.HTTP_429_TOO_MANY_REQUESTS, str(exc)) from exc
         except AutenticacionFallida as exc:
             raise HTTPException(status.HTTP_401_UNAUTHORIZED, str(exc)) from exc
         token_csrf = secrets.token_urlsafe(32)

@@ -1,4 +1,4 @@
-import { api } from "@/lib/api";
+import { api } from "@/compartido/consultas/cliente_http";
 
 export interface Ruta {
   idRuta: number;

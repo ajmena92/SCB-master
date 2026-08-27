@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { vi } from "vitest";
 
-vi.mock("@/lib/api", () => ({
+vi.mock("@/compartido/consultas/cliente_http", () => ({
   api: { get: vi.fn(), post: vi.fn() },
   errMsg: vi.fn(() => "No fue posible completar la operación."),
 }));
@@ -13,7 +13,7 @@ vi.mock("sonner", () => ({
 }));
 
 import Plantillas from "./Plantillas";
-import { api } from "@/lib/api";
+import { api } from "@/compartido/consultas/cliente_http";
 
 const obtenerPlantillas = vi.mocked(api.get);
 

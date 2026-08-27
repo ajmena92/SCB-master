@@ -8,11 +8,8 @@ Los controles se aplican al backend activo (`backend/aplicacion`) y a la estruct
 
 ## Archivos mayores a 300 líneas
 
-Estas excepciones son transitorias del frontend existente. Cada una deberá retirarse al dividir el comportamiento durante su corte vertical:
-
-| Archivo | Motivo | Revisión |
-| --- | --- | --- |
-| `frontend/src/compartido/contratos/api.ts` | Contrato TypeScript generado desde OpenAPI; se reemplaza al regenerar el cliente. | Al dividir el cliente generado |
+No hay excepciones permanentes para contratos generados. El inventario de operaciones se
+mantiene separado de los esquemas y las salidas por dominio no requieren exclusión del límite.
 
 ## Inglés propio permitido
 

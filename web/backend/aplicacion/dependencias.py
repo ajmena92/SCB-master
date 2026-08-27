@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable, Iterator
+from collections.abc import Callable
 from dataclasses import dataclass
-from datetime import timedelta
+from datetime import date, timedelta
 from typing import Any, TypedDict
 
 from aplicacion.modulos.administracion.repositorio import RepositorioSqlAdministracion
@@ -16,11 +16,16 @@ from aplicacion.modulos.cuentas.repositorio import RepositorioSqlCuentas
 from aplicacion.modulos.estudiantes.repositorio_completo import RepositorioSqlEstudiantesCompleto
 from aplicacion.modulos.estudiantes.servicio_perfil import crear_perfil_sesion
 from aplicacion.modulos.identidad.repositorio import (
+    RepositorioSqlIntentosAutenticacion,
     RepositorioSqlSesiones,
     RepositorioSqlSesionesEstudiante,
     RepositorioSqlUsuarios,
 )
-from aplicacion.modulos.identidad.servicio import ServicioIdentidad, ServicioSesiones
+from aplicacion.modulos.identidad.servicio import (
+    PoliticaBloqueo,
+    ServicioIdentidad,
+    ServicioSesiones,
+)
 from aplicacion.modulos.importaciones.repositorio import RepositorioSqlImportaciones
 from aplicacion.modulos.menu.repositorio import RepositorioSqlMenu
 from aplicacion.modulos.parametros.repositorio import RepositorioSqlParametros
@@ -28,6 +33,7 @@ from aplicacion.modulos.reportes.repositorio import RepositorioSqlReportes
 from aplicacion.modulos.soporte.repositorio import RepositorioSqlSoporte
 from aplicacion.modulos.transporte.repositorio import RepositorioSqlRutas
 from aplicacion.nucleo.base_datos import FabricaConexionSql
+from aplicacion.nucleo.tiempo import fecha_local
 from config import Settings
 
 
@@ -56,6 +62,7 @@ class ContratoDependenciasModulo(TypedDict, total=False):
     obtener_servicio_estudiante: Callable[[], ServicioIdentidad]
     obtener_repositorio_estudiante: Callable[[], Any]
     obtener_sesiones: Callable[[], ServicioSesiones]
+    obtener_fecha_local: Callable[[], date]
 
 
 class DependenciasModulos(TypedDict):
@@ -82,11 +89,31 @@ def crear_servicios_identidad(
 ) -> dict[str, Callable[[], ServicioIdentidad]]:
     """Crea las fábricas de servicios de sesión de administración y estudiantes."""
 
+    control_intentos = RepositorioSqlIntentosAutenticacion(fabrica)
+    politica_admin = (
+        PoliticaBloqueo(
+            max_intentos=configuracion.admin_max_login_attempts,
+            minutos_bloqueo=configuracion.admin_lock_minutes,
+        )
+        if configuracion
+        else None
+    )
+    politica_estudiante = (
+        PoliticaBloqueo(
+            max_intentos=configuracion.student_max_login_attempts,
+            minutos_bloqueo=configuracion.student_lock_minutes,
+        )
+        if configuracion
+        else None
+    )
+
     def obtener_identidad() -> ServicioIdentidad:
         return ServicioIdentidad(
             RepositorioSqlUsuarios(fabrica),
             RepositorioSqlSesiones(fabrica),
             timedelta(minutes=(configuracion.admin_session_minutes if configuracion else 60)),
+            politica_bloqueo=politica_admin,
+            control_intentos=control_intentos,
         )
 
     def obtener_identidad_estudiante() -> ServicioIdentidad:
@@ -94,6 +121,8 @@ def crear_servicios_identidad(
             RepositorioSqlUsuarios(fabrica),
             RepositorioSqlSesionesEstudiante(fabrica),
             timedelta(days=(configuracion.dias_sesion_estudiante if configuracion else 365)),
+            politica_bloqueo=politica_estudiante,
+            control_intentos=control_intentos,
         )
 
     return {
@@ -105,8 +134,8 @@ def crear_servicios_identidad(
 def crear_fabricas_repositorios(fabrica: FabricaConexionSql) -> dict[str, Any]:
     """Crea las fábricas de repositorios sin mezclar autorización ni HTTP."""
 
-    def fabrica_de(tipo: type) -> Iterator[object]:
-        yield tipo(fabrica)
+    def fabrica_de(tipo: type) -> object:
+        return tipo(fabrica)
 
     def obtener_estudiante() -> object:
         return next(fabrica_de(RepositorioSqlEstudiantesCompleto))
@@ -136,7 +165,7 @@ def crear_servicio_sesiones(
 
     def obtener_sesiones() -> ServicioSesiones:
         servicios = crear_servicios_identidad(fabrica, configuracion)
-        repositorio = next(crear_fabricas_repositorios(fabrica)["obtener_estudiantes"]())
+        repositorio = crear_fabricas_repositorios(fabrica)["obtener_estudiantes"]()
         return ServicioSesiones(
             servicios["obtener_identidad"](),
             servicios["obtener_identidad_estudiante"](),
@@ -187,6 +216,9 @@ def crear_dependencias_modulos(
             "obtener_identidad_estudiante": servicios["obtener_identidad_estudiante"],
             "obtener_menu": repositorios["obtener_menu"],
             "obtener_asistencia": repositorios["obtener_asistencia"],
+            "obtener_fecha_local": lambda: fecha_local(
+                configuracion.app_timezone if configuracion else "America/Costa_Rica"
+            ),
             "cookies_seguras": dependencias.cookies_seguras,
             "duracion_sesion_estudiante": configuracion.dias_sesion_estudiante * 24 * 60 * 60
             if configuracion

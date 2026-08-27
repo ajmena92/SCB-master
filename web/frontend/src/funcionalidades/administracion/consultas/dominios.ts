@@ -1,4 +1,4 @@
-import { api } from "@/lib/api";
+import { api } from "@/compartido/consultas/cliente_http";
 
 export type Registro = Record<string, unknown>;
 

@@ -1,6 +1,3 @@
-import { useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { api, errMsg } from "@/lib/api";
 import {
   Table,
   TableBody,
@@ -11,7 +8,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { toast } from "sonner";
+import { useAuditoria } from "@/funcionalidades/administracion/hooks/useAuditoria";
 
 const COLOR = {
   Confirmación: "bg-success text-white",
@@ -32,18 +29,7 @@ export function etiquetaEventoAuditoria(evento) {
 }
 
 export default function AuditoriaTab() {
-  const {
-    data: rows = [],
-    error,
-    isPending: loading,
-  } = useQuery({
-    queryKey: ["admin", "auditoria"],
-    queryFn: async () => (await api.get("/v1/auditoria/eventos")).data,
-  });
-
-  useEffect(() => {
-    if (error) toast.error(errMsg(error));
-  }, [error]);
+  const { data: rows = [], isPending: loading } = useAuditoria();
 
   const fmt = (iso) => {
     try {

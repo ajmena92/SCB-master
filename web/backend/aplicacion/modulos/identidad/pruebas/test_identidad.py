@@ -10,7 +10,10 @@ from aplicacion.modulos.identidad.seguridad import (
     verificar_contrasena,
 )
 from aplicacion.modulos.identidad.servicio import (
+    AutenticacionBloqueada,
     AutenticacionFallida,
+    ControlIntentosAutenticacion,
+    PoliticaBloqueo,
     ServicioIdentidad,
     ServicioPermisos,
     preparar_hash_contrasena,
@@ -114,6 +117,29 @@ def test_rechaza_usuario_inactivo_clave_incorrecta_y_sesion_invalida() -> None:
         activo.autenticar("operador", "otra")
     with pytest.raises(AutenticacionFallida):
         activo.validar_sesion("desconocida", "secreto")
+
+
+def test_bloquea_autenticacion_despues_del_limite_y_limpia_un_exito() -> None:
+    ahora = datetime(2026, 1, 1, tzinfo=timezone.utc)
+    sesiones = SesionesMemoria()
+    servicio = ServicioIdentidad(
+        UsuariosMemoria(usuario_prueba()),
+        sesiones,
+        reloj=lambda: ahora,
+        politica_bloqueo=PoliticaBloqueo(max_intentos=3, minutos_bloqueo=5),
+        control_intentos=ControlIntentosAutenticacion(),
+    )
+
+    for _ in range(2):
+        with pytest.raises(AutenticacionFallida):
+            servicio.autenticar("operador", "incorrecta")
+    servicio.autenticar("operador", "Clave segura 2026")
+
+    for _ in range(3):
+        with pytest.raises(AutenticacionFallida):
+            servicio.autenticar("operador", "incorrecta")
+    with pytest.raises(AutenticacionBloqueada):
+        servicio.autenticar("operador", "Clave segura 2026")
 
 
 def test_permisos_son_canonicos_y_extensibles() -> None:

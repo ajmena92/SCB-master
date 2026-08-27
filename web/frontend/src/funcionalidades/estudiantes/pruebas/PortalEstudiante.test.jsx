@@ -3,9 +3,9 @@ import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { vi } from "vitest";
 import PaginaPortalEstudiante from "../paginas/PaginaPortalEstudiante";
-import { api } from "@/lib/api";
+import { api } from "@/compartido/consultas/cliente_http";
 
-vi.mock("@/lib/api", () => ({
+vi.mock("@/compartido/consultas/cliente_http", () => ({
   api: { get: vi.fn(), post: vi.fn() },
   errMsg: vi.fn(() => "Error"),
 }));

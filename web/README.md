@@ -11,7 +11,7 @@ Portal de asistencia al comedor: frontend React y backend FastAPI integrado con 
 
 ## Estado
 
-La integración usa estudiantes, horarios, usuarios administrativos y `dbo.RegistroTransporte` existentes, sin modificar escritorio. Las migraciones de `ComedorPortal` (incluida `003_portal_settings.sql` para cierres y avisos exclusivos del portal) se ejecutan manualmente por el DBA, primero en staging. No habilitar variables de producción sin seguir la puerta de salida documentada.
+La plataforma usa SQL Server mediante los módulos web y sus migraciones versionadas en `sql/migrations`, sin importar componentes de escritorio en ejecución. Las migraciones se ejecutan manualmente por el DBA, primero en staging. No habilitar variables de producción sin seguir la puerta de salida documentada.
 
 ### Avances funcionales registrados
 

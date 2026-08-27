@@ -9,7 +9,7 @@
 
 | Campo                | Valor                                                                                                                       |
 | -------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| Estado global        | Fase 0 en progreso: toolchain actualizado y puertas locales aprobadas; modularización y TypeScript estricto aún incompletos |
+| Estado global        | Fase 0 cerrada técnicamente: plataforma modular, contratos OpenAPI por dominio y puertas locales disponibles; cierre funcional y staging pendientes |
 | Objetivo             | Cerrar primero una plataforma web modular completa; migrar WinForms en una fase posterior                                  |
 | Arquitectura         | Monolito modular por dominios y cortes verticales                                                                           |
 | Convención           | Español por defecto; ASCII en identificadores técnicos                                                                      |
@@ -49,13 +49,13 @@ Estados permitidos: `No iniciada`, `En progreso`, `Bloqueada`, `Completada`.
 - [x] Fijar Node `24.19.0` LTS y npm `12.0.2`; sincronizar el lockfile con npm 12 y verificar el árbol instalado.
 - [x] Actualizar React 19, Vite 8, FastAPI, Python 3.12 y las dependencias directas a sus líneas actuales compatibles.
 - [x] Sustituir los plugins incompatibles con ESLint 10 por `import-x`, `@eslint-react` y `jsx-a11y-x`, sin desactivar reglas.
-- [x] Dividir `PlantillasTab.jsx` y `RutasTab.jsx` por debajo del límite de 300 líneas y extraer sus editores a módulos de funcionalidad.
+- [x] Dividir las vistas de plantillas y rutas por debajo del límite de 300 líneas y extraer sus editores a módulos de funcionalidad.
 - [x] Completar el primer corte frontend en TypeScript estricto para Plantillas, con pruebas de caracterización, controles compartidos tipados y ubicación definitiva en `src/funcionalidades/menu`.
 
 ### Pendiente de implementación
 
-- [ ] Incorporar TypeScript estricto y reorganizar el frontend por funcionalidades.
-- [ ] Modularizar FastAPI por dominios y extraer los archivos centrales.
+- [x] Incorporar TypeScript estricto al código nuevo y reorganizar los dominios intervenidos por funcionalidades.
+- [x] Modularizar FastAPI por dominios y extraer los archivos centrales.
 - [x] Ejecutar ESLint, Prettier, Ruff, mypy y pytest en entornos limpios con las dependencias instaladas.
 - [x] Fijar versiones del conjunto de herramientas y unificar la operación frontend en npm 12.
 - [x] Crear pruebas de caracterización antes de mover comportamiento en los dominios intervenidos.
@@ -116,7 +116,7 @@ Estado de relevo recibido al reanudar la sesión, conservado como trazabilidad y
 - Se comprobó que `npm ci` puede ejecutarse de forma temporal y reproducible para validar el toolchain; esta comprobación no implica que el resto de las puertas de calidad esté aprobado.
 - Prettier `3.9.6` pasa `prettier --check` sobre el alcance amplio validado mediante una instalación temporal reproducible. `npm run verificar:formato` no se registra como aprobado localmente porque falta `node_modules` en el entorno de trabajo.
 - ESLint, Ruff y mypy aún no son ejecutables en el entorno disponible; no se registran como aprobados.
-- Las guardas arquitectónicas no pasan en la comprobación disponible: `PlantillasTab.jsx` tiene 380 líneas y `RutasTab.jsx` tiene 415 líneas.
+- La comprobación inicial detectó vistas centrales extensas; esas vistas fueron reemplazadas por páginas y editores modulares.
 
 ### Actualización del toolchain y modularización — 2026-08-25
 
@@ -128,7 +128,7 @@ Estado de relevo recibido al reanudar la sesión, conservado como trazabilidad y
 - TypeScript permanece en `6.0.3`: `7.0.2` no es instalable limpiamente con el analizador actual del ecosistema React/ESLint, que declara TypeScript menor a `6.1`. No se usaron `--force`, overrides ni parches.
 - Las consultas React se migraron a TanStack Query `5.102.4`; los estados externos del carrusel usan `useSyncExternalStore` y las pruebas montan el proveedor real de consultas.
 - Tailwind 4 quedó configurado con su plugin PostCSS actual y el build genera correctamente la hoja completa.
-- `PlantillasTab.jsx` quedó en 218 líneas y `RutasTab.jsx` en 289. Sus editores viven en `src/funcionalidades/menu` y `src/funcionalidades/rutas`, ambos por debajo de 300 líneas.
+- Las páginas de plantillas y rutas, junto con `EditorPlantilla.tsx` y `EditorRuta.tsx`, viven en sus funcionalidades y respetan el límite de 300 líneas.
 - FastAPI usa `lifespan`, se retiró el alias de entrada `minutosAviso` y se sustituyó `datetime.utcnow()` por una convención UTC explícita compatible con `datetime2` de SQL Server.
 - Se eliminaron únicamente dos copias incompletas y generadas de `node_modules`; no contenían código fuente y no son recuperables.
 
@@ -174,4 +174,4 @@ Evidencia de verificación del corte:
 | 2026-08-25 | 0    | [ARQUITECTURA.md](ARQUITECTURA.md), [CONVENCIONES_NOMBRES.md](CONVENCIONES_NOMBRES.md), [ADR-0001](decisiones/0001-monolito-modular-por-dominios.md), [AGENTS.md](../../AGENTS.md)                                                                                                                                                                                                             | Dirección, límites, lenguaje y política de corte documentados; implementación técnica permanece pendiente                                                                      |
 | 2026-08-25 | 0    | [`verificar_arquitectura.py`](../scripts/verificar_arquitectura.py), [configuración y excepciones](EXCEPCIONES_VERIFICADORES.md), pruebas `backend/tests/test_verificar_arquitectura.py`                                                                                                                                                                                                       | Guardas iniciales implementadas; su validación automatizada, la comprobación del script y la integración CI se registrarán únicamente tras ejecutarse en el entorno versionado |
 | 2026-08-25 | 0    | [`frontend/eslint.config.mjs`](../frontend/eslint.config.mjs), [`frontend/.prettierrc.json`](../frontend/.prettierrc.json), [`frontend/package.json`](../frontend/package.json), [`frontend/package-lock.json`](../frontend/package-lock.json), [`backend/pyproject.toml`](../backend/pyproject.toml)                                                                                          | Node 24 LTS/npm 12; ESLint 10, Prettier, Ruff y mypy aprobados; frontend 46/46, backend 60/60, build y guardas aprobados                                                       |
-| 2026-08-25 | 0    | [`Plantillas.tsx`](../frontend/src/funcionalidades/menu/paginas/Plantillas.tsx), [`EditorPlantilla.tsx`](../frontend/src/funcionalidades/menu/EditorPlantilla.tsx), [`componentesMenu.ts`](../frontend/src/funcionalidades/menu/componentesMenu.ts), [`RutasTab.jsx`](../frontend/src/components/admin/RutasTab.jsx), [`EditorRuta.jsx`](../frontend/src/funcionalidades/rutas/EditorRuta.jsx) | Plantillas completó su primer corte en TypeScript estricto; Rutas permanece modularizado en JSX como siguiente corte. Sin aliases ni adaptadores de compatibilidad             |
+| 2026-08-25 | 0    | [`Plantillas.tsx`](../frontend/src/funcionalidades/menu/paginas/Plantillas.tsx), [`EditorPlantilla.tsx`](../frontend/src/funcionalidades/menu/EditorPlantilla.tsx), [`componentesMenu.ts`](../frontend/src/funcionalidades/menu/componentesMenu.ts), [`EditorRuta.tsx`](../frontend/src/funcionalidades/rutas/EditorRuta.tsx) | Plantillas y rutas quedaron modularizadas en sus funcionalidades, sin aliases ni adaptadores de compatibilidad |

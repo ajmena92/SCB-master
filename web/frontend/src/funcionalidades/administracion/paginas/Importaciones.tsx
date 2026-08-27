@@ -1,25 +1,8 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { api, errMsg } from "@/lib/api";
-import type { LoteSalida, Previsualizacion } from "@/compartido/contratos/api";
+import { useImportaciones } from "@/funcionalidades/administracion/hooks/useImportaciones";
 export default function Importaciones() {
-  const [archivo, setArchivo] = useState<File>();
-  const [vista, setVista] = useState<Previsualizacion>();
-  const [lote, setLote] = useState<LoteSalida>();
-  const [error, setError] = useState("");
-  const enviar = async (ruta: string) => {
-    if (!archivo) return;
-    try {
-      setError("");
-      const f = new FormData();
-      f.append("archivo", archivo);
-      const r = await api.post<Previsualizacion | LoteSalida>(ruta, f);
-      if (ruta.includes("previsualizaciones")) setVista(r.data as Previsualizacion);
-      else setLote(r.data as LoteSalida);
-    } catch (e) {
-      setError(errMsg(e));
-    }
-  };
+  const { archivo, setArchivo, vista, lote, error, cargando, previsualizar, importar } =
+    useImportaciones();
   return (
     <main className="space-y-6 p-6">
       <h1 className="text-2xl font-semibold">Importaciones</h1>
@@ -31,13 +14,10 @@ export default function Importaciones() {
       />
       {error && <p role="alert">{error}</p>}
       <div className="flex gap-2">
-        <Button
-          onClick={() => void enviar("/v1/importaciones/previsualizaciones")}
-          disabled={!archivo}
-        >
+        <Button onClick={() => void previsualizar()} disabled={!archivo || cargando}>
           Previsualizar
         </Button>
-        <Button onClick={() => void enviar("/v1/importaciones/lotes")} disabled={!archivo}>
+        <Button onClick={() => void importar()} disabled={!archivo || cargando}>
           Ejecutar importación
         </Button>
       </div>

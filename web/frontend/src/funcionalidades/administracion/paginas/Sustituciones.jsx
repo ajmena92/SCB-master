@@ -1,6 +1,4 @@
-import { useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { api, errMsg } from "@/lib/api";
+import { useSustituciones } from "@/funcionalidades/administracion/hooks/useSustituciones";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -21,94 +19,25 @@ import {
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { toast } from "sonner";
 import { Plus, Trash2, Loader2, Replace } from "lucide-react";
-import {
-  componenteParaGuardar,
-  prepararComponente,
-  prepararComponentes,
-} from "@/funcionalidades/menu/componentesMenu";
 
 const TIPOS = ["Principal", "Acompañamiento", "Bebida", "Postre", "Otro"];
 
 export default function SustitucionesTab() {
-  const [open, setOpen] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [form, setForm] = useState(null);
   const {
-    data: subs = [],
-    error,
-    isPending: loading,
-    refetch,
-  } = useQuery({
-    queryKey: ["admin", "menu", "sustituciones"],
-    queryFn: async () => (await api.get("/v1/menu/sustituciones")).data,
-  });
-
-  useEffect(() => {
-    if (error) toast.error(errMsg(error));
-  }, [error]);
-
-  const abrir = (s) => {
-    setForm(
-      s
-        ? { ...s, Componentes: prepararComponentes(s.Componentes) }
-        : {
-            Fecha: new Date().toISOString().slice(0, 10),
-            Titulo: "",
-            Observaciones: "",
-            Componentes: [
-              prepararComponente({ Orden: 1, Nombre: "", TipoComponente: "Principal" }),
-            ],
-          },
-    );
-    setOpen(true);
-  };
-  const setComp = (i, k, v) => {
-    const c = [...form.Componentes];
-    c[i] = { ...c[i], [k]: v };
-    setForm({ ...form, Componentes: c });
-  };
-  const addComp = () =>
-    setForm({
-      ...form,
-      Componentes: [
-        ...form.Componentes,
-        prepararComponente({
-          Orden: form.Componentes.length + 1,
-          Nombre: "",
-          TipoComponente: "Acompañamiento",
-        }),
-      ],
-    });
-  const delComp = (i) =>
-    setForm({
-      ...form,
-      Componentes: form.Componentes.filter((_, x) => x !== i).map((c, x) => ({
-        ...c,
-        Orden: x + 1,
-      })),
-    });
-
-  const guardar = async () => {
-    if (!form.Titulo.trim()) return toast.error("El título es obligatorio");
-    setSaving(true);
-    try {
-      await api.post("/v1/menu/sustitucion", {
-        Fecha: form.Fecha,
-        Titulo: form.Titulo,
-        Observaciones: form.Observaciones || "",
-        Componentes: form.Componentes.filter((c) => c.Nombre.trim()).map(componenteParaGuardar),
-      });
-      toast.success("Sustitución guardada (prevalece sobre la plantilla)");
-      setOpen(false);
-      await refetch();
-    } catch (e) {
-      toast.error(errMsg(e));
-    } finally {
-      setSaving(false);
-    }
-  };
+    open,
+    setOpen,
+    saving,
+    form,
+    subs,
+    loading,
+    abrir,
+    setForm,
+    setComp,
+    addComp,
+    delComp,
+    guardar,
+  } = useSustituciones();
 
   return (
     <div className="space-y-6">

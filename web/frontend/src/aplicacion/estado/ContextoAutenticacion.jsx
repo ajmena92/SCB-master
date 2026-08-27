@@ -1,5 +1,5 @@
 import { createContext, use, useEffect, useState, useCallback } from "react";
-import { api } from "@/lib/api";
+import { api } from "@/compartido/consultas/cliente_http";
 
 const ContextoAutenticacionContext = createContext(null);
 

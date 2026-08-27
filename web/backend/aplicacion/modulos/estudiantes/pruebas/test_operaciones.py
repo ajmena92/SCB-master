@@ -1,7 +1,10 @@
 import inspect
+import asyncio
+from datetime import datetime, timezone
 from typing import Any, cast
 
-from fastapi import FastAPI
+import httpx
+from fastapi import APIRouter, Depends, FastAPI, Request
 from fastapi.routing import APIRoute as RutaAPI
 
 from aplicacion.modulos.estudiantes.administracion import crear_enrutador_administracion
@@ -11,6 +14,8 @@ from aplicacion.modulos.estudiantes.portal import crear_enrutador_portal
 from aplicacion.modulos.estudiantes.repositorio_credenciales import RepositorioSqlCredenciales
 from aplicacion.modulos.estudiantes.repositorio_pines import RepositorioSqlPines
 from aplicacion.modulos.identidad.servicio import ServicioIdentidad
+from aplicacion.seguridad_dependencias import crear_dependencias_seguridad
+from aplicacion.modulos.identidad.esquemas import SesionPersistida
 
 
 def dependencia_identidad_nula() -> ServicioIdentidad:
@@ -111,6 +116,110 @@ def test_ensamblador_expone_rutas_de_portal_y_administracion() -> None:
         "/estudiantes/secciones",
         "/estudiantes/pines/seccion",
     } <= rutas
+
+
+def test_asistencia_estudiantil_exige_csrf() -> None:
+    def exigir_csrf():
+        return None
+
+    enrutador = crear_enrutador_portal(
+        lambda: iter(()),
+        obtener_identidad=dependencia_identidad_nula,
+        obtener_identidad_estudiante=dependencia_identidad_nula,
+        obtener_asistencia=lambda: iter(()),
+        exigir_csrf=exigir_csrf,
+    )
+    ruta = next(
+        r
+        for r in enrutador.routes
+        if (
+            isinstance(r, RutaAPI)
+            and r.path == "/asistencia/{accion}"
+            and r.methods
+            and "POST" in r.methods
+        )
+    )
+    assert any(dependencia.call == exigir_csrf for dependencia in ruta.dependant.dependencies)
+
+
+class IdentidadHttpFalsa:
+    def __init__(self) -> None:
+        self.sesion = SesionPersistida(
+            idSesion="sesion-estudiante",
+            idUsuario=7,
+            secretoHash="hash",
+            expiraEn=datetime(2030, 1, 1, tzinfo=timezone.utc),
+            csrfHash="hash-csrf",
+        )
+
+    def validar_sesion(self, id_sesion: str, secreto: str) -> SesionPersistida:
+        if id_sesion != "sesion-estudiante" or secreto != "secreto":
+            raise ValueError("sesión inválida")
+        return self.sesion
+
+    def validar_csrf(self, sesion: SesionPersistida, token: str) -> bool:
+        return token == "token-valido"
+
+
+class RepositorioPortalHttpFalso:
+    def buscar_credencial_por_id(self, id_usuario: int) -> dict[str, object]:
+        return {"id_estudiante": id_usuario, "carne": "2026-001", "nombre": "Ana", "activo": True}
+
+
+class AsistenciaHttpFalsa:
+    def registrar(self, datos: dict[str, object], id_estudiante: int, origen: str) -> dict[str, object]:
+        return {"estado": datos["estado"], "idEstudiante": id_estudiante, "origen": origen}
+
+
+def _cliente_portal_http() -> httpx.AsyncClient:
+    identidad = IdentidadHttpFalsa()
+    dependencias = crear_dependencias_seguridad(lambda: cast(ServicioIdentidad, identidad))
+    aplicacion = FastAPI()
+    async def csrf_http(request: Request) -> dict[str, object]:
+        token = request.headers.get("X-CSRF-Token")
+        cookie = request.cookies.get("csrf_token")
+        return dependencias["exigir_csrf"]((identidad, identidad.sesion), token, cookie)
+
+    @aplicacion.post("/asistencia/confirm")
+    async def asistencia_confirmar(_: dict[str, object] = Depends(csrf_http)):
+        return {"estado": "presente"}
+
+    transporte = httpx.ASGITransport(app=aplicacion)
+    return httpx.AsyncClient(transport=transporte, base_url="http://pruebas")
+
+
+def test_asistencia_http_sin_csrf_devuelve_403() -> None:
+    async def ejecutar() -> httpx.Response:
+        async with _cliente_portal_http() as cliente:
+            cliente.cookies.set("id_sesion", "sesion-estudiante")
+            cliente.cookies.set("secreto_sesion", "secreto")
+            return await cliente.post("/asistencia/confirm")
+
+    assert asyncio.run(ejecutar()).status_code == 403
+
+
+def test_asistencia_http_con_csrf_invalido_devuelve_403() -> None:
+    async def ejecutar() -> httpx.Response:
+        async with _cliente_portal_http() as cliente:
+            cliente.cookies.update(
+                {"id_sesion": "sesion-estudiante", "secreto_sesion": "secreto", "csrf_token": "incorrecto"}
+            )
+            return await cliente.post("/asistencia/confirm", headers={"X-CSRF-Token": "incorrecto"})
+
+    assert asyncio.run(ejecutar()).status_code == 403
+
+
+def test_asistencia_http_con_csrf_valido_permite_operacion() -> None:
+    async def ejecutar() -> httpx.Response:
+        async with _cliente_portal_http() as cliente:
+            cliente.cookies.update(
+                {"id_sesion": "sesion-estudiante", "secreto_sesion": "secreto", "csrf_token": "token-valido"}
+            )
+            return await cliente.post("/asistencia/confirm", headers={"X-CSRF-Token": "token-valido"})
+
+    respuesta = asyncio.run(ejecutar())
+    assert respuesta.status_code == 200
+    assert respuesta.json()["estado"] == "presente"
 
 
 def test_carnet_expone_contrato_canonico_y_descargas_sin_rutas_historicas() -> None:

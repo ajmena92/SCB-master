@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { api } from "@/lib/api";
+import { api } from "@/compartido/consultas/cliente_http";
 import { actualizarRuta, crearRuta, normalizeRuta, obtenerDatosRutas, validarRuta } from "./rutas";
 
 describe("consultas de rutas", () => {

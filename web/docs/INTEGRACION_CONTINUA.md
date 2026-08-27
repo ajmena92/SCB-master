@@ -80,7 +80,7 @@ como evidencia externa antes de considerar aprobada la puerta CI.
 
 ## Evidencia local del corte — 2026-08-25
 
-- Backend: Ruff y formato aprobados, mypy sin errores y 52/52 pruebas aprobadas.
+- Backend: Ruff y formato aprobados, mypy sin errores y 48/48 pruebas aprobadas tras retirar las pruebas legacy.
 - Frontend: TypeScript, ESLint, Prettier, guardas arquitectónicas y build Vite aprobados.
 - Vitest: 46 pruebas iniciadas en el recorrido global aprobaron; un worker no inició dentro del
   tiempo disponible en WSL. El archivo omitido se repitió de forma aislada y aprobó sus 2 pruebas.
@@ -116,7 +116,7 @@ Completado en este corte:
 
 Validaciones realizadas:
 
-- 50 pruebas backend aprobadas; Ruff, formato y mypy aprobados.
+- 48 pruebas backend aprobadas; Ruff, formato y mypy aprobados.
 - `bash -n` y `sh -n` aprobados; workflow YAML y `docker compose config` aprobados.
 - Compose normal expone solo `api` y `web`; con `--profile migracion` aparece `migracion`.
 - La imagen de migración construida rechazó el inicio sin confirmación (`código 78`) y quedó

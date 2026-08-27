@@ -1,5 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
-import { api, errMsg } from "@/lib/api";
+import { useCorrecciones } from "@/funcionalidades/administracion/hooks/useCorrecciones";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -12,59 +11,25 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { toast } from "sonner";
 import { Wrench, Loader2, ShieldAlert } from "lucide-react";
 
 export default function CorreccionesTab() {
-  const [estudiantes, setEstudiantes] = useState([]);
-  const [buscar, setBuscar] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [idUsuario, setIdUsuario] = useState("");
-  const [fecha, setFecha] = useState(() => new Date().toISOString().slice(0, 10));
-  const [accion, setAccion] = useState("agregar");
-  const [motivo, setMotivo] = useState("");
-  const [saving, setSaving] = useState(false);
-
-  const cargar = useCallback(async (texto) => {
-    if (texto.trim().length < 2) {
-      setEstudiantes([]);
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
-    try {
-      const { data } = await api.get(
-        `/v1/estudiantes?pagina=1&tamano=50&buscar=${encodeURIComponent(texto)}`,
-      );
-      setEstudiantes(data.items);
-    } catch (e) {
-      toast.error(errMsg(e));
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-  useEffect(() => {
-    const timer = setTimeout(() => cargar(buscar), 250);
-    return () => clearTimeout(timer);
-  }, [buscar, cargar]);
-
-  const enviar = async () => {
-    if (!idUsuario) return toast.error("Seleccioná un estudiante");
-    if (!motivo.trim()) return toast.error("El motivo es obligatorio");
-    setSaving(true);
-    try {
-      await api.put(`/v1/asistencia/marcas/${Number(idUsuario)}/correccion`, {
-        estado: accion === "agregar" ? "presente" : "ausente",
-        motivo,
-      });
-      toast.success("Corrección aplicada y auditada");
-      setMotivo("");
-    } catch (e) {
-      toast.error(errMsg(e));
-    } finally {
-      setSaving(false);
-    }
-  };
+  const {
+    estudiantes,
+    buscar,
+    loading,
+    idUsuario,
+    fecha,
+    accion,
+    motivo,
+    saving,
+    setBuscar,
+    setIdUsuario,
+    setFecha,
+    setAccion,
+    setMotivo,
+    enviar,
+  } = useCorrecciones();
 
   return (
     <div className="space-y-6 max-w-2xl">

@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { errMsg } from "@/lib/api";
+import { errMsg } from "@/compartido/consultas/errores_api";
 import type { DefinicionDominio, Registro } from "../consultas/dominios";
 
 const mostrar = (valor: unknown): string => {

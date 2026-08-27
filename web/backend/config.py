@@ -63,6 +63,13 @@ def _trusted_proxy_cidrs(value: str) -> tuple[str, ...]:
         raise RuntimeError("TRUSTED_PROXY_CIDRS debe contener redes CIDR válidas") from exc
 
 
+def _strict_bool(name: str, default: str) -> bool:
+    value = os.getenv(name, default).strip().lower()
+    if value not in {"true", "false"}:
+        raise RuntimeError(f"{name} debe ser true o false")
+    return value == "true"
+
+
 @dataclass(frozen=True)
 class Settings:
     sql_connection_string: str
@@ -76,31 +83,39 @@ class Settings:
     admin_max_login_attempts: int
     admin_lock_minutes: int
     trusted_proxy_cidrs: tuple[str, ...]
+    forwarded_allow_ips: tuple[str, ...]
 
     @classmethod
     def from_environment(cls) -> "Settings":
         # SQL_CONNECTION_STRING must use ODBC Driver 18 and Encrypt=yes in production.
+        cookie_secure = _strict_bool("COOKIE_SECURE", "true")
+        if os.getenv("ENVIRONMENT", "development").strip().lower() == "production" and not cookie_secure:
+            raise RuntimeError("COOKIE_SECURE debe ser true en producción")
+        trusted_proxy_cidrs = _trusted_proxy_cidrs(
+            os.getenv("TRUSTED_PROXY_CIDRS", "127.0.0.1/32")
+        )
+        forwarded_allow_ips = _trusted_proxy_cidrs(
+            os.getenv("FORWARDED_ALLOW_IPS", os.getenv("TRUSTED_PROXY_CIDRS", "127.0.0.1/32"))
+        )
+        if trusted_proxy_cidrs != forwarded_allow_ips:
+            raise RuntimeError("FORWARDED_ALLOW_IPS y TRUSTED_PROXY_CIDRS deben coincidir")
         return cls(
             sql_connection_string=_sql_connection_string(),
-            cookie_secure=os.getenv("COOKIE_SECURE", "true").lower() == "true",
+            cookie_secure=cookie_secure,
             cors_origin=_single_https_origin(_required("CORS_ORIGIN")),
             app_timezone=os.getenv("APP_TZ", "America/Costa_Rica"),
-            dias_sesion_estudiante=int(os.getenv("DIAS_SESION_ESTUDIANTE", "365")),
+            dias_sesion_estudiante=int(os.getenv("STUDENT_SESSION_DAYS", "365")),
             admin_session_minutes=int(os.getenv("ADMIN_SESSION_MINUTES", "60")),
             student_max_login_attempts=_bounded_int(
-                "STUDENT_MAX_LOGIN_ATTEMPTS", "5", minimum=3, maximum=20
+                "STUDENT_MAX_LOGIN_ATTEMPTS", "8", minimum=3, maximum=20
             ),
-            student_lock_minutes=_bounded_int("STUDENT_LOCK_MINUTES", "15", minimum=1, maximum=120),
-            # These defaults and bounds intentionally match SeguridadRbacService
-            # in escritorio. Set them from the institutional desktop configuration
-            # at deployment; never inherit the student-PIN policy.
+            student_lock_minutes=_bounded_int("STUDENT_LOCK_MINUTES", "5", minimum=1, maximum=120),
             admin_max_login_attempts=_bounded_int(
-                "ADMIN_MAX_LOGIN_ATTEMPTS", "8", minimum=3, maximum=20
+                "ADMIN_MAX_LOGIN_ATTEMPTS", "5", minimum=3, maximum=20
             ),
-            admin_lock_minutes=_bounded_int("ADMIN_LOCK_MINUTES", "5", minimum=1, maximum=120),
-            trusted_proxy_cidrs=_trusted_proxy_cidrs(
-                os.getenv("TRUSTED_PROXY_CIDRS", "127.0.0.1/32")
-            ),
+            admin_lock_minutes=_bounded_int("ADMIN_LOCK_MINUTES", "15", minimum=1, maximum=120),
+            trusted_proxy_cidrs=trusted_proxy_cidrs,
+            forwarded_allow_ips=forwarded_allow_ips,
         )
 
 

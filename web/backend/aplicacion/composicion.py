@@ -78,13 +78,18 @@ def crear_enrutador_aplicacion(
                 obtener_asistencia=dependencias_estudiantes["obtener_asistencia"],
                 cookies_seguras=dependencias_estudiantes["cookies_seguras"],
                 duracion_sesion_estudiante=dependencias_estudiantes["duracion_sesion_estudiante"],
+                obtener_fecha_local=dependencias_estudiantes.get("obtener_fecha_local"),
             )
         )
         enrutador.include_router(
             crear_enrutador_estudiantes(**_argumentos_router(dependencias_estudiantes_base))
         )
         enrutador.include_router(
-            crear_enrutador_fotos(**_argumentos_router(dependencias_estudiantes_base))
+            crear_enrutador_fotos(
+                obtener_repositorio=dependencias_estudiantes["obtener_repositorio"],
+                exigir_permiso=dependencias_estudiantes["exigir_permiso"],
+                exigir_csrf=dependencias_estudiantes["exigir_csrf"],
+            )
         )
     if dependencias_identidad:
         enrutador.include_router(

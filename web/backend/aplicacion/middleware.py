@@ -15,6 +15,6 @@ def configurar_cors(aplicacion: FastAPI, configuracion: Settings | None) -> None
         CORSMiddleware,
         allow_origins=[configuracion.cors_origin],
         allow_credentials=True,
-        allow_methods=["GET", "POST", "PUT"],
+        allow_methods=["GET", "POST", "PUT", "DELETE"],
         allow_headers=["Content-Type", "X-CSRF-Token"],
     )

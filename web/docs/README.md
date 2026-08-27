@@ -12,6 +12,7 @@
 ### Arquitectura y convenciones
 
 - [Arquitectura de la plataforma web](ARQUITECTURA.md) — monolito modular, dominios, límites, contratos y estrategia de corte.
+- [Contratos de la API](CONTRATOS_API.md) — generación OpenAPI y contratos TypeScript separados por dominio.
 - [Convenciones de nombres](CONVENCIONES_NOMBRES.md) — español ASCII en identificadores, español ortográfico en UI/documentación y excepciones técnicas.
 - [ADR-0001: monolito modular por dominios](decisiones/0001-monolito-modular-por-dominios.md) — decisión, alternativas y consecuencias.
 
