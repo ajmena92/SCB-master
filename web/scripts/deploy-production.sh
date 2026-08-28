@@ -7,6 +7,7 @@ usage() {
     echo "  api  Despliega solo el backend (predeterminado)."
     echo "  web  Despliega solo el frontend."
     echo "  all  Despliega backend y frontend."
+    echo "Las migraciones y el retiro de tablas históricas se ejecutan con rutinas DBA separadas."
 }
 
 component="api"

@@ -68,6 +68,16 @@ El script usa el alias SSH `scsc-production`, sincroniza solo el componente soli
 
 No guarda contraseñas ni ejecuta migraciones SQL. Estas siguen requiriendo el procedimiento y la aprobación del DBA.
 
+### Migración y retiro de tablas históricas
+
+El despliegue de código no elimina tablas ni datos. Primero se aplica la migración de menú
+(`019_migra_menu_historico.sql` o `0015_migra_menu_historico`), se valida el funcionamiento
+en staging y se obtiene respaldo y aprobación de retiro. Solo entonces el DBA puede ejecutar
+la rutina explícita `web/scripts/retirar_tablas_menu_legacy.sh`. Esta rutina está limitada a
+`ComedorPortal.MenuComponente` y `ComedorPortal.MenuPlantilla`, valida los conteos contra
+`menu.componente` y `menu.plantilla`, y aborta ante cualquier diferencia. Nunca se ejecuta
+automáticamente como parte de `deploy-production.sh`.
+
 ## Reversión e incidentes
 
 Para detener el servicio sin alterar datos históricos:
