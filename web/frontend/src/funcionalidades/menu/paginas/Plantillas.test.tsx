@@ -59,6 +59,11 @@ describe("plantillas de menú", () => {
     });
 
     const { container, root } = await renderTab();
+    await act(async () => {
+      container
+        .querySelector('[data-testid="semana-tab-1"]')
+        ?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    });
     const card = container.querySelector('[data-testid="plantilla-1-2"]');
     const title = card?.querySelector("p[title]");
 
@@ -66,6 +71,42 @@ describe("plantillas de menú", () => {
     expect(title?.className).toContain("break-words");
     expect(title?.textContent).toMatch(/Pasta corta/);
     expect(container.textContent).toMatch(/1 de 5 días/);
+    expect(container.querySelector("table")?.parentElement?.className).toContain("md:block");
+    expect(container.querySelector('[data-testid="plantilla-movil-1-2"]')).not.toBeNull();
+    expect(container.querySelector("#selector-semana-movil")).not.toBeNull();
+
+    await act(async () => {
+      root.unmount();
+    });
+    container.remove();
+  });
+
+  it("muestra una previsualización breve de los componentes", async () => {
+    obtenerPlantillas.mockResolvedValueOnce({
+      data: [
+        {
+          IdMenuPlantilla: 8,
+          SemanaMes: 1,
+          DiaSemana: 1,
+          Titulo: "Arroz con pollo",
+          Activo: true,
+          Componentes: [
+            { Nombre: "Arroz", TipoComponente: "Principal", Orden: 1 },
+            { Nombre: "Ensalada", TipoComponente: "Acompañamiento", Orden: 2 },
+            { Nombre: "Fruta", TipoComponente: "Postre", Orden: 3 },
+          ],
+        },
+      ],
+    });
+
+    const { container, root } = await renderTab();
+    await act(async () => {
+      container
+        .querySelector('[data-testid="semana-tab-1"]')
+        ?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    });
+
+    expect(container.textContent).toMatch(/Arroz · Ensalada · \+1/);
 
     await act(async () => {
       root.unmount();
@@ -92,6 +133,48 @@ describe("plantillas de menú", () => {
 
     expect(obtenerPlantillas).toHaveBeenCalledTimes(2);
     expect(container.querySelector('[data-testid="plantillas-error"]')).toBeNull();
+
+    await act(async () => {
+      root.unmount();
+    });
+    container.remove();
+  });
+
+  it("muestra una sola semana activa y cambia de semana sin otra consulta", async () => {
+    obtenerPlantillas.mockResolvedValueOnce({
+      data: [
+        {
+          IdMenuPlantilla: 1,
+          SemanaMes: 1,
+          DiaSemana: 1,
+          Titulo: "Lunes de la semana 1",
+          Activo: true,
+          Componentes: [],
+        },
+        {
+          IdMenuPlantilla: 2,
+          SemanaMes: 2,
+          DiaSemana: 3,
+          Titulo: "Miércoles de la semana 2",
+          Activo: true,
+          Componentes: [],
+        },
+      ],
+    });
+
+    const { container, root } = await renderTab();
+    expect(container.textContent).toMatch(/Lunes de la semana 1/);
+    expect(container.textContent).not.toMatch(/Miércoles de la semana 2/);
+
+    await act(async () => {
+      container
+        .querySelector('[data-testid="semana-tab-2"]')
+        ?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    });
+
+    expect(container.textContent).toMatch(/Miércoles de la semana 2/);
+    expect(container.textContent).not.toMatch(/Lunes de la semana 1/);
+    expect(obtenerPlantillas).toHaveBeenCalledTimes(1);
 
     await act(async () => {
       root.unmount();

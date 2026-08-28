@@ -3,7 +3,9 @@ from pydantic import BaseModel, ConfigDict, Field
 
 class ComponenteMenu(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
-    nombre: str = Field(min_length=1, max_length=120)
+    # El menú histórico admite nombres descriptivos largos; coincide con
+    # menu.componente.nombre y evita rechazar datos ya migrados.
+    nombre: str = Field(min_length=1, max_length=500)
     tipo: str = Field(default="Principal", max_length=40)
     orden: int = Field(default=1, ge=1, le=20)
 

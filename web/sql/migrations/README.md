@@ -14,6 +14,27 @@ Las migraciones se aplican manualmente y en orden, primero sobre una copia de st
 - `011_beneficios_autonomo.sql`: crea de forma repetible el esquema canónico independiente `beneficios` para catálogo y asignaciones. No lee ni modifica tablas heredadas.
 - `012_cuentas_autonomas.sql`: crea de forma repetible el esquema canónico independiente `cuentas` para saldos y movimientos idempotentes. No lee ni modifica tablas heredadas.
 - `017_intentos_autenticacion.sql`: crea el estado compartido de bloqueo de autenticación en `identidad`, almacenando únicamente el hash del identificador para que la política sea común entre workers y réplicas.
+- `018_plantillas_menu.sql`: crea las tablas canónicas `menu.plantilla` y `menu.componente` consumidas por la API administrativa.
+- `019_migra_menu_historico.sql`: traslada de forma idempotente las plantillas y componentes existentes desde `ComedorPortal` al esquema canónico `menu`, sin eliminar la fuente histórica.
+- `020_completa_componentes_menu.sql`: completa de forma idempotente los componentes si una ejecución anterior de la transferencia solo alcanzó a crear las plantillas.
+
+## Retiro controlado del legado
+
+Después de aplicar `019_migra_menu_historico.sql` o la revisión Alembic equivalente,
+validar en staging, respaldar producción y comprobar que los conteos canónicos coinciden,
+el DBA puede retirar únicamente `ComedorPortal.MenuComponente` y
+`ComedorPortal.MenuPlantilla` con:
+
+```bash
+CONFIRMAR_MIGRACION_DBA=SI \
+CONFIRMAR_BORRADO_TABLAS_DEPRECIADAS=SI \
+./web/scripts/retirar_tablas_menu_legacy.sh
+```
+
+La rutina ejecuta el borrado dentro de una transacción, elimina primero la tabla hija,
+comprueba la existencia de ambas tablas canónicas y aborta si los conteos no coinciden.
+No se borran otras tablas `ComedorPortal`, no se ejecuta durante el despliegue y no debe
+usarse sin respaldo verificado y ventana aprobada.
 
 `002` no altera tablas `dbo` ni `Seguridad`. Sus claves foráneas protegen confirmaciones históricas, preservan auditoría mediante `SET NULL` y revocan sesiones si se elimina su identidad. La aplicación conserva la procedencia: al cancelar solo puede borrar una fila de `dbo.RegistroTransporte` si la confirmación vinculada la marca explícitamente como `MarcaCreadaPorPortal=1`; una marca reutilizada del escritorio se desvincula, nunca se borra.
 
