@@ -4,16 +4,21 @@ import { NavegacionEstudiante } from "@/funcionalidades/estudiantes/componentes/
 import { CabeceraPortalEstudiante } from "@/funcionalidades/estudiantes/componentes/CabeceraPortalEstudiante";
 import { VistaCarnetEstudiante } from "@/funcionalidades/estudiantes/componentes/VistaCarnetEstudiante";
 import { VistaMenuEstudiante } from "@/funcionalidades/estudiantes/componentes/VistaMenuEstudiante";
-import type { EstadoPortal } from "@/funcionalidades/estudiantes/estado/usePortalEstudiante";
+import type {
+  EstadoPortal,
+  TipoPersonaComedor,
+} from "@/funcionalidades/estudiantes/estado/usePortalEstudiante";
 
-export function PortalEstudiante({
+export function PortalComedor({
   nombre,
   sesion,
+  tipoPersona = "estudiante",
   alCerrarSesion,
   estadoPortal,
 }: {
   nombre: string;
   sesion: { usuario?: Record<string, unknown> } | null;
+  tipoPersona?: TipoPersonaComedor;
   alCerrarSesion: () => void;
   estadoPortal: EstadoPortal;
 }) {
@@ -79,7 +84,7 @@ export function PortalEstudiante({
           </div>
         )}
         {!cargando && !error && vistaActiva === "carnet" && (
-          <VistaCarnetEstudiante sesion={sesion} carnet={carnet} />
+          <VistaCarnetEstudiante sesion={sesion} carnet={carnet} tipoPersona={tipoPersona} />
         )}
         {!cargando && !error && vistaActiva === "menu" && (
           <VistaMenuEstudiante

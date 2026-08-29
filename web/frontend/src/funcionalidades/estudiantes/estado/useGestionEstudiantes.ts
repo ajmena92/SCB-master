@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "@/compartido/consultas/cliente_http";
 import { errMsg } from "@/compartido/consultas/errores_api";
 import { toast } from "sonner";
-import type { BeneficioSalida } from "@/compartido/contratos/beneficios";
 import type {
   PaginaEstudiantes,
   PinGenerado,
@@ -31,7 +30,6 @@ export function useGestionEstudiantes() {
     null,
   );
   const [perfil, setPerfil] = useState<PerfilEstudiante | null>(null);
-  const [beneficios, setBeneficios] = useState<BeneficioSalida[]>([]);
   const [rutas, setRutas] = useState<RutaSalida[]>([]);
   const [archivoFoto, setArchivoFoto] = useState<File | null>(null);
   const [versionFoto, setVersionFoto] = useState(() => Date.now());
@@ -82,14 +80,11 @@ export function useGestionEstudiantes() {
     setVersionFoto((actual) => actual + 1);
     setCargandoPerfil(true);
     try {
-      const [{ data: detalle }, { data: catalogoBeneficios }, { data: catalogoRutas }] =
-        await Promise.all([
-          api.get<PerfilEstudiante>(`/v1/estudiantes/${estudiante.idEstudiante}/perfil`),
-          api.get<BeneficioSalida[]>("/v1/beneficios"),
-          api.get<RutaSalida[]>("/v1/transporte/rutas"),
-        ]);
+      const [{ data: detalle }, { data: catalogoRutas }] = await Promise.all([
+        api.get<PerfilEstudiante>(`/v1/estudiantes/${estudiante.idEstudiante}/perfil`),
+        api.get<RutaSalida[]>("/v1/transporte/rutas"),
+      ]);
       setPerfil(detalle);
-      setBeneficios(catalogoBeneficios);
       setRutas(catalogoRutas);
     } catch (error) {
       toast.error(errMsg(error));
@@ -133,18 +128,20 @@ export function useGestionEstudiantes() {
       setGuardandoPerfil(false);
     }
   };
-  const guardarBeneficio = async (evento: ChangeEvent<HTMLSelectElement>) => {
+  const guardarEstadoComedor = async (evento: ChangeEvent<HTMLSelectElement>) => {
     if (!estudianteSeleccionado) return;
-    const idBeca = evento.target.value === "" ? null : Number(evento.target.value);
+    const idEstadoComedor = Number(evento.target.value) as 1 | 2;
     setGuardandoPerfil(true);
     try {
-      await api.put(`/v1/estudiantes/${estudianteSeleccionado.idEstudiante}/beneficio`, {
-        idBeneficio: idBeca,
+      await api.put(`/v1/estudiantes/${estudianteSeleccionado.idEstudiante}/estado-comedor`, {
+        idEstadoComedor,
       });
       setPerfil((actual) =>
-        actual ? { ...actual, estudiante: { ...actual.estudiante, tipoBeca: idBeca } } : actual,
+        actual
+          ? { ...actual, estudiante: { ...actual.estudiante, idEstadoComedor } }
+          : actual,
       );
-      toast.success("Beneficio actualizado");
+      toast.success("Estado de comedor actualizado");
       await recargar();
     } catch (error) {
       toast.error(errMsg(error));
@@ -218,7 +215,6 @@ export function useGestionEstudiantes() {
     estudianteSeleccionado,
     setEstudianteSeleccionado,
     perfil,
-    beneficios,
     rutas,
     archivoFoto,
     setArchivoFoto,
@@ -238,7 +234,7 @@ export function useGestionEstudiantes() {
     abrirPerfil,
     guardarFoto,
     eliminarFoto,
-    guardarBeneficio,
+    guardarEstadoComedor,
     guardarRuta,
     generarReporte,
   };

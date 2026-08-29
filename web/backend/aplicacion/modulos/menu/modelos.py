@@ -1,8 +1,8 @@
 """Modelos ORM del dominio de menú."""
 
-from datetime import datetime
+from datetime import date, datetime
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String
+from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from aplicacion.nucleo.modelos_base import BaseDeclarativa
@@ -43,6 +43,29 @@ class Componente(BaseDeclarativa):
     id_componente: Mapped[int] = mapped_column(Integer, primary_key=True)
     id_plantilla: Mapped[int] = mapped_column(
         ForeignKey("menu.plantilla.id_plantilla"), nullable=False
+    )
+    nombre: Mapped[str] = mapped_column(String(500), nullable=False)
+    tipo: Mapped[str] = mapped_column(String(40), nullable=False)
+    orden: Mapped[int] = mapped_column(Integer, nullable=False)
+
+
+class Sustitucion(BaseDeclarativa):
+    __tablename__ = "sustitucion"
+    __table_args__ = {"schema": "menu"}
+    id_sustitucion: Mapped[int] = mapped_column(Integer, primary_key=True)
+    fecha: Mapped[date] = mapped_column(Date, nullable=False, unique=True)
+    titulo: Mapped[str] = mapped_column(String(160), nullable=False)
+    observaciones: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    creado_por: Mapped[int] = mapped_column(Integer, nullable=False)
+    actualizado_por: Mapped[int | None] = mapped_column(Integer, nullable=True)
+
+
+class ComponenteSustitucion(BaseDeclarativa):
+    __tablename__ = "componente_sustitucion"
+    __table_args__ = {"schema": "menu"}
+    id_componente: Mapped[int] = mapped_column(Integer, primary_key=True)
+    id_sustitucion: Mapped[int] = mapped_column(
+        ForeignKey("menu.sustitucion.id_sustitucion"), nullable=False
     )
     nombre: Mapped[str] = mapped_column(String(500), nullable=False)
     tipo: Mapped[str] = mapped_column(String(40), nullable=False)

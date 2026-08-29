@@ -50,9 +50,14 @@ Antes de abrir el proxy externo, ejecutar el smoke test con cuentas autorizadas:
 
 ## Promoción a producción
 
+El procedimiento operativo completo está en [RUNBOOK_DEPLOY_PRODUCCION.md](RUNBOOK_DEPLOY_PRODUCCION.md).
+Ese runbook sustituye la secuencia histórica de ejecutar solo tres scripts SQL:
+primero exige la migración total canónica validada por Alembic, luego despliega el
+código y finalmente permite un smoke test y el retiro separado del legado.
+
 1. Obtener aprobación del DBA, respaldo verificado, plan de reversión y ventana de cambio.
 2. Usar una cuenta de producción separada de staging y secretos entregados por el almacén institucional. La primera conexión de la aplicación debe ser solo de lectura para validar esquema, certificados y roles.
-3. Ejecutar manualmente `001_menu_storage.sql`, `002_portal_state.sql` y `003_portal_settings.sql` en orden, tras la validación de staging. La última inicializa los cierres exclusivos del portal desde los horarios existentes y no modifica `dbo.Horario`. La API nunca ejecuta DDL y no se usan scripts prototipo.
+3. Ejecutar la migración total con `validar_alembic_docker.sh` según el runbook. No combinar Alembic con scripts SQL manuales que afecten las mismas tablas. La API nunca ejecuta DDL.
 4. Desplegar con el proxy público aún deshabilitado, ejecutar las pruebas de staging contra producción con cuentas autorizadas y verificar que la marca aparece en el reporte existente.
 5. Habilitar el dominio HTTPS para un piloto controlado y monitorear errores, latencia, sesiones revocadas y duplicados.
 

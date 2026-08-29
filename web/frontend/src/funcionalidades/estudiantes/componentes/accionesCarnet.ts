@@ -2,6 +2,7 @@ export const NOMBRE_COLEGIO = "Colegio Técnico Profesional de Platanares";
 export const LOGO_COLEGIO = "/images/escudo-ctp-platanares.png";
 
 export type DatosCarnet = {
+  tipoPersona?: "estudiante" | "profesor";
   idEstudiante?: number;
   nombre?: string;
   primerApellido?: string;
@@ -10,7 +11,9 @@ export type DatosCarnet = {
   seccion?: string;
   rutaColor?: string;
   rutaDescripcion?: string;
-  tipoBeca?: string;
+  idEstadoComedor?: 1 | 2;
+  beneficioComedor?: string;
+  colegio?: string;
   barcode?: string;
   carne?: string;
   tieneFoto?: boolean;

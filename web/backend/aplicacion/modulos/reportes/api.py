@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends
 from fastapi.responses import Response
 
 from .esquemas import ReporteEstudiantes, ReporteTransporte
+from .dashboard import crear_enrutador_dashboard
 from .repositorio import RepositorioReportes
 from .servicio import ServicioReportes
 
@@ -15,6 +16,7 @@ def crear_enrutador(
     exigir_permiso: Callable[..., Callable],
 ) -> APIRouter:
     enrutador = APIRouter(prefix="/reportes", tags=["reportes"])
+    enrutador.include_router(crear_enrutador_dashboard(obtener_repositorio, exigir_permiso))
 
     def servicio(repo: RepositorioReportes = Depends(obtener_repositorio)) -> ServicioReportes:
         return ServicioReportes(repo)

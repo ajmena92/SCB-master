@@ -2,7 +2,12 @@ from collections.abc import Callable, Iterator
 
 from fastapi import APIRouter, Depends
 
-from .esquemas import PlantillaMenuEntrada, PlantillaMenuSalida
+from .esquemas import (
+    PlantillaMenuEntrada,
+    PlantillaMenuSalida,
+    SustitucionMenuEntrada,
+    SustitucionMenuSalida,
+)
 from .repositorio import RepositorioMenu
 from .servicio import ServicioMenu
 
@@ -29,5 +34,29 @@ def crear_enrutador(
         s=Depends(servicio),
     ):
         return s.guardar(datos, int(u["idUsuario"]))
+
+    @r.get(
+        "/sustituciones",
+        response_model=list[SustitucionMenuSalida],
+        response_model_by_alias=True,
+    )
+    def listar_sustituciones(
+        _=Depends(exigir_permiso("menu.leer")),
+        s=Depends(servicio),
+    ):
+        return s.listar_sustituciones()
+
+    @r.post(
+        "/sustitucion",
+        response_model=SustitucionMenuSalida,
+        response_model_by_alias=True,
+    )
+    def guardar_sustitucion(
+        datos: SustitucionMenuEntrada,
+        u: dict = Depends(exigir_permiso("menu.editar")),
+        _=Depends(exigir_csrf),
+        s=Depends(servicio),
+    ):
+        return s.guardar_sustitucion(datos, int(u["idUsuario"]))
 
     return r

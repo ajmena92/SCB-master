@@ -14,17 +14,22 @@ import type { DatosCarnet } from "./accionesCarnet";
 
 export function TarjetaCarnet({
   datosCarnet = {},
+  tipoPersona = datosCarnet.tipoPersona ?? "estudiante",
   tieneFoto,
   versionFoto = "estudiante",
 }: {
   datosCarnet?: DatosCarnet;
   tieneFoto?: boolean;
   versionFoto?: string | number;
+  tipoPersona?: "estudiante" | "profesor";
 }) {
   const colorRuta = obtenerColorRutaSeguro(datosCarnet.rutaColor);
   const nombre = obtenerNombreCompleto(datosCarnet);
   const codigo = datosCarnet.barcode || datosCarnet.carne;
-  const fotoUrl = obtenerUrlFotoCarnet(datosCarnet.idEstudiante, versionFoto);
+  const fotoUrl =
+    tipoPersona === "estudiante"
+      ? obtenerUrlFotoCarnet(datosCarnet.idEstudiante, versionFoto)
+      : null;
   const fotoDisponible = tieneFoto ?? Boolean(datosCarnet.tieneFoto);
   return (
     <div
@@ -54,7 +59,7 @@ export function TarjetaCarnet({
         </div>
         <div className="relative mt-6 flex items-end gap-4">
           <div className="h-28 w-24 shrink-0 overflow-hidden rounded-2xl border-4 border-white/70 bg-white/25 shadow-lg">
-            {fotoDisponible && fotoUrl ? (
+            {tipoPersona === "estudiante" && fotoDisponible && fotoUrl ? (
               <img
                 src={fotoUrl}
                 alt={`Fotografía de ${nombre}`}
@@ -70,7 +75,7 @@ export function TarjetaCarnet({
           </div>
           <div className="min-w-0 pb-1">
             <p className="text-[0.62rem] font-black uppercase tracking-[0.18em] opacity-70">
-              Estudiante
+              {tipoPersona === "profesor" ? "Profesor" : "Estudiante"}
             </p>
             <p className="mt-1 line-clamp-3 font-display text-lg font-black leading-tight">
               {nombre || "Sin nombre"}
@@ -80,30 +85,37 @@ export function TarjetaCarnet({
       </div>
       <div className="space-y-5 p-6">
         <div className="grid grid-cols-2 gap-4 text-sm">
-          <div>
-            <p className="text-[0.62rem] font-black uppercase tracking-wider text-muted-foreground">
-              Año
-            </p>
-            <p className="mt-1 font-bold">{obtenerAnioCarnet(datosCarnet)}</p>
-          </div>
-          <div>
-            <p className="text-[0.62rem] font-black uppercase tracking-wider text-muted-foreground">
-              Sección
-            </p>
-            <p className="mt-1 font-bold">{datosCarnet.seccion || "Sin sección"}</p>
-          </div>
-          <div>
-            <p className="text-[0.62rem] font-black uppercase tracking-wider text-muted-foreground">
-              Ruta asignada
-            </p>
-            <p className="mt-1 font-bold">{datosCarnet.rutaDescripcion || "Sin ruta"}</p>
-          </div>
-          <div>
-            <p className="text-[0.62rem] font-black uppercase tracking-wider text-muted-foreground">
-              Cédula
-            </p>
-            <p className="mt-1 font-bold">{datosCarnet.cedula || "Pendiente"}</p>
-          </div>
+          {tipoPersona === "profesor" ? (
+            <div className="col-span-2">
+              <p className="text-[0.62rem] font-black uppercase tracking-wider text-muted-foreground">
+                Colegio
+              </p>
+              <p className="mt-1 font-bold">{datosCarnet.colegio || NOMBRE_COLEGIO}</p>
+            </div>
+          ) : (
+            <div>
+              <p className="text-[0.62rem] font-black uppercase tracking-wider text-muted-foreground">
+                Año
+              </p>
+              <p className="mt-1 font-bold">{obtenerAnioCarnet(datosCarnet)}</p>
+            </div>
+          )}
+          {tipoPersona === "estudiante" && (
+            <div>
+              <p className="text-[0.62rem] font-black uppercase tracking-wider text-muted-foreground">
+                Sección
+              </p>
+              <p className="mt-1 font-bold">{datosCarnet.seccion || "Sin sección"}</p>
+            </div>
+          )}
+          {tipoPersona === "estudiante" && (
+            <div>
+              <p className="text-[0.62rem] font-black uppercase tracking-wider text-muted-foreground">
+                Ruta asignada
+              </p>
+              <p className="mt-1 font-bold">{datosCarnet.rutaDescripcion || "Sin ruta"}</p>
+            </div>
+          )}
         </div>
         <div
           className="rounded-2xl bg-primary/5 p-4 text-secondary"
@@ -111,7 +123,9 @@ export function TarjetaCarnet({
         >
           <CodigoBarras valor={codigo} />
         </div>
-        {datosCarnet.tipoBeca && <Badge variant="secondary">{datosCarnet.tipoBeca}</Badge>}
+        {tipoPersona === "estudiante" && datosCarnet.beneficioComedor && (
+          <Badge variant="secondary">{datosCarnet.beneficioComedor}</Badge>
+        )}
         <p className="text-center text-xs font-semibold text-muted-foreground">
           Presentá este código ante el lector del comedor.
         </p>

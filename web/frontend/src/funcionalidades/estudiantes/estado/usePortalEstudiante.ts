@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
+import {
+  reservarComedorEstudiante,
+  cancelarComedorEstudiante,
+} from "@/funcionalidades/comedor/consultas/reservas";
 import { api } from "@/compartido/consultas/cliente_http";
 import { errMsg } from "@/compartido/consultas/errores_api";
 import {
@@ -26,6 +30,13 @@ export type EstadoPortalApi = {
   horaInicio?: string;
   fechaHoraConfirmacionServidor?: string;
 };
+export type TipoPersonaComedor = "estudiante" | "profesor";
+
+function fechaLocalActual(): string {
+  const ahora = new Date();
+  const completar = (valor: number) => String(valor).padStart(2, "0");
+  return `${ahora.getFullYear()}-${completar(ahora.getMonth() + 1)}-${completar(ahora.getDate())}`;
+}
 export type MenuEstudiante = {
   Titulo: string;
   Componentes: Array<{ Orden: number; Nombre: string; TipoComponente: string }>;
@@ -60,7 +71,8 @@ export type EstadoPortal = {
   };
 };
 
-export function usePortalEstudiante(): EstadoPortal {
+export function usePortalEstudiante(tipoPersona: TipoPersonaComedor = "estudiante"): EstadoPortal {
+  const basePortal = tipoPersona === "profesor" ? "/v1/profesores" : "/v1/estudiantes";
   const [menu, setMenu] = useState<MenuEstudiante | null>(null);
   const [vistaActiva, setVistaActiva] = useState<"menu" | "carnet">("menu");
   const [estado, setEstado] = useState<EstadoPortalApi | null>(null);
@@ -88,8 +100,8 @@ export function usePortalEstudiante(): EstadoPortal {
     const actualizar = async () => {
       setError("");
       const [resultadoMenu, resultadoAsistencia] = await Promise.allSettled([
-        api.get("/v1/estudiantes/menu"),
-        api.get("/v1/estudiantes/asistencia/hoy"),
+        api.get(`${basePortal}/menu`),
+        api.get(`${basePortal}/asistencia/hoy`),
       ]);
 
       if (resultadoMenu.status === "fulfilled")
@@ -119,11 +131,11 @@ export function usePortalEstudiante(): EstadoPortal {
     const actualizacionProgramada = colaActualizacionRef.current.then(actualizar, actualizar);
     colaActualizacionRef.current = actualizacionProgramada.catch(() => undefined);
     return actualizacionProgramada;
-  }, []);
+  }, [basePortal]);
 
   const carnet = useQuery({
-    queryKey: ["estudiante", "carnet"],
-    queryFn: async () => (await api.get("/v1/estudiantes/carnet")).data,
+    queryKey: [tipoPersona, "carnet"],
+    queryFn: async () => (await api.get(`${basePortal}/carnet`)).data,
     enabled: vistaActiva === "carnet",
     retry: false,
   });
@@ -241,14 +253,30 @@ export function usePortalEstudiante(): EstadoPortal {
 
   const registrarAsistencia = async (tipo: "confirm" | "decline") => {
     setEjecutando(true);
+    const fecha = fechaLocalActual();
+    let reservaCreada = false;
     try {
-      await api.post(`/v1/estudiantes/asistencia/${tipo}`);
+      if (tipo === "confirm") {
+        if (tipoPersona === "estudiante") await reservarComedorEstudiante(fecha);
+        reservaCreada = tipoPersona === "estudiante";
+      }
+      await api.post(basePortal + "/asistencia/" + tipo);
+      if (tipo === "decline") {
+        if (tipoPersona === "estudiante") await cancelarComedorEstudiante(fecha);
+      }
       if (tipo === "confirm") enfocarConfirmacionRef.current = true;
       toast.success(
         tipo === "confirm" ? "¡Asistencia confirmada!" : "Registrado: no asistirás hoy",
       );
       await cargar();
     } catch (errorAsistencia) {
+      if (reservaCreada) {
+        try {
+          if (tipoPersona === "estudiante") await cancelarComedorEstudiante(fecha);
+        } catch {
+          toast.error("No se pudo liberar la reserva de comedor");
+        }
+      }
       toast.error(errMsg(errorAsistencia));
     } finally {
       setEjecutando(false);

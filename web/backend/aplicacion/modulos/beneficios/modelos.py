@@ -6,25 +6,23 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from aplicacion.nucleo.modelos_base import BaseDeclarativa
 
 
-class Beneficio(BaseDeclarativa):
-    __tablename__ = "beneficio"
+class TipoBeneficio(BaseDeclarativa):
+    __tablename__ = "tipo_beneficio"
     __table_args__ = {"schema": "beneficios"}
     id_beneficio: Mapped[int] = mapped_column(Integer, primary_key=True)
-    nombre: Mapped[str] = mapped_column(String(120), nullable=False)
+    nombre: Mapped[str] = mapped_column(String(100), nullable=False)
+    descripcion: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    dias_permitidos: Mapped[int] = mapped_column(Integer, nullable=False, default=5)
     activo: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
 
 
-class BeneficioEstudiante(BaseDeclarativa):
-    __tablename__ = "beneficio_estudiante"
+class AsignacionBeneficio(BaseDeclarativa):
+    __tablename__ = "asignacion"
     __table_args__ = {"schema": "beneficios"}
-    id_beneficio: Mapped[int] = mapped_column(
-        ForeignKey("beneficios.beneficio.id_beneficio", name="fk_beneficio_estudiante_beneficio"),
-        primary_key=True,
-    )
     id_estudiante: Mapped[int] = mapped_column(
-        ForeignKey(
-            "estudiantes.estudiante.id_estudiante", name="fk_beneficio_estudiante_estudiante"
-        ),
+        ForeignKey("estudiantes.estudiante.id_estudiante"),
         primary_key=True,
     )
-    beneficio = relationship("Beneficio")
+    id_beneficio: Mapped[int | None] = mapped_column(
+        ForeignKey("beneficios.tipo_beneficio.id_beneficio"), nullable=True
+    )

@@ -41,12 +41,6 @@ export const OPERACIONES_ESTUDIANTES: readonly OperacionApi[] = [
   },
   {
     metodo: "GET",
-    ruta: "/api/v1/estudiantes/carnet.pdf",
-    operacionId: "carnet_pdf_api_v1_estudiantes_carnet_pdf_get",
-    dominio: "estudiantes",
-  },
-  {
-    metodo: "GET",
     ruta: "/api/v1/estudiantes/carnet/foto",
     operacionId: "foto_carnet_api_v1_estudiantes_carnet_foto_get",
     dominio: "estudiantes",
@@ -94,9 +88,9 @@ export const OPERACIONES_ESTUDIANTES: readonly OperacionApi[] = [
     dominio: "estudiantes",
   },
   {
-    metodo: "GET",
-    ruta: "/api/v1/estudiantes/{id_estudiante}/carnet.pdf",
-    operacionId: "carnet_api_v1_estudiantes__id_estudiante__carnet_pdf_get",
+    metodo: "PUT",
+    ruta: "/api/v1/estudiantes/{id_estudiante}/estado-comedor",
+    operacionId: "estado_comedor_api_v1_estudiantes__id_estudiante__estado_comedor_put",
     dominio: "estudiantes",
   },
   {

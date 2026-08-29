@@ -26,18 +26,20 @@ class RepositorioSqlCredenciales:
             cursor = conexion.cursor()
             cursor.execute(
                 """SELECT e.id_estudiante, e.carne, e.nombre, e.primer_apellido,
-                e.segundo_apellido, e.cedula, e.seccion, e.turno, e.id_ruta,
-                e.id_beneficio, e.hash_contrasena, e.debe_cambiar_pin,
+                e.segundo_apellido, e.cedula, e.seccion, e.turno, ar.id_ruta,
+                ba.id_beneficio, e.hash_contrasena, e.debe_cambiar_pin,
                 e.fecha_expiracion_pin, e.activo, r.codigo AS ruta_codigo,
                 r.descripcion AS ruta_descripcion, r.color_hex AS ruta_color,
-                b.nombre AS tipo_beca,
+                cp.id_estado_comedor, ec.descripcion AS beneficio_comedor,
                 CAST(CASE WHEN f.id_estudiante IS NULL THEN 0 ELSE 1 END AS bit) AS tiene_foto
                 FROM estudiantes.estudiante e
                 LEFT JOIN estudiantes.fotografia f ON f.id_estudiante=e.id_estudiante
                 LEFT JOIN transporte.asignacion_ruta ar ON ar.id_estudiante=e.id_estudiante AND ar.activa=1
-                LEFT JOIN transporte.ruta r ON r.id_ruta=COALESCE(e.id_ruta, ar.id_ruta)
+                LEFT JOIN transporte.ruta r ON r.id_ruta=ar.id_ruta
                 LEFT JOIN beneficios.asignacion ba ON ba.id_estudiante=e.id_estudiante
-                LEFT JOIN beneficios.tipo_beneficio b ON b.id_beneficio=COALESCE(e.id_beneficio, ba.id_beneficio)
+                LEFT JOIN comedor.persona cp ON cp.id_estudiante=e.id_estudiante
+                    AND cp.tipo_persona='estudiante'
+                LEFT JOIN comedor.estado_comedor ec ON ec.id_estado_comedor=cp.id_estado_comedor
                 WHERE e.id_estudiante=?""",
                 id_estudiante,
             )

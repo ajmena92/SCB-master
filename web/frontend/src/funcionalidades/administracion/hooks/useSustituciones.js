@@ -6,7 +6,6 @@ import {
   guardarSustitucion,
 } from "@/funcionalidades/administracion/consultas/menu";
 import {
-  componenteParaGuardar,
   prepararComponente,
   prepararComponentes,
 } from "@/funcionalidades/menu/componentesMenu";
@@ -18,7 +17,22 @@ export function useSustituciones() {
   const [form, setForm] = useState(null);
   const consulta = useQuery({
     queryKey: ["admin", "menu", "sustituciones"],
-    queryFn: consultarSustituciones,
+    queryFn: async () => {
+      const sustituciones = await consultarSustituciones();
+      return sustituciones.map((sustitucion) => ({
+        IdMenuSustitucion: sustitucion.idSustitucion,
+        Fecha: sustitucion.fecha,
+        Titulo: sustitucion.titulo,
+        Observaciones: sustitucion.observaciones || "",
+        Componentes: prepararComponentes(
+          (sustitucion.componentes || []).map((componente) => ({
+            Orden: componente.orden || 1,
+            Nombre: componente.nombre,
+            TipoComponente: componente.tipo || "Principal",
+          })),
+        ),
+      }));
+    },
   });
   useEffect(() => {
     if (consulta.error) toast.error(mensajeError(consulta.error));
@@ -73,11 +87,15 @@ export function useSustituciones() {
     setSaving(true);
     try {
       await guardarSustitucion({
-        Fecha: form.Fecha,
-        Titulo: form.Titulo,
-        Observaciones: form.Observaciones || "",
-        Componentes: form.Componentes.filter((componente) => componente.Nombre.trim()).map(
-          componenteParaGuardar,
+        fecha: form.Fecha,
+        titulo: form.Titulo,
+        observaciones: form.Observaciones || "",
+        componentes: form.Componentes.filter((componente) => componente.Nombre.trim()).map(
+          (componente) => ({
+            nombre: componente.Nombre,
+            tipo: componente.TipoComponente,
+            orden: componente.Orden,
+          }),
         ),
       });
       toast.success("Sustitución guardada (prevalece sobre la plantilla)");

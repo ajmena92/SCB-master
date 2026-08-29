@@ -56,6 +56,7 @@ class ContratoDependenciasModulo(TypedDict, total=False):
     obtener_identidad_estudiante: Callable[[], ServicioIdentidad]
     obtener_menu: Callable[..., Any]
     obtener_asistencia: Callable[..., Any]
+    obtener_comedor: Callable[..., Any]
     cookies_seguras: bool
     duracion_sesion_estudiante: int
     obtener_servicio: Callable[[], ServicioIdentidad]
@@ -166,10 +167,31 @@ def crear_servicio_sesiones(
     def obtener_sesiones() -> ServicioSesiones:
         servicios = crear_servicios_identidad(fabrica, configuracion)
         repositorio = crear_fabricas_repositorios(fabrica)["obtener_estudiantes"]()
+        comedor = crear_fabricas_repositorios(fabrica)["obtener_comedor"]()
+
+        def perfil_profesor(id_usuario: int) -> dict[str, object] | None:
+            try:
+                persona = comedor.persona_por_usuario(id_usuario)
+            except ValueError:
+                return None
+            return {
+                "tipoPersona": "profesor",
+                "idPersona": int(persona["id_persona"]),
+                "idUsuario": int(persona["id_usuario"]),
+                "nombre": str(persona["nombre_completo"]),
+                "nombreCompleto": str(persona["nombre_completo"]),
+                "colegio": persona.get("colegio"),
+                "idEstadoComedor": int(persona["id_estado_comedor"]),
+                "beneficioComedor": str(persona["beneficio_comedor"]),
+                "activo": bool(persona["activo"]),
+                "barcode": str(persona["codigo_barras"]),
+            }
+
         return ServicioSesiones(
             servicios["obtener_identidad"](),
             servicios["obtener_identidad_estudiante"](),
             lambda id_estudiante: crear_perfil_sesion(id_estudiante, repositorio.buscar_por_id),
+            perfil_profesor,
         )
 
     return obtener_sesiones
@@ -216,6 +238,7 @@ def crear_dependencias_modulos(
             "obtener_identidad_estudiante": servicios["obtener_identidad_estudiante"],
             "obtener_menu": repositorios["obtener_menu"],
             "obtener_asistencia": repositorios["obtener_asistencia"],
+            "obtener_comedor": repositorios["obtener_comedor"],
             "obtener_fecha_local": lambda: fecha_local(
                 configuracion.app_timezone if configuracion else "America/Costa_Rica"
             ),
@@ -233,6 +256,14 @@ def crear_dependencias_modulos(
         "dependencias_administracion": contrato_repositorio("administracion"),
         "dependencias_parametros": contrato_repositorio("parametros"),
         "dependencias_menu": contrato_repositorio("menu"),
-        "dependencias_comedor": contrato_repositorio("comedor"),
+        "dependencias_comedor": {
+            **contrato_repositorio("comedor", requiere_ip=False),
+            "obtener_identidad": servicios["obtener_identidad"],
+            "obtener_identidad_estudiante": servicios["obtener_identidad_estudiante"],
+            "obtener_menu": repositorios["obtener_menu"],
+            "obtener_fecha_local": lambda: fecha_local(
+                configuracion.app_timezone if configuracion else "America/Costa_Rica"
+            ),
+        },
         "dependencias_soporte": contrato_repositorio("soporte"),
     }

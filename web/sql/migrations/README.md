@@ -17,6 +17,33 @@ Las migraciones se aplican manualmente y en orden, primero sobre una copia de st
 - `018_plantillas_menu.sql`: crea las tablas canónicas `menu.plantilla` y `menu.componente` consumidas por la API administrativa.
 - `019_migra_menu_historico.sql`: traslada de forma idempotente las plantillas y componentes existentes desde `ComedorPortal` al esquema canónico `menu`, sin eliminar la fuente histórica.
 - `020_completa_componentes_menu.sql`: completa de forma idempotente los componentes si una ejecución anterior de la transferencia solo alcanzó a crear las plantillas.
+- `024_corte_comedor_tiquetes.sql`: materializa el padrón de comedor con estado explícito `becado_comedor`/`no_becado_comedor`, cuentas, reservas, movimientos e ingresos atómicos; respalda y reconcilia el histórico de `comedor.registro` sin eliminarlo ni perder filas. Requiere respaldo, congelamiento de escrituras y validación DBA en staging.
+- `026_idempotencia_corte_comedor.sql`: agrega la huella de idempotencia de recargas y conserva los movimientos históricos; requiere ejecutar después de `024` y de las revisiones `025` existentes.
+- `027_catalogo_profesores_identidad.sql`: incorpora únicamente usuarios web existentes con un rol activo exactamente `Profesor` o `Docente` al catálogo de comedor y crea su cuenta inicial en cero. No crea usuarios, no consulta `dbo` y deja `colegio` NULL porque identidad no contiene ese dato. Requiere el preflight de correspondencia de nombres/colegio cuando el nombre de usuario no sea suficiente.
+
+### Preflight obligatorio para profesores
+
+La identidad canónica solo permite derivar profesores cuando el siguiente
+catálogo devuelve los roles esperados y sus usuarios coinciden con el padrón
+institucional autorizado:
+
+```sql
+SELECT r.nombre, COUNT(DISTINCT ur.id_usuario) AS cantidad_usuarios
+FROM identidad.rol AS r
+LEFT JOIN identidad.usuario_rol AS ur ON ur.id_rol = r.id_rol
+WHERE r.activo = 1
+  AND LOWER(LTRIM(RTRIM(r.nombre))) IN (N'profesor', N'docente')
+GROUP BY r.nombre;
+```
+
+Antes de ejecutar `027`, el DBA debe documentar: cantidad esperada y cantidad
+encontrada de usuarios, los `id_usuario` candidatos, que no exista una persona
+de comedor con el mismo usuario y otro tipo, y la correspondencia del
+`nombre_usuario` con el nombre visible del profesor. El colegio no puede
+derivarse de identidad y debe quedar `NULL` o completarse mediante un padrón
+autorizado posterior. Si no existe un rol activo exactamente `Profesor` o
+`Docente`, el origen de profesores no es determinable automáticamente y la
+migración no debe complementarse inventando usuarios.
 
 ## Retiro controlado del legado
 
@@ -36,6 +63,25 @@ comprueba la existencia de ambas tablas canónicas y aborta si los conteos no co
 No se borran otras tablas `ComedorPortal`, no se ejecuta durante el despliegue y no debe
 usarse sin respaldo verificado y ventana aprobada.
 
+La transferencia inicial del padrón está en `021_transfiere_padron_web.sql`.
+El DBA debe ejecutarla sobre la base autorizada para copiar estudiantes,
+rutas, becas y asignaciones desde las fuentes históricas al modelo web. Es
+idempotente, conserva las claves y no elimina el origen. Los PIN binarios
+heredados no se convierten silenciosamente a Argon2; deben generarse mediante
+el flujo web de reinicio de PIN.
+
 `002` no altera tablas `dbo` ni `Seguridad`. Sus claves foráneas protegen confirmaciones históricas, preservan auditoría mediante `SET NULL` y revocan sesiones si se elimina su identidad. La aplicación conserva la procedencia: al cancelar solo puede borrar una fila de `dbo.RegistroTransporte` si la confirmación vinculada la marca explícitamente como `MarcaCreadaPorPortal=1`; una marca reutilizada del escritorio se desvincula, nunca se borra.
+
+## Migración de datos antes del despliegue
+
+Una migración de estructura sin transferencia de datos es incompleta. Antes de
+promover la aplicación, el DBA debe respaldar la base, registrar conteos de las
+fuentes, ejecutar las transferencias idempotentes y reconciliar claves y
+relaciones en staging y producción. En particular, `019_migra_menu_historico.sql`
+y `020_completa_componentes_menu.sql` trasladan el menú histórico a
+`menu.plantilla` y `menu.componente`; no deben eliminar las tablas fuente durante
+esa etapa. El retiro posterior está documentado en
+`RUNBOOK_DEPLOY_PRODUCCION.md` y solo se autoriza con respaldo, conteos iguales
+y aprobación independiente del DBA.
 
 No ejecutar ninguna migración desde el contenedor ni con la cuenta de ejecución de la API.

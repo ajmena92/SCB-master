@@ -12,6 +12,7 @@ export function VistaCarnetEstudiante({
   idEstudiante,
   tieneFoto,
   datosCarnet = null,
+  tipoPersona,
   cargando = false,
   error = "",
   alReintentar,
@@ -27,6 +28,7 @@ export function VistaCarnetEstudiante({
   idEstudiante?: number;
   tieneFoto?: boolean;
   datosCarnet?: DatosCarnet | null;
+  tipoPersona?: "estudiante" | "profesor";
   cargando?: boolean;
   error?: string;
   alReintentar?: () => void;
@@ -34,6 +36,7 @@ export function VistaCarnetEstudiante({
 }) {
   const [version] = useState(() => Date.now());
   const datos = datosCarnet ?? carnet?.datos ?? null;
+  const persona = tipoPersona ?? datos?.tipoPersona ?? "estudiante";
   const id = idEstudiante ?? Number(sesion?.usuario?.idEstudiante);
   const fotoDisponible = Boolean(
     tieneFoto ?? sesion?.usuario?.TieneFoto ?? sesion?.usuario?.tieneFoto ?? datos?.tieneFoto,
@@ -85,6 +88,7 @@ export function VistaCarnetEstudiante({
       {!estaCargando && !mensajeError && (datos || id) && (
         <TarjetaCarnet
           datosCarnet={datos ?? { idEstudiante: id || undefined }}
+          tipoPersona={persona}
           tieneFoto={fotoDisponible}
           versionFoto={version}
         />

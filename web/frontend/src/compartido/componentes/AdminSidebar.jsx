@@ -5,6 +5,7 @@ import { PanelLeft } from "lucide-react";
 
 export default function AdminSidebar() {
   const { session } = useAutenticacion();
+  // `standalone` evita envolver el módulo en AdminPanel; no debe ocultar su acceso.
   const modulos = obtenerModulosVisibles(session);
 
   return (

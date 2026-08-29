@@ -3,6 +3,7 @@ from pathlib import Path
 from aplicacion.modulos.asistencia import modelos as _modelos_asistencia  # noqa: F401
 from aplicacion.modulos.auditoria import modelos as _modelos_auditoria  # noqa: F401
 from aplicacion.modulos.beneficios import modelos as _modelos_beneficios  # noqa: F401
+from aplicacion.modulos.beneficios.modelos import AsignacionBeneficio
 from aplicacion.modulos.comedor import modelos as _modelos_comedor  # noqa: F401
 from aplicacion.modulos.cuentas import modelos as _modelos_cuentas  # noqa: F401
 from aplicacion.modulos.estudiantes.modelos import Estudiante
@@ -12,7 +13,7 @@ from aplicacion.modulos.menu import modelos as _modelos_menu  # noqa: F401
 from aplicacion.modulos.parametros import modelos as _modelos_parametros  # noqa: F401
 from aplicacion.modulos.reportes import modelos as _modelos_reportes  # noqa: F401
 from aplicacion.modulos.soporte import modelos as _modelos_soporte  # noqa: F401
-from aplicacion.modulos.transporte.modelos import Ruta
+from aplicacion.modulos.transporte.modelos import AsignacionRuta, Ruta
 from aplicacion.nucleo.modelos_base import BaseDeclarativa
 
 RAIZ = Path(__file__).resolve().parents[1]
@@ -37,7 +38,8 @@ def test_modelos_canonicos_declaran_todos_los_dominios() -> None:
     assert Usuario.__table__.schema == "identidad"
     assert Ruta.__table__.schema == "transporte"
     assert Estudiante.__table__.schema == "estudiantes"
-    assert Estudiante.__table__.c.id_ruta.foreign_keys
+    assert AsignacionRuta.__table__.c.id_ruta.foreign_keys
+    assert AsignacionBeneficio.__table__.c.id_beneficio.foreign_keys
 
 
 def test_nucleo_no_contiene_modelos_de_dominio() -> None:

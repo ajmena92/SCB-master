@@ -244,10 +244,12 @@ class ServicioSesiones:
         administracion: ServicioIdentidad,
         estudiantes: ServicioIdentidad | None = None,
         perfil_estudiante: Callable[[int], dict[str, object]] | None = None,
+        perfil_profesor: Callable[[int], dict[str, object] | None] | None = None,
     ) -> None:
         self._administracion = administracion
         self._estudiantes = estudiantes
         self._perfil_estudiante = perfil_estudiante
+        self._perfil_profesor = perfil_profesor
 
     def validar(self, id_sesion: str, secreto: str) -> SesionResuelta:
         """Valida una sesión y devuelve su proyección pública."""
@@ -255,6 +257,10 @@ class ServicioSesiones:
         try:
             sesion = self._administracion.validar_sesion(id_sesion, secreto)
             permisos = self._administracion.permisos_de_sesion(sesion)
+            if self._perfil_profesor and not permisos:
+                perfil_profesor = self._perfil_profesor(sesion.id_usuario)
+                if perfil_profesor is not None:
+                    return SesionResuelta(sesion, "profesor", perfil_profesor)
             return SesionResuelta(
                 sesion,
                 "admin",

@@ -40,4 +40,17 @@ actualiza el backend, se regenera el cliente y se ejecutan las comprobaciones de
 - El frontend usa cookies de sesión y no almacena credenciales ni tokens de sesión en
   `localStorage`.
 
+## Contrato de comedor
+
+El contrato canónico de comedor define personas, estado (`becado_comedor` o `no_becado_comedor`),
+cuentas y movimientos de tiquetes, reservas e ingresos. El estado de comedor es la
+única fuente para decidir la autorización de ingreso. La modalidad histórica de `0023`
+no constituye por sí sola un endpoint vigente. Las operaciones públicas deben mantenerse separadas
+por estado, cuentas, reservas, ingreso por carnet y estadísticas por `tipoPersona`
+(`estudiante` o `profesor`).
+
+Las estadísticas estudiantiles deben excluir profesores en el servidor, no solo en la
+interfaz. Estos endpoints no se consideran disponibles hasta contar con persistencia
+de staging y pruebas HTTP de reserva, consumo atómico y concurrencia.
+
 La referencia operativa de despliegue está en [DESPLIEGUE_PORTAL.md](DESPLIEGUE_PORTAL.md).

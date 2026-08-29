@@ -10,6 +10,7 @@ from aplicacion.modulos.asistencia.api import crear_enrutador as crear_enrutador
 from aplicacion.modulos.auditoria.api import crear_enrutador as crear_enrutador_auditoria
 from aplicacion.modulos.beneficios.api import crear_enrutador as crear_enrutador_beneficios
 from aplicacion.modulos.comedor.api import crear_enrutador as crear_enrutador_comedor
+from aplicacion.modulos.comedor.profesor_portal import crear_enrutador_profesores
 from aplicacion.modulos.cuentas.api import crear_enrutador as crear_enrutador_cuentas
 from aplicacion.modulos.estudiantes.api import crear_enrutador as crear_enrutador_estudiantes
 from aplicacion.modulos.estudiantes.fotos import crear_enrutador_fotos
@@ -76,6 +77,7 @@ def crear_enrutador_aplicacion(
                 ],
                 obtener_menu=dependencias_estudiantes["obtener_menu"],
                 obtener_asistencia=dependencias_estudiantes["obtener_asistencia"],
+                obtener_comedor=dependencias_estudiantes["obtener_comedor"],
                 cookies_seguras=dependencias_estudiantes["cookies_seguras"],
                 duracion_sesion_estudiante=dependencias_estudiantes["duracion_sesion_estudiante"],
                 obtener_fecha_local=dependencias_estudiantes.get("obtener_fecha_local"),
@@ -169,7 +171,23 @@ def crear_enrutador_aplicacion(
         enrutador.include_router(crear_enrutador_menu(**_argumentos_router(dependencias_menu)))
     if dependencias_comedor:
         enrutador.include_router(
-            crear_enrutador_comedor(**_argumentos_router(dependencias_comedor))
+            crear_enrutador_comedor(
+                obtener_repositorio=dependencias_comedor["obtener_repositorio"],
+                exigir_permiso=dependencias_comedor["exigir_permiso"],
+                exigir_csrf=dependencias_comedor["exigir_csrf"],
+                obtener_identidad_estudiante=dependencias_comedor[
+                    "obtener_identidad_estudiante"
+                ],
+            )
+        )
+        enrutador.include_router(
+            crear_enrutador_profesores(
+                obtener_repositorio=dependencias_comedor["obtener_repositorio"],
+                obtener_identidad=dependencias_comedor["obtener_identidad"],
+                obtener_menu=dependencias_comedor["obtener_menu"],
+                exigir_csrf=dependencias_comedor["exigir_csrf"],
+                obtener_fecha_local=dependencias_comedor["obtener_fecha_local"],
+            )
         )
     if dependencias_soporte:
         enrutador.include_router(

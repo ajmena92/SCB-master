@@ -85,7 +85,7 @@ export function useInicioSesionEstudiantil() {
           omitirCsrf: true,
         });
         await loadMe();
-        navegar(data.debeCambiarPin ? "/cambiar-pin" : "/estudiante", { replace: true });
+        navegar(data.debeCambiarPin ? "/cambiar-pin" : "/comedor", { replace: true });
       } catch (error) {
         setEstado({
           cargando: false,

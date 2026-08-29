@@ -1,5 +1,7 @@
 """Contratos del dominio de estudiantes."""
 
+from typing import Literal
+
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -29,8 +31,9 @@ class EstudianteSalida(BaseModel):
     id_ruta: int | None = Field(default=None, alias="idRuta")
     ruta_codigo: str | None = Field(default=None, alias="rutaCodigo")
     ruta_descripcion: str | None = Field(default=None, alias="rutaDescripcion")
+    id_estado_comedor: Literal[1, 2] = Field(default=2, alias="idEstadoComedor")
+    beneficio_comedor: str = Field(default="No beneficiario", alias="beneficioComedor")
     id_beneficio: int | None = Field(default=None, alias="idBeneficio")
-    tipo_beca: str | None = Field(default=None, alias="tipoBeca")
     bloqueado: bool = False
     debe_cambiar_pin: bool = Field(default=False, alias="debeCambiarPin")
     tiene_foto: bool = Field(default=False, alias="tieneFoto")
@@ -49,6 +52,10 @@ class PaginaEstudiantes(BaseModel):
 class CambioAsignacion(BaseModel):
     id_beneficio: int | None = Field(default=None, alias="idBeneficio", ge=1)
     id_ruta: int | None = Field(default=None, alias="idRuta", ge=1)
+
+
+class CambioEstadoComedor(BaseModel):
+    id_estado_comedor: Literal[1, 2] = Field(alias="idEstadoComedor")
 
 
 class GeneracionPinesSeccion(BaseModel):

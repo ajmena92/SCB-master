@@ -40,19 +40,34 @@ DOMINIOS = (
 
 ESQUEMAS_POR_DOMINIO = {
     "identidad": {"AccesoEstudiante", "AutenticacionSalida", "CambioPinEstudiante", "CredencialesEntrada", "SesionActualSalida"},
-    "estudiantes": {"AsignacionEntrada", "AsignacionSalida", "Body_cargar_api_v1_estudiantes__id_estudiante__foto_post", "CambioAsignacion", "EstudianteEntrada", "EstudianteSalida", "GeneracionPinesSeccion", "PaginaEstudiantes", "PinGenerado"},
+    "estudiantes": {"AsignacionEntrada", "AsignacionSalida", "Body_cargar_api_v1_estudiantes__id_estudiante__foto_post", "CambioAsignacion", "CambioEstadoComedor", "EstudianteEntrada", "EstudianteSalida", "GeneracionPinesSeccion", "PaginaEstudiantes", "PinGenerado"},
     "transporte": {"RutaEntrada", "RutaSalida"},
     "asistencia": {"CorreccionEntrada", "MarcaEntrada", "MarcaSalida"},
     "beneficios": {"BeneficioEntrada", "BeneficioSalida"},
     "cuentas": {"MovimientoEntrada", "MovimientoSalida", "SaldoSalida"},
-    "reportes": {"ReporteEstudiante", "ReporteEstudiantes", "ReporteRuta", "ReporteTransporte"},
+    "reportes": {
+        "ReporteEstudiante", "ReporteEstudiantes", "ReporteRuta", "ReporteTransporte",
+        "MetricaAsistencia", "GrupoDashboard", "TendenciaDia", "RutaDashboard", "AlertaDashboard",
+        "RegistroNominal", "NominalPaginado", "DashboardSalida",
+    },
     "importaciones": {"Body_ejecutar_api_v1_importaciones_lotes_post", "Body_previsualizar_api_v1_importaciones_previsualizaciones_post", "ErrorFila", "LoteSalida", "Previsualizacion"},
     "auditoria": {"EventoSalida"},
-    "menu": {"ComponenteMenu", "PlantillaMenuEntrada", "PlantillaMenuSalida"},
-    "comedor": {"RegistroComedorEntrada", "RegistroComedorSalida"},
+    "menu": {
+        "ComponenteMenu",
+        "PlantillaMenuEntrada",
+        "PlantillaMenuSalida",
+        "SustitucionMenuEntrada",
+        "SustitucionMenuSalida",
+    },
+    "comedor": {
+        "CuentaTiquetesSalida", "IngresoEntrada", "IngresoSalida", "MovimientoTiquetesSalida", "PersonaComedorSalida",
+        "EstadoPortalProfesorSalida", "ProfesorComedorEntrada", "ProfesorPortalSalida",
+        "ReservaEntrada", "ReservaSalida", "TiquetesEntrada",
+        "ConfiguracionOperacionSalida", "EstadoOperacionSalida", "HorarioOperacionSalida",
+    },
     "soporte": {"SolicitudEntrada", "SolicitudSalida"},
     "administracion": {"PermisoSalida", "RolEntrada", "RolSalida", "UsuarioEntrada", "UsuarioSalida"},
-    "parametros": {"DiaCalendario", "ParametrosEntrada", "ParametrosSalida"},
+    "parametros": {"DiaCalendario", "HorarioEntrada", "HorarioSalida", "ParametrosEntrada", "ParametrosSalida"},
     "salud": {"EstadoSalud"},
     "comunes": {"HTTPValidationError", "ValidationError"},
 }
@@ -73,6 +88,8 @@ def _dominio_ruta(ruta: str) -> str:
         return "parametros"
     if segmentos[0] == "estudiantes":
         return "estudiantes"
+    if segmentos[0] == "profesores":
+        return "comedor"
     return segmentos[0] if segmentos[0] in DOMINIOS else "comunes"
 
 
@@ -108,6 +125,8 @@ def _tipo_esquema(esquema: dict[str, Any], nombres: dict[str, str]) -> str:
         return " & ".join(opciones) or "unknown"
     if "enum" in esquema:
         return " | ".join(json.dumps(valor, ensure_ascii=False) for valor in esquema["enum"])
+    if "const" in esquema:
+        return json.dumps(esquema["const"], ensure_ascii=False)
     if esquema.get("type") == "array":
         return f"Array<{_tipo_esquema(esquema.get('items', {}), nombres)}>"
     if esquema.get("type") == "object" or "properties" in esquema:

@@ -3,16 +3,10 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import TYPE_CHECKING
-
 from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from aplicacion.nucleo.modelos_base import BaseDeclarativa
-
-if TYPE_CHECKING:
-    from aplicacion.modulos.transporte.modelos import Ruta
-
 
 class Estudiante(BaseDeclarativa):
     __tablename__ = "estudiante"
@@ -28,11 +22,6 @@ class Estudiante(BaseDeclarativa):
     hash_contrasena: Mapped[str | None] = mapped_column(String(255), nullable=True)
     debe_cambiar_pin: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     fecha_expiracion_pin: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
-    id_ruta: Mapped[int | None] = mapped_column(
-        ForeignKey("transporte.ruta.id_ruta", name="fk_estudiante_ruta"), nullable=True
-    )
-    id_beneficio: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    ruta: Mapped["Ruta | None"] = relationship("Ruta", back_populates="estudiantes")
 
 
 class FotografiaEstudiante(BaseDeclarativa):

@@ -18,6 +18,10 @@ export interface CambioAsignacion {
   idRuta?: number | null;
 }
 
+export interface CambioEstadoComedor {
+  idEstadoComedor: 1 | 2;
+}
+
 export interface EstudianteEntrada {
   activo?: boolean;
   carne: string;
@@ -30,11 +34,13 @@ export interface EstudianteEntrada {
 
 export interface EstudianteSalida {
   activo: boolean;
+  beneficioComedor?: string;
   bloqueado?: boolean;
   carne: string;
   cedula: string | null;
   debeCambiarPin?: boolean;
   idBeneficio?: number | null;
+  idEstadoComedor?: 1 | 2;
   idEstudiante: number;
   idRuta?: number | null;
   nombre: string;
@@ -44,7 +50,6 @@ export interface EstudianteSalida {
   seccion: string | null;
   segundoApellido: string | null;
   tieneFoto?: boolean;
-  tipoBeca?: string | null;
   turno?: string | null;
 }
 

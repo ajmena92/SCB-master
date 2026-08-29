@@ -5,6 +5,18 @@ import type { OperacionApi } from "../operaciones";
 export const OPERACIONES_REPORTES: readonly OperacionApi[] = [
   {
     metodo: "GET",
+    ruta: "/api/v1/reportes/dashboard",
+    operacionId: "consultar_api_v1_reportes_dashboard_get",
+    dominio: "reportes",
+  },
+  {
+    metodo: "GET",
+    ruta: "/api/v1/reportes/dashboard/rutas/{ruta}",
+    operacionId: "detalle_ruta_api_v1_reportes_dashboard_rutas__ruta__get",
+    dominio: "reportes",
+  },
+  {
+    metodo: "GET",
     ruta: "/api/v1/reportes/estudiantes",
     operacionId: "estudiantes_api_v1_reportes_estudiantes_get",
     dominio: "reportes",

@@ -20,6 +20,10 @@ def test_entrada_publica_rutas_canonicas_y_no_legacy() -> None:
         "/api/v1/asistencia/marcas/{id_marca}/correccion",
         "/api/v1/parametros",
         "/api/v1/calendario",
+        "/api/v1/profesores/menu",
+        "/api/v1/profesores/carnet",
+        "/api/v1/profesores/asistencia/hoy",
+        "/api/v1/profesores/asistencia/{accion}",
     } <= rutas
     assert not any(
         "/admin/" in ruta or ruta.startswith("/api/admin") or "legacy" in ruta for ruta in rutas

@@ -8,7 +8,12 @@ from fastapi import APIRouter, Depends, HTTPException
 
 from aplicacion.modulos.identidad.seguridad import hash_contrasena
 
-from .esquemas import CambioAsignacion, GeneracionPinesSeccion, PinGenerado
+from .esquemas import (
+    CambioAsignacion,
+    CambioEstadoComedor,
+    GeneracionPinesSeccion,
+    PinGenerado,
+)
 from .pines import construir_filas, generar_pin, seleccionar_estudiantes
 
 
@@ -45,6 +50,16 @@ def crear_enrutador_administracion(
         repo=Depends(obtener_repositorio),
     ):
         repo.asignar_beneficio(id_estudiante, datos.id_beneficio)
+
+    @enrutador.put("/{id_estudiante}/estado-comedor", status_code=204)
+    def estado_comedor(
+        id_estudiante: int,
+        datos: CambioEstadoComedor,
+        _=Depends(exigir_permiso("estudiantes.editar")),
+        __=Depends(exigir_csrf),
+        repo=Depends(obtener_repositorio),
+    ):
+        repo.actualizar_estado_comedor(id_estudiante, datos.id_estado_comedor)
 
     @enrutador.put("/{id_estudiante}/ruta", status_code=204)
     def ruta(

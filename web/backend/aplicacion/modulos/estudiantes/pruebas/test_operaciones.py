@@ -4,7 +4,8 @@ from datetime import datetime, timezone
 from typing import Any, cast
 
 import httpx
-from fastapi import APIRouter, Depends, FastAPI, Request
+import pytest
+from fastapi import APIRouter, Depends, FastAPI, HTTPException, Request
 from fastapi.routing import APIRoute as RutaAPI
 
 from aplicacion.modulos.estudiantes.administracion import crear_enrutador_administracion
@@ -167,8 +168,101 @@ class RepositorioPortalHttpFalso:
 
 
 class AsistenciaHttpFalsa:
+    def __init__(self) -> None:
+        self.registros: list[dict[str, object]] = []
+
     def registrar(self, datos: dict[str, object], id_estudiante: int, origen: str) -> dict[str, object]:
+        self.registros.append(datos)
         return {"estado": datos["estado"], "idEstudiante": id_estudiante, "origen": origen}
+
+
+class ComedorPortalHttpFalso:
+    def __init__(self, reservada: bool) -> None:
+        self.reservada = reservada
+        self.cancelaciones = 0
+
+    def persona_por_estudiante(self, id_estudiante: int) -> int:
+        assert id_estudiante == 7
+        return 1
+
+    def reserva_por_persona_fecha(self, id_persona: int, fecha) -> dict | None:
+        if not self.reservada:
+            return None
+        return {
+            "id_reserva": 1,
+            "id_persona": id_persona,
+            "fecha": fecha,
+            "estado": "reservada",
+            "requiere_tiquete": False,
+            "modalidad": "beca",
+        }
+
+    def reservar(self, id_persona: int, fecha, usuario) -> dict:
+        if not self.reservada:
+            raise ValueError("No hay tiquetes disponibles para reservar el comedor")
+        return {
+            "id_reserva": 1,
+            "id_persona": id_persona,
+            "fecha": fecha,
+            "estado": "reservada",
+            "requiere_tiquete": False,
+            "modalidad": "beca",
+        }
+
+    def cancelar(self, id_persona: int, fecha, usuario) -> dict:
+        assert id_persona == 1
+        self.cancelaciones += 1
+        self.reservada = False
+        return {
+            "id_reserva": 1,
+            "id_persona": id_persona,
+            "fecha": fecha,
+            "estado": "cancelada",
+            "requiere_tiquete": False,
+            "modalidad": "beca",
+        }
+
+
+def test_confirmar_asistencia_sin_reserva_es_rechazado() -> None:
+    comedor = ComedorPortalHttpFalso(reservada=False)
+    identidad = IdentidadHttpFalsa()
+    asistencia = AsistenciaHttpFalsa()
+    router = crear_enrutador_portal(
+        obtener_repositorio=lambda: RepositorioPortalHttpFalso(),
+        obtener_identidad_estudiante=lambda: identidad,
+        obtener_asistencia=lambda: asistencia,
+        obtener_comedor=lambda: comedor,
+        exigir_csrf=lambda: None,
+        obtener_fecha_local=lambda: datetime(2026, 8, 28).date(),
+    )
+    ruta = next(r for r in router.routes if isinstance(r, RutaAPI) and r.path == "/asistencia/{accion}")
+
+    with pytest.raises(HTTPException) as error:
+        ruta.endpoint("confirm", RepositorioPortalHttpFalso(), identidad, "sesion-estudiante", "secreto", asistencia, comedor, None)
+
+    assert error.value.status_code == 409
+    assert asistencia.registros == []
+
+
+def test_cancelar_asistencia_libera_reserva_y_registra_ausencia() -> None:
+    comedor = ComedorPortalHttpFalso(reservada=True)
+    identidad = IdentidadHttpFalsa()
+    asistencia = AsistenciaHttpFalsa()
+    router = crear_enrutador_portal(
+        obtener_repositorio=lambda: RepositorioPortalHttpFalso(),
+        obtener_identidad_estudiante=lambda: identidad,
+        obtener_asistencia=lambda: asistencia,
+        obtener_comedor=lambda: comedor,
+        exigir_csrf=lambda: None,
+        obtener_fecha_local=lambda: datetime(2026, 8, 28).date(),
+    )
+    ruta = next(r for r in router.routes if isinstance(r, RutaAPI) and r.path == "/asistencia/{accion}")
+    respuesta = ruta.endpoint(
+        "decline", RepositorioPortalHttpFalso(), identidad, "sesion-estudiante", "secreto", asistencia, comedor, None
+    )
+
+    assert respuesta["estado"] == "ausente"
+    assert comedor.cancelaciones == 1
 
 
 def _cliente_portal_http() -> httpx.AsyncClient:
@@ -222,11 +316,21 @@ def test_asistencia_http_con_csrf_valido_permite_operacion() -> None:
     assert respuesta.json()["estado"] == "presente"
 
 
-def test_carnet_expone_contrato_canonico_y_descargas_sin_rutas_historicas() -> None:
+def test_carnet_expone_contrato_en_linea_sin_descargas() -> None:
     fuente = inspect.getsource(crear_enrutador_portal)
     assert '"idEstudiante"' in fuente
     assert '"primerApellido"' in fuente
     assert '"rutaDescripcion"' in fuente
-    assert '"/carnet.pdf"' in fuente
     assert '"/carnet/foto"' in fuente
     assert "/api/student" not in fuente
+    rutas = {
+        ruta.path
+        for ruta in crear_enrutador_portal(
+            lambda: iter(()),
+            obtener_identidad=dependencia_identidad_nula,
+            obtener_identidad_estudiante=dependencia_identidad_nula,
+            obtener_asistencia=lambda: iter(()),
+            obtener_comedor=lambda: iter(()),
+        ).routes
+    }
+    assert not any(ruta.endswith(".pdf") for ruta in rutas)

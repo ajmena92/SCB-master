@@ -7,8 +7,14 @@ describe("consultas de menú", () => {
     vi.spyOn(api, "get").mockResolvedValueOnce({ data: [] });
     vi.spyOn(api, "post").mockResolvedValueOnce({ data: {} });
     await consultarSustituciones();
-    await guardarSustitucion({ Fecha: "2026-01-01" });
+    const datos = {
+      fecha: "2026-01-01",
+      titulo: "Menú especial",
+      observaciones: "",
+      componentes: [],
+    };
+    await guardarSustitucion(datos);
     expect(api.get).toHaveBeenCalledWith("/v1/menu/sustituciones");
-    expect(api.post).toHaveBeenCalledWith("/v1/menu/sustitucion", { Fecha: "2026-01-01" });
+    expect(api.post).toHaveBeenCalledWith("/v1/menu/sustitucion", datos);
   });
 });

@@ -18,6 +18,7 @@ const primaryIds = ["dashboard", "menu", "estudiantes", "reporte"];
 export default function AdminBottomNav() {
   const { session } = useAutenticacion();
   const [open, setOpen] = useState(false);
+  // Los módulos independientes conservan su enlace, aunque se rendericen fuera del panel.
   const visible = obtenerModulosVisibles(session);
   const primary = primaryIds
     .map((id) => ADMIN_NAVIGATION.find((item) => item.id === id))

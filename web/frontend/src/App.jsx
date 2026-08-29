@@ -20,7 +20,7 @@ function Inicio() {
     return <div className="min-h-screen flex items-center justify-center">Cargando…</div>;
   if (!session) return <StudentLogin />;
   if (session.tipo === "admin") return <Navigate to="/admin/panel" replace />;
-  return <Navigate to={debeCambiarPin ? "/cambiar-pin" : "/estudiante"} replace />;
+  return <Navigate to={debeCambiarPin ? "/cambiar-pin" : "/comedor"} replace />;
 }
 
 function App() {
@@ -39,9 +39,9 @@ function App() {
               }
             />
             <Route
-              path="/estudiante"
+              path="/comedor"
               element={
-                <ProtectedRoute tipo="estudiante">
+                <ProtectedRoute tipo={["estudiante", "profesor"]}>
                   <PaginaPortalEstudiante />
                 </ProtectedRoute>
               }
@@ -82,6 +82,14 @@ function App() {
               <Route path="mas/importaciones" element={<AdminModule moduleId="importaciones" />} />
               <Route path="*" element={<Navigate to="inicio" replace />} />
             </Route>
+            <Route
+              path="/admin/comedor/operacion"
+              element={
+                <ProtectedRoute tipo="admin">
+                  <AdminModule moduleId="comedor" />
+                </ProtectedRoute>
+              }
+            />
           </Routes>
         </BrowserRouter>
         <Toaster position="top-center" richColors />

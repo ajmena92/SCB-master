@@ -2,9 +2,21 @@
 
 ## Alcance
 
-El portal construye el carnet dentro de la vista **Mi carnet digital** como una tarjeta HTML con fotografía, nombre, cédula/carné, sección, ruta, beneficio de comedor y código de barras Code 128 en SVG. Cada ruta tiene un color configurado en `ComedorPortal.RutaCarnetConfiguracion`; ese color se muestra como acento del carnet para distinguirlo visualmente, nunca como estado. Las rutas 2026 se inicializan con la paleta oficial de CTP Platanares en `006_rutas_catalogo.sql`; Administración puede escoger luego cualquier color HEX válido desde el catálogo web. El valor codificado conserva el prefijo `ControlCarnet` configurado para que el lector del sistema local continúe resolviendo la cédula sin cambios. PNG y PDF se mantienen como formatos de descarga.
+El portal construye el carnet dentro de la vista **Mi carnet digital** como una tarjeta HTML con fotografía, nombre, sección, ruta y código de barras Code 128 en SVG. El código de barras usa el identificador web con prefijo `E-` para estudiantes y `P-` para profesores. No se muestra el código numérico sensible y no existen descargas PNG ni PDF.
 
-El estudiante puede consultar y descargar su carnet desde **Mi carnet digital**. Administración puede cargar o reemplazar fotografías, asignar el `TipoBeca` existente, seleccionar la ruta de transporte y descargar el carnet de cualquier estudiante activo autorizado. La opción **Sin ruta** deja el carnet con el color institucional por defecto.
+El estudiante puede consultar su carnet únicamente en línea desde **Mi carnet digital**. El profesor muestra nombre, etiqueta de profesor, colegio, logo y código de barras, sin ruta ni estado de beca.
+
+## Kiosco de comedor
+
+La operación se realiza en `/admin/comedor/operacion`, una pantalla independiente
+que requiere al menos 1280×720. El operador activa Fullscreen con el botón del
+navegador; la hora oficial es la del servidor. F2 limpia, F3 enfoca el lector, F4
+muestra historial y F7 alterna alto contraste. La entrada manual se habilita con
+una acción explícita y los estados operativos se muestran sin excepciones técnicas.
+Administración puede cargar o reemplazar fotografías, seleccionar el estado de comedor
+(`becado_comedor` o `no_becado_comedor`) y seleccionar la ruta de transporte.
+El carnet no se descarga como PDF o PNG. La opción **Sin ruta** deja el carnet con el color
+institucional por defecto.
 
 ## Publicación de la base de datos
 

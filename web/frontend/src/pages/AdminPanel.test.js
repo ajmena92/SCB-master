@@ -11,6 +11,9 @@ describe("administrative tabs", () => {
 
     expect(adminModules).toHaveLength(ADMIN_NAVIGATION.length);
     expect(adminModules.map((module) => module.v)).toContain("correcciones");
+    expect(adminModules.find((module) => module.id === "comedor").path).toBe(
+      "/admin/comedor/operacion",
+    );
     expect(adminModules).toEqual(ADMIN_NAVIGATION);
   });
 
