@@ -6,6 +6,8 @@ from aplicacion.nucleo.base_datos import FabricaConexionSql
 class RepositorioMenu(Protocol):
     def listar(self) -> list[dict]: ...
     def guardar(self, datos: dict, usuario: int) -> dict: ...
+    def listar_sustituciones(self) -> list[dict]: ...
+    def guardar_sustitucion(self, datos: dict, usuario: int) -> dict: ...
 
 
 class RepositorioSqlMenu:
@@ -69,3 +71,62 @@ class RepositorioSqlMenu:
                 )
             out["componentes"] = datos.get("componentes", [])
             return out
+
+    def listar_sustituciones(self) -> list[dict]:
+        with self._fabrica.conexion() as cn:
+            c = cn.cursor()
+            c.execute(
+                """SELECT id_sustitucion,fecha,titulo,observaciones
+                FROM menu.sustitucion ORDER BY fecha"""
+            )
+            filas = [dict(zip((x[0] for x in c.description), f)) for f in c.fetchall()]
+            for fila in filas:
+                c.execute(
+                    """SELECT nombre,tipo,orden FROM menu.componente_sustitucion
+                    WHERE id_sustitucion=? ORDER BY orden""",
+                    fila["id_sustitucion"],
+                )
+                fila["componentes"] = [
+                    dict(zip((x[0] for x in c.description), componente))
+                    for componente in c.fetchall()
+                ]
+            return filas
+
+    def guardar_sustitucion(self, datos: dict, usuario: int) -> dict:
+        with self._fabrica.conexion() as cn:
+            c = cn.cursor()
+            c.execute(
+                """MERGE menu.sustitucion AS destino
+                USING (SELECT ? AS fecha) AS origen
+                ON destino.fecha=origen.fecha
+                WHEN MATCHED THEN UPDATE SET titulo=?,observaciones=?,actualizado_por=?
+                WHEN NOT MATCHED THEN
+                    INSERT(fecha,titulo,observaciones,creado_por)
+                    VALUES(?,?,?,?)
+                OUTPUT INSERTED.id_sustitucion,INSERTED.fecha,
+                       INSERTED.titulo,INSERTED.observaciones;""",
+                datos["fecha"],
+                datos["titulo"],
+                datos.get("observaciones"),
+                usuario,
+                datos["fecha"],
+                datos["titulo"],
+                datos.get("observaciones"),
+                usuario,
+            )
+            salida = self._fila(c)
+            c.execute(
+                "DELETE FROM menu.componente_sustitucion WHERE id_sustitucion=?",
+                salida["id_sustitucion"],
+            )
+            for componente in datos.get("componentes", []):
+                c.execute(
+                    """INSERT menu.componente_sustitucion
+                    (id_sustitucion,nombre,tipo,orden) VALUES(?,?,?,?)""",
+                    salida["id_sustitucion"],
+                    componente["nombre"],
+                    componente["tipo"],
+                    componente["orden"],
+                )
+            salida["componentes"] = datos.get("componentes", [])
+            return salida

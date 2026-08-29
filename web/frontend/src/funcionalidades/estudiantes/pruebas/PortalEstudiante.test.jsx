@@ -6,7 +6,7 @@ import PaginaPortalEstudiante from "../paginas/PaginaPortalEstudiante";
 import { api } from "@/compartido/consultas/cliente_http";
 
 vi.mock("@/compartido/consultas/cliente_http", () => ({
-  api: { get: vi.fn(), post: vi.fn() },
+  api: { get: vi.fn(), post: vi.fn(), delete: vi.fn() },
   errMsg: vi.fn(() => "Error"),
 }));
 
@@ -75,6 +75,8 @@ describe("Portal del estudiante", () => {
     queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
     api.get.mockReset();
     api.post.mockReset();
+    api.delete.mockReset();
+    api.delete.mockResolvedValue({ data: { estado: "cancelada" } });
   });
 
   afterEach(async () => {
@@ -142,6 +144,9 @@ describe("Portal del estudiante", () => {
     });
 
     expect(api.post).toHaveBeenCalledWith("/v1/estudiantes/asistencia/decline");
+    expect(api.delete).toHaveBeenCalledWith("/v1/comedor/reservas/estudiante", {
+      params: expect.objectContaining({ fecha: expect.any(String) }),
+    });
     expect(container.querySelector('[data-testid="estado-rechazado"]')).not.toBeNull();
     expect(container.querySelector('[data-testid="confirm-btn"]').disabled).toBe(false);
     expect(container.querySelector('[data-testid="decline-btn"]').disabled).toBe(true);

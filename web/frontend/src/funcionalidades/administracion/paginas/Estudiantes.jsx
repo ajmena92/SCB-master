@@ -25,7 +25,6 @@ export default function EstudiantesTab() {
     cargandoReporte,
     estudianteSeleccionado,
     perfil,
-    beneficios,
     rutas,
     archivoFoto,
     setArchivoFoto,
@@ -44,7 +43,7 @@ export default function EstudiantesTab() {
     abrirPerfil,
     guardarFoto,
     eliminarFoto,
-    guardarBeneficio,
+    guardarEstadoComedor,
     guardarRuta,
     generarReporte,
   } = useGestionEstudiantes();
@@ -107,14 +106,13 @@ export default function EstudiantesTab() {
       <DialogoPerfilEstudiante
         estudiante={estudianteSeleccionado}
         perfil={perfil}
-        beneficios={beneficios}
         rutas={rutas}
         cargando={cargandoPerfil}
         guardando={guardandoPerfil}
         archivo={archivoFoto}
         versionFoto={versionFoto}
         alCerrar={() => setEstudianteSeleccionado(null)}
-        alCambiarBeneficio={guardarBeneficio}
+        alCambiarEstadoComedor={guardarEstadoComedor}
         alCambiarRuta={guardarRuta}
         alSeleccionarArchivo={setArchivoFoto}
         alGuardarFoto={guardarFoto}

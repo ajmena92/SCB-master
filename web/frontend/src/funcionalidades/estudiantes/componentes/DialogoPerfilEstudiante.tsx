@@ -7,10 +7,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { ImagePlus, Upload, Trash2, Download } from "lucide-react";
+import { ImagePlus, Upload, Trash2 } from "lucide-react";
 import type { ChangeEvent } from "react";
 import type {
-  BeneficioEstudiante,
   EstudianteAdministrativo,
   PerfilEstudiante,
   RutaEstudiante,
@@ -19,14 +18,13 @@ import type {
 type Props = {
   estudiante: EstudianteAdministrativo | null;
   perfil: PerfilEstudiante | null;
-  beneficios: BeneficioEstudiante[];
   rutas: RutaEstudiante[];
   cargando: boolean;
   guardando: boolean;
   archivo: File | null;
   versionFoto: number;
   alCerrar: () => void;
-  alCambiarBeneficio: (evento: ChangeEvent<HTMLSelectElement>) => void;
+  alCambiarEstadoComedor: (evento: ChangeEvent<HTMLSelectElement>) => void;
   alCambiarRuta: (evento: ChangeEvent<HTMLSelectElement>) => void;
   alSeleccionarArchivo: (archivo: File | null) => void;
   alGuardarFoto: () => void;
@@ -36,14 +34,13 @@ type Props = {
 export function DialogoPerfilEstudiante({
   estudiante,
   perfil,
-  beneficios,
   rutas,
   cargando,
   guardando,
   archivo,
   versionFoto,
   alCerrar,
-  alCambiarBeneficio,
+  alCambiarEstadoComedor,
   alCambiarRuta,
   alSeleccionarArchivo,
   alGuardarFoto,
@@ -68,25 +65,21 @@ export function DialogoPerfilEstudiante({
           <div className="space-y-5">
             <div className="grid gap-4 sm:grid-cols-[1fr_180px]">
               <div className="space-y-3">
-                <label htmlFor="beneficio-comedor" className="text-sm font-medium">
-                  Beneficio de comedor
+                <label htmlFor="estado-comedor" className="text-sm font-medium">
+                  Estado de comedor
                 </label>
                 <select
-                  id="beneficio-comedor"
-                  value={perfil.estudiante.tipoBeca ?? ""}
-                  onChange={alCambiarBeneficio}
+                  id="estado-comedor"
+                  value={perfil.estudiante.idEstadoComedor}
+                  onChange={alCambiarEstadoComedor}
                   disabled={guardando}
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 >
-                  <option value="">Sin beneficio</option>
-                  {beneficios.map((beneficio) => (
-                    <option key={beneficio.idBeneficio} value={beneficio.idBeneficio}>
-                      {beneficio.nombre} · {beneficio.diasPermitidos} días
-                    </option>
-                  ))}
+                  <option value="1">Beneficiario</option>
+                  <option value="2">No beneficiario</option>
                 </select>
                 <p className="text-xs text-muted-foreground">
-                  Se conserva la regla de días permitidos del beneficio seleccionado.
+                  Los becados no compran tiquetes; los no becados requieren un tiquete para ingresar.
                 </p>
                 <label htmlFor="estudiante-ruta" className="block pt-2 text-sm font-medium">
                   Ruta de transporte
@@ -165,15 +158,7 @@ export function DialogoPerfilEstudiante({
             </div>
           </div>
         )}
-        <DialogFooter>
-          {estudiante && (
-            <Button variant="outline" asChild>
-              <a href={`/api/v1/estudiantes/${idEstudiante}/carnet.pdf`} download>
-                <Download className="mr-2 h-4 w-4" /> Descargar PDF
-              </a>
-            </Button>
-          )}
-        </DialogFooter>
+        <DialogFooter />
       </DialogContent>
     </Dialog>
   );

@@ -1,3 +1,5 @@
+from datetime import date
+
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -22,3 +24,16 @@ class PlantillaMenuEntrada(BaseModel):
 
 class PlantillaMenuSalida(PlantillaMenuEntrada):
     id_plantilla: int = Field(serialization_alias="idPlantilla")
+
+
+class SustitucionMenuEntrada(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    fecha: date
+    titulo: str = Field(min_length=1, max_length=160)
+    observaciones: str | None = Field(default=None, max_length=500)
+    componentes: list[ComponenteMenu] = Field(default_factory=list, max_length=20)
+
+
+class SustitucionMenuSalida(SustitucionMenuEntrada):
+    id_sustitucion: int = Field(serialization_alias="idSustitucion")

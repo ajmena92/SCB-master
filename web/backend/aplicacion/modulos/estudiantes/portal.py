@@ -15,6 +15,7 @@ from aplicacion.modulos.identidad.servicio import (
     ServicioIdentidad,
 )
 from aplicacion.nucleo.tiempo import fecha_local
+from aplicacion.modulos.comedor.servicio import ServicioComedor
 
 from .esquemas import AccesoEstudiante, CambioPinEstudiante
 
@@ -25,6 +26,7 @@ def crear_enrutador_portal(
     obtener_identidad_estudiante: Callable[[], ServicioIdentidad] | None = None,
     obtener_menu: Callable[[], Iterator] | None = None,
     obtener_asistencia: Callable[[], Iterator] | None = None,
+    obtener_comedor: Callable[[], Iterator] | None = None,
     cookies_seguras: bool = True,
     duracion_sesion_estudiante: int = 31536000,
     exigir_csrf: Callable[..., object] | None = None,
@@ -59,7 +61,8 @@ def crear_enrutador_portal(
             "rutaDescripcion": credencial.get("ruta_descripcion"),
             "rutaColor": credencial.get("ruta_color"),
             "idBeneficio": credencial.get("id_beneficio"),
-            "tipoBeca": credencial.get("tipo_beca"),
+            "idEstadoComedor": int(credencial.get("id_estado_comedor", 2)),
+            "beneficioComedor": credencial.get("beneficio_comedor", "No beneficiario"),
             "debeCambiarPin": bool(credencial.get("debe_cambiar_pin")),
             "tieneFoto": bool(credencial.get("tiene_foto")),
             "barcode": credencial["carne"],
@@ -100,30 +103,6 @@ def crear_enrutador_portal(
             return Response(status_code=404)
         return Response(content=foto[0], media_type=foto[1])
 
-    @enrutador.get("/carnet.pdf")
-    def carnet_pdf(
-        repo=Depends(obtener_repositorio),
-        identidad: ServicioIdentidad | None = Depends(identidad_portal),
-        id_sesion: str | None = Cookie(default=None),
-        secreto: str | None = Cookie(default=None),
-    ):
-        estudiante = estudiante_actual(repo, identidad, id_sesion, secreto)
-        cuerpo = f"BT /F1 18 Tf 72 720 Td (Carnet estudiante {estudiante['carne']}) Tj ET"
-        pdf = (
-            "%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n"
-            "2 0 obj<</Type/Pages/Count 1/Kids[3 0 R]>>endobj\n"
-            "3 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 612 792]/Resources<</Font<</F1 4 0 R>>>>/Contents 5 0 R>>endobj\n"
-            "4 0 obj<</Type/Font/Subtype/Type1/BaseFont/Helvetica>>endobj\n"
-            f"5 0 obj<</Length {len(cuerpo)}>>stream\n{cuerpo}\nendstream endobj\nxref\n0 6\n0000000000 65535 f \ntrailer<</Size 6/Root 1 0 R>>\nstartxref\n0\n%%EOF\n"
-        ).encode()
-        return Response(
-            pdf,
-            media_type="application/pdf",
-            headers={
-                "Content-Disposition": f"inline; filename=carnet-{estudiante['idEstudiante']}.pdf"
-            },
-        )
-
     @enrutador.get("/asistencia/hoy")
     def asistencia_hoy(
         repo=Depends(obtener_repositorio),
@@ -150,25 +129,55 @@ def crear_enrutador_portal(
         id_sesion: str | None = Cookie(default=None),
         secreto: str | None = Cookie(default=None),
         asistencia_repo=Depends(obtener_asistencia) if obtener_asistencia else None,
+        comedor_repo=Depends(obtener_comedor) if obtener_comedor else None,
         __=Depends(exigir_csrf) if exigir_csrf else None,
     ):
         estudiante = estudiante_actual(repo, identidad, id_sesion, secreto)
         if asistencia_repo is None:
             raise HTTPException(503, "La asistencia no está configurada")
+        if comedor_repo is None:
+            raise HTTPException(503, "El comedor no está configurado")
         estados = {"confirm": "presente", "decline": "ausente"}
         estado = estados.get(accion)
         if estado is None:
             raise HTTPException(400, "Acción de asistencia no válida")
-        return asistencia_repo.registrar(
-            {
-                "id_estudiante": int(estudiante["idEstudiante"]),
-                "fecha": fecha_hoy(),
-                "estado": estado,
-                "observacion": None,
-            },
-            int(estudiante["idEstudiante"]),
-            "WEB",
-        )
+        comedor = ServicioComedor(comedor_repo)
+        fecha = fecha_hoy()
+        id_estudiante = int(estudiante["idEstudiante"])
+        if estado == "presente":
+            try:
+                reserva = comedor.reservar_estudiante(id_estudiante, fecha, None)
+            except ValueError as exc:
+                raise HTTPException(status.HTTP_409_CONFLICT, str(exc)) from exc
+            if reserva.estado != "reservada":
+                raise HTTPException(
+                    status.HTTP_409_CONFLICT,
+                    "Debés reservar tu ingreso al comedor antes de confirmar asistencia",
+                )
+        else:
+            try:
+                comedor.cancelar_estudiante(id_estudiante, fecha, None)
+            except ValueError as exc:
+                if str(exc) != "La reserva no existe":
+                    raise HTTPException(status.HTTP_409_CONFLICT, str(exc)) from exc
+        try:
+            return asistencia_repo.registrar(
+                {
+                    "id_estudiante": id_estudiante,
+                    "fecha": fecha,
+                    "estado": estado,
+                    "observacion": None,
+                },
+                id_estudiante,
+                "WEB",
+            )
+        except Exception:
+            if estado == "presente":
+                try:
+                    comedor.cancelar_estudiante(id_estudiante, fecha, None)
+                except ValueError:
+                    pass
+            raise
 
     @enrutador.post("/autenticacion")
     def autenticar(

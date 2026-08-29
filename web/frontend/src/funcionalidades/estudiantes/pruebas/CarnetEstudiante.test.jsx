@@ -37,7 +37,8 @@ describe("carnet del estudiante", () => {
             cedula: "1-1111-1111",
             seccion: "10-1",
             rutaDescripcion: "Ruta Central",
-            tipoBeca: "Comedor",
+            idEstadoComedor: 1,
+            beneficioComedor: "Beneficiario",
             barcode: "2026-008",
             tieneFoto: false,
             anio: 2026,
@@ -55,6 +56,33 @@ describe("carnet del estudiante", () => {
     expect(container.querySelector("a[download]")).toBeNull();
     expect(container.querySelector('svg[aria-label="Código de barras 2026-008"]')).not.toBeNull();
     expect(container.textContent).not.toContain("Código: 2026-008");
+    await act(async () => root.unmount());
+  });
+
+  it("no muestra ruta ni beca en el carnet de profesor", async () => {
+    const container = document.createElement("div");
+    const root = createRoot(container);
+    await act(async () =>
+      root.render(
+        <VistaCarnetEstudiante
+          tipoPersona="profesor"
+          datosCarnet={{
+            tipoPersona: "profesor",
+            nombre: "Carlos",
+            primerApellido: "Pérez",
+            rutaDescripcion: "Ruta que no corresponde",
+            idEstadoComedor: 2,
+            beneficioComedor: "No beneficiario",
+            barcode: "PROF-8",
+          }}
+        />,
+      ),
+    );
+    expect(container.textContent).toContain("Profesor");
+    expect(container.textContent).not.toContain("Ruta asignada");
+    expect(container.textContent).not.toContain("Ruta que no corresponde");
+    expect(container.textContent).not.toContain("Beca que no corresponde");
+    expect(container.querySelector('svg[aria-label="Código de barras PROF-8"]')).not.toBeNull();
     await act(async () => root.unmount());
   });
 });

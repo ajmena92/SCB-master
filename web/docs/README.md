@@ -25,6 +25,7 @@
 ### Despliegue e integración
 
 - [Despliegue seguro del portal](DESPLIEGUE_PORTAL.md)
+- [Runbook de despliegue a producción](RUNBOOK_DEPLOY_PRODUCCION.md) — secuencia aprobada de migración total, despliegue, verificación y retiro controlado del legado.
 - [Análisis de integración a producción](ANALISIS_INTEGRACION_PRODUCCION.md)
 
 ## Regla de actualización

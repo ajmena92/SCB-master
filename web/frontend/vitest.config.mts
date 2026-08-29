@@ -11,14 +11,17 @@ export default defineConfig({
   resolve: { alias: { "@": path.resolve(rootDir, "src") } },
   test: {
     globals: true,
-    environment: "jsdom",
+    environment: "happy-dom",
     setupFiles: [path.resolve(rootDir, "src/testSetup.js")],
     css: true,
+    // Un solo proceso evita bloqueos de workers en el entorno Windows/WSL y
+    // mantiene aislados los módulos que mockean el cliente HTTP global.
     pool: "threads",
-    maxWorkers: 8,
-    fileParallelism: true,
+    maxWorkers: 1,
+    fileParallelism: false,
     exclude: [
       "**/node_modules/**",
+      "**/node_modules-deps/**",
       "**/dist/**",
       "**/e2e/**",
       "**/playwright-report/**",

@@ -1,20 +1,25 @@
 import { useAutenticacion } from "@/aplicacion/estado/ContextoAutenticacion";
-import { PortalEstudiante } from "@/funcionalidades/estudiantes/componentes/PortalEstudiante";
+import { PortalComedor } from "@/funcionalidades/estudiantes/componentes/PortalComedor";
 import { usePortalEstudiante } from "@/funcionalidades/estudiantes/estado/usePortalEstudiante";
 
-export default function PaginaPortalEstudiante() {
+export default function PaginaPortalComedor() {
   const { session, logout } = useAutenticacion() as unknown as {
-    session: { usuario?: Record<string, string> } | null;
+    session: { tipo?: string; usuario?: Record<string, string> } | null;
     logout: () => void;
   };
-  const estadoPortal = usePortalEstudiante();
+  const tipoPersona =
+    session?.tipo === "profesor" || session?.usuario?.tipoPersona === "profesor"
+      ? "profesor"
+      : "estudiante";
+  const estadoPortal = usePortalEstudiante(tipoPersona);
   const nombre =
     session?.usuario?.Nombre || session?.usuario?.nombreCompleto || session?.usuario?.nombre || "";
 
   return (
-    <PortalEstudiante
+    <PortalComedor
       nombre={nombre}
       sesion={session}
+      tipoPersona={tipoPersona}
       alCerrarSesion={logout}
       estadoPortal={estadoPortal}
     />

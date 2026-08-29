@@ -11,7 +11,8 @@ export function ProtectedRoute({ tipo, children }) {
       </div>
     );
   if (!session) return <Navigate to={tipo === "admin" ? "/admin" : "/"} replace />;
-  if (tipo && session.tipo !== tipo)
-    return <Navigate to={session.tipo === "admin" ? "/admin/panel" : "/estudiante"} replace />;
+  const tiposPermitidos = Array.isArray(tipo) ? tipo : tipo ? [tipo] : [];
+  if (tiposPermitidos.length > 0 && !tiposPermitidos.includes(session.tipo))
+    return <Navigate to={session.tipo === "admin" ? "/admin/panel" : "/comedor"} replace />;
   return children;
 }

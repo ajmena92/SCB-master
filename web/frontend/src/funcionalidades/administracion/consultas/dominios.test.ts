@@ -8,7 +8,7 @@ describe("catálogo de dominios administrativos", () => {
       "estudiantes",
       "asistencia",
       "beneficios",
-      "cuentas",
+      "comedor",
       "reportes",
       "importaciones",
       "auditoria",

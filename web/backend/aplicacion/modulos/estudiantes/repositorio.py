@@ -20,6 +20,7 @@ class RepositorioEstudiantes(Protocol):
     def perfil_detallado(self, id_estudiante: int) -> dict: ...
     def secciones(self, turno: str | None = None) -> list[dict]: ...
     def asignar_beneficio(self, id_estudiante: int, id_beneficio: int | None) -> None: ...
+    def actualizar_estado_comedor(self, id_estudiante: int, id_estado_comedor: int) -> None: ...
     def asignar_ruta(self, id_estudiante: int, id_ruta: int | None) -> None: ...
     def reiniciar_pin(self, id_estudiante: int, hash_contrasena: str) -> None: ...
     def listar_para_generacion_pines(self) -> list[dict]: ...
@@ -54,17 +55,19 @@ class RepositorioSqlEstudiantes:
             cursor = conexion.cursor()
             cursor.execute(
                 """SELECT e.id_estudiante, e.carne, e.nombre, e.primer_apellido,
-                e.segundo_apellido, e.cedula, e.seccion, e.turno, e.id_ruta,
-                e.id_beneficio, e.debe_cambiar_pin, e.activo,
+                e.segundo_apellido, e.cedula, e.seccion, e.turno,
+                ba.id_beneficio, e.debe_cambiar_pin, e.activo,
                 r.codigo AS ruta_codigo, r.descripcion AS ruta_descripcion,
-                b.nombre AS tipo_beca,
+                cp.id_estado_comedor, ec.descripcion AS beneficio_comedor,
                 CAST(CASE WHEN f.id_estudiante IS NULL THEN 0 ELSE 1 END AS bit) AS tiene_foto
                 FROM estudiantes.estudiante e
                 LEFT JOIN estudiantes.fotografia f ON f.id_estudiante=e.id_estudiante
                 LEFT JOIN transporte.asignacion_ruta ar ON ar.id_estudiante=e.id_estudiante AND ar.activa=1
-                LEFT JOIN transporte.ruta r ON r.id_ruta=COALESCE(e.id_ruta, ar.id_ruta)
+                LEFT JOIN transporte.ruta r ON r.id_ruta=ar.id_ruta
                 LEFT JOIN beneficios.asignacion ba ON ba.id_estudiante=e.id_estudiante
-                LEFT JOIN beneficios.tipo_beneficio b ON b.id_beneficio=COALESCE(e.id_beneficio, ba.id_beneficio)
+                LEFT JOIN comedor.persona cp ON cp.id_estudiante=e.id_estudiante
+                    AND cp.tipo_persona='estudiante'
+                LEFT JOIN comedor.estado_comedor ec ON ec.id_estado_comedor=cp.id_estado_comedor
                 WHERE e.activo = 1 AND (? = N'' OR CONCAT(e.nombre, N' ', e.primer_apellido,
                 N' ', ISNULL(e.segundo_apellido, N''), N' ', e.carne) LIKE ?)
                 ORDER BY e.primer_apellido, e.nombre, e.id_estudiante
@@ -91,9 +94,13 @@ class RepositorioSqlEstudiantes:
             cursor.execute(
                 """SELECT e.id_estudiante, e.carne, e.nombre, e.primer_apellido,
                 e.segundo_apellido, e.cedula, e.seccion, e.turno, e.debe_cambiar_pin,
-                e.activo, CAST(CASE WHEN f.id_estudiante IS NULL THEN 0 ELSE 1 END AS bit) AS tiene_foto
+                e.activo, cp.id_estado_comedor, ec.descripcion AS beneficio_comedor,
+                CAST(CASE WHEN f.id_estudiante IS NULL THEN 0 ELSE 1 END AS bit) AS tiene_foto
                 FROM estudiantes.estudiante e
                 LEFT JOIN estudiantes.fotografia f ON f.id_estudiante=e.id_estudiante
+                LEFT JOIN comedor.persona cp ON cp.id_estudiante=e.id_estudiante
+                    AND cp.tipo_persona='estudiante'
+                LEFT JOIN comedor.estado_comedor ec ON ec.id_estado_comedor=cp.id_estado_comedor
                 WHERE e.id_estudiante = ?""",
                 id_estudiante,
             )
@@ -144,6 +151,25 @@ class RepositorioSqlEstudiantes:
             resultado = self._fila(cursor)
             if resultado is None:
                 raise RuntimeError("No se pudo crear el estudiante")
+            cursor.execute(
+                """INSERT INTO comedor.persona
+                (tipo_persona,id_estudiante,codigo_barras,nombre_completo,id_estado_comedor,activo,
+                 creado_en,actualizado_en)
+                VALUES ('estudiante',?,?,?,2,?,SYSUTCDATETIME(),SYSUTCDATETIME())""",
+                resultado["id_estudiante"],
+                f"E-{resultado['carne']}",
+                " ".join(
+                    str(resultado[campo] or "")
+                    for campo in ("nombre", "primer_apellido", "segundo_apellido")
+                ).strip(),
+                bool(resultado["activo"]),
+            )
+            cursor.execute(
+                """INSERT INTO comedor.cuenta_tiquetes(id_persona,saldo,reservados,actualizado_en)
+                SELECT id_persona,0,0,SYSUTCDATETIME() FROM comedor.persona
+                WHERE id_estudiante=?""",
+                resultado["id_estudiante"],
+            )
             return resultado
 
     def actualizar(self, id_estudiante: int, datos: dict, id_usuario: int, ip: str) -> dict:
@@ -166,6 +192,16 @@ class RepositorioSqlEstudiantes:
             )
             if cursor.rowcount == 0:
                 raise ValueError("Estudiante no encontrado")
+            cursor.execute(
+                """UPDATE comedor.persona SET nombre_completo=?,activo=?,actualizado_en=SYSUTCDATETIME()
+                WHERE id_estudiante=? AND tipo_persona='estudiante'""",
+                " ".join(
+                    str(datos[campo] or "")
+                    for campo in ("nombre", "primer_apellido", "segundo_apellido")
+                ).strip(),
+                bool(datos["activo"]),
+                id_estudiante,
+            )
             cursor.execute(
                 "SELECT id_estudiante, carne, nombre, primer_apellido, segundo_apellido, cedula, seccion, activo FROM estudiantes.estudiante WHERE id_estudiante=?",
                 id_estudiante,

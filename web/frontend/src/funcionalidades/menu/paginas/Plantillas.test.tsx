@@ -163,6 +163,11 @@ describe("plantillas de menú", () => {
     });
 
     const { container, root } = await renderTab();
+    await act(async () => {
+      container
+        .querySelector('[data-testid="semana-tab-1"]')
+        ?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    });
     expect(container.textContent).toMatch(/Lunes de la semana 1/);
     expect(container.textContent).not.toMatch(/Miércoles de la semana 2/);
 

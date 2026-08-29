@@ -4,10 +4,21 @@ from aplicacion.modulos.parametros.servicio import ServicioParametros
 
 class RepositorioFalso:
     def obtener(self):
-        return {"minutos_aviso_previo": 15}
+        return {"minutos_aviso_previo": 15, "horarios": []}
 
-    def guardar(self, minutos):
-        return {"minutos_aviso_previo": minutos}
+    def guardar(self, minutos, horarios, permitir_marca_tardia=False, permitir_sin_marca_transporte=True):
+        return {
+            "minutos_aviso_previo": minutos,
+            "horarios": [
+                {
+                    "id_horario": 1,
+                    "codigo": "diurno",
+                    "descripcion": "Diurno",
+                    "hora_limite": "12:00",
+                    "activo": True,
+                }
+            ],
+        }
 
     def calendario(self, anio, mes):
         return []

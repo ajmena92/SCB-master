@@ -8,6 +8,7 @@ import {
   Route,
   ScrollText,
   Settings2,
+  UtensilsCrossed,
   Users,
   Wrench,
 } from "lucide-react";
@@ -28,6 +29,7 @@ const Estudiantes = lazy(() => import("@/funcionalidades/administracion/paginas/
 const Asistencia = lazy(() => import("@/funcionalidades/administracion/paginas/Asistencia"));
 const Beneficios = lazy(() => import("@/funcionalidades/administracion/paginas/Beneficios"));
 const Cuentas = lazy(() => import("@/funcionalidades/administracion/paginas/Cuentas"));
+const Comedor = lazy(() => import("@/funcionalidades/comedor/paginas/Comedor"));
 const Reportes = lazy(() => import("@/funcionalidades/administracion/paginas/Reportes"));
 const Importaciones = lazy(() => import("@/funcionalidades/administracion/paginas/Importaciones"));
 const Auditoria = lazy(() => import("@/funcionalidades/administracion/paginas/AuditoriaEventos"));
@@ -63,6 +65,18 @@ export const ADMIN_NAVIGATION = [
     requiredPermissions: ["menu.leer"],
     icon: CalendarDays,
     C: Plantillas,
+  },
+  {
+    v: "comedor",
+    id: "comedor",
+    label: "Ingreso al comedor",
+    shortLabel: "Ingreso",
+    group: "operacion",
+    path: "/admin/comedor/operacion",
+    standalone: true,
+    requiredPermissions: ["comedor.registrar"],
+    icon: UtensilsCrossed,
+    C: Comedor,
   },
   {
     v: "calendario",
@@ -145,8 +159,8 @@ export const ADMIN_NAVIGATION = [
   {
     v: "cuentas",
     id: "cuentas",
-    label: "Cuentas y saldos",
-    shortLabel: "Cuentas",
+    label: "Tiquetes y saldos",
+    shortLabel: "Tiquetes",
     group: "personas",
     path: "/admin/panel/personas/cuentas",
     requiredPermissions: ["cuentas.leer"],

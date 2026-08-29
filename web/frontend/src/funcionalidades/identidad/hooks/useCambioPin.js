@@ -35,7 +35,7 @@ export function useCambioPin() {
         });
         setDebeCambiarPin(false);
         toast.success("PIN actualizado correctamente");
-        navigate("/estudiante", { replace: true });
+        navigate("/comedor", { replace: true });
       } catch (error) {
         setEstado({ cargando: false, error: errMsg(error) });
         return;

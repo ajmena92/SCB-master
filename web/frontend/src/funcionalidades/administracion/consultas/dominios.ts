@@ -57,14 +57,14 @@ export const DOMINIOS: Record<string, DefinicionDominio> = {
     columnas: ["idBeneficio", "nombre", "activo"],
     cargar: () => consultar("/v1/beneficios"),
   },
-  cuentas: {
-    clave: "cuentas",
-    titulo: "Cuentas y saldos",
-    descripcion: "Saldos y movimientos de estudiantes.",
-    ruta: "/api/v1/cuentas",
-    permiso: "cuentas.leer",
-    columnas: ["idEstudiante", "saldo", "actualizadoEn"],
-    cargar: async () => [],
+  comedor: {
+    clave: "comedor",
+    titulo: "Personas y tiquetes",
+    descripcion: "Personas habilitadas, saldos y movimientos de tiquetes.",
+    ruta: "/api/v1/comedor/personas",
+    permiso: "comedor.registrar",
+    columnas: ["idPersona", "tipoPersona", "nombreCompleto", "beneficioComedor"],
+    cargar: () => consultar("/v1/comedor/personas"),
   },
   reportes: {
     clave: "reportes",

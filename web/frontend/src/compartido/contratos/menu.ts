@@ -24,3 +24,18 @@ export interface PlantillaMenuSalida {
   semana: number;
   titulo: string;
 }
+
+export interface SustitucionMenuEntrada {
+  componentes?: Array<ComponenteMenu>;
+  fecha: string;
+  observaciones?: string | null;
+  titulo: string;
+}
+
+export interface SustitucionMenuSalida {
+  componentes?: Array<ComponenteMenu>;
+  fecha: string;
+  idSustitucion: number;
+  observaciones?: string | null;
+  titulo: string;
+}

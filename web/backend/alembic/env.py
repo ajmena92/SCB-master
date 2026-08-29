@@ -76,6 +76,7 @@ def run_migrations_offline() -> None:
         dialect_opts={"paramstyle": "named"},
         include_schemas=True,
         include_object=_incluir_objeto,
+        transaction_per_migration=True,
     )
     with context.begin_transaction():
         context.run_migrations()
@@ -96,6 +97,7 @@ def run_migrations_online() -> None:
             target_metadata=target_metadata,
             include_schemas=True,
             include_object=_incluir_objeto,
+            transaction_per_migration=True,
         )
         with context.begin_transaction():
             context.run_migrations()

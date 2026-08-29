@@ -23,6 +23,7 @@ RUN pip install --no-compile --requirement requirements-migracion.txt \
 COPY backend/aplicacion ./aplicacion
 COPY backend/config.py ./config.py
 COPY backend/alembic ./alembic
+COPY backend/scripts ./scripts
 COPY backend/alembic.ini ./alembic.ini
 COPY ops/entrada_migracion.sh /usr/local/bin/entrada_migracion.sh
 COPY ops/entrada_mantenimiento.sh /usr/local/bin/entrada_mantenimiento.sh
