@@ -15,12 +15,14 @@
 - [Contratos de la API](CONTRATOS_API.md) — generación OpenAPI y contratos TypeScript separados por dominio.
 - [Convenciones de nombres](CONVENCIONES_NOMBRES.md) — español ASCII en identificadores, español ortográfico en UI/documentación y excepciones técnicas.
 - [ADR-0001: monolito modular por dominios](decisiones/0001-monolito-modular-por-dominios.md) — decisión, alternativas y consecuencias.
+- [ADR-0002: PostgreSQL y corte único](decisiones/0002-postgresql-y-corte-unico.md) — motor definitivo, separación de roles y alcance del corte.
 
 ### Requisitos y operación
 
 - [Requisitos del portal de comedor](REQUISITOS_COMEDOR.md)
 - [Manual del estudiante](MANUAL_ESTUDIANTE_COMEDOR.md)
 - [Operación del carnet digital](CARNET_DIGITAL_OPERACION.md)
+- [Operación PostgreSQL, respaldo e importación](POSTGRESQL_OPERACION_Y_MIGRACION.md)
 
 ### Despliegue e integración
 

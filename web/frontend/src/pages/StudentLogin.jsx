@@ -38,7 +38,7 @@ export default function StudentLogin() {
           </div>
           <div>
             <h1 className="font-display text-4xl sm:text-5xl font-black tracking-tighter leading-none">
-              Confirmá tu almuerzo antes del cierre.
+              Reservá tu almuerzo antes del cierre.
             </h1>
             <p className="mt-4 text-base text-white/80 max-w-md">
               Consultá el menú del día y avisá si asistirás al comedor. Tu confirmación se registra
@@ -55,7 +55,7 @@ export default function StudentLogin() {
             <span className="font-display font-black text-lg">Comedor SCSC</span>
           </div>
           <p className="text-xs uppercase tracking-[0.2em] font-bold text-primary mb-2">
-            Acceso estudiantil
+            Acceso de estudiantes y profesores
           </p>
           <h2 className="font-display text-3xl font-bold tracking-tight mb-8">
             Ingresá a tu portal
@@ -63,13 +63,13 @@ export default function StudentLogin() {
 
           <form onSubmit={enviar} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="carne">Carné / Cédula</Label>
+              <Label htmlFor="carne">Código institucional</Label>
               <Input
                 id="carne"
                 data-testid="student-carne-input"
                 value={carne}
                 onChange={(e) => cambiarCarne(e.target.value)}
-                placeholder="Ej: 115000008"
+                placeholder="E-00000000 o P-00000000"
                 className="h-12 text-base"
                 autoComplete="username"
               />

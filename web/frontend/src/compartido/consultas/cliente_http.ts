@@ -1,6 +1,7 @@
 import axios from "axios";
 import { agregarCsrf } from "./csrf";
 import { manejarSesionExpirada } from "./manejo_sesion";
+import { obtenerTokenSesion } from "./token_sesion";
 
 const urlConfigurada = import.meta.env.VITE_API_BASE_URL || "/api";
 if (!urlConfigurada.startsWith("/"))
@@ -19,5 +20,9 @@ export const api = axios.create({
   withCredentials: true,
   headers: { Accept: "application/json" },
 });
-api.interceptors.request.use(agregarCsrf);
+api.interceptors.request.use((configuracion) => {
+  const token = obtenerTokenSesion();
+  if (token) configuracion.headers.set("Authorization", `Bearer ${token}`);
+  return agregarCsrf(configuracion);
+});
 api.interceptors.response.use((response) => response, manejarSesionExpirada);

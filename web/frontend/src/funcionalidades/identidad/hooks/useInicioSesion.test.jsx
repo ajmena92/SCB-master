@@ -50,7 +50,7 @@ describe("hooks de inicio de sesión", () => {
   });
 
   it("autentica administradores, carga la sesión y delega la navegación", async () => {
-    api.post.mockResolvedValueOnce({ data: {} });
+    api.post.mockResolvedValueOnce({ data: { token: "token-prueba" } });
     api.get.mockResolvedValue({ data: { tipo: "admin", usuario: { roles: [], permisos: [] } } });
     let actual;
     const { contenedor, raiz } = preparar("admin", (valor) => (actual = valor));
@@ -60,8 +60,8 @@ describe("hooks de inicio de sesión", () => {
     });
     await act(async () => actual.enviar({ preventDefault: vi.fn() }));
     expect(api.post).toHaveBeenCalledWith(
-      "/v1/autenticacion",
-      { nombreUsuario: "operador", contrasena: "secreto" },
+      "/v1/autenticacion/administracion",
+      { usuario: "operador", contrasena: "secreto" },
       expect.any(Object),
     );
     expect(api.get).toHaveBeenCalled();

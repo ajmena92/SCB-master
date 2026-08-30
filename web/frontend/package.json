@@ -73,8 +73,8 @@
     "lint": "eslint src --max-warnings=0",
     "verificar:formato": "prettier --check src index.html package.json tsconfig.json jsconfig.json components.json vite.config.mjs vitest.config.mts tailwind.config.js postcss.config.js plugins eslint.config.mjs .prettierrc.json",
     "verificar:arquitectura": "python3 ../scripts/verificar_arquitectura.py",
-    "generar:cliente": "python3 ../scripts/generar_cliente_openapi.py",
-    "verificar:cliente": "python3 ../scripts/generar_cliente_openapi.py --verificar",
+    "generar:cliente": "node ../scripts/ejecutar_python_backend.mjs generar_cliente_openapi.py",
+    "verificar:cliente": "node ../scripts/ejecutar_python_backend.mjs generar_cliente_openapi.py --verificar",
     "verificar": "npm run typecheck && npm run lint && npm run verificar:formato && npm run verificar:arquitectura"
   },
   "devDependencies": {

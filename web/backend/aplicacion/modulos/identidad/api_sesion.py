@@ -29,18 +29,26 @@ def crear_enrutador_sesion(
 
     enrutador = APIRouter(prefix="", tags=["sesion"])
 
-    @enrutador.get("/sesion", response_model=SesionActualSalida, response_model_by_alias=True)
+    @enrutador.get(
+        "/sesion",
+        response_model=SesionActualSalida,
+        response_model_by_alias=True,
+        responses={status.HTTP_204_NO_CONTENT: {"description": "No existe una sesión activa"}},
+    )
     def consultar_sesion(
         id_sesion: Annotated[str | None, Cookie(alias=NOMBRE_COOKIE_ID_SESION)] = None,
         secreto: Annotated[str | None, Cookie(alias=NOMBRE_COOKIE_SECRETO)] = None,
         servicio: ServicioSesiones = Depends(obtener_servicio),
-    ) -> SesionActualSalida:
+    ) -> SesionActualSalida | Response:
         if not id_sesion or not secreto:
-            raise HTTPException(status.HTTP_401_UNAUTHORIZED, "La sesión no es válida")
+            return Response(status_code=status.HTTP_204_NO_CONTENT)
         try:
             resultado = servicio.validar(id_sesion, secreto)
-        except AutenticacionFallida as exc:
-            raise HTTPException(status.HTTP_401_UNAUTHORIZED, str(exc)) from exc
+        except AutenticacionFallida:
+            respuesta = Response(status_code=status.HTTP_204_NO_CONTENT)
+            for nombre in (NOMBRE_COOKIE_ID_SESION, NOMBRE_COOKIE_SECRETO, NOMBRE_COOKIE_CSRF):
+                respuesta.delete_cookie(nombre)
+            return respuesta
         return SesionActualSalida(
             idUsuario=resultado.sesion.id_usuario,
             expiraEn=resultado.sesion.expira_en,

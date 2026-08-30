@@ -5,10 +5,11 @@ import { toast } from "sonner";
 import { useAutenticacion } from "@/aplicacion/estado/ContextoAutenticacion";
 import { api } from "@/compartido/consultas/cliente_http";
 import { errMsg } from "@/compartido/consultas/errores_api";
+import { borrarTokenSesion } from "@/compartido/consultas/token_sesion";
 
 export function useCambioPin() {
   const navigate = useNavigate();
-  const { setDebeCambiarPin, debeCambiarPin } = useAutenticacion();
+  const { setDebeCambiarPin, setSession, debeCambiarPin } = useAutenticacion();
   const [formulario, setFormulario] = useState({ actual: "", nuevo: "", confirmar: "" });
   const [estado, setEstado] = useState({ cargando: false, error: "" });
   const cambiar = useCallback(
@@ -29,20 +30,25 @@ export function useCambioPin() {
       }
       setEstado({ cargando: true, error: "" });
       try {
-        await api.post("/v1/estudiantes/pin", {
+        await api.post("/v1/autenticacion/portal/pin", {
           pinActual: formulario.actual,
           pinNuevo: formulario.nuevo,
         });
+        // El backend revoca todas las sesiones al cambiar el PIN. No se debe
+        // conservar un token ya inválido ni abrir el portal como si siguiera
+        // autenticado.
+        borrarTokenSesion();
+        setSession(false);
         setDebeCambiarPin(false);
-        toast.success("PIN actualizado correctamente");
-        navigate("/comedor", { replace: true });
+        toast.success("PIN actualizado. Ingresá nuevamente con tu nuevo PIN.");
+        navigate("/", { replace: true });
       } catch (error) {
         setEstado({ cargando: false, error: errMsg(error) });
         return;
       }
       setEstado((actual) => ({ ...actual, cargando: false }));
     },
-    [formulario, navigate, setDebeCambiarPin],
+    [formulario, navigate, setDebeCambiarPin, setSession],
   );
 
   return {

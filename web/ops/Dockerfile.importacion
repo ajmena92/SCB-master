@@ -1,0 +1,21 @@
+FROM python:3.12.14-slim-bookworm
+
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PIP_NO_CACHE_DIR=1
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends ca-certificates curl gnupg unixodbc-dev \
+    && curl -fsSL https://packages.microsoft.com/config/debian/12/packages-microsoft-prod.deb -o /tmp/ms.deb \
+    && dpkg -i /tmp/ms.deb && rm /tmp/ms.deb \
+    && apt-get update \
+    && ACCEPT_EULA=Y apt-get install -y --no-install-recommends msodbcsql18 \
+    && rm -rf /var/lib/apt/lists/*
+WORKDIR /trabajo
+COPY scripts/requirements-importacion.txt /tmp/requirements.txt
+RUN pip install --no-compile --requirement /tmp/requirements.txt && rm /tmp/requirements.txt
+COPY scripts/importar_sqlserver_postgresql.py scripts/importar_padron_anual.py /usr/local/bin/
+COPY ops/entrada_importacion.sh /usr/local/bin/entrada_importacion.sh
+RUN useradd --create-home --uid 10001 importador \
+    && chmod 0555 /usr/local/bin/importar_sqlserver_postgresql.py /usr/local/bin/importar_padron_anual.py /usr/local/bin/entrada_importacion.sh \
+    && chown importador:importador /trabajo
+USER importador
+ENTRYPOINT ["/usr/local/bin/entrada_importacion.sh"]
+CMD ["/usr/local/bin/importar_sqlserver_postgresql.py"]

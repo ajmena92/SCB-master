@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useAutenticacion } from "@/aplicacion/estado/ContextoAutenticacion";
 import { api } from "@/compartido/consultas/cliente_http";
 import { errMsg } from "@/compartido/consultas/errores_api";
+import { guardarTokenSesion } from "@/compartido/consultas/token_sesion";
 
 export function clasificarErrorAutenticacion(error) {
   const estado = error?.response?.status;
@@ -32,10 +33,12 @@ export function useInicioSesionAdministrativo() {
       evento.preventDefault();
       setEstado({ cargando: true, error: "", tipoError: "credenciales" });
       try {
-        await api.post("/v1/autenticacion", formulario, {
-          omitirManejoFalloAutenticacion: true,
-          omitirCsrf: true,
-        });
+        const { data } = await api.post(
+          "/v1/autenticacion/administracion",
+          { usuario: formulario.nombreUsuario, contrasena: formulario.contrasena },
+          { omitirManejoFalloAutenticacion: true, omitirCsrf: true },
+        );
+        guardarTokenSesion(data.token);
         await loadMe();
         navegar("/admin/panel", { replace: true });
       } catch (error) {
@@ -63,7 +66,7 @@ export function useInicioSesionAdministrativo() {
 
 export function useInicioSesionEstudiantil() {
   const navegar = useNavigate();
-  const { loadMe } = useAutenticacion();
+  const { loadMe, setDebeCambiarPin } = useAutenticacion();
   const { formulario, cambiar } = useFormularioInicial({ carne: "", pin: "" });
   const [estado, setEstado] = useState({ cargando: false, error: "", tipoError: "credenciales" });
 
@@ -80,12 +83,16 @@ export function useInicioSesionEstudiantil() {
       }
       setEstado({ cargando: true, error: "", tipoError: "credenciales" });
       try {
-        const { data } = await api.post("/v1/estudiantes/autenticacion", formulario, {
-          omitirManejoFalloAutenticacion: true,
-          omitirCsrf: true,
-        });
+        const { data } = await api.post(
+          "/v1/autenticacion/portal",
+          { codigo: formulario.carne, pin: formulario.pin },
+          { omitirManejoFalloAutenticacion: true, omitirCsrf: true },
+        );
+        guardarTokenSesion(data.token);
         await loadMe();
-        navegar(data.debeCambiarPin ? "/cambiar-pin" : "/comedor", { replace: true });
+        const cambioObligatorio = Boolean(data.cambioObligatorio);
+        setDebeCambiarPin(cambioObligatorio);
+        navegar(cambioObligatorio ? "/cambiar-pin" : "/portal", { replace: true });
       } catch (error) {
         setEstado({
           cargando: false,
@@ -97,7 +104,7 @@ export function useInicioSesionEstudiantil() {
       }
       setEstado((actual) => ({ ...actual, cargando: false }));
     },
-    [cambiar, formulario, loadMe, navegar],
+    [cambiar, formulario, loadMe, navegar, setDebeCambiarPin],
   );
 
   return {

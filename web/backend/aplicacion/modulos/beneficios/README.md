@@ -1,12 +1,14 @@
-# Beneficios
+# Beneficios históricos
 
-Gestiona el catálogo de beneficios alimentarios y la asignación vigente de un beneficio a cada estudiante.
+Este paquete conserva únicamente los modelos SQLAlchemy de las tablas históricas
+`beneficios.tipo_beneficio` y `beneficios.asignacion`. Alembic los carga para poder
+reconocer y reconciliar el esquema existente durante el corte de datos.
 
-## Contratos
+No existe API, servicio ni repositorio operativo de beneficios. La beca de comedor
+se determina exclusivamente mediante `comedor.persona.id_estado_comedor`, cuyos
+valores canónicos representan beneficiario completo y no beneficiario. Los días
+permitidos, `TipoBeca` y las asignaciones históricas no participan en el acceso, el
+dashboard ni las estadísticas del comedor.
 
-- `GET /api/v1/beneficios`: catálogo activo (`beneficios.leer`).
-- `POST/PUT /api/v1/beneficios`: administración del catálogo (`beneficios.editar`).
-- `GET /api/v1/beneficios/estudiantes/{id_estudiante}`: asignación (`beneficios.leer`).
-- `PUT /api/v1/beneficios/estudiantes/{id_estudiante}`: reemplaza o elimina la asignación (`beneficios.editar`).
-
-La persistencia usa únicamente el esquema canónico `beneficios`. El módulo no consulta tablas, repositorios ni servicios de otros dominios.
+Estas tablas solo podrán consultarse desde migraciones y procesos explícitos de
+reconciliación hasta que se apruebe su eliminación física posterior al corte.

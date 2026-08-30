@@ -4,7 +4,7 @@
 
 Este documento define la arquitectura objetivo de SCB. La plataforma web sustituirá por completo al sistema WinForms mediante una migración única y auditable. No se permite integración en tiempo de ejecución, doble escritura ni sincronización permanente con el sistema local.
 
-La decisión formal se registra en [ADR-0001: monolito modular por dominios](decisiones/0001-monolito-modular-por-dominios.md). El avance se controla en el [plan de migración total](PLAN_MIGRACION_TOTAL_WEB.md).
+Las decisiones formales se registran en [ADR-0001: monolito modular](decisiones/0001-monolito-modular-por-dominios.md) y [ADR-0002: PostgreSQL y corte único](decisiones/0002-postgresql-y-corte-unico.md).
 
 ## Modelo arquitectónico
 
@@ -15,9 +15,7 @@ Dominios iniciales:
 - identidad;
 - estudiantes;
 - comedor;
-- asistencia;
 - transporte;
-- beneficios;
 - cuentas;
 - importaciones;
 - reportes;
@@ -71,8 +69,9 @@ interfaz/API → servicio de aplicación → dominio → puerto de repositorio
   solo reexporta los módulos.
 - Los errores públicos incluyen código estable, mensaje, detalles de validación cuando correspondan e identificador de trazabilidad.
 - Las rupturas futuras se versionan; no se mantienen aliases heredados permanentes.
-- SQL Server continúa como motor, con esquemas web canónicos y nombres `snake_case` en español.
-- Alembic será la autoridad de cambios del nuevo modelo una vez incorporado en la fase de datos.
+- PostgreSQL 17 es el único motor web; SQL Server es solo origen de lectura durante el corte.
+- Alembic es la autoridad de cambios y comienza con una única migración base PostgreSQL.
+- Persona y matrícula anual son entidades distintas; los cambios de sección, turno, beca y ruta preservan el historial por año.
 
 ## Migración y retiro del sistema local
 
@@ -81,11 +80,11 @@ interfaz/API → servicio de aplicación → dominio → puerto de repositorio
 3. Ejecutar ensayos con copias anonimizadas.
 4. Respaldar y congelar escrituras durante la ventana de corte.
 5. Ejecutar una migración única, repetible y auditable.
-6. Reconciliar estudiantes, rutas, beneficios, menús, marcas, saldos y permisos.
+6. Reconciliar personas activas, matrículas 2026, rutas, becas vigentes y menús.
 7. Activar la plataforma web, invalidar sesiones anteriores y retirar accesos de WinForms.
 8. Conservar el sistema local solo como historial de solo lectura fuera de la rama activa después de la aceptación.
 
-DigitalPersona se sustituye por QR, código de barras y PIN web. Crystal Reports se sustituye por reportes web, PDF, CSV y Excel. Ninguna de estas tecnologías formará parte del nuevo entorno de ejecución.
+No se migran marcas, saldos, ventas, reservas, credenciales ni auditoría históricas. DigitalPersona se sustituye por códigos y PIN web; Crystal Reports, por reportes web y CSV. Ninguna forma parte del nuevo entorno de ejecución.
 
 ## Atributos y puertas de calidad
 

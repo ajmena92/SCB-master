@@ -1,5 +1,6 @@
 import { createContext, use, useEffect, useState, useCallback } from "react";
 import { api } from "@/compartido/consultas/cliente_http";
+import { borrarTokenSesion } from "@/compartido/consultas/token_sesion";
 
 const ContextoAutenticacionContext = createContext(null);
 
@@ -13,22 +14,29 @@ function rolPrincipal(roles) {
 }
 
 async function obtenerSesion() {
-  const { data } = await api.get("/v1/sesion", { omitirManejoFalloAutenticacion: true });
-  const roles = data.tipo === "admin" ? listaExplicita(data.usuario?.roles) : [];
-  const permisos = data.tipo === "admin" ? listaExplicita(data.usuario?.permisos) : [];
-  const usuario =
-    data.tipo === "admin"
-      ? {
-          ...data.usuario,
-          Nombre: data.usuario?.Nombre || data.usuario?.NombreCompleto || "",
-          Rol: rolPrincipal(roles),
-        }
-      : data.usuario;
+  const { data, status } = await api.get("/v1/sesion", {
+    omitirManejoFalloAutenticacion: true,
+  });
+  if (status === 204 || !data) return { session: false, debeCambiarPin: false };
+  const esAdministrativa = data.tipo === "administracion" || data.tipo === "admin";
+  const roles = esAdministrativa
+    ? listaExplicita(data.usuario?.roles ?? (data.rol ? [data.rol] : []))
+    : [];
+  const permisos = esAdministrativa ? listaExplicita(data.usuario?.permisos) : [];
+  const usuario = esAdministrativa
+    ? {
+        ...(typeof data.usuario === "object" ? data.usuario : {}),
+        Nombre: data.usuario?.Nombre || data.usuario?.NombreCompleto || data.usuario || "",
+        Rol: rolPrincipal(roles),
+      }
+    : { ...(data.usuario ?? {}), codigo: data.codigo, nombres: data.nombres ?? data.codigo };
   return {
-    session: { tipo: data.tipo, usuario, roles, permisos },
+    session: { tipo: esAdministrativa ? "admin" : data.rol, usuario, roles, permisos },
     // En estudiantes el indicador forma parte del perfil; se conserva el
     // nivel superior para respuestas de autenticación antiguas.
-    debeCambiarPin: Boolean(data.debeCambiarPin ?? data.usuario?.debeCambiarPin),
+    debeCambiarPin: Boolean(
+      data.cambioObligatorio ?? data.debeCambiarPin ?? data.usuario?.debeCambiarPin,
+    ),
   };
 }
 
@@ -67,6 +75,7 @@ export function ProveedorAutenticacion({ children }) {
 
   useEffect(() => {
     const onUnauthenticated = () => {
+      borrarTokenSesion();
       setSession(false);
       setDebeCambiarPin(false);
     };
@@ -76,12 +85,15 @@ export function ProveedorAutenticacion({ children }) {
 
   const logout = async () => {
     try {
-      await api.post("/v1/sesion/cerrar", undefined, { omitirManejoFalloAutenticacion: true });
+      await api.post("/v1/autenticacion/logout");
     } catch {
-      // Close the local UI even if a stale server session cannot be revoked.
+      // Aunque el servidor no responda, el navegador no debe conservar una
+      // credencial que la persona decidió cerrar.
+    } finally {
+      borrarTokenSesion();
+      setSession(false);
+      setDebeCambiarPin(false);
     }
-    setSession(false);
-    setDebeCambiarPin(false);
   };
 
   return (
