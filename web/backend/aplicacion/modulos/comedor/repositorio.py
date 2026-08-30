@@ -34,7 +34,9 @@ class RepositorioComedor(Protocol):
     def estado_operacion(self) -> dict: ...
 
 
-class RepositorioSqlComedor(RepositorioSqlCatalogoComedor, RepositorioSqlOperacionComedor, RepositorioSqlConsultasOperacion):
+class RepositorioSqlComedor(
+    RepositorioSqlCatalogoComedor, RepositorioSqlOperacionComedor, RepositorioSqlConsultasOperacion
+):
     """Implementación única compuesta por capacidades especializadas."""
 
     def __init__(self, fabrica: FabricaConexionSql) -> None:

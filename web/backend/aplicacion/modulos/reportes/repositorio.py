@@ -6,6 +6,7 @@ from datetime import date, timedelta
 from typing import Protocol
 
 from aplicacion.nucleo.base_datos import CursorSql, FabricaConexionSql
+
 from .repositorio_profesores import RepositorioSqlProfesores
 
 
@@ -86,9 +87,13 @@ class RepositorioSqlReportes(RepositorioSqlProfesores):
             cursor = conexion.cursor()
             cursor.execute("SELECT COUNT(*) FROM estudiantes.estudiante WHERE activo=1")
             estudiantes = cursor.fetchone()
-            cursor.execute("SELECT COUNT(*) FROM asistencia.marca WHERE estado IN ('presente','confirmada')")
+            cursor.execute(
+                "SELECT COUNT(*) FROM asistencia.marca WHERE estado IN ('presente','confirmada')"
+            )
             confirmaciones = cursor.fetchone()
-            cursor.execute("SELECT COUNT(*) FROM asistencia.marca WHERE estado IN ('ausente','cancelada')")
+            cursor.execute(
+                "SELECT COUNT(*) FROM asistencia.marca WHERE estado IN ('ausente','cancelada')"
+            )
             cancelaciones = cursor.fetchone()
         return {
             "estudiantes": int(estudiantes[0]) if estudiantes else 0,
@@ -128,15 +133,17 @@ class RepositorioSqlReportes(RepositorioSqlProfesores):
         resultado = []
         for dia in fechas:
             presentes, ausentes = filas.get(dia, (0, 0))
-            resultado.append({
-                "fecha": dia,
-                "dia": dia.strftime("%A"),
-                "total": total,
-                "presentes": presentes,
-                "ausentes": ausentes,
-                "sin_registro": max(total - presentes - ausentes, 0),
-                "porcentaje": self._porcentaje(presentes, total),
-            })
+            resultado.append(
+                {
+                    "fecha": dia,
+                    "dia": dia.strftime("%A"),
+                    "total": total,
+                    "presentes": presentes,
+                    "ausentes": ausentes,
+                    "sin_registro": max(total - presentes - ausentes, 0),
+                    "porcentaje": self._porcentaje(presentes, total),
+                }
+            )
         return resultado
 
     def dashboard(
@@ -161,7 +168,9 @@ class RepositorioSqlReportes(RepositorioSqlProfesores):
         filtros = ["(e.activo=1 OR m.id_marca IS NOT NULL)"]
         filtro_parametros: list[object] = []
         if busqueda:
-            filtros.append("(e.nombre LIKE ? OR e.primer_apellido LIKE ? OR e.cedula LIKE ? OR e.seccion LIKE ?)")
+            filtros.append(
+                "(e.nombre LIKE ? OR e.primer_apellido LIKE ? OR e.cedula LIKE ? OR e.seccion LIKE ?)"
+            )
             filtro_parametros.extend([f"%{busqueda}%"] * 4)
         if id_ruta is not None:
             filtros.append("r.id_ruta=?")
@@ -202,7 +211,9 @@ class RepositorioSqlReportes(RepositorioSqlProfesores):
             cursor = conexion.cursor()
             cursor.execute(
                 """SELECT DISTINCT LOWER(LTRIM(RTRIM(e.turno)))
-                """ + base + """ AND LOWER(LTRIM(RTRIM(e.turno))) IN ('diurno','nocturno')
+                """
+                + base
+                + """ AND LOWER(LTRIM(RTRIM(e.turno))) IN ('diurno','nocturno')
                 ORDER BY LOWER(LTRIM(RTRIM(e.turno)))""",
                 *base_parametros,
             )
@@ -236,31 +247,58 @@ class RepositorioSqlReportes(RepositorioSqlProfesores):
                     COUNT(DISTINCT CASE WHEN ci.id_ingreso IS NOT NULL THEN e.id_estudiante END),
                     COUNT(DISTINCT CASE WHEN cp.id_estado_comedor=1 THEN e.id_estudiante END),
                     COUNT(DISTINCT CASE WHEN cp.id_estado_comedor=2 THEN e.id_estudiante END)
-                """ + base,
+                """
+                + base,
                 *base_parametros,
             )
             fila = cursor.fetchone() or (0,) * 8
-            total, presentes, ausentes, tardanzas, justificadas, consumo, beneficiarios, no_beneficiarios = map(int, fila)
+            (
+                total,
+                presentes,
+                ausentes,
+                tardanzas,
+                justificadas,
+                consumo,
+                beneficiarios,
+                no_beneficiarios,
+            ) = map(int, fila)
 
             cursor.execute(
                 """SELECT
                     COUNT(DISTINCT CASE WHEN cp.id_estado_comedor=1 AND m.id_marca IS NULL THEN e.id_estudiante END),
                     COUNT(DISTINCT CASE WHEN cp.id_estado_comedor=1 AND ci.id_ingreso IS NULL THEN e.id_estudiante END),
                     COUNT(DISTINCT CASE WHEN cp.id_estado_comedor=2 AND ci.id_ingreso IS NULL THEN e.id_estudiante END)
-                """ + base,
+                """
+                + base,
                 *base_parametros,
             )
             sin_asistencia, beneficiarios_sin_consumo, no_beneficiarios_sin_ingreso = map(
                 int, cursor.fetchone() or (0, 0, 0)
             )
             alertas = [
-                {"tipo": "beneficiarios_sin_asistencia", "titulo": "Beneficiarios sin asistencia", "cantidad": sin_asistencia},
-                {"tipo": "beneficiarios_sin_consumo", "titulo": "Beneficiarios sin consumo", "cantidad": beneficiarios_sin_consumo},
-                {"tipo": "no_beneficiarios_sin_ingreso", "titulo": "No beneficiarios sin ingreso", "cantidad": no_beneficiarios_sin_ingreso},
+                {
+                    "tipo": "beneficiarios_sin_asistencia",
+                    "titulo": "Beneficiarios sin asistencia",
+                    "cantidad": sin_asistencia,
+                },
+                {
+                    "tipo": "beneficiarios_sin_consumo",
+                    "titulo": "Beneficiarios sin consumo",
+                    "cantidad": beneficiarios_sin_consumo,
+                },
+                {
+                    "tipo": "no_beneficiarios_sin_ingreso",
+                    "titulo": "No beneficiarios sin ingreso",
+                    "cantidad": no_beneficiarios_sin_ingreso,
+                },
             ]
 
             grupos: dict[str, list[dict]] = {}
-            for expresion, clave in (("COALESCE(e.turno,N'Sin horario')", "por_horario"), ("COALESCE(e.seccion,N'Sin sección')", "por_seccion"), ("ec.descripcion", "por_estado_comedor")):
+            for expresion, clave in (
+                ("COALESCE(e.turno,N'Sin horario')", "por_horario"),
+                ("COALESCE(e.seccion,N'Sin sección')", "por_seccion"),
+                ("ec.descripcion", "por_estado_comedor"),
+            ):
                 cursor.execute(
                     f"""SELECT {expresion}, COUNT(DISTINCT e.id_estudiante),
                         COUNT(DISTINCT CASE WHEN m.estado IN ('presente','confirmada') THEN e.id_estudiante END),
@@ -272,12 +310,25 @@ class RepositorioSqlReportes(RepositorioSqlProfesores):
                 )
                 filas_grupo = []
                 for grupo in cursor.fetchall():
-                    nombre, total_grupo, presentes_grupo, ausentes_grupo, sin_registro, consumo_grupo = grupo
-                    filas_grupo.append({
-                        "nombre": nombre, "total": int(total_grupo), "presentes": int(presentes_grupo),
-                        "ausentes": int(ausentes_grupo), "sin_registro": int(sin_registro), "consumo": int(consumo_grupo),
-                        "porcentaje": self._porcentaje(int(presentes_grupo), int(total_grupo)),
-                    })
+                    (
+                        nombre,
+                        total_grupo,
+                        presentes_grupo,
+                        ausentes_grupo,
+                        sin_registro,
+                        consumo_grupo,
+                    ) = grupo
+                    filas_grupo.append(
+                        {
+                            "nombre": nombre,
+                            "total": int(total_grupo),
+                            "presentes": int(presentes_grupo),
+                            "ausentes": int(ausentes_grupo),
+                            "sin_registro": int(sin_registro),
+                            "consumo": int(consumo_grupo),
+                            "porcentaje": self._porcentaje(int(presentes_grupo), int(total_grupo)),
+                        }
+                    )
                 grupos[clave] = filas_grupo
 
             cursor.execute(
@@ -291,13 +342,27 @@ class RepositorioSqlReportes(RepositorioSqlProfesores):
             )
             por_ruta = []
             for grupo in cursor.fetchall():
-                id_grupo, nombre, total_grupo, presentes_grupo, ausentes_grupo, sin_registro, consumo_grupo = grupo
-                por_ruta.append({
-                    "id_ruta": id_grupo, "nombre": nombre, "total": int(total_grupo),
-                    "presentes": int(presentes_grupo), "ausentes": int(ausentes_grupo),
-                    "sin_registro": int(sin_registro), "consumo": int(consumo_grupo),
-                    "porcentaje": self._porcentaje(int(presentes_grupo), int(total_grupo)),
-                })
+                (
+                    id_grupo,
+                    nombre,
+                    total_grupo,
+                    presentes_grupo,
+                    ausentes_grupo,
+                    sin_registro,
+                    consumo_grupo,
+                ) = grupo
+                por_ruta.append(
+                    {
+                        "id_ruta": id_grupo,
+                        "nombre": nombre,
+                        "total": int(total_grupo),
+                        "presentes": int(presentes_grupo),
+                        "ausentes": int(ausentes_grupo),
+                        "sin_registro": int(sin_registro),
+                        "consumo": int(consumo_grupo),
+                        "porcentaje": self._porcentaje(int(presentes_grupo), int(total_grupo)),
+                    }
+                )
 
             cursor.execute("SELECT COUNT(DISTINCT e.id_estudiante) " + base, *base_parametros)
             total_nominal = int((cursor.fetchone() or (0,))[0])
@@ -308,17 +373,42 @@ class RepositorioSqlReportes(RepositorioSqlProfesores):
                     CASE WHEN r.id_ruta IS NULL THEN N'No beneficiario'
                          ELSE CONCAT(N'Beneficiario – ',r.descripcion) END,
                     m.estado, m.id_marca, e.activo, cp.id_persona
-                """ + base + " ORDER BY e.primer_apellido,e.nombre,e.id_estudiante OFFSET ? ROWS FETCH NEXT ? ROWS ONLY",
+                """
+                + base
+                + " ORDER BY e.primer_apellido,e.nombre,e.id_estudiante OFFSET ? ROWS FETCH NEXT ? ROWS ONLY",
                 *base_parametros,
                 (pagina - 1) * por_pagina,
                 por_pagina,
             )
-            estados = {"presente": "Confirmada", "confirmada": "Confirmada", "ausente": "No asistirá", "cancelada": "No asistirá", "tardanza": "Tardanza", "justificada": "Justificada"}
+            estados = {
+                "presente": "Confirmada",
+                "confirmada": "Confirmada",
+                "ausente": "No asistirá",
+                "cancelada": "No asistirá",
+                "tardanza": "Tardanza",
+                "justificada": "Justificada",
+            }
             nominal = [
-                {"id_persona": fila[11], "id_estudiante": fila[0], "nombre_completo": fila[1], "cedula": fila[2], "horario": fila[3], "seccion": fila[4], "tipo_persona": "estudiante", "id_estado_comedor": fila[5], "beneficio_comedor": fila[6], "ruta": fila[7], "estado": estados.get(fila[8], "Sin registro"), "origen": "Portal" if fila[9] else "Sin registro", "historico": not bool(fila[10])}
+                {
+                    "id_persona": fila[11],
+                    "id_estudiante": fila[0],
+                    "nombre_completo": fila[1],
+                    "cedula": fila[2],
+                    "horario": fila[3],
+                    "seccion": fila[4],
+                    "tipo_persona": "estudiante",
+                    "id_estado_comedor": fila[5],
+                    "beneficio_comedor": fila[6],
+                    "ruta": fila[7],
+                    "estado": estados.get(fila[8], "Sin registro"),
+                    "origen": "Portal" if fila[9] else "Sin registro",
+                    "historico": not bool(fila[10]),
+                }
                 for fila in cursor.fetchall()
             ]
-            calendario = self._calendario(cursor, fecha - timedelta(days=7), fecha + timedelta(days=7))
+            calendario = self._calendario(
+                cursor, fecha - timedelta(days=7), fecha + timedelta(days=7)
+            )
             semana_fechas = [fecha - timedelta(days=fecha.weekday() - i) for i in range(5)]
             semana_fechas = [dia for dia in semana_fechas if calendario.get(dia, True)]
             semana = self._tendencia(cursor, semana_fechas, horario)
@@ -328,10 +418,29 @@ class RepositorioSqlReportes(RepositorioSqlProfesores):
             "tipo_persona": "estudiante",
             "horarios": horarios,
             "alertas": alertas,
-            "asistencia": {"total": total, "presentes": presentes, "ausentes": ausentes, "tardanzas": tardanzas, "justificadas": justificadas, "sin_registro": max(total - presentes - ausentes - tardanzas - justificadas, 0), "cobertura_registro": self._porcentaje(presentes + ausentes + tardanzas + justificadas, total), "porcentaje": self._porcentaje(presentes, total)},
+            "asistencia": {
+                "total": total,
+                "presentes": presentes,
+                "ausentes": ausentes,
+                "tardanzas": tardanzas,
+                "justificadas": justificadas,
+                "sin_registro": max(total - presentes - ausentes - tardanzas - justificadas, 0),
+                "cobertura_registro": self._porcentaje(
+                    presentes + ausentes + tardanzas + justificadas, total
+                ),
+                "porcentaje": self._porcentaje(presentes, total),
+            },
             "consumo_comedor": consumo,
             "beneficiarios_comedor": beneficiarios,
             "no_beneficiarios": no_beneficiarios,
-            **grupos, "por_ruta": por_ruta, "semana": semana, "ultimos_cinco_dias": ultimos,
-            "nominal": {"elementos": nominal, "total": total_nominal, "pagina": pagina, "por_pagina": por_pagina},
+            **grupos,
+            "por_ruta": por_ruta,
+            "semana": semana,
+            "ultimos_cinco_dias": ultimos,
+            "nominal": {
+                "elementos": nominal,
+                "total": total_nominal,
+                "pagina": pagina,
+                "por_pagina": por_pagina,
+            },
         }

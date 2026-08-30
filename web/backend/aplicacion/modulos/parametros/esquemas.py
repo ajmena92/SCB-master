@@ -17,9 +17,7 @@ class ParametrosEntrada(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
     minutos_aviso_previo: int = Field(alias="minutosAvisoPrevio", ge=1, le=120)
     permitir_marca_tardia: bool = Field(default=False, alias="permitirMarcaTardia")
-    permitir_sin_marca_transporte: bool = Field(
-        default=True, alias="permitirSinMarcaTransporte"
-    )
+    permitir_sin_marca_transporte: bool = Field(default=True, alias="permitirSinMarcaTransporte")
     horarios: list["HorarioEntrada"] = Field(default_factory=list, max_length=10)
 
 

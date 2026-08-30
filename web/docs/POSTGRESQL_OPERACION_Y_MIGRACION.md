@@ -101,19 +101,48 @@ por persona y año. El año importado no se activa automáticamente.
 ## Evidencia de validación 2026-08-30
 
 - PostgreSQL `17.6` quedó saludable, sin publicar `5432`, con Alembic
-  `0002_sesion_cambio_obligatorio` y 23 tablas públicas.
+  `0005_normaliza_checks` y 23 tablas públicas.
 - Se reconstruyeron las imágenes de API y web; `GET /health` respondió
   `{"estado":"ok","baseDatos":"postgresql"}`.
 - El respaldo lógico, global, físico y WAL pasó la restauración temporal y la
-  verificación de sus cuatro sumas SHA-256.
+  verificación de sus cuatro sumas SHA-256. El respaldo definitivo posterior
+  al refuerzo del esquema es `/respaldos/20260830T232007Z`.
 - La simulación de solo lectura contra `SCSC_MIGRACION_20260828` encontró 1.093
   personas activas: 943 estudiantes, 150 profesores, 596 estudiantes becados,
   19 rutas y 25 plantillas; no reportó errores bloqueantes.
+- La aplicación transaccional creó 1.093 personas y credenciales, 943
+  matrículas, 19 rutas, 943 asignaciones vigentes, 25 plantillas y 99
+  componentes. La reconciliación confirmó 596 becados y cero marcas, ingresos
+  o ventas históricas.
+- Una segunda aplicación real actualizó las 1.093 personas sin crear ninguna,
+  mantuvo todos los conteos y produjo un CSV sin credenciales nuevas. Esto
+  verifica la idempotencia del corte.
+- El primer intento de aplicación detectó un título histórico de 129 caracteres
+  frente al límite anterior de 120; PostgreSQL revirtió la transacción completa.
+  El contrato se amplió a 180, la simulación incorporó validación preventiva y
+  la migración `0003` se aplicó antes del reintento satisfactorio.
 - La vista previa del padrón XLSX 2027 se verificó con dos filas controladas y
   cero errores, sin aplicar escrituras.
-- Pruebas: backend 14/14, frontend 100/100 y Playwright de la plataforma nueva
+- El esquema se reforzó con 13 restricciones de dominio, 13 índices de acceso
+  y dos triggers de integridad. PostgreSQL ahora impide matricular profesores,
+  cambiar a profesor una persona ya matriculada, abrir dos rutas vigentes para
+  la misma matrícula, crear sesiones sin un único propietario y guardar
+  estados o valores operativos fuera de contrato. Las credenciales y sesiones
+  se eliminan en cascada con su propietario; los datos históricos conservan
+  relaciones restrictivas.
+- La migración inicial dejó de depender de la metadata ORM mutable y quedó
+  congelada como DDL explícito. En una base temporal vacía se verificó la
+  cadena completa `0001` → `0005` (22 tablas de aplicación) y su rollback hasta
+  `base`; la base temporal se eliminó al finalizar.
+- Pruebas: backend 18/18, frontend 100/100 y Playwright de la plataforma nueva
   4/4. TypeScript, ESLint, Ruff, formato, build y reglas de arquitectura fueron
   aprobados.
+
+Después de la aplicación se creó y comprobó la cuenta administrativa inicial.
+El CSV de 1.093 PIN temporales y la contraseña administrativa se retiraron del
+workspace y se guardaron con permisos `0600` en
+`/home/dev/scb-entrega-segura/`. No deben copiarse al repositorio ni enviarse
+por canales sin cifrado.
 
 La simulación no autoriza por sí sola el corte productivo. Antes de `--aplicar`
 se mantienen como puertas manuales el respaldo inmediato, congelamiento de

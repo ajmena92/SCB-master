@@ -9,8 +9,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from aplicacion.modulos.identidad.seguridad import hash_contrasena
 
 from .esquemas import (
-    CambioRuta,
     CambioEstadoComedor,
+    CambioRuta,
     GeneracionPinesSeccion,
     PerfilEstudianteSalida,
     PinGenerado,

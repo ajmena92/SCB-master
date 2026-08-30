@@ -67,7 +67,7 @@ class AsignacionRutaEntrada(Contrato):
 
 
 class PlantillaEntrada(Contrato):
-    nombre: str
+    nombre: str = Field(min_length=1, max_length=180)
     componentes: list[str] = Field(min_length=1)
 
 

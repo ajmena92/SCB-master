@@ -104,9 +104,7 @@ class RepositorioFalso:
             "fecha": fecha,
             "estado": "reservada",
             "requiere_tiquete": persona["id_estado_comedor"] == 2,
-            "modalidad": (
-                "tiquete" if persona["id_estado_comedor"] == 2 else "beca"
-            ),
+            "modalidad": ("tiquete" if persona["id_estado_comedor"] == 2 else "beca"),
         }
         self.reservas.append(resultado)
         return resultado

@@ -1,7 +1,7 @@
 """Modelos ORM del dominio de beneficios."""
 
 from sqlalchemy import Boolean, ForeignKey, Integer, String
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column
 
 from aplicacion.nucleo.modelos_base import BaseDeclarativa
 

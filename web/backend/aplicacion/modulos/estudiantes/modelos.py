@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 from datetime import datetime
+
 from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column
 
 from aplicacion.nucleo.modelos_base import BaseDeclarativa
+
 
 class Estudiante(BaseDeclarativa):
     __tablename__ = "estudiante"

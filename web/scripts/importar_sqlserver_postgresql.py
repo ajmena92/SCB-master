@@ -79,9 +79,12 @@ def extraer(cadena: str) -> tuple[list[PersonaOrigen], list[dict[str, Any]], lis
             FROM dbo.Ruta WHERE Activo=1 ORDER BY IdRuta
             """,
         )
-        tablas = {fila[0] for fila in cursor.execute(
-            "SELECT CONCAT(TABLE_SCHEMA,'.',TABLE_NAME) FROM INFORMATION_SCHEMA.TABLES"
-        ).fetchall()}
+        tablas = {
+            fila[0]
+            for fila in cursor.execute(
+                "SELECT CONCAT(TABLE_SCHEMA,'.',TABLE_NAME) FROM INFORMATION_SCHEMA.TABLES"
+            ).fetchall()
+        }
         menu: list[dict[str, Any]] = []
         if {"ComedorPortal.MenuPlantilla", "ComedorPortal.MenuComponente"} <= tablas:
             menu = _filas(
@@ -102,7 +105,11 @@ def extraer(cadena: str) -> tuple[list[PersonaOrigen], list[dict[str, Any]], lis
         PersonaOrigen(
             id_origen=int(fila["IdUsuario"]),
             cedula=_texto(fila["Cedula"]),
-            nombres=_texto(" ".join(filter(None, [fila["Nombre"], fila["PrimerApellido"], fila["SegundoApellido"]]))),
+            nombres=_texto(
+                " ".join(
+                    filter(None, [fila["Nombre"], fila["PrimerApellido"], fila["SegundoApellido"]])
+                )
+            ),
             tipo="estudiante" if int(fila["CodTipo"]) == 1 else "profesor",
             seccion=_texto(fila["Seccion"]) or None,
             turno=_texto(fila["Turno"]) or None,
@@ -114,8 +121,13 @@ def extraer(cadena: str) -> tuple[list[PersonaOrigen], list[dict[str, Any]], lis
     return personas, rutas, menu
 
 
-def validar(personas: Iterable[PersonaOrigen], rutas: Iterable[dict[str, Any]]) -> dict[str, Any]:
+def validar(
+    personas: Iterable[PersonaOrigen],
+    rutas: Iterable[dict[str, Any]],
+    menu: Iterable[dict[str, Any]] = (),
+) -> dict[str, Any]:
     personas = list(personas)
+    menu = list(menu)
     ids_ruta = {int(ruta["IdRuta"]) for ruta in rutas}
     cedulas = Counter(persona.cedula for persona in personas if persona.cedula)
     errores: list[dict[str, Any]] = []
@@ -132,6 +144,25 @@ def validar(personas: Iterable[PersonaOrigen], rutas: Iterable[dict[str, Any]]) 
             errores.append({"tipo": "turno_ausente", "id_origen": persona.id_origen})
         if persona.id_ruta is not None and persona.id_ruta not in ids_ruta:
             errores.append({"tipo": "ruta_invalida", "id_origen": persona.id_origen})
+    for fila in menu:
+        titulo = _texto(fila.get("Titulo"))
+        componente = _texto(fila.get("Componente"))
+        if len(titulo) > 180:
+            errores.append(
+                {
+                    "tipo": "titulo_menu_muy_largo",
+                    "id_origen": int(fila["IdMenuPlantilla"]),
+                    "longitud": len(titulo),
+                }
+            )
+        if len(componente) > 180:
+            errores.append(
+                {
+                    "tipo": "componente_menu_muy_largo",
+                    "id_origen": int(fila["IdMenuPlantilla"]),
+                    "longitud": len(componente),
+                }
+            )
     return {
         "personas_activas": len(personas),
         "estudiantes": sum(p.tipo == "estudiante" for p in personas),
@@ -155,86 +186,137 @@ def aplicar(
     conteos = Counter()
     ids_ruta: dict[int, int] = {}
     with motor.begin() as conexion:
-        anio_id = conexion.execute(text(
-            """INSERT INTO anio_lectivo(anio,vigente) VALUES (2026,true)
+        anio_id = conexion.execute(
+            text(
+                """INSERT INTO anio_lectivo(anio,vigente) VALUES (2026,true)
             ON CONFLICT(anio) DO UPDATE SET vigente=excluded.vigente RETURNING id"""
-        )).scalar_one()
+            )
+        ).scalar_one()
         for ruta in rutas:
             nombre = _texto(ruta["Nombre"])
-            id_ruta = conexion.execute(text(
-                """INSERT INTO ruta(nombre,activo) VALUES (:nombre,true)
+            id_ruta = conexion.execute(
+                text(
+                    """INSERT INTO ruta(nombre,activo) VALUES (:nombre,true)
                 ON CONFLICT(nombre) DO UPDATE SET activo=true RETURNING id"""
-            ), {"nombre": nombre}).scalar_one()
+                ),
+                {"nombre": nombre},
+            ).scalar_one()
             ids_ruta[int(ruta["IdRuta"])] = id_ruta
             conteos["rutas"] += 1
 
-        cedulas_invalidas = {e["id_origen"] for e in validar(personas, rutas)["errores"]}
+        cedulas_invalidas = {
+            e["id_origen"]
+            for e in validar(personas, rutas, menu)["errores"]
+            if e["tipo"].startswith(("cedula_", "nombre_", "seccion_", "turno_", "ruta_"))
+        }
         for persona in personas:
             if persona.id_origen in cedulas_invalidas:
                 continue
             codigo = _codigo(persona.tipo, persona.id_origen, semilla)
-            existente = conexion.execute(
-                text("SELECT id,codigo,tipo FROM persona WHERE cedula=:cedula"), {"cedula": persona.cedula}
-            ).mappings().first()
+            existente = (
+                conexion.execute(
+                    text("SELECT id,codigo,tipo FROM persona WHERE cedula=:cedula"),
+                    {"cedula": persona.cedula},
+                )
+                .mappings()
+                .first()
+            )
             if existente:
                 if existente["tipo"] != persona.tipo:
                     raise ValueError(f"La persona origen {persona.id_origen} cambió de tipo")
                 persona_id = existente["id"]
-                conexion.execute(text(
-                    "UPDATE persona SET nombres=:nombres,tipo=:tipo,activo=true WHERE id=:id"
-                ), {"id": persona_id, "nombres": persona.nombres, "tipo": persona.tipo})
+                conexion.execute(
+                    text("UPDATE persona SET nombres=:nombres,tipo=:tipo,activo=true WHERE id=:id"),
+                    {"id": persona_id, "nombres": persona.nombres, "tipo": persona.tipo},
+                )
                 conteos["personas_actualizadas"] += 1
             else:
-                persona_id = conexion.execute(text(
-                    """INSERT INTO persona(codigo,cedula,nombres,tipo,activo)
+                persona_id = conexion.execute(
+                    text(
+                        """INSERT INTO persona(codigo,cedula,nombres,tipo,activo)
                     VALUES (:codigo,:cedula,:nombres,:tipo,true) RETURNING id"""
-                ), {"codigo": codigo, "cedula": persona.cedula, "nombres": persona.nombres, "tipo": persona.tipo}).scalar_one()
+                    ),
+                    {
+                        "codigo": codigo,
+                        "cedula": persona.cedula,
+                        "nombres": persona.nombres,
+                        "tipo": persona.tipo,
+                    },
+                ).scalar_one()
                 pin = f"{secrets.randbelow(1_000_000):06d}"
-                conexion.execute(text(
-                    "INSERT INTO credencial_portal(persona_id,pin_hash,cambio_obligatorio) VALUES (:id,:hash,true)"
-                ), {"id": persona_id, "hash": hasher.hash(pin)})
+                conexion.execute(
+                    text(
+                        "INSERT INTO credencial_portal(persona_id,pin_hash,cambio_obligatorio) VALUES (:id,:hash,true)"
+                    ),
+                    {"id": persona_id, "hash": hasher.hash(pin)},
+                )
                 creadas.append((codigo, persona.cedula, pin))
                 conteos["personas_creadas"] += 1
 
             if persona.tipo == "estudiante":
-                matricula_id = conexion.execute(text(
-                    """INSERT INTO matricula(persona_id,anio_lectivo_id,seccion,turno,becado,estado)
+                matricula_id = conexion.execute(
+                    text(
+                        """INSERT INTO matricula(persona_id,anio_lectivo_id,seccion,turno,becado,estado)
                     VALUES (:persona,:anio,:seccion,:turno,:becado,'activo')
                     ON CONFLICT(persona_id,anio_lectivo_id) DO UPDATE SET
                       seccion=excluded.seccion,turno=excluded.turno,becado=excluded.becado,estado='activo'
                     RETURNING id"""
-                ), {"persona": persona_id, "anio": anio_id, "seccion": persona.seccion,
-                    "turno": persona.turno, "becado": persona.becado}).scalar_one()
+                    ),
+                    {
+                        "persona": persona_id,
+                        "anio": anio_id,
+                        "seccion": persona.seccion,
+                        "turno": persona.turno,
+                        "becado": persona.becado,
+                    },
+                ).scalar_one()
                 if persona.id_ruta in ids_ruta:
                     parametros_ruta = {"matricula": matricula_id, "ruta": ids_ruta[persona.id_ruta]}
-                    actualizado = conexion.execute(text(
-                        "UPDATE asignacion_ruta SET ruta_id=:ruta WHERE matricula_id=:matricula AND fecha_fin IS NULL"
-                    ), parametros_ruta)
+                    actualizado = conexion.execute(
+                        text(
+                            "UPDATE asignacion_ruta SET ruta_id=:ruta WHERE matricula_id=:matricula AND fecha_fin IS NULL"
+                        ),
+                        parametros_ruta,
+                    )
                     if actualizado.rowcount == 0:
-                        conexion.execute(text(
-                            """INSERT INTO asignacion_ruta(matricula_id,ruta_id,fecha_inicio,fecha_fin)
+                        conexion.execute(
+                            text(
+                                """INSERT INTO asignacion_ruta(matricula_id,ruta_id,fecha_inicio,fecha_fin)
                             VALUES (:matricula,:ruta,DATE '2026-01-01',NULL)"""
-                        ), parametros_ruta)
+                            ),
+                            parametros_ruta,
+                        )
                 conteos["matriculas"] += 1
 
         plantillas: dict[int, int] = {}
         for fila in menu:
             legado = int(fila["IdMenuPlantilla"])
             if legado not in plantillas:
-                nombre = _texto(fila["Titulo"]) or f"Semana {fila['SemanaMes']} día {fila['DiaSemana']}"
-                plantilla_id = conexion.execute(text(
-                    """INSERT INTO plantilla_menu(nombre,activo) VALUES (:nombre,true)
+                nombre = (
+                    _texto(fila["Titulo"]) or f"Semana {fila['SemanaMes']} día {fila['DiaSemana']}"
+                )
+                plantilla_id = conexion.execute(
+                    text(
+                        """INSERT INTO plantilla_menu(nombre,activo) VALUES (:nombre,true)
                     ON CONFLICT(nombre) DO UPDATE SET activo=true RETURNING id"""
-                ), {"nombre": nombre}).scalar_one()
+                    ),
+                    {"nombre": nombre},
+                ).scalar_one()
                 plantillas[legado] = plantilla_id
                 conteos["plantillas"] += 1
             if fila["Componente"]:
-                conexion.execute(text(
-                    """INSERT INTO componente_menu(plantilla_id,nombre,orden)
+                conexion.execute(
+                    text(
+                        """INSERT INTO componente_menu(plantilla_id,nombre,orden)
                     VALUES (:plantilla,:nombre,:orden)
                     ON CONFLICT(plantilla_id,orden) DO UPDATE SET nombre=excluded.nombre"""
-                ), {"plantilla": plantillas[legado], "nombre": _texto(fila["Componente"]),
-                    "orden": int(fila["Orden"] or 0)})
+                    ),
+                    {
+                        "plantilla": plantillas[legado],
+                        "nombre": _texto(fila["Componente"]),
+                        "orden": int(fila["Orden"] or 0),
+                    },
+                )
                 conteos["componentes"] += 1
 
     credenciales.parent.mkdir(parents=True, exist_ok=True)
@@ -251,7 +333,9 @@ def aplicar(
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--aplicar", action="store_true", help="confirma escritura atómica en PostgreSQL")
+    parser.add_argument(
+        "--aplicar", action="store_true", help="confirma escritura atómica en PostgreSQL"
+    )
     parser.add_argument("--reporte", type=Path, default=Path("reporte-importacion-2026.json"))
     parser.add_argument("--credenciales", type=Path, default=Path("credenciales-2026.csv"))
     args = parser.parse_args()
@@ -259,9 +343,14 @@ def main() -> int:
     if not origen:
         parser.error("SQL_SERVER_ORIGEN es requerida")
     personas, rutas, menu = extraer(origen)
-    reporte = validar(personas, rutas)
-    reporte.update({"modo": "aplicar" if args.aplicar else "simulacion", "rutas": len(rutas),
-                    "plantillas": len({m['IdMenuPlantilla'] for m in menu})})
+    reporte = validar(personas, rutas, menu)
+    reporte.update(
+        {
+            "modo": "aplicar" if args.aplicar else "simulacion",
+            "rutas": len(rutas),
+            "plantillas": len({m["IdMenuPlantilla"] for m in menu}),
+        }
+    )
     if args.aplicar:
         if reporte["errores"]:
             print("Hay errores bloqueantes; no se aplicó la importación.", file=sys.stderr)
@@ -270,12 +359,16 @@ def main() -> int:
             url = os.getenv("DATABASE_URL", "").strip()
             semilla = os.getenv("CODIGO_MIGRACION_SEMILLA", "").strip()
             if not url or len(semilla) < 32:
-                parser.error("DATABASE_URL y CODIGO_MIGRACION_SEMILLA (mínimo 32 caracteres) son requeridas")
+                parser.error(
+                    "DATABASE_URL y CODIGO_MIGRACION_SEMILLA (mínimo 32 caracteres) son requeridas"
+                )
             reporte["aplicados"] = aplicar(url, personas, rutas, menu, semilla, args.credenciales)
             resultado = 0
     else:
         resultado = 0 if not reporte["errores"] else 2
-    args.reporte.write_text(json.dumps(reporte, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    args.reporte.write_text(
+        json.dumps(reporte, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
     print(json.dumps(reporte, ensure_ascii=False, indent=2))
     return resultado
 

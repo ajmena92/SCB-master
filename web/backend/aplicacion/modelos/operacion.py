@@ -11,6 +11,7 @@ from sqlalchemy import (
     Date,
     DateTime,
     ForeignKey,
+    Index,
     Integer,
     Numeric,
     String,
@@ -31,6 +32,8 @@ class Tarifa(BaseDeclarativa):
     __table_args__ = (
         CheckConstraint("monto >= 0", name="monto_tarifa"),
         CheckConstraint("fecha_fin IS NULL OR fecha_fin >= fecha_inicio", name="vigencia_tarifa"),
+        CheckConstraint("tipo_persona IN ('estudiante','profesor')", name="tipo_tarifa"),
+        Index("ix_tarifa_vigencia", "tipo_persona", "fecha_inicio", "fecha_fin"),
     )
 
 
@@ -56,6 +59,14 @@ class MovimientoTiquete(BaseDeclarativa):
     creado_en: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
     )
+    __table_args__ = (
+        CheckConstraint(
+            "tipo IN ('venta','reserva','liberacion','consumo','ajuste')",
+            name="tipo_movimiento_tiquete",
+        ),
+        CheckConstraint("saldo_resultante >= 0", name="saldo_movimiento_tiquete"),
+        Index("ix_movimiento_tiquete_creado_en", "creado_en"),
+    )
 
 
 class VentaTiquete(BaseDeclarativa):
@@ -71,6 +82,11 @@ class VentaTiquete(BaseDeclarativa):
     creado_en: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
     )
+    __table_args__ = (
+        CheckConstraint("cantidad > 0", name="cantidad_venta_tiquete"),
+        CheckConstraint("tarifa_aplicada >= 0 AND total >= 0", name="montos_venta_tiquete"),
+        Index("ix_venta_tiquete_creado_en", "creado_en"),
+    )
 
 
 class ReservaComedor(BaseDeclarativa):
@@ -80,7 +96,13 @@ class ReservaComedor(BaseDeclarativa):
     fecha: Mapped[date] = mapped_column(Date)
     estado: Mapped[str] = mapped_column(String(16), default="reservada")
     tiquete_inmovilizado: Mapped[bool] = mapped_column(Boolean, default=False)
-    __table_args__ = (UniqueConstraint("persona_id", "fecha"),)
+    __table_args__ = (
+        UniqueConstraint("persona_id", "fecha"),
+        CheckConstraint(
+            "estado IN ('reservada','cancelada','consumida')", name="estado_reserva_comedor"
+        ),
+        Index("ix_reserva_comedor_fecha", "fecha"),
+    )
 
 
 class AutorizacionComedor(BaseDeclarativa):
@@ -94,7 +116,11 @@ class AutorizacionComedor(BaseDeclarativa):
     creado_en: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
     )
-    __table_args__ = (UniqueConstraint("persona_id", "fecha"),)
+    __table_args__ = (
+        UniqueConstraint("persona_id", "fecha"),
+        CheckConstraint("decision IN ('aprobada','rechazada')", name="decision_autorizacion"),
+        Index("ix_autorizacion_comedor_fecha", "fecha"),
+    )
 
 
 class IngresoComedor(BaseDeclarativa):
@@ -112,7 +138,14 @@ class IngresoComedor(BaseDeclarativa):
     creado_en: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
     )
-    __table_args__ = (UniqueConstraint("persona_id", "fecha"),)
+    __table_args__ = (
+        UniqueConstraint("persona_id", "fecha"),
+        CheckConstraint(
+            "modalidad IN ('reserva','autorizacion','directo_profesor')",
+            name="modalidad_ingreso_comedor",
+        ),
+        Index("ix_ingreso_comedor_fecha", "fecha"),
+    )
 
 
 class MarcaTransporte(BaseDeclarativa):
@@ -125,7 +158,10 @@ class MarcaTransporte(BaseDeclarativa):
     creado_en: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
     )
-    __table_args__ = (UniqueConstraint("matricula_id", "fecha"),)
+    __table_args__ = (
+        UniqueConstraint("matricula_id", "fecha"),
+        Index("ix_marca_transporte_fecha", "fecha"),
+    )
 
 
 class LoteImportacion(BaseDeclarativa):
@@ -136,4 +172,11 @@ class LoteImportacion(BaseDeclarativa):
     resumen: Mapped[str] = mapped_column(String(1000))
     creado_en: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
+    )
+    __table_args__ = (
+        CheckConstraint(
+            "estado IN ('pendiente','validado','confirmado','fallido')",
+            name="estado_lote_importacion",
+        ),
+        Index("ix_lote_importacion_creado_en", "creado_en"),
     )
