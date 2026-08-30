@@ -97,3 +97,24 @@ docker compose --env-file ops/.env -f ops/compose.production.yml \
 Después de corregir todas las filas, repita con `--aplicar` y `--credenciales`.
 La operación es transaccional, actualiza por cédula y crea una sola matrícula
 por persona y año. El año importado no se activa automáticamente.
+
+## Evidencia de validación 2026-08-30
+
+- PostgreSQL `17.6` quedó saludable, sin publicar `5432`, con Alembic
+  `0002_sesion_cambio_obligatorio` y 23 tablas públicas.
+- Se reconstruyeron las imágenes de API y web; `GET /health` respondió
+  `{"estado":"ok","baseDatos":"postgresql"}`.
+- El respaldo lógico, global, físico y WAL pasó la restauración temporal y la
+  verificación de sus cuatro sumas SHA-256.
+- La simulación de solo lectura contra `SCSC_MIGRACION_20260828` encontró 1.093
+  personas activas: 943 estudiantes, 150 profesores, 596 estudiantes becados,
+  19 rutas y 25 plantillas; no reportó errores bloqueantes.
+- La vista previa del padrón XLSX 2027 se verificó con dos filas controladas y
+  cero errores, sin aplicar escrituras.
+- Pruebas: backend 14/14, frontend 100/100 y Playwright de la plataforma nueva
+  4/4. TypeScript, ESLint, Ruff, formato, build y reglas de arquitectura fueron
+  aprobados.
+
+La simulación no autoriza por sí sola el corte productivo. Antes de `--aplicar`
+se mantienen como puertas manuales el respaldo inmediato, congelamiento de
+WinForms, aprobación del reporte y custodia del CSV temporal de credenciales.
