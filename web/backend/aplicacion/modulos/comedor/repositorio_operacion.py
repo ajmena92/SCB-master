@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
-from datetime import date
 import secrets
+from datetime import date
 
 from aplicacion.nucleo.base_datos import FabricaConexionSql
 
-from .repositorio_base import RepositorioSqlComedorBase
 from .errores import (
     CarnetNoReconocido,
     HoraLimiteExcedida,
@@ -19,6 +18,7 @@ from .errores import (
     TiqueteAgotado,
 )
 from .reglas_horario import esta_dentro_de_hora_limite, normalizar_horario
+from .repositorio_base import RepositorioSqlComedorBase
 
 
 class RepositorioSqlOperacionComedor(RepositorioSqlComedorBase):
@@ -341,12 +341,19 @@ class RepositorioSqlOperacionComedor(RepositorioSqlComedorBase):
                 (id_ingreso,id_persona,fecha,codigo_resultado,detalle,advertencias,
                  hora_servidor,registrado_por,terminal_id)
                 VALUES (?,?,?, ?,?,?, ?,?,?)""",
-                resultado["id_ingreso"], persona["id_persona"], fecha,
+                resultado["id_ingreso"],
+                persona["id_persona"],
+                fecha,
                 resultado.get("resultado") or ("tardio" if tardio else "registrado"),
-                "Ingreso registrado desde kiosco", ";".join(advertencias) or None,
-                momento_servidor, usuario, terminal_id,
+                "Ingreso registrado desde kiosco",
+                ";".join(advertencias) or None,
+                momento_servidor,
+                usuario,
+                terminal_id,
             )
-            resultado["resultado"] = resultado.get("resultado") or ("tardio" if tardio else "registrado")
+            resultado["resultado"] = resultado.get("resultado") or (
+                "tardio" if tardio else "registrado"
+            )
             resultado["nombre_completo"] = persona["nombre_completo"]
             resultado["hora_limite"] = str(horario[0])
             resultado["advertencias"] = advertencias

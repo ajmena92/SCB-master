@@ -1,11 +1,11 @@
-import inspect
 import asyncio
+import inspect
 from datetime import datetime, timezone
 from typing import Any, cast
 
 import httpx
 import pytest
-from fastapi import APIRouter, Depends, FastAPI, HTTPException, Request
+from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.routing import APIRoute as RutaAPI
 
 from aplicacion.modulos.estudiantes.administracion import crear_enrutador_administracion
@@ -14,9 +14,9 @@ from aplicacion.modulos.estudiantes.operaciones import crear_enrutador_operacion
 from aplicacion.modulos.estudiantes.portal import crear_enrutador_portal
 from aplicacion.modulos.estudiantes.repositorio_credenciales import RepositorioSqlCredenciales
 from aplicacion.modulos.estudiantes.repositorio_pines import RepositorioSqlPines
+from aplicacion.modulos.identidad.esquemas import SesionPersistida
 from aplicacion.modulos.identidad.servicio import ServicioIdentidad
 from aplicacion.seguridad_dependencias import crear_dependencias_seguridad
-from aplicacion.modulos.identidad.esquemas import SesionPersistida
 
 
 def dependencia_identidad_nula() -> ServicioIdentidad:
@@ -171,7 +171,9 @@ class AsistenciaHttpFalsa:
     def __init__(self) -> None:
         self.registros: list[dict[str, object]] = []
 
-    def registrar(self, datos: dict[str, object], id_estudiante: int, origen: str) -> dict[str, object]:
+    def registrar(
+        self, datos: dict[str, object], id_estudiante: int, origen: str
+    ) -> dict[str, object]:
         self.registros.append(datos)
         return {"estado": datos["estado"], "idEstudiante": id_estudiante, "origen": origen}
 
@@ -235,10 +237,21 @@ def test_confirmar_asistencia_sin_reserva_es_rechazado() -> None:
         exigir_csrf=lambda: None,
         obtener_fecha_local=lambda: datetime(2026, 8, 28).date(),
     )
-    ruta = next(r for r in router.routes if isinstance(r, RutaAPI) and r.path == "/asistencia/{accion}")
+    ruta = next(
+        r for r in router.routes if isinstance(r, RutaAPI) and r.path == "/asistencia/{accion}"
+    )
 
     with pytest.raises(HTTPException) as error:
-        ruta.endpoint("confirm", RepositorioPortalHttpFalso(), identidad, "sesion-estudiante", "secreto", asistencia, comedor, None)
+        ruta.endpoint(
+            "confirm",
+            RepositorioPortalHttpFalso(),
+            identidad,
+            "sesion-estudiante",
+            "secreto",
+            asistencia,
+            comedor,
+            None,
+        )
 
     assert error.value.status_code == 409
     assert asistencia.registros == []
@@ -256,9 +269,18 @@ def test_cancelar_asistencia_libera_reserva_y_registra_ausencia() -> None:
         exigir_csrf=lambda: None,
         obtener_fecha_local=lambda: datetime(2026, 8, 28).date(),
     )
-    ruta = next(r for r in router.routes if isinstance(r, RutaAPI) and r.path == "/asistencia/{accion}")
+    ruta = next(
+        r for r in router.routes if isinstance(r, RutaAPI) and r.path == "/asistencia/{accion}"
+    )
     respuesta = ruta.endpoint(
-        "decline", RepositorioPortalHttpFalso(), identidad, "sesion-estudiante", "secreto", asistencia, comedor, None
+        "decline",
+        RepositorioPortalHttpFalso(),
+        identidad,
+        "sesion-estudiante",
+        "secreto",
+        asistencia,
+        comedor,
+        None,
     )
 
     assert respuesta["estado"] == "ausente"
@@ -269,6 +291,7 @@ def _cliente_portal_http() -> httpx.AsyncClient:
     identidad = IdentidadHttpFalsa()
     dependencias = crear_dependencias_seguridad(lambda: cast(ServicioIdentidad, identidad))
     aplicacion = FastAPI()
+
     async def csrf_http(request: Request) -> dict[str, object]:
         token = request.headers.get("X-CSRF-Token")
         cookie = request.cookies.get("csrf_token")
@@ -296,7 +319,11 @@ def test_asistencia_http_con_csrf_invalido_devuelve_403() -> None:
     async def ejecutar() -> httpx.Response:
         async with _cliente_portal_http() as cliente:
             cliente.cookies.update(
-                {"id_sesion": "sesion-estudiante", "secreto_sesion": "secreto", "csrf_token": "incorrecto"}
+                {
+                    "id_sesion": "sesion-estudiante",
+                    "secreto_sesion": "secreto",
+                    "csrf_token": "incorrecto",
+                }
             )
             return await cliente.post("/asistencia/confirm", headers={"X-CSRF-Token": "incorrecto"})
 
@@ -307,9 +334,15 @@ def test_asistencia_http_con_csrf_valido_permite_operacion() -> None:
     async def ejecutar() -> httpx.Response:
         async with _cliente_portal_http() as cliente:
             cliente.cookies.update(
-                {"id_sesion": "sesion-estudiante", "secreto_sesion": "secreto", "csrf_token": "token-valido"}
+                {
+                    "id_sesion": "sesion-estudiante",
+                    "secreto_sesion": "secreto",
+                    "csrf_token": "token-valido",
+                }
             )
-            return await cliente.post("/asistencia/confirm", headers={"X-CSRF-Token": "token-valido"})
+            return await cliente.post(
+                "/asistencia/confirm", headers={"X-CSRF-Token": "token-valido"}
+            )
 
     respuesta = asyncio.run(ejecutar())
     assert respuesta.status_code == 200

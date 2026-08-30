@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from typing import Any
 
-
 RUTA_SIN_BENEFICIO = "0000"
 
 

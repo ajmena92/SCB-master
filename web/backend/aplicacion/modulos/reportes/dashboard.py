@@ -116,9 +116,7 @@ def crear_enrutador_dashboard(
         beneficio_transporte: Literal["beneficiario", "no_beneficiario"] | None = Query(
             None, alias="beneficioTransporte"
         ),
-        tipo_persona: Literal["estudiante", "profesor"] = Query(
-            "estudiante", alias="tipoPersona"
-        ),
+        tipo_persona: Literal["estudiante", "profesor"] = Query("estudiante", alias="tipoPersona"),
         seccion: str | None = Query(None),
         estado: str | None = Query(None),
         horario: Literal["diurno", "nocturno"] | None = Query(None),

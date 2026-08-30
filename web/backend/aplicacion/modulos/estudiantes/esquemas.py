@@ -31,12 +31,8 @@ class EstudianteSalida(BaseModel):
     id_ruta: int | None = Field(default=None, alias="idRuta")
     ruta_codigo: str | None = Field(default=None, alias="rutaCodigo")
     ruta_descripcion: str | None = Field(default=None, alias="rutaDescripcion")
-    tiene_beneficio_transporte: bool = Field(
-        default=False, alias="tieneBeneficioTransporte"
-    )
-    beneficio_transporte: str = Field(
-        default="No beneficiario", alias="beneficioTransporte"
-    )
+    tiene_beneficio_transporte: bool = Field(default=False, alias="tieneBeneficioTransporte")
+    beneficio_transporte: str = Field(default="No beneficiario", alias="beneficioTransporte")
     id_estado_comedor: Literal[1, 2] = Field(default=2, alias="idEstadoComedor")
     beneficio_comedor: str = Field(default="No beneficiario", alias="beneficioComedor")
     bloqueado: bool = False

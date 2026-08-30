@@ -164,9 +164,7 @@ def crear_enrutador_aplicacion(
                 obtener_repositorio=dependencias_comedor["obtener_repositorio"],
                 exigir_permiso=dependencias_comedor["exigir_permiso"],
                 exigir_csrf=dependencias_comedor["exigir_csrf"],
-                obtener_identidad_estudiante=dependencias_comedor[
-                    "obtener_identidad_estudiante"
-                ],
+                obtener_identidad_estudiante=dependencias_comedor["obtener_identidad_estudiante"],
             )
         )
         enrutador.include_router(

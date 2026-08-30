@@ -53,11 +53,10 @@ class RepositorioSqlProfesores:
             )
             presentes = int((cursor.fetchone() or (0,))[0])
             cursor.execute(
-                "SELECT COALESCE(SUM(c.saldo),0), COALESCE(SUM(c.reservados),0) "
-                + base,
+                "SELECT COALESCE(SUM(c.saldo),0), COALESCE(SUM(c.reservados),0) " + base,
                 *parametros,
             )
-            saldo, reservados = (cursor.fetchone() or (0, 0))
+            saldo, reservados = cursor.fetchone() or (0, 0)
             cursor.execute(
                 """SELECT COUNT(*) FROM comedor.movimiento_tiquetes mt
                 INNER JOIN comedor.cuenta_tiquetes c ON c.id_cuenta=mt.id_cuenta
@@ -73,7 +72,8 @@ class RepositorioSqlProfesores:
             ingresos_historicos = int((cursor.fetchone() or (0,))[0])
             cursor.execute(
                 "SELECT p.id_persona,p.nombre_completo,p.colegio,p.codigo_barras,"
-                "i.id_ingreso,p.activo " + base
+                "i.id_ingreso,p.activo "
+                + base
                 + " ORDER BY p.nombre_completo,p.id_persona OFFSET ? ROWS FETCH NEXT ? ROWS ONLY",
                 *parametros,
                 (pagina - 1) * por_pagina,

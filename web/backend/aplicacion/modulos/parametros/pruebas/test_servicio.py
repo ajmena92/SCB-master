@@ -6,7 +6,9 @@ class RepositorioFalso:
     def obtener(self):
         return {"minutos_aviso_previo": 15, "horarios": []}
 
-    def guardar(self, minutos, horarios, permitir_marca_tardia=False, permitir_sin_marca_transporte=True):
+    def guardar(
+        self, minutos, horarios, permitir_marca_tardia=False, permitir_sin_marca_transporte=True
+    ):
         return {
             "minutos_aviso_previo": minutos,
             "horarios": [

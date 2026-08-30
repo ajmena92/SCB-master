@@ -20,7 +20,7 @@ class RepositorioSqlCatalogoComedor(RepositorioSqlComedorBase):
         filtro = "WHERE 1=1"
         parametros: list[object] = []
         if not incluir_inactivas:
-                filtro += " AND p.activo=1"
+            filtro += " AND p.activo=1"
         if tipo_persona:
             filtro += " AND p.tipo_persona=?"
             parametros.append(tipo_persona)

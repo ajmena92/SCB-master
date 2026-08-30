@@ -5,7 +5,6 @@ import sys
 
 import pyodbc
 
-
 TABLAS_LEGACY = (
     "ComedorPortal.MenuComponente",
     "ComedorPortal.MenuPlantilla",

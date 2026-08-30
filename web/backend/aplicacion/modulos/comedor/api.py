@@ -7,9 +7,10 @@ from fastapi import APIRouter, Cookie, Depends, Header, HTTPException, Query, st
 
 from aplicacion.modulos.identidad.servicio import AutenticacionFallida, ServicioIdentidad
 
+from .errores import ErrorOperacionComedor, IdempotenciaIncompatible
 from .esquemas import (
-    CuentaTiquetesSalida,
     ConfiguracionOperacionSalida,
+    CuentaTiquetesSalida,
     EstadoOperacionSalida,
     IngresoEntrada,
     IngresoSalida,
@@ -20,7 +21,6 @@ from .esquemas import (
     ReservaSalida,
     TiquetesEntrada,
 )
-from .errores import ErrorOperacionComedor, IdempotenciaIncompatible
 from .repositorio import RepositorioComedor
 from .servicio import ServicioComedor
 
@@ -180,21 +180,29 @@ def crear_enrutador(
         except ValueError as exc:
             raise HTTPException(status.HTTP_409_CONFLICT, str(exc)) from exc
 
-    @enrutador.get("/operacion/configuracion", response_model=ConfiguracionOperacionSalida, response_model_by_alias=True)
+    @enrutador.get(
+        "/operacion/configuracion",
+        response_model=ConfiguracionOperacionSalida,
+        response_model_by_alias=True,
+    )
     def configuracion_operacion(
         _usuario: dict = Depends(exigir_permiso("comedor.registrar")),
         repo: RepositorioComedor = Depends(obtener_repositorio),
     ) -> ConfiguracionOperacionSalida:
         return ConfiguracionOperacionSalida(**repo.configuracion_operacion())
 
-    @enrutador.get("/operacion/estado", response_model=EstadoOperacionSalida, response_model_by_alias=True)
+    @enrutador.get(
+        "/operacion/estado", response_model=EstadoOperacionSalida, response_model_by_alias=True
+    )
     def estado_operacion(
         _usuario: dict = Depends(exigir_permiso("comedor.registrar")),
         repo: RepositorioComedor = Depends(obtener_repositorio),
     ) -> EstadoOperacionSalida:
         return EstadoOperacionSalida(**repo.estado_operacion())
 
-    @enrutador.get("/operacion/historial", response_model=list[IngresoSalida], response_model_by_alias=True)
+    @enrutador.get(
+        "/operacion/historial", response_model=list[IngresoSalida], response_model_by_alias=True
+    )
     def historial_operacion(
         fecha: date = Query(...),
         limite: int = Query(25, ge=1, le=100),
@@ -203,7 +211,9 @@ def crear_enrutador(
     ) -> list[IngresoSalida]:
         return [IngresoSalida(**fila) for fila in repo.historial_operacion(fecha, limite)]
 
-    @enrutador.post("/operacion/ingresos", response_model=IngresoSalida, response_model_by_alias=True)
+    @enrutador.post(
+        "/operacion/ingresos", response_model=IngresoSalida, response_model_by_alias=True
+    )
     def ingresar(
         datos: IngresoEntrada,
         terminal_id: str | None = Header(default=None, alias="X-Terminal-Id", max_length=100),

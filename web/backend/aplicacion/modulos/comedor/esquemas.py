@@ -115,9 +115,7 @@ class ConfiguracionOperacionSalida(BaseModel):
     hora_servidor: str = Field(serialization_alias="horaServidor")
     minutos_aviso_previo: int = Field(serialization_alias="minutosAvisoPrevio")
     permitir_marca_tardia: bool = Field(serialization_alias="permitirMarcaTardia")
-    permitir_sin_marca_transporte: bool = Field(
-        serialization_alias="permitirSinMarcaTransporte"
-    )
+    permitir_sin_marca_transporte: bool = Field(serialization_alias="permitirSinMarcaTransporte")
     horarios: list["HorarioOperacionSalida"] = Field(default_factory=list)
 
 

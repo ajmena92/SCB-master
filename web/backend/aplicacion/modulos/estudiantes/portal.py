@@ -8,6 +8,7 @@ from datetime import date
 
 from fastapi import APIRouter, Cookie, Depends, Header, HTTPException, Response, status
 
+from aplicacion.modulos.comedor.servicio import ServicioComedor
 from aplicacion.modulos.identidad.seguridad import hash_contrasena, verificar_contrasena
 from aplicacion.modulos.identidad.servicio import (
     AutenticacionBloqueada,
@@ -15,7 +16,6 @@ from aplicacion.modulos.identidad.servicio import (
     ServicioIdentidad,
 )
 from aplicacion.nucleo.tiempo import fecha_local
-from aplicacion.modulos.comedor.servicio import ServicioComedor
 
 from .beneficios import normalizar_beneficio_transporte
 from .esquemas import AccesoEstudiante, CambioPinEstudiante

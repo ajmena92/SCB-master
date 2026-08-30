@@ -18,9 +18,7 @@ class ServicioMenu:
         return PlantillaMenuSalida(**self._repositorio.guardar(datos.model_dump(), usuario))
 
     def listar_sustituciones(self) -> list[SustitucionMenuSalida]:
-        return [
-            SustitucionMenuSalida(**fila) for fila in self._repositorio.listar_sustituciones()
-        ]
+        return [SustitucionMenuSalida(**fila) for fila in self._repositorio.listar_sustituciones()]
 
     def guardar_sustitucion(
         self, datos: SustitucionMenuEntrada, usuario: int

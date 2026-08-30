@@ -63,9 +63,7 @@ class ControlIntentosAutenticacion:
             if intentos < politica.max_intentos:
                 return
             if bloqueado_hasta > ahora:
-                raise AutenticacionBloqueada(
-                    "Demasiados intentos. Intente nuevamente más tarde"
-                )
+                raise AutenticacionBloqueada("Demasiados intentos. Intente nuevamente más tarde")
             del self._intentos[identificador]
 
     def registrar_fallo(

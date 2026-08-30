@@ -7,14 +7,14 @@ del sistema local.
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
 import hashlib
-from typing import TYPE_CHECKING
-from typing import Protocol, Sequence
+from datetime import datetime, timedelta, timezone
+from typing import TYPE_CHECKING, Protocol, Sequence
 
 from aplicacion.nucleo.base_datos import FabricaConexionSql
 
 from .esquemas import CredencialesUsuario, SesionPersistida
+
 if TYPE_CHECKING:
     from .servicio import PoliticaBloqueo
 
@@ -250,9 +250,7 @@ class RepositorioSqlIntentosAutenticacion:
                 return
             intentos, bloqueado_hasta = int(fila[0]), self._fecha_utc(fila[1])
             if bloqueado_hasta is not None and bloqueado_hasta > ahora:
-                raise AutenticacionBloqueada(
-                    "Demasiados intentos. Intente nuevamente más tarde"
-                )
+                raise AutenticacionBloqueada("Demasiados intentos. Intente nuevamente más tarde")
             if intentos >= politica.max_intentos:
                 cursor.execute(
                     "DELETE FROM identidad.intento_autenticacion WHERE identificador_hash = ?",

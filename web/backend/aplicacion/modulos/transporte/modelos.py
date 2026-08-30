@@ -32,9 +32,7 @@ class AsignacionRuta(BaseDeclarativa):
     __tablename__ = "asignacion_ruta"
     __table_args__ = {"schema": "transporte"}
     id_asignacion: Mapped[int] = mapped_column(Integer, primary_key=True)
-    id_ruta: Mapped[int] = mapped_column(
-        ForeignKey("transporte.ruta.id_ruta"), nullable=False
-    )
+    id_ruta: Mapped[int] = mapped_column(ForeignKey("transporte.ruta.id_ruta"), nullable=False)
     id_estudiante: Mapped[int] = mapped_column(Integer, nullable=False, unique=True)
     activa: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
 

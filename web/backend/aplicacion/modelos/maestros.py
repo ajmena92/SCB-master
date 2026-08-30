@@ -34,7 +34,9 @@ class Persona(BaseDeclarativa):
 
 class CredencialPortal(BaseDeclarativa):
     __tablename__ = "credencial_portal"
-    persona_id: Mapped[int] = mapped_column(ForeignKey("persona.id"), primary_key=True)
+    persona_id: Mapped[int] = mapped_column(
+        ForeignKey("persona.id", ondelete="CASCADE"), primary_key=True
+    )
     pin_hash: Mapped[str] = mapped_column(String(255))
     cambio_obligatorio: Mapped[bool] = mapped_column(Boolean, default=True)
 
@@ -55,12 +57,22 @@ class SesionAcceso(BaseDeclarativa):
     __tablename__ = "sesion_acceso"
     token_hash: Mapped[str] = mapped_column(String(64), primary_key=True)
     tipo: Mapped[str] = mapped_column(String(16))
-    persona_id: Mapped[int | None] = mapped_column(ForeignKey("persona.id"), nullable=True)
+    persona_id: Mapped[int | None] = mapped_column(
+        ForeignKey("persona.id", ondelete="CASCADE"), nullable=True, index=True
+    )
     cuenta_id: Mapped[int | None] = mapped_column(
-        ForeignKey("cuenta_administrativa.id"), nullable=True
+        ForeignKey("cuenta_administrativa.id", ondelete="CASCADE"), nullable=True, index=True
     )
     cambio_obligatorio: Mapped[bool] = mapped_column(Boolean, default=False)
     expira_en: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    __table_args__ = (
+        CheckConstraint(
+            "(tipo = 'portal' AND persona_id IS NOT NULL AND cuenta_id IS NULL) OR "
+            "(tipo = 'administracion' AND cuenta_id IS NOT NULL AND persona_id IS NULL)",
+            name="propietario_sesion",
+        ),
+        Index("ix_sesion_acceso_expira_en", "expira_en"),
+    )
 
 
 class AnioLectivo(BaseDeclarativa):
@@ -89,7 +101,13 @@ class Matricula(BaseDeclarativa):
     turno: Mapped[str] = mapped_column(String(24))
     becado: Mapped[bool] = mapped_column(Boolean, default=False)
     estado: Mapped[str] = mapped_column(String(16), default="activo")
-    __table_args__ = (UniqueConstraint("persona_id", "anio_lectivo_id"),)
+    __table_args__ = (
+        UniqueConstraint("persona_id", "anio_lectivo_id"),
+        CheckConstraint(
+            "estado IN ('activo','retirado','graduado','trasladado')",
+            name="estado_matricula",
+        ),
+    )
 
 
 class Ruta(BaseDeclarativa):
@@ -103,11 +121,18 @@ class AsignacionRuta(BaseDeclarativa):
     __tablename__ = "asignacion_ruta"
     id: Mapped[int] = mapped_column(primary_key=True)
     matricula_id: Mapped[int] = mapped_column(ForeignKey("matricula.id"), index=True)
-    ruta_id: Mapped[int] = mapped_column(ForeignKey("ruta.id"))
+    ruta_id: Mapped[int] = mapped_column(ForeignKey("ruta.id"), index=True)
     fecha_inicio: Mapped[date] = mapped_column(Date)
     fecha_fin: Mapped[date | None] = mapped_column(Date, nullable=True)
     __table_args__ = (
         CheckConstraint("fecha_fin IS NULL OR fecha_fin >= fecha_inicio", name="vigencia_ruta"),
+        Index(
+            "uq_asignacion_ruta_matricula_activa",
+            "matricula_id",
+            unique=True,
+            postgresql_where=text("fecha_fin IS NULL"),
+            sqlite_where=text("fecha_fin IS NULL"),
+        ),
     )
 
 

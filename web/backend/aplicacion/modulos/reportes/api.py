@@ -5,8 +5,8 @@ from collections.abc import Callable, Iterator
 from fastapi import APIRouter, Depends
 from fastapi.responses import Response
 
-from .esquemas import ReporteEstudiantes, ReporteTransporte
 from .dashboard import crear_enrutador_dashboard
+from .esquemas import ReporteEstudiantes, ReporteTransporte
 from .repositorio import RepositorioReportes
 from .servicio import ServicioReportes
 

@@ -71,6 +71,7 @@ class MovimientoTiquetes(BaseDeclarativa):
     creado_por: Mapped[int | None] = mapped_column(Integer, nullable=True)
     creado_en: Mapped[datetime] = mapped_column(DateTime, nullable=False)
 
+
 class ReservaComedor(BaseDeclarativa):
     __tablename__ = "reserva"
     __table_args__ = {"schema": "comedor"}
@@ -101,7 +102,9 @@ class IngresoComedor(BaseDeclarativa):
     resultado: Mapped[str] = mapped_column(String(20), nullable=False, default="registrado")
     advertencias: Mapped[str | None] = mapped_column(String(500), nullable=True)
     permitir_marca_tardia: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
-    permitir_sin_marca_transporte: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    permitir_sin_marca_transporte: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=True
+    )
 
 
 class AuditoriaIngreso(BaseDeclarativa):

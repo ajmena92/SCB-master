@@ -16,7 +16,9 @@ class ParametroOperativo(BaseDeclarativa):
     id_parametro: Mapped[int] = mapped_column(Integer, primary_key=True)
     minutos_aviso_previo: Mapped[int] = mapped_column(Integer, nullable=False)
     permitir_marca_tardia: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
-    permitir_sin_marca_transporte: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    permitir_sin_marca_transporte: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=True
+    )
     actualizado_en: Mapped[datetime] = mapped_column(DateTime, nullable=False)
 
 
