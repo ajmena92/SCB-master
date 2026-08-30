@@ -1,6 +1,6 @@
 # Portal web de comedor SCSC
 
-Portal de asistencia al comedor: frontend React y backend FastAPI integrado con SQL Server institucional. El navegador solo accede al mismo origen HTTPS; la API es la única ruta hacia la base de datos.
+Plataforma de comedor y transporte: frontend React, API FastAPI y PostgreSQL 17. El navegador solo accede al mismo origen HTTPS; la API es la única ruta hacia la base de datos.
 
 ## Documentación
 
@@ -11,7 +11,7 @@ Portal de asistencia al comedor: frontend React y backend FastAPI integrado con 
 
 ## Estado
 
-La plataforma usa SQL Server mediante los módulos web y sus migraciones versionadas en `sql/migrations`, sin importar componentes de escritorio en ejecución. Las migraciones se ejecutan manualmente por el DBA, primero en staging. No habilitar variables de producción sin seguir la puerta de salida documentada.
+La plataforma se reconstruye sobre PostgreSQL con una migración base Alembic. SQL Server solo participa como fuente de lectura en el corte único de personas activas, matrícula 2026, rutas, becas vigentes y menú. No existe doble escritura.
 
 ### Avances funcionales registrados
 
@@ -23,4 +23,4 @@ La plataforma usa SQL Server mediante los módulos web y sus migraciones version
 
 ## Operación futura
 
-Los artefactos canónicos de contenedor están en `ops/`. La API se mantendrá privada, SQL Server no se expondrá al navegador y HTTPS será terminado por el proxy institucional. Copie `ops/.env.example` a un archivo local `ops/.env`; nunca suba secretos al repositorio. Consulte el [runbook de despliegue](docs/DESPLIEGUE_PORTAL.md) antes de construir o publicar imágenes.
+Los artefactos canónicos están en `ops/`. La API y PostgreSQL permanecen privados; 5432 no se publica y HTTPS termina en el proxy institucional. Prepare el entorno con `./scripts/preparar_postgresql.sh` y consulte el [runbook PostgreSQL](docs/POSTGRESQL_OPERACION_Y_MIGRACION.md).

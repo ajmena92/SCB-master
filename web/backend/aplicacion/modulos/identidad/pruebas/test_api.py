@@ -84,6 +84,21 @@ def test_autenticacion_emite_cookies_y_sesion_actual() -> None:
     assert servicio.sesion is not None
 
 
+def test_consulta_sin_cookie_responde_sin_contenido() -> None:
+    servicio = servicio_falso()
+    enrutador = crear_enrutador_sesion(cast(Any, lambda: ServicioSesiones(cast(Any, servicio))))
+    consulta = next(
+        ruta
+        for ruta in getattr(enrutador, "routes")
+        if isinstance(ruta, RutaAPI) and ruta.path == "/sesion"
+    )
+
+    respuesta = consulta.endpoint(None, None, ServicioSesiones(cast(Any, servicio)))
+
+    assert isinstance(respuesta, Response)
+    assert respuesta.status_code == 204
+
+
 def test_cierre_exige_csrf_y_revoca_sesion() -> None:
     servicio = servicio_falso()
     enrutador = crear_enrutador_sesion(cast(Any, lambda: ServicioSesiones(cast(Any, servicio))))

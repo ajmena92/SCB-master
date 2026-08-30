@@ -1,19 +1,10 @@
-# Runtime image for the final FastAPI + SQL Server API.
+# Runtime image for the final FastAPI + PostgreSQL API.
 # No database migrations are run from this image or its entrypoint.
 FROM python:3.12.14-slim-bookworm
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1
-
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends ca-certificates curl gnupg unixodbc-dev \
-    && curl -fsSL https://packages.microsoft.com/config/debian/12/packages-microsoft-prod.deb -o /tmp/packages-microsoft-prod.deb \
-    && dpkg -i /tmp/packages-microsoft-prod.deb \
-    && rm /tmp/packages-microsoft-prod.deb \
-    && apt-get update \
-    && ACCEPT_EULA=Y apt-get install -y --no-install-recommends msodbcsql18 \
-    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 COPY backend/requirements-produccion.txt ./requirements-produccion.txt
@@ -22,14 +13,16 @@ RUN pip install --no-compile --requirement requirements-produccion.txt \
 
 COPY backend/aplicacion ./aplicacion
 COPY backend/config.py ./config.py
+COPY ops/entrada_api_postgres.sh /usr/local/bin/entrada_api_postgres.sh
 RUN useradd --create-home --uid 10001 appuser \
-    && chown -R appuser:appuser /app
+    && chmod 0550 /usr/local/bin/entrada_api_postgres.sh \
+    && chown -R appuser:appuser /app /usr/local/bin/entrada_api_postgres.sh
 USER appuser
 
 EXPOSE 8000
 
-# Health/readiness validates Settings and executes a minimal SQL query.
+# Readiness is checked outside HTTP so no endpoint contains SQL.
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/ready', timeout=3).read()"
+    CMD python -c "import os; from pathlib import Path; import psycopg; c=psycopg.connect(host=os.environ['POSTGRES_HOST'],port=os.environ.get('POSTGRES_PORT','5432'),dbname=os.environ['POSTGRES_DB'],user=os.environ['POSTGRES_USER'],password=Path(os.environ.get('POSTGRES_PASSWORD_FILE','/run/secrets/postgres_app_password')).read_text().strip(),connect_timeout=3); assert c.execute('SELECT 1').fetchone()==(1,); c.close()"
 
-CMD ["sh", "-c", "exec uvicorn aplicacion.entrada:crear_aplicacion --factory --host 0.0.0.0 --port 8000 --workers ${UVICORN_WORKERS:-2} --proxy-headers --forwarded-allow-ips=${FORWARDED_ALLOW_IPS:-127.0.0.1}"]
+ENTRYPOINT ["/usr/local/bin/entrada_api_postgres.sh"]

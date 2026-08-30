@@ -1,33 +1,77 @@
-"""Ensamblador mínimo de la plataforma web canónica."""
+"""Composicion unica de la API PostgreSQL."""
 
 from __future__ import annotations
 
-from fastapi import FastAPI
+from fastapi import APIRouter, FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy.engine import Engine
 
-from aplicacion.composicion import incluir_modulos
-from aplicacion.dependencias import (
-    DependenciasAplicacion,
-    crear_dependencias_modulos,
-)
-from aplicacion.middleware import configurar_cors
-from aplicacion.modulos.salud.repositorio import RepositorioSalud
-from aplicacion.nucleo.base_datos import FabricaConexionSql
-from aplicacion.salud import registrar_rutas_salud
+from aplicacion.api_autenticacion import crear_router as router_autenticacion
+from aplicacion.api_importaciones import crear_router as router_importaciones
+from aplicacion.api_maestros import crear_router as router_maestros
+from aplicacion.api_menu import crear_router as router_menu
+from aplicacion.api_operacion import crear_router as router_operacion
+from aplicacion.api_reportes import crear_router as router_reportes
+from aplicacion.casos_catalogos import ServicioCatalogos
+from aplicacion.casos_identidad import ServicioIdentidad
+from aplicacion.casos_importacion import ServicioImportacion
+from aplicacion.casos_reportes import ServicioReportes
+from aplicacion.dependencias_v1 import crear_dependencias
+from aplicacion.nucleo.postgresql import crear_fabrica_sesiones, crear_motor, dependencia_sesion
+from aplicacion.repositorios import RepositorioReportes
+from aplicacion.repositorios_catalogos import RepositorioCatalogos
+from aplicacion.repositorios_identidad import RepositorioIdentidad
+from aplicacion.repositorios_importacion import RepositorioImportacion
+from aplicacion.repositorios_operacion import RepositorioOperacion
+from aplicacion.servicios import ServicioOperacion
 from config import Settings
 
 
-def crear_aplicacion(dependencias: DependenciasAplicacion | None = None) -> FastAPI:
-    """Crea la aplicación y delega la composición de módulos e infraestructura."""
+def crear_aplicacion(
+    *, motor: Engine | None = None, configuracion: Settings | None = None
+) -> FastAPI:
+    configuracion = configuracion or Settings.from_environment()
+    motor = motor or crear_motor(configuracion.database_url)
+    obtener_sesion = dependencia_sesion(crear_fabrica_sesiones(motor))
 
-    configuracion = Settings.from_environment() if dependencias is None else None
-    if dependencias is None:
-        assert configuracion is not None
-        dependencias = DependenciasAplicacion(
-            FabricaConexionSql(configuracion.sql_connection_string), configuracion.cookie_secure
-        )
+    async def obtener_identidad(sesion=__import__("fastapi").Depends(obtener_sesion)):
+        return ServicioIdentidad(RepositorioIdentidad(sesion))
 
-    aplicacion = FastAPI(title="Plataforma web modular")
-    registrar_rutas_salud(aplicacion, RepositorioSalud(dependencias.fabrica_sql))
-    configurar_cors(aplicacion, configuracion)
-    incluir_modulos(aplicacion, **crear_dependencias_modulos(dependencias, configuracion))
+    async def obtener_catalogos(sesion=__import__("fastapi").Depends(obtener_sesion)):
+        return ServicioCatalogos(RepositorioCatalogos(sesion))
+
+    async def obtener_operacion(sesion=__import__("fastapi").Depends(obtener_sesion)):
+        return ServicioOperacion(RepositorioOperacion(sesion))
+
+    async def obtener_importacion(sesion=__import__("fastapi").Depends(obtener_sesion)):
+        return ServicioImportacion(RepositorioImportacion(sesion))
+
+    async def obtener_reportes(sesion=__import__("fastapi").Depends(obtener_sesion)):
+        return ServicioReportes(RepositorioReportes(sesion))
+
+    actual, portal_operativo, administrativo, administrador = crear_dependencias(obtener_identidad)
+
+    aplicacion = FastAPI(title="SCB Plataforma Web", version="1.0.0")
+    aplicacion.add_middleware(
+        CORSMiddleware,
+        allow_origins=[configuracion.cors_origin],
+        allow_credentials=True,
+        allow_methods=["GET", "POST", "PUT", "DELETE"],
+        allow_headers=["Authorization", "Content-Type"],
+    )
+    api = APIRouter(prefix="/api/v1")
+
+    @api.get("/salud")
+    async def salud() -> dict[str, str]:
+        return {"estado": "ok", "baseDatos": "postgresql"}
+
+    api.include_router(router_autenticacion(obtener_identidad, actual))
+    api.include_router(router_maestros(obtener_catalogos, administrador))
+    api.include_router(router_importaciones(obtener_importacion, administrador))
+    api.include_router(router_menu(obtener_catalogos, administrador))
+    api.include_router(
+        router_operacion(obtener_operacion, portal_operativo, administrativo, administrador)
+    )
+    api.include_router(router_reportes(obtener_reportes, administrativo))
+    aplicacion.include_router(api)
     return aplicacion

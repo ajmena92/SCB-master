@@ -12,6 +12,6 @@ class DialectoSqlServerCompatible(MSDialect_pyodbc):
     """
 
     def _setup_version_attributes(self) -> None:
-        super()._setup_version_attributes()
         if self.server_version_info and self.server_version_info[0] == 17:
             self.server_version_info = (16, *self.server_version_info[1:])
+        super()._setup_version_attributes()

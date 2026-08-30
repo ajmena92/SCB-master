@@ -1,45 +1,180 @@
-name: scsc-comedor
+name: scb-web
 
 services:
+  postgres:
+    image: postgres:17.6-bookworm
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-scb}
+      POSTGRES_USER: ${POSTGRES_ADMIN_USER:-scb_admin}
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_admin_password
+      POSTGRES_INITDB_ARGS: --encoding=UTF8 --locale=C.UTF-8 --data-checksums
+      PGDATA: /var/lib/postgresql/data/pgdata
+      POSTGRES_APP_USER: ${POSTGRES_APP_USER:-scb_api}
+      POSTGRES_MIGRATOR_USER: ${POSTGRES_MIGRATOR_USER:-scb_migrador}
+    command:
+      - postgres
+      - -c
+      - archive_mode=on
+      - -c
+      - archive_command=test ! -f /archivo_wal/%f && cp %p /archivo_wal/%f
+      - -c
+      - archive_timeout=300s
+      - -c
+      - password_encryption=scram-sha-256
+    secrets:
+      - postgres_admin_password
+      - postgres_app_password
+      - postgres_migrator_password
+    volumes:
+      - postgres_datos:/var/lib/postgresql/data
+      - ${POSTGRES_WAL_ARCHIVE_PATH:?Defina POSTGRES_WAL_ARCHIVE_PATH}:/archivo_wal
+      - ./postgres/inicializar_roles.sh:/docker-entrypoint-initdb.d/010-inicializar-roles.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    networks: [privada]
+    shm_size: ${POSTGRES_SHM_SIZE:-128m}
+    security_opt: [no-new-privileges:true]
+
+  migracion:
+    profiles: [migracion]
+    build:
+      context: ..
+      dockerfile: ops/Dockerfile.migracion
+    restart: "no"
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: ${POSTGRES_DB:-scb}
+      POSTGRES_USER: ${POSTGRES_MIGRATOR_USER:-scb_migrador}
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_migrator_password
+      MIGRACION_MANUAL_DBA: ${MIGRACION_MANUAL_DBA:-no_confirmada}
+    secrets: [postgres_migrator_password]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [privada]
+    read_only: true
+    tmpfs: [/tmp]
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+
   api:
     build:
       context: ..
       dockerfile: ops/Dockerfile.api
-    env_file:
-      - ${COMPOSE_ENV_FILE:-.env}
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: ${POSTGRES_DB:-scb}
+      POSTGRES_USER: ${POSTGRES_APP_USER:-scb_api}
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_app_password
+      CORS_ORIGIN: ${CORS_ORIGIN:?Defina CORS_ORIGIN}
+      COOKIE_SECURE: ${COOKIE_SECURE:-true}
+      ENVIRONMENT: ${ENVIRONMENT:-production}
+      APP_TZ: ${APP_TZ:-America/Costa_Rica}
+      TRUSTED_PROXY_CIDRS: ${TRUSTED_PROXY_CIDRS:?Defina TRUSTED_PROXY_CIDRS}
+      FORWARDED_ALLOW_IPS: ${FORWARDED_ALLOW_IPS:?Defina FORWARDED_ALLOW_IPS}
+      STUDENT_SESSION_DAYS: ${STUDENT_SESSION_DAYS:-365}
+      ADMIN_SESSION_MINUTES: ${ADMIN_SESSION_MINUTES:-60}
+      STUDENT_MAX_LOGIN_ATTEMPTS: ${STUDENT_MAX_LOGIN_ATTEMPTS:-8}
+      STUDENT_LOCK_MINUTES: ${STUDENT_LOCK_MINUTES:-5}
+      ADMIN_MAX_LOGIN_ATTEMPTS: ${ADMIN_MAX_LOGIN_ATTEMPTS:-5}
+      ADMIN_LOCK_MINUTES: ${ADMIN_LOCK_MINUTES:-15}
+      UVICORN_WORKERS: ${UVICORN_WORKERS:-2}
+    secrets: [postgres_app_password]
+    depends_on:
+      postgres:
+        condition: service_healthy
     restart: unless-stopped
-    networks:
-      - private
-    expose:
-      - "8000"
+    networks: [privada, salida_web]
+    expose: ["8000"]
     mem_limit: ${API_MEMORIA_LIMITE:-256m}
     mem_reservation: ${API_MEMORIA_RESERVA:-128m}
     read_only: true
-    tmpfs:
-      - /tmp
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
+    tmpfs: [/tmp]
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
 
-  migracion:
-    profiles:
-      - migracion
+  respaldo:
+    profiles: [respaldo]
+    image: postgres:17.6-bookworm
     restart: "no"
+    environment:
+      PGHOST: postgres
+      PGPORT: "5432"
+      PGDATABASE: ${POSTGRES_DB:-scb}
+      PGUSER: ${POSTGRES_ADMIN_USER:-scb_admin}
+      RETENCION_RESPALDOS_DIAS: ${RETENCION_RESPALDOS_DIAS:-30}
+    secrets: [postgres_admin_password]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ${POSTGRES_BACKUP_PATH:?Defina POSTGRES_BACKUP_PATH}:/respaldos
+      - ./postgres/crear_respaldo.sh:/usr/local/bin/crear_respaldo.sh:ro
+    entrypoint: [/usr/local/bin/crear_respaldo.sh]
+    networks: [privada]
+    read_only: true
+    tmpfs: [/tmp]
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+
+  importacion:
+    profiles: [importacion]
     build:
       context: ..
-      dockerfile: ops/Dockerfile.migracion
-    env_file:
-      - ${COMPOSE_ENV_FILE:-.env}
-    networks:
-      - private
+      dockerfile: ops/Dockerfile.importacion
+    restart: "no"
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: ${POSTGRES_DB:-scb}
+      POSTGRES_USER: ${POSTGRES_MIGRATOR_USER:-scb_migrador}
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_migrator_password
+      SQL_SERVER_ORIGEN_FILE: /run/secrets/sql_server_origen
+      CODIGO_MIGRACION_SEMILLA_FILE: /run/secrets/codigo_migracion_semilla
+    secrets:
+      - postgres_migrator_password
+      - sql_server_origen
+      - codigo_migracion_semilla
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ${IMPORTACION_TRABAJO_PATH:-./importaciones}:/trabajo
+    networks: [privada, salida_web]
     read_only: true
-    tmpfs:
-      - /tmp
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
+    tmpfs: [/tmp]
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+
+  verificar_restauracion:
+    profiles: [verificacion_respaldo]
+    image: postgres:17.6-bookworm
+    restart: "no"
+    environment:
+      PGHOST: postgres
+      PGPORT: "5432"
+      PGDATABASE: ${POSTGRES_DB:-scb}
+      PGUSER: ${POSTGRES_ADMIN_USER:-scb_admin}
+    secrets: [postgres_admin_password]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ${POSTGRES_BACKUP_PATH:?Defina POSTGRES_BACKUP_PATH}:/respaldos:ro
+      - ./postgres/verificar_restauracion.sh:/usr/local/bin/verificar_restauracion.sh:ro
+    entrypoint: [/usr/local/bin/verificar_restauracion.sh]
+    networks: [privada]
+    read_only: true
+    tmpfs: [/tmp]
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
 
   web:
     build:
@@ -49,34 +184,34 @@ services:
       api:
         condition: service_healthy
     restart: unless-stopped
-    networks:
-      - private
-    # The institutional TLS proxy is the only public ingress. Keep this bound
-    # to loopback unless the infrastructure team explicitly changes the design.
-    ports:
-      - "127.0.0.1:8081:8080"
+    networks: [salida_web]
+    ports: ["127.0.0.1:${WEB_PUERTO:-8081}:8080"]
     mem_limit: ${WEB_MEMORIA_LIMITE:-64m}
     mem_reservation: ${WEB_MEMORIA_RESERVA:-32m}
     read_only: true
-    tmpfs:
-      - /var/cache/nginx
-      - /var/run
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
-    # The official Nginx image starts its master process as root, then changes
-    # ownership of its tmpfs-backed temporary directories and drops workers to
-    # the bundled `nginx` account.  These are the only three capabilities that
-    # sequence requires; all others remain removed.
-    cap_add:
-      - CHOWN
-      - SETGID
-      - SETUID
+    tmpfs: [/var/cache/nginx, /var/run]
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+    cap_add: [CHOWN, SETGID, SETUID]
+
+volumes:
+  postgres_datos:
 
 networks:
-  private:
+  privada:
     driver: bridge
-    ipam:
-      config:
-        - subnet: ${COMPOSE_PRIVATE_SUBNET}
+    internal: true
+  salida_web:
+    driver: bridge
+
+secrets:
+  postgres_admin_password:
+    file: ${POSTGRES_ADMIN_PASSWORD_FILE:-./secrets/postgres_admin_password}
+  postgres_app_password:
+    file: ${POSTGRES_APP_PASSWORD_FILE:-./secrets/postgres_app_password}
+  postgres_migrator_password:
+    file: ${POSTGRES_MIGRATOR_PASSWORD_FILE:-./secrets/postgres_migrator_password}
+  sql_server_origen:
+    file: ${SQL_SERVER_ORIGEN_FILE:-./secrets/sql_server_origen}
+  codigo_migracion_semilla:
+    file: ${CODIGO_MIGRACION_SEMILLA_FILE:-./secrets/codigo_migracion_semilla}
