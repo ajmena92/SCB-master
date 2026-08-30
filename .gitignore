@@ -11,6 +11,10 @@
 
 # Sensitive, one-time student PIN delivery exports (never version these).
 web/ops/credenciales-estudiantes-*.csv
+web/ops/secrets/
+web/ops/.env
+web/ops/.env.local
+web/ops/importaciones/
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
