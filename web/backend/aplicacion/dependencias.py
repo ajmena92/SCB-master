@@ -10,7 +10,6 @@ from typing import Any, TypedDict
 from aplicacion.modulos.administracion.repositorio import RepositorioSqlAdministracion
 from aplicacion.modulos.asistencia.repositorio import RepositorioSqlAsistencia
 from aplicacion.modulos.auditoria.repositorio import RepositorioSqlAuditoria
-from aplicacion.modulos.beneficios.repositorio import RepositorioSqlBeneficios
 from aplicacion.modulos.comedor.repositorio import RepositorioSqlComedor
 from aplicacion.modulos.cuentas.repositorio import RepositorioSqlCuentas
 from aplicacion.modulos.estudiantes.repositorio_completo import RepositorioSqlEstudiantesCompleto
@@ -73,7 +72,6 @@ class DependenciasModulos(TypedDict):
     dependencias_identidad: ContratoDependenciasModulo
     dependencias_estudiantes: ContratoDependenciasModulo
     dependencias_asistencia: ContratoDependenciasModulo
-    dependencias_beneficios: ContratoDependenciasModulo
     dependencias_cuentas: ContratoDependenciasModulo
     dependencias_reportes: ContratoDependenciasModulo
     dependencias_importaciones: ContratoDependenciasModulo
@@ -146,7 +144,6 @@ def crear_fabricas_repositorios(fabrica: FabricaConexionSql) -> dict[str, Any]:
         "obtener_asistencia": lambda: fabrica_de(RepositorioSqlAsistencia),
         "obtener_estudiantes": lambda: fabrica_de(RepositorioSqlEstudiantesCompleto),
         "obtener_estudiante": obtener_estudiante,
-        "obtener_beneficios": lambda: fabrica_de(RepositorioSqlBeneficios),
         "obtener_cuentas": lambda: fabrica_de(RepositorioSqlCuentas),
         "obtener_reportes": lambda: fabrica_de(RepositorioSqlReportes),
         "obtener_importaciones": lambda: fabrica_de(RepositorioSqlImportaciones),
@@ -248,7 +245,6 @@ def crear_dependencias_modulos(
             else 31536000,
         },
         "dependencias_asistencia": contrato_repositorio("asistencia", True),
-        "dependencias_beneficios": contrato_repositorio("beneficios", True),
         "dependencias_cuentas": contrato_repositorio("cuentas", True),
         "dependencias_reportes": contrato_repositorio("reportes", requiere_csrf=False),
         "dependencias_importaciones": contrato_repositorio("importaciones"),

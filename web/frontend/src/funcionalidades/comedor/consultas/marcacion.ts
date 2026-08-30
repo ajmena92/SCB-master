@@ -10,5 +10,9 @@ export async function consultarConfiguracionComedor() {
 }
 
 export async function consultarHistorialComedor(fecha: string): Promise<IngresoSalida[]> {
-  return (await api.get<IngresoSalida[]>("/v1/comedor/operacion/historial", { params: { fecha, limite: 10 } })).data;
+  return (
+    await api.get<IngresoSalida[]>("/v1/comedor/operacion/historial", {
+      params: { fecha, limite: 10 },
+    })
+  ).data;
 }

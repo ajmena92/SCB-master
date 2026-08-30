@@ -48,15 +48,6 @@ export const DOMINIOS: Record<string, DefinicionDominio> = {
     columnas: ["idMarca", "fecha", "idEstudiante", "tipo"],
     cargar: () => consultar(`/v1/asistencia/marcas?fecha=${new Date().toISOString().slice(0, 10)}`),
   },
-  beneficios: {
-    clave: "beneficios",
-    titulo: "Beneficios",
-    descripcion: "Catálogo y asignaciones de beneficios.",
-    ruta: "/api/v1/beneficios",
-    permiso: "beneficios.leer",
-    columnas: ["idBeneficio", "nombre", "activo"],
-    cargar: () => consultar("/v1/beneficios"),
-  },
   comedor: {
     clave: "comedor",
     titulo: "Personas y tiquetes",

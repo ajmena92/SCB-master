@@ -16,8 +16,22 @@ ON destino.id_estado_comedor=origen.id
 WHEN MATCHED THEN UPDATE SET codigo=origen.codigo,descripcion=origen.descripcion,activo=1
 WHEN NOT MATCHED THEN INSERT(id_estado_comedor,codigo,descripcion,activo) VALUES(origen.id,origen.codigo,origen.descripcion,1);
 IF COL_LENGTH(N'comedor.persona',N'id_estado_comedor') IS NULL ALTER TABLE comedor.persona ADD id_estado_comedor TINYINT NULL;
+GO
 IF COL_LENGTH(N'comedor.persona',N'estado_comedor') IS NOT NULL
     UPDATE comedor.persona SET id_estado_comedor=CASE estado_comedor WHEN 'becado_comedor' THEN 1 WHEN 'no_becado_comedor' THEN 2 END WHERE id_estado_comedor IS NULL;
+ELSE
+    UPDATE comedor.persona SET id_estado_comedor=2 WHERE id_estado_comedor IS NULL;
+
+IF OBJECT_ID(N'comedor.reconciliacion_migracion',N'U') IS NOT NULL
+   AND OBJECT_ID(N'dbo.Usuario',N'U') IS NOT NULL
+    INSERT comedor.reconciliacion_migracion(tipo,clave,detalle)
+    SELECT N'beneficio_parcial_depreciado',CONVERT(varchar(200),u.IdUsuario),
+           CONCAT(N'TipoBeca=',CONVERT(varchar(20),u.TipoBeca),N' convertido a no_becado_comedor')
+    FROM dbo.Usuario u
+    WHERE u.CodTipo=1 AND u.TipoBeca IS NOT NULL AND u.TipoBeca NOT IN (1,2)
+      AND NOT EXISTS(SELECT 1 FROM comedor.reconciliacion_migracion r
+                     WHERE r.tipo=N'beneficio_parcial_depreciado'
+                       AND r.clave=CONVERT(varchar(200),u.IdUsuario));
 IF EXISTS(SELECT 1 FROM comedor.persona WHERE id_estado_comedor IS NULL) THROW 50068,'Existen personas sin estado de comedor convertible',1;
 IF NOT EXISTS(SELECT 1 FROM sys.foreign_keys WHERE name=N'FK_comedor_persona_estado_comedor') ALTER TABLE comedor.persona ADD CONSTRAINT FK_comedor_persona_estado_comedor FOREIGN KEY(id_estado_comedor) REFERENCES comedor.estado_comedor(id_estado_comedor);
 ALTER TABLE comedor.persona ALTER COLUMN id_estado_comedor TINYINT NOT NULL;

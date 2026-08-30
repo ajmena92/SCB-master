@@ -102,7 +102,9 @@ def test_migracion_registra_politicas_auditoria_y_reconciliacion() -> None:
     assert "IdHorario" in horarios
     migracion_final = (raiz / "backend/alembic/versions/0033_horarios_origen_comedor.py").read_text()
     assert "id_horario_origen" in migracion_final
-    assert "ROW_NUMBER() OVER (ORDER BY IdHorario)" in migracion_final
+    assert "Descripcion" in migracion_final
+    assert "%NOCTURN%" in migracion_final
+    assert "ROW_NUMBER() OVER (ORDER BY IdHorario)" not in migracion_final
 
 
 def test_operacion_prioriza_duplicado_y_reutiliza_hora_servidor_en_auditoria() -> None:
@@ -131,6 +133,9 @@ def test_reconciliacion_operativa_cubre_diferencias_del_corte() -> None:
     for tipo in ("saldo_local_web", "conteo_ingresos_local_web", "estado_comedor_local_web", "profesores_habilitados_local_web", "ingresos_por_fecha_local_web"):
         assert f'"{tipo}"' in script
     assert "OBJECT_ID" in script
+    assert "INNER JOIN comedor.estado_comedor" in script
+    assert "p.estado_comedor" not in script
+    assert ") OR (" not in script
 
 
 def test_corte_detecta_carnets_duplicados_antes_de_crear_indices() -> None:
@@ -206,6 +211,17 @@ def test_migracion_asocia_turno_por_id_horario_de_origen() -> None:
     assert "CASE WHEN u.IdHorario=1" not in migracion
     assert "o.id_horario_origen=u.IdHorario" in normalizacion
     assert "50066" in normalizacion
+
+
+def test_migracion_valida_horarios_operativos_canonicos() -> None:
+    raiz = Path(__file__).resolve().parents[3]
+    migracion = (
+        raiz / "backend/alembic/versions/0037_valida_horarios_operativos.py"
+    ).read_text()
+
+    assert "CK_estudiantes_turno_comedor_canonico" in migracion
+    assert "50069" in migracion
+    assert "50070" in migracion
 
 
 def test_migracion_cataloga_profesores_solo_desde_roles_de_identidad() -> None:

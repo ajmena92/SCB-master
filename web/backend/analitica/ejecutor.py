@@ -12,22 +12,31 @@ from datetime import date, timedelta
 from pathlib import Path
 
 import pandas as pd
+from sqlalchemy import create_engine
+from sqlalchemy.engine import URL
+
+from aplicacion.nucleo.dialecto_sql_server import DialectoSqlServerCompatible
 
 from .proyecciones import proyectar_asistencia
 
 
 def cargar_datos(cadena: str, fecha_fin: date, dias: int) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    import pyodbc
-
     inicio = fecha_fin - timedelta(days=dias - 1)
-    with pyodbc.connect(cadena) as conexion:
+    motor = create_engine(
+        URL.create("mssql+pyodbc", query={"odbc_connect": cadena}),
+        pool_pre_ping=True,
+        dialect=DialectoSqlServerCompatible(),
+    )
+    with motor.connect() as conexion:
         marcas = pd.read_sql("""SELECT id_estudiante,fecha,estado FROM asistencia.marca
-            WHERE fecha BETWEEN ? AND ?""", conexion, params=[inicio, fecha_fin])
-        estudiantes = pd.read_sql("""SELECT id_estudiante,estado_comedor
-            FROM comedor.persona WHERE tipo_persona='estudiante' AND id_estudiante IS NOT NULL""", conexion)
+            WHERE fecha BETWEEN ? AND ?""", conexion, params=(inicio, fecha_fin))
+        estudiantes = pd.read_sql("""SELECT id_estudiante,id_estado_comedor
+            FROM comedor.persona
+            WHERE tipo_persona='estudiante' AND id_estudiante IS NOT NULL""", conexion)
         consumos = pd.read_sql("""SELECT p.id_estudiante,i.fecha,i.modalidad
             FROM comedor.ingreso i JOIN comedor.persona p ON p.id_persona=i.id_persona
-            WHERE p.tipo_persona='estudiante' AND i.fecha BETWEEN ? AND ?""", conexion, params=[inicio, fecha_fin])
+            WHERE p.tipo_persona='estudiante' AND i.fecha BETWEEN ? AND ?""", conexion, params=(inicio, fecha_fin))
+    motor.dispose()
     return marcas, estudiantes, consumos
 
 

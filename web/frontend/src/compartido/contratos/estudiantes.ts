@@ -1,25 +1,15 @@
 /** Generado por web/scripts/generar_cliente_openapi.py; no editar manualmente. */
 
-export interface AsignacionEntrada {
-  idBeneficio?: number | null;
-}
-
-export interface AsignacionSalida {
-  idBeneficio: number | null;
-  idEstudiante: number;
-}
-
 export interface BodyCargarApiV1EstudiantesIdEstudianteFotoPost {
   archivo: string;
 }
 
-export interface CambioAsignacion {
-  idBeneficio?: number | null;
-  idRuta?: number | null;
-}
-
 export interface CambioEstadoComedor {
   idEstadoComedor: 1 | 2;
+}
+
+export interface CambioRuta {
+  idRuta?: number | null;
 }
 
 export interface EstudianteEntrada {
@@ -35,11 +25,11 @@ export interface EstudianteEntrada {
 export interface EstudianteSalida {
   activo: boolean;
   beneficioComedor?: string;
+  beneficioTransporte?: string;
   bloqueado?: boolean;
   carne: string;
   cedula: string | null;
   debeCambiarPin?: boolean;
-  idBeneficio?: number | null;
   idEstadoComedor?: 1 | 2;
   idEstudiante: number;
   idRuta?: number | null;
@@ -49,6 +39,7 @@ export interface EstudianteSalida {
   rutaDescripcion?: string | null;
   seccion: string | null;
   segundoApellido: string | null;
+  tieneBeneficioTransporte?: boolean;
   tieneFoto?: boolean;
   turno?: string | null;
 }
@@ -63,6 +54,11 @@ export interface PaginaEstudiantes {
   pagina: number;
   tamano: number;
   total: number;
+}
+
+export interface PerfilEstudianteSalida {
+  estudiante: EstudianteSalida;
+  tieneFoto: boolean;
 }
 
 export interface PinGenerado {

@@ -4,7 +4,6 @@ import { OPERACIONES_IDENTIDAD } from "./operaciones/identidad";
 import { OPERACIONES_ESTUDIANTES } from "./operaciones/estudiantes";
 import { OPERACIONES_TRANSPORTE } from "./operaciones/transporte";
 import { OPERACIONES_ASISTENCIA } from "./operaciones/asistencia";
-import { OPERACIONES_BENEFICIOS } from "./operaciones/beneficios";
 import { OPERACIONES_CUENTAS } from "./operaciones/cuentas";
 import { OPERACIONES_REPORTES } from "./operaciones/reportes";
 import { OPERACIONES_IMPORTACIONES } from "./operaciones/importaciones";
@@ -31,7 +30,6 @@ export const OPERACIONES_API: readonly OperacionApi[] = [
   ...OPERACIONES_ESTUDIANTES,
   ...OPERACIONES_TRANSPORTE,
   ...OPERACIONES_ASISTENCIA,
-  ...OPERACIONES_BENEFICIOS,
   ...OPERACIONES_CUENTAS,
   ...OPERACIONES_REPORTES,
   ...OPERACIONES_IMPORTACIONES,

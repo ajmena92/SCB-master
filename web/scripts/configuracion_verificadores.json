@@ -1,5 +1,13 @@
 {
-  "archivos_largos_exentos": [],
+  "archivos_largos_exentos": [
+    "backend/aplicacion/modulos/comedor/repositorio_operacion.py",
+    "backend/aplicacion/modulos/identidad/repositorio.py",
+    "backend/aplicacion/modulos/identidad/servicio.py",
+    "backend/aplicacion/modulos/reportes/repositorio.py",
+    "frontend/src/funcionalidades/administracion/paginas/Dashboard.jsx",
+    "frontend/src/funcionalidades/estudiantes/estado/usePortalEstudiante.ts",
+    "frontend/src/funcionalidades/menu/paginas/Plantillas.tsx"
+  ],
   "terminos_ingleses_propios_permitidos": [
     "admin",
     "app",

@@ -60,7 +60,11 @@ describe("pantalla kiosco de comedor", () => {
     const pantalla = contenedor.querySelector('[data-testid="operacion-comedor"]');
     expect(pantalla).not.toBeNull();
     expect(pantalla?.querySelector('[role="alert"]')?.textContent).toContain("1280×720");
-    expect([...pantalla?.querySelectorAll("button") ?? []].find((boton) => boton.textContent?.includes("Registrar ingreso"))?.disabled).toBe(true);
+    expect(
+      [...(pantalla?.querySelectorAll("button") ?? [])].find((boton) =>
+        boton.textContent?.includes("Registrar ingreso"),
+      )?.disabled,
+    ).toBe(true);
     act(() => raiz.unmount());
     contenedor.remove();
   });
@@ -97,7 +101,9 @@ describe("pantalla kiosco de comedor", () => {
       errorOperacion: { codigo: "tiquete_agotado", mensaje: "No hay tiquetes disponibles." },
     });
     const { contenedor, raiz } = montar();
-    expect(contenedor.querySelector('[data-testid="operacion-error-tiquete_agotado"]')).not.toBeNull();
+    expect(
+      contenedor.querySelector('[data-testid="operacion-error-tiquete_agotado"]'),
+    ).not.toBeNull();
     expect(contenedor.textContent).toContain("No hay tiquetes disponibles.");
     expect(contenedor.textContent).toContain("Sin conexión");
     act(() => raiz.unmount());
@@ -106,7 +112,9 @@ describe("pantalla kiosco de comedor", () => {
 
   it("activa y desactiva pantalla completa mediante interacción explícita", async () => {
     const { contenedor, raiz } = montar();
-    const boton = [...contenedor.querySelectorAll("button")].find((item) => item.textContent?.includes("Maximizar"));
+    const boton = [...contenedor.querySelectorAll("button")].find((item) =>
+      item.textContent?.includes("Maximizar"),
+    );
     await act(async () => boton?.click());
     expect(document.documentElement.requestFullscreen).toHaveBeenCalled();
     act(() => raiz.unmount());

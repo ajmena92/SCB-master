@@ -7,7 +7,6 @@ describe("catálogo de dominios administrativos", () => {
     expect(Object.keys(DOMINIOS)).toEqual([
       "estudiantes",
       "asistencia",
-      "beneficios",
       "comedor",
       "reportes",
       "importaciones",

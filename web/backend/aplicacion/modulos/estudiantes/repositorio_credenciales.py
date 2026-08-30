@@ -27,16 +27,19 @@ class RepositorioSqlCredenciales:
             cursor.execute(
                 """SELECT e.id_estudiante, e.carne, e.nombre, e.primer_apellido,
                 e.segundo_apellido, e.cedula, e.seccion, e.turno, ar.id_ruta,
-                ba.id_beneficio, e.hash_contrasena, e.debe_cambiar_pin,
+                e.hash_contrasena, e.debe_cambiar_pin,
                 e.fecha_expiracion_pin, e.activo, r.codigo AS ruta_codigo,
                 r.descripcion AS ruta_descripcion, r.color_hex AS ruta_color,
+                r.activo AS ruta_activa,
                 cp.id_estado_comedor, ec.descripcion AS beneficio_comedor,
                 CAST(CASE WHEN f.id_estudiante IS NULL THEN 0 ELSE 1 END AS bit) AS tiene_foto
                 FROM estudiantes.estudiante e
                 LEFT JOIN estudiantes.fotografia f ON f.id_estudiante=e.id_estudiante
-                LEFT JOIN transporte.asignacion_ruta ar ON ar.id_estudiante=e.id_estudiante AND ar.activa=1
+                OUTER APPLY (SELECT TOP 1 asignacion.id_ruta
+                    FROM transporte.asignacion_ruta asignacion
+                    WHERE asignacion.id_estudiante=e.id_estudiante AND asignacion.activa=1
+                    ORDER BY asignacion.id_asignacion DESC) ar
                 LEFT JOIN transporte.ruta r ON r.id_ruta=ar.id_ruta
-                LEFT JOIN beneficios.asignacion ba ON ba.id_estudiante=e.id_estudiante
                 LEFT JOIN comedor.persona cp ON cp.id_estudiante=e.id_estudiante
                     AND cp.tipo_persona='estudiante'
                 LEFT JOIN comedor.estado_comedor ec ON ec.id_estado_comedor=cp.id_estado_comedor

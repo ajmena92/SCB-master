@@ -165,8 +165,9 @@ personales innecesarios.
 
 ## 5. Retiro de tablas históricas
 
-Antes de activar el kiosco, aplicar Alembic hasta `0035_normaliza_estado_horario_comedor`
-con respaldo y escrituras congeladas. Revisar y resolver los casos de
+Antes de activar el kiosco, aplicar Alembic hasta la revisión `head`, confirmar al
+menos `0037_valida_horarios_operativos` y hacerlo con respaldo y escrituras
+congeladas. Revisar y resolver los casos de
 `comedor.reconciliacion_migracion`; no convertir ambigüedades automáticamente.
 La revisión `0030` agrega políticas y auditoría, y `0031` registra diferencias de
 rutas múltiples y saldos negativos sin borrar históricos.

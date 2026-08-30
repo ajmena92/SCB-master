@@ -224,6 +224,13 @@ class RepositorioSqlIntentosAutenticacion:
     def _identificador_hash(identificador: str) -> str:
         return hashlib.sha256(identificador.encode("utf-8")).hexdigest()
 
+    @staticmethod
+    def _fecha_utc(fecha: datetime | None) -> datetime | None:
+        """Normaliza datetime2 de SQL Server, que llega sin información de zona."""
+        if fecha is None or fecha.tzinfo is not None:
+            return fecha
+        return fecha.replace(tzinfo=timezone.utc)
+
     def verificar(self, identificador: str, ahora: datetime, politica: PoliticaBloqueo) -> None:
         from aplicacion.modulos.identidad.servicio import AutenticacionBloqueada
 
@@ -241,7 +248,7 @@ class RepositorioSqlIntentosAutenticacion:
             fila = cursor.fetchone()
             if fila is None:
                 return
-            intentos, bloqueado_hasta = int(fila[0]), fila[1]
+            intentos, bloqueado_hasta = int(fila[0]), self._fecha_utc(fila[1])
             if bloqueado_hasta is not None and bloqueado_hasta > ahora:
                 raise AutenticacionBloqueada(
                     "Demasiados intentos. Intente nuevamente más tarde"
@@ -267,7 +274,8 @@ class RepositorioSqlIntentosAutenticacion:
                 clave,
             )
             fila = cursor.fetchone()
-            if fila is not None and fila[1] is not None and fila[1] > ahora:
+            bloqueado_hasta = self._fecha_utc(fila[1]) if fila is not None else None
+            if bloqueado_hasta is not None and bloqueado_hasta > ahora:
                 return
             intentos = (int(fila[0]) if fila is not None else 0) + 1
             bloqueado_hasta = (

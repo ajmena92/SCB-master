@@ -42,7 +42,7 @@ export function TablaEstudiantes({ estudiantes, cargando, alAbrirPerfil, alReini
             <TableHead>Cédula</TableHead>
             <TableHead>Horario</TableHead>
             <TableHead>Sección</TableHead>
-            <TableHead>Ruta</TableHead>
+            <TableHead>Transporte</TableHead>
             <TableHead>Comedor</TableHead>
             <TableHead>Estado PIN</TableHead>
             <TableHead className="text-right">Acción</TableHead>
@@ -65,12 +65,8 @@ export function TablaEstudiantes({ estudiantes, cargando, alAbrirPerfil, alReini
               <TableCell>{estudiante.cedula || "Pendiente"}</TableCell>
               <TableCell>{estudiante.turno || "—"}</TableCell>
               <TableCell>{estudiante.seccion || "Sin sección"}</TableCell>
-              <TableCell>
-                {estudiante.rutaCodigo || estudiante.rutaDescripcion || "Sin ruta"}
-              </TableCell>
-              <TableCell>
-                {estudiante.beneficioComedor || "No beneficiario"}
-              </TableCell>
+              <TableCell>{estudiante.beneficioTransporte || "No beneficiario"}</TableCell>
+              <TableCell>{estudiante.beneficioComedor || "No beneficiario"}</TableCell>
               <TableCell>
                 {estudiante.bloqueado ? (
                   <Badge variant="destructive">Bloqueado</Badge>

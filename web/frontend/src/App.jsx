@@ -71,7 +71,6 @@ function App() {
                 element={<AdminModule moduleId="correcciones" />}
               />
               <Route path="personas/estudiantes" element={<AdminModule moduleId="estudiantes" />} />
-              <Route path="personas/beneficios" element={<AdminModule moduleId="beneficios" />} />
               <Route path="personas/cuentas" element={<AdminModule moduleId="cuentas" />} />
               <Route path="personas" element={<AdminGroupHub groupId="personas" />} />
               <Route path="reportes/transporte" element={<AdminModule moduleId="reporte" />} />

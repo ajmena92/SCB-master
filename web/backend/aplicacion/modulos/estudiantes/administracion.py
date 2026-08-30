@@ -9,12 +9,14 @@ from fastapi import APIRouter, Depends, HTTPException
 from aplicacion.modulos.identidad.seguridad import hash_contrasena
 
 from .esquemas import (
-    CambioAsignacion,
+    CambioRuta,
     CambioEstadoComedor,
     GeneracionPinesSeccion,
+    PerfilEstudianteSalida,
     PinGenerado,
 )
 from .pines import construir_filas, generar_pin, seleccionar_estudiantes
+from .servicio import ServicioEstudiantes
 
 
 def crear_enrutador_administracion(
@@ -33,23 +35,18 @@ def crear_enrutador_administracion(
     ):
         return repo.secciones(turno)
 
-    @enrutador.get("/{id_estudiante}/perfil")
+    @enrutador.get(
+        "/{id_estudiante}/perfil",
+        response_model=PerfilEstudianteSalida,
+        response_model_by_alias=True,
+    )
     def perfil(
         id_estudiante: int,
         _=Depends(exigir_permiso("estudiantes.leer")),
         repo=Depends(obtener_repositorio),
     ):
-        return repo.perfil_detallado(id_estudiante)
-
-    @enrutador.put("/{id_estudiante}/beneficio", status_code=204)
-    def beneficio(
-        id_estudiante: int,
-        datos: CambioAsignacion,
-        _=Depends(exigir_permiso("beneficios.editar")),
-        __=Depends(exigir_csrf),
-        repo=Depends(obtener_repositorio),
-    ):
-        repo.asignar_beneficio(id_estudiante, datos.id_beneficio)
+        estudiante = ServicioEstudiantes(repo).obtener(id_estudiante)
+        return PerfilEstudianteSalida(estudiante=estudiante, tieneFoto=estudiante.tiene_foto)
 
     @enrutador.put("/{id_estudiante}/estado-comedor", status_code=204)
     def estado_comedor(
@@ -61,15 +58,21 @@ def crear_enrutador_administracion(
     ):
         repo.actualizar_estado_comedor(id_estudiante, datos.id_estado_comedor)
 
-    @enrutador.put("/{id_estudiante}/ruta", status_code=204)
+    @enrutador.put(
+        "/{id_estudiante}/ruta",
+        response_model=PerfilEstudianteSalida,
+        response_model_by_alias=True,
+    )
     def ruta(
         id_estudiante: int,
-        datos: CambioAsignacion,
+        datos: CambioRuta,
         _=Depends(exigir_permiso("rutas.administrar")),
         __=Depends(exigir_csrf),
         repo=Depends(obtener_repositorio),
     ):
         repo.asignar_ruta(id_estudiante, datos.id_ruta)
+        estudiante = ServicioEstudiantes(repo).obtener(id_estudiante)
+        return PerfilEstudianteSalida(estudiante=estudiante, tieneFoto=estudiante.tiene_foto)
 
     @enrutador.post(
         "/{id_estudiante}/reset-pin",

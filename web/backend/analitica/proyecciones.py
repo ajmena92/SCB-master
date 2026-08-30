@@ -18,7 +18,7 @@ def proyectar_asistencia(
     """Devuelve señales individuales con una muestra histórica suficiente.
 
     ``marcas`` requiere ``id_estudiante``, ``fecha`` y ``estado``.
-    ``estudiantes`` requiere ``id_estudiante`` y ``estado_comedor``.
+    ``estudiantes`` requiere ``id_estudiante`` e ``id_estado_comedor``.
     ``consumos`` puede incluir ``modalidad`` (`beca` o `tiquete`); sin ese campo
     no se infieren compras a partir de conceptos de texto libre.
     """
@@ -45,12 +45,15 @@ def proyectar_asistencia(
     resultado["dias_observados"] = resultado["dias_observados"].fillna(0).astype(int)
     resultado["dias_presentes"] = resultado["dias_presentes"].fillna(0).astype(int)
     resultado["porcentaje_asistencia"] = resultado["porcentaje_asistencia"].fillna(0)
-    if "estado_comedor" not in resultado.columns:
-        raise ValueError("Falta la columna canónica estado_comedor de estudiantes")
-    resultado["becado"] = resultado["estado_comedor"].eq("becado_comedor")
+    if "id_estado_comedor" not in resultado.columns:
+        raise ValueError("Falta la columna canónica id_estado_comedor de estudiantes")
+    estados_invalidos = set(resultado["id_estado_comedor"].dropna().astype(int)) - {1, 2}
+    if estados_invalidos:
+        raise ValueError("Existen estados de comedor no reconocidos")
+    resultado["beneficiario"] = resultado["id_estado_comedor"].eq(1)
     resultado["senal"] = "sin datos suficientes"
     muestra = resultado["dias_observados"] >= 3
-    resultado.loc[muestra & resultado["becado"] & (resultado["porcentaje_asistencia"] < 50), "senal"] = "becado con baja asistencia"
+    resultado.loc[muestra & resultado["beneficiario"] & (resultado["porcentaje_asistencia"] < 50), "senal"] = "beneficiario con baja asistencia"
     resultado["consumos_comedor"] = 0
 
     if consumos is not None and "id_estudiante" in consumos.columns:
@@ -58,8 +61,8 @@ def proyectar_asistencia(
         resultado["consumos_comedor"] = (
             resultado["id_estudiante"].map(consumo_total).fillna(0).astype(int)
         )
-        sin_consumo = muestra & resultado["becado"] & (resultado["consumos_comedor"] == 0)
-        resultado.loc[sin_consumo, "senal"] = "becado sin consumo reciente"
+        sin_consumo = muestra & resultado["beneficiario"] & (resultado["consumos_comedor"] == 0)
+        resultado.loc[sin_consumo, "senal"] = "beneficiario sin consumo reciente"
 
     if consumos is not None and {"id_estudiante", "modalidad"}.issubset(consumos.columns):
         tiquetes = consumos[consumos["modalidad"].eq("tiquete")]
@@ -67,13 +70,13 @@ def proyectar_asistencia(
         resultado["consumos_tiquete"] = (
             resultado["id_estudiante"].map(compradores).fillna(0).astype(int)
         )
-        candidatos = muestra & ~resultado["becado"] & (resultado["consumos_tiquete"] >= 3)
-        resultado.loc[candidatos, "senal"] = "candidato para revisión de beca"
+        candidatos = muestra & ~resultado["beneficiario"] & (resultado["consumos_tiquete"] >= 3)
+        resultado.loc[candidatos, "senal"] = "candidato para revisión de beneficio"
     else:
         resultado["consumos_tiquete"] = 0
 
     columnas = [
         "id_estudiante", "dias_observados", "dias_presentes", "porcentaje_asistencia",
-        "ultima_fecha", "becado", "consumos_comedor", "consumos_tiquete", "senal",
+        "ultima_fecha", "beneficiario", "consumos_comedor", "consumos_tiquete", "senal",
     ]
     return resultado[columnas].to_dict(orient="records")

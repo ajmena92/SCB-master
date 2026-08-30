@@ -4,7 +4,6 @@ export * from "./identidad";
 export * from "./estudiantes";
 export * from "./transporte";
 export * from "./asistencia";
-export * from "./beneficios";
 export * from "./cuentas";
 export * from "./reportes";
 export * from "./importaciones";

@@ -19,7 +19,6 @@ class RepositorioEstudiantes(Protocol):
     def eliminar_foto(self, id_estudiante: int) -> None: ...
     def perfil_detallado(self, id_estudiante: int) -> dict: ...
     def secciones(self, turno: str | None = None) -> list[dict]: ...
-    def asignar_beneficio(self, id_estudiante: int, id_beneficio: int | None) -> None: ...
     def actualizar_estado_comedor(self, id_estudiante: int, id_estado_comedor: int) -> None: ...
     def asignar_ruta(self, id_estudiante: int, id_ruta: int | None) -> None: ...
     def reiniciar_pin(self, id_estudiante: int, hash_contrasena: str) -> None: ...
@@ -56,15 +55,18 @@ class RepositorioSqlEstudiantes:
             cursor.execute(
                 """SELECT e.id_estudiante, e.carne, e.nombre, e.primer_apellido,
                 e.segundo_apellido, e.cedula, e.seccion, e.turno,
-                ba.id_beneficio, e.debe_cambiar_pin, e.activo,
+                e.debe_cambiar_pin, e.activo, ar.id_ruta,
                 r.codigo AS ruta_codigo, r.descripcion AS ruta_descripcion,
+                r.activo AS ruta_activa,
                 cp.id_estado_comedor, ec.descripcion AS beneficio_comedor,
                 CAST(CASE WHEN f.id_estudiante IS NULL THEN 0 ELSE 1 END AS bit) AS tiene_foto
                 FROM estudiantes.estudiante e
                 LEFT JOIN estudiantes.fotografia f ON f.id_estudiante=e.id_estudiante
-                LEFT JOIN transporte.asignacion_ruta ar ON ar.id_estudiante=e.id_estudiante AND ar.activa=1
+                OUTER APPLY (SELECT TOP 1 asignacion.id_ruta
+                    FROM transporte.asignacion_ruta asignacion
+                    WHERE asignacion.id_estudiante=e.id_estudiante AND asignacion.activa=1
+                    ORDER BY asignacion.id_asignacion DESC) ar
                 LEFT JOIN transporte.ruta r ON r.id_ruta=ar.id_ruta
-                LEFT JOIN beneficios.asignacion ba ON ba.id_estudiante=e.id_estudiante
                 LEFT JOIN comedor.persona cp ON cp.id_estudiante=e.id_estudiante
                     AND cp.tipo_persona='estudiante'
                 LEFT JOIN comedor.estado_comedor ec ON ec.id_estado_comedor=cp.id_estado_comedor
@@ -94,10 +96,17 @@ class RepositorioSqlEstudiantes:
             cursor.execute(
                 """SELECT e.id_estudiante, e.carne, e.nombre, e.primer_apellido,
                 e.segundo_apellido, e.cedula, e.seccion, e.turno, e.debe_cambiar_pin,
-                e.activo, cp.id_estado_comedor, ec.descripcion AS beneficio_comedor,
+                e.activo, ar.id_ruta, r.codigo AS ruta_codigo,
+                r.descripcion AS ruta_descripcion, r.activo AS ruta_activa,
+                cp.id_estado_comedor, ec.descripcion AS beneficio_comedor,
                 CAST(CASE WHEN f.id_estudiante IS NULL THEN 0 ELSE 1 END AS bit) AS tiene_foto
                 FROM estudiantes.estudiante e
                 LEFT JOIN estudiantes.fotografia f ON f.id_estudiante=e.id_estudiante
+                OUTER APPLY (SELECT TOP 1 asignacion.id_ruta
+                    FROM transporte.asignacion_ruta asignacion
+                    WHERE asignacion.id_estudiante=e.id_estudiante AND asignacion.activa=1
+                    ORDER BY asignacion.id_asignacion DESC) ar
+                LEFT JOIN transporte.ruta r ON r.id_ruta=ar.id_ruta
                 LEFT JOIN comedor.persona cp ON cp.id_estudiante=e.id_estudiante
                     AND cp.tipo_persona='estudiante'
                 LEFT JOIN comedor.estado_comedor ec ON ec.id_estado_comedor=cp.id_estado_comedor

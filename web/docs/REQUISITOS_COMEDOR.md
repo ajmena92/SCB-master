@@ -2,7 +2,10 @@
 
 ## Objetivo
 
-Permitir que cada estudiante decida su asistencia al comedor para el día actual, mostrando antes el menú. La confirmación alimenta los reportes existentes sin sustituir la aplicación de escritorio.
+Permitir que cada estudiante decida su asistencia al comedor para el día actual,
+mostrando antes el menú. La plataforma web es la autoridad operativa después del
+corte único; no existe doble escritura ni dependencia en ejecución del sistema de
+escritorio.
 
 ## Roles y operaciones
 
@@ -12,10 +15,19 @@ Permitir que cada estudiante decida su asistencia al comedor para el día actual
 
 ## Estado de comedor y tiquetes
 
-El estado operativo de un estudiante para comedor es exclusivamente uno de estos valores:
+`comedor.persona` almacena únicamente `id_estado_comedor` como `TINYINT` y lo
+relaciona con `comedor.estado_comedor`:
 
-- `becado_comedor`: no compra tiquetes; su ingreso se registra con modalidad `beca`.
-- `no_becado_comedor`: requiere un tiquete válido para reservar asistencia y entrar al comedor.
+- `1` (`becado_comedor`, visible como **Beneficiario**): beca completa de cinco días;
+  no compra tiquetes y su ingreso se registra con modalidad `beca`.
+- `2` (`no_becado_comedor`, visible como **No beneficiario**): requiere un tiquete
+  válido para reservar asistencia y entrar al comedor.
+
+La persona no almacena simultáneamente un código ni una descripción. Ambos se
+obtienen mediante el catálogo. Las becas parciales están depreciadas y se convierten
+al estado `2`, dejando trazabilidad en `comedor.reconciliacion_migracion`.
+`TipoBeca`, `id_beneficio` y `dias_permitidos` solo pueden leerse durante migración
+o reconciliación histórica; nunca autorizan una operación de comedor.
 
 La autorización debe consultar únicamente el estado canónico y la disponibilidad del
 tiquete. Los profesores también requieren tiquete, pero no son estudiantes becados ni
@@ -65,6 +77,12 @@ marcas e ingresos históricos se conservan para consulta histórica.
 
 El menú base se define por semana del mes (1–5) y día laboral (lunes a viernes), con título, componentes ordenados y observaciones. Puede existir una sustitución para una fecha específica. El tablero muestra total confirmado y desglose por horario, sección y estado de comedor, además de la lista nominal autorizada. La vista estudiantil excluye profesores; la vista de profesores se habilita mediante filtro explícito.
 
+El beneficio de transporte se deriva exclusivamente de la asignación vigente. La
+ruta técnica `0000`, una ruta inactiva o la ausencia de ruta significan **No
+beneficiario** y no se muestran como ruta operativa. Una ruta activa distinta de
+`0000` se muestra como **Beneficiario – descripción oficial de la ruta**. Esta regla
+se aplica en backend y los componentes no interpretan códigos por su cuenta.
+
 ## Contratos y pruebas de aceptación
 
 El contrato público debe separar las operaciones de estado de comedor, cuentas y
@@ -83,9 +101,10 @@ de componentes del frontend. Las pruebas HTTP independientes están en
 
 La revisión Alembic `0033_horarios_origen_comedor` conserva el `IdHorario` de
 `dbo.Horario` en `comedor.horario_operacion.id_horario_origen`. El mapeo soportado es
-determinista: el primer horario por `IdHorario` es `diurno` y el segundo es
-`nocturno`. Si el origen contiene más de dos horarios, el corte aborta con `50064`;
-no se descartan límites ni se inventan turnos.
+determinista mediante `dbo.Horario.Descripcion`: solo se aceptan descripciones
+semánticas diurnas o nocturnas y se conserva su `IdHorario`. Si el origen contiene
+más de dos horarios, una descripción desconocida o dos descripciones del mismo
+turno, el corte aborta; no se descartan límites ni se inventan turnos.
 
 Antes de crear el índice único de carnés, la migración detecta carnés duplicados y
 aborta con `50034`. El reconciliador puede ejecutarse en lectura y luego con
@@ -98,6 +117,10 @@ Las revisiones `0034_migracion_datos_legados` y `0035_normaliza_estado_horario_c
 asistencia, comedor y fotografías al modelo canónico. Las filas duplicadas de
 comedor se conservan en `comedor.migracion_ingreso_0034` y se registran en
 `comedor.reconciliacion_migracion`.
+
+La revisión `0036_estado_comedor_catalogo` elimina el estado textual de la persona y
+crea la FK por ID. La revisión `0037_valida_horarios_operativos` impide activar el
+corte si un estudiante habilitado conserva un turno no canónico o sin horario activo.
 
 ## Datos complementarios propuestos
 

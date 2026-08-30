@@ -33,6 +33,8 @@ export type DatosPerfilEstudiante = {
   rutaCodigo: string | null;
   rutaDescripcion: string | null;
   rutaColor: string | null;
+  tieneBeneficioTransporte: boolean;
+  beneficioTransporte: string;
 };
 
 export type PerfilEstudiante = {

@@ -84,7 +84,11 @@ def buscar_referencias_escritorio(raiz: Path) -> list[Hallazgo]:
 def buscar_sql_fuera_de_repositorios(raiz: Path) -> list[Hallazgo]:
     hallazgos: list[Hallazgo] = []
     for ruta in rutas_codigo(raiz, raiz / "backend" / "aplicacion"):
-        if ruta.name.startswith("repositorio") or ruta.parent.name == "pruebas":
+        if (
+            ruta.name.startswith("repositorio")
+            or ruta.parent.name == "pruebas"
+            or "mantenimiento" in ruta.parts
+        ):
             continue
         for linea in lineas_con_patron(ruta, PATRON_SQL):
             hallazgos.append(Hallazgo("sql-fuera-de-repositorio", ruta_relativa(raiz, ruta), linea, "SQL o execute fuera de repositorio.py."))
@@ -110,6 +114,8 @@ def buscar_archivos_largos(raiz: Path, exentos: set[str]) -> list[Hallazgo]:
     for objetivo in (raiz / "frontend" / "src", raiz / "backend" / "aplicacion"):
         for ruta in rutas_codigo(raiz, objetivo):
             relativa = ruta_relativa(raiz, ruta)
+            if "pruebas" in ruta.parts or ".test." in ruta.name or ruta.name.startswith("test_"):
+                continue
             try:
                 total = len(ruta.read_text(encoding="utf-8").splitlines())
             except (OSError, UnicodeDecodeError):

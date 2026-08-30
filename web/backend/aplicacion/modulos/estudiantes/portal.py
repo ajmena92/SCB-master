@@ -17,6 +17,7 @@ from aplicacion.modulos.identidad.servicio import (
 from aplicacion.nucleo.tiempo import fecha_local
 from aplicacion.modulos.comedor.servicio import ServicioComedor
 
+from .beneficios import normalizar_beneficio_transporte
 from .esquemas import AccesoEstudiante, CambioPinEstudiante
 
 
@@ -47,6 +48,7 @@ def crear_enrutador_portal(
         credencial = repo.buscar_credencial_por_id(sesion.id_usuario)
         if not credencial or not credencial.get("activo"):
             raise HTTPException(401, "El estudiante no está disponible")
+        perfil = normalizar_beneficio_transporte(credencial)
         return {
             "idEstudiante": credencial["id_estudiante"],
             "carne": credencial["carne"],
@@ -56,11 +58,12 @@ def crear_enrutador_portal(
             "cedula": credencial.get("cedula"),
             "seccion": credencial.get("seccion"),
             "turno": credencial.get("turno"),
-            "idRuta": credencial.get("id_ruta"),
-            "rutaCodigo": credencial.get("ruta_codigo"),
-            "rutaDescripcion": credencial.get("ruta_descripcion"),
-            "rutaColor": credencial.get("ruta_color"),
-            "idBeneficio": credencial.get("id_beneficio"),
+            "idRuta": perfil.get("id_ruta"),
+            "rutaCodigo": perfil.get("ruta_codigo"),
+            "rutaDescripcion": perfil.get("ruta_descripcion"),
+            "rutaColor": perfil.get("ruta_color"),
+            "tieneBeneficioTransporte": perfil["tiene_beneficio_transporte"],
+            "beneficioTransporte": perfil["beneficio_transporte"],
             "idEstadoComedor": int(credencial.get("id_estado_comedor", 2)),
             "beneficioComedor": credencial.get("beneficio_comedor", "No beneficiario"),
             "debeCambiarPin": bool(credencial.get("debe_cambiar_pin")),

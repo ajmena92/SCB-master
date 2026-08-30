@@ -24,7 +24,6 @@ DOMINIOS = (
     "estudiantes",
     "transporte",
     "asistencia",
-    "beneficios",
     "cuentas",
     "reportes",
     "importaciones",
@@ -40,10 +39,9 @@ DOMINIOS = (
 
 ESQUEMAS_POR_DOMINIO = {
     "identidad": {"AccesoEstudiante", "AutenticacionSalida", "CambioPinEstudiante", "CredencialesEntrada", "SesionActualSalida"},
-    "estudiantes": {"AsignacionEntrada", "AsignacionSalida", "Body_cargar_api_v1_estudiantes__id_estudiante__foto_post", "CambioAsignacion", "CambioEstadoComedor", "EstudianteEntrada", "EstudianteSalida", "GeneracionPinesSeccion", "PaginaEstudiantes", "PinGenerado"},
+    "estudiantes": {"Body_cargar_api_v1_estudiantes__id_estudiante__foto_post", "CambioRuta", "CambioEstadoComedor", "EstudianteEntrada", "EstudianteSalida", "GeneracionPinesSeccion", "PaginaEstudiantes", "PerfilEstudianteSalida", "PinGenerado"},
     "transporte": {"RutaEntrada", "RutaSalida"},
     "asistencia": {"CorreccionEntrada", "MarcaEntrada", "MarcaSalida"},
-    "beneficios": {"BeneficioEntrada", "BeneficioSalida"},
     "cuentas": {"MovimientoEntrada", "MovimientoSalida", "SaldoSalida"},
     "reportes": {
         "ReporteEstudiante", "ReporteEstudiantes", "ReporteRuta", "ReporteTransporte",
@@ -308,6 +306,19 @@ def _generar(especificacion: dict[str, Any]) -> dict[Path, str]:
     return salidas
 
 
+def _salidas_generadas_obsoletas(vigentes: set[Path]) -> set[Path]:
+    """Detecta artefactos del generador que ya no pertenecen al contrato público."""
+    candidatas = set(DIRECTORIO_SALIDA.glob("*.ts")) | set(
+        DIRECTORIO_OPERACIONES.glob("*.ts")
+    )
+    marca = "/** Generado por web/scripts/generar_cliente_openapi.py; no editar manualmente. */"
+    return {
+        ruta
+        for ruta in candidatas - vigentes
+        if ruta.read_text(encoding="utf-8").startswith(marca)
+    }
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--verificar", action="store_true", help="falla si la salida no está actualizada")
@@ -320,9 +331,14 @@ def main() -> int:
         DependenciasAplicacion(cast(FabricaConexionSql, object()), cookies_seguras=False)
     )
     salidas = _generar(aplicacion.openapi())
+    obsoletas = _salidas_generadas_obsoletas(set(salidas))
     for salida in salidas:
         salida.parent.mkdir(parents=True, exist_ok=True)
     if args.verificar:
+        if obsoletas:
+            for salida in sorted(obsoletas):
+                print(f"Contrato OpenAPI obsoleto: {salida}", file=sys.stderr)
+            return 1
         for salida, contenido in salidas.items():
             actual = salida.read_text(encoding="utf-8") if salida.exists() else None
             if actual != contenido:
@@ -330,6 +346,8 @@ def main() -> int:
                 return 1
         return 0
     DIRECTORIO_SALIDA.mkdir(parents=True, exist_ok=True)
+    for salida in obsoletas:
+        salida.unlink()
     for salida, contenido in salidas.items():
         salida.write_text(contenido, encoding="utf-8")
     return 0

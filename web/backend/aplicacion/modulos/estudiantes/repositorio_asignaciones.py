@@ -1,4 +1,4 @@
-"""Persistencia de asignaciones de beneficio y ruta."""
+"""Persistencia de estado de comedor y asignación de ruta."""
 
 from __future__ import annotations
 
@@ -6,21 +6,9 @@ from aplicacion.nucleo.base_datos import FabricaConexionSql
 
 
 class RepositorioSqlAsignaciones:
-    """Gestiona las referencias de beneficio y ruta del estudiante."""
+    """Gestiona exclusivamente las referencias operativas vigentes."""
 
     _fabrica: FabricaConexionSql
-
-    def asignar_beneficio(self, id_estudiante: int, id_beneficio: int | None) -> None:
-        with self._fabrica.conexion() as conexion:
-            conexion.cursor().execute(
-                "MERGE beneficios.asignacion AS destino USING (SELECT ? AS id_estudiante) AS origen ON destino.id_estudiante=origen.id_estudiante "
-                "WHEN MATCHED THEN UPDATE SET id_beneficio=?, actualizado_por=1, fecha_actualizacion=SYSUTCDATETIME() "
-                "WHEN NOT MATCHED THEN INSERT (id_estudiante,id_beneficio,creado_por) VALUES (?, ?, 1);",
-                id_estudiante,
-                id_beneficio,
-                id_estudiante,
-                id_beneficio,
-            )
 
     def actualizar_estado_comedor(self, id_estudiante: int, id_estado_comedor: int) -> None:
         if id_estado_comedor not in {1, 2}:

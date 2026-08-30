@@ -48,7 +48,7 @@ con SQL Server `17.0.4015.4` y se restauró el respaldo como
 `SCSC_MIGRACION_20260828`. La restauración terminó correctamente y la base quedó
 `ONLINE`.
 
-Alembic se ejecutó hasta `0035_normaliza_estado_horario_comedor (head)`. Durante la prueba
+Alembic se ejecutó hasta `0037_valida_horarios_operativos (head)`. Durante la prueba
 se corrigieron dos incompatibilidades reales del flujo histórico:
 
 - `0017_migracion_total_dominios` agregaba columnas y las usaba en el mismo lote
@@ -79,7 +79,9 @@ profesor; queda fuera correctamente de las métricas y marcas estudiantiles.
 
 - Integridad del respaldo: verificada.
 - Restauración compatible: completada en SQL Server 17 aislado.
-- Alembic hasta `0035_normaliza_estado_horario_comedor (head)`: completado.
+- Alembic hasta `0037_valida_horarios_operativos (head)`: completado.
+- Normalización por catálogo (`0036`) y validación de horarios (`0037`): completadas.
 - Extracción de fotos: completada y validada.
 - Traslado de datos legados: completado en la copia aislada.
 - Reconciliación comparativa: 0 hallazgos pendientes.
+- Ejecución analítica por ID: 1.628 señales generadas sin depender de la columna textual eliminada.
