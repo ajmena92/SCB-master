@@ -37,10 +37,23 @@ export default function Comedor() {
 
   useEffect(() => {
     function teclas(event: KeyboardEvent) {
-      if (event.key === "F2") { event.preventDefault(); setCodigoBarras(""); }
-      if (event.key === "F3") { event.preventDefault(); inputRef.current?.focus(); }
-      if (event.key === "F4") { event.preventDefault(); setMostrarHistorial((actual) => !actual); void recargarHistorial(); }
-      if (event.key === "F7") { event.preventDefault(); setAltoContraste((actual) => !actual); }
+      if (event.key === "F2") {
+        event.preventDefault();
+        setCodigoBarras("");
+      }
+      if (event.key === "F3") {
+        event.preventDefault();
+        inputRef.current?.focus();
+      }
+      if (event.key === "F4") {
+        event.preventDefault();
+        setMostrarHistorial((actual) => !actual);
+        void recargarHistorial();
+      }
+      if (event.key === "F7") {
+        event.preventDefault();
+        setAltoContraste((actual) => !actual);
+      }
     }
     window.addEventListener("keydown", teclas);
     return () => window.removeEventListener("keydown", teclas);
@@ -76,7 +89,11 @@ export default function Comedor() {
             Servidor {fecha} · {horaServidor}
           </span>
           <span className="flex items-center gap-1 rounded-full border border-white/10 px-3 py-2 text-sm">
-            {conexionDisponible ? <Wifi className="h-4 w-4 text-emerald-300" /> : <WifiOff className="h-4 w-4 text-rose-300" />}
+            {conexionDisponible ? (
+              <Wifi className="h-4 w-4 text-emerald-300" />
+            ) : (
+              <WifiOff className="h-4 w-4 text-rose-300" />
+            )}
             {conexionDisponible ? "Conectado" : "Sin conexión"}
           </span>
           <Button
@@ -89,7 +106,10 @@ export default function Comedor() {
         </div>
       </header>
       {pequeno && (
-        <div className="border-b border-amber-300/30 bg-amber-300/10 px-5 py-3 text-center text-amber-100" role="alert">
+        <div
+          className="border-b border-amber-300/30 bg-amber-300/10 px-5 py-3 text-center text-amber-100"
+          role="alert"
+        >
           Maximice la ventana a 1280×720 o superior para habilitar la operación.
         </div>
       )}
@@ -112,14 +132,22 @@ export default function Comedor() {
                 ? "Cargando horarios…"
                 : configuracion.isError
                   ? "No disponible"
-              : "Comedor habilitado"}
+                  : "Comedor habilitado"}
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button variant="outline" className="border-white/20 bg-transparent text-white" onClick={() => setModoManual((actual) => !actual)}>
+            <Button
+              variant="outline"
+              className="border-white/20 bg-transparent text-white"
+              onClick={() => setModoManual((actual) => !actual)}
+            >
               {modoManual ? "Modo lector" : "Habilitar entrada manual"}
             </Button>
-            <Button variant="outline" className="border-white/20 bg-transparent text-white" onClick={() => setAltoContraste((actual) => !actual)}>
+            <Button
+              variant="outline"
+              className="border-white/20 bg-transparent text-white"
+              onClick={() => setAltoContraste((actual) => !actual)}
+            >
               {altoContraste ? "Contraste normal" : "Alto contraste"}
             </Button>
           </div>
@@ -127,7 +155,9 @@ export default function Comedor() {
             ● Lector listo · F2 limpiar · F3 foco · F4 historial · F7 contraste
           </p>
           <p className="text-sm text-slate-300">
-            {horarios.length === 1 ? `Horario: ${horarios[0].descripcion}` : "Horario automático según la persona"}
+            {horarios.length === 1
+              ? `Horario: ${horarios[0].descripcion}`
+              : "Horario automático según la persona"}
           </p>
         </aside>
         <main className="flex min-w-0 flex-col justify-center">
@@ -147,7 +177,9 @@ export default function Comedor() {
               onKeyDown={(e) => {
                 if (e.key === "Enter") void registrar();
               }}
-              placeholder={modoManual ? "Escriba el código y presione Enter" : "Escanee el código de barras"}
+              placeholder={
+                modoManual ? "Escriba el código y presione Enter" : "Escanee el código de barras"
+              }
               autoComplete="off"
               className="h-16 border-white/15 bg-slate-900 text-center text-xl text-white placeholder:text-slate-500 sm:text-2xl"
             />
@@ -173,26 +205,50 @@ export default function Comedor() {
                 role="status"
               >
                 <p className="text-sm font-bold uppercase tracking-widest text-emerald-300">
-                  {ultimoIngreso.resultado === "tardio" ? "Ingreso tardío permitido" : "Ingreso registrado"}
+                  {ultimoIngreso.resultado === "tardio"
+                    ? "Ingreso tardío permitido"
+                    : "Ingreso registrado"}
                 </p>
                 <p className="mt-2 text-lg">
                   Modalidad:{" "}
                   <strong>{ultimoIngreso.modalidad === "beca" ? "Beca" : "Tiquete"}</strong>
                 </p>
                 <p className="text-sm text-slate-300">{ultimoIngreso.nombreCompleto}</p>
-                {ultimoIngreso.advertencias?.map((advertencia) => <p key={advertencia} className="mt-1 text-sm text-amber-200">Advertencia: {advertencia}</p>)}
+                {ultimoIngreso.advertencias?.map((advertencia) => (
+                  <p key={advertencia} className="mt-1 text-sm text-amber-200">
+                    Advertencia: {advertencia}
+                  </p>
+                ))}
               </div>
             )}
             {errorOperacion && (
-              <div className="mt-8 rounded-2xl border border-rose-400/40 bg-rose-400/10 p-5 text-center" role="alert" data-testid={`operacion-error-${errorOperacion.codigo}`}>
-                <p className="text-sm font-bold uppercase tracking-widest text-rose-200">{errorOperacion.codigo.replaceAll("_", " ")}</p>
+              <div
+                className="mt-8 rounded-2xl border border-rose-400/40 bg-rose-400/10 p-5 text-center"
+                role="alert"
+                data-testid={`operacion-error-${errorOperacion.codigo}`}
+              >
+                <p className="text-sm font-bold uppercase tracking-widest text-rose-200">
+                  {errorOperacion.codigo.replaceAll("_", " ")}
+                </p>
                 <p className="mt-2 text-lg text-rose-50">{errorOperacion.mensaje}</p>
               </div>
             )}
             {mostrarHistorial && (
-              <div className="mt-6 rounded-2xl border border-white/10 bg-black/20 p-4" aria-label="Historial de ingresos">
+              <div
+                className="mt-6 rounded-2xl border border-white/10 bg-black/20 p-4"
+                aria-label="Historial de ingresos"
+              >
                 <h4 className="font-bold">Últimos ingresos</h4>
-                {historial.length === 0 ? <p className="mt-2 text-sm text-slate-400">No hay ingresos cargados.</p> : historial.map((ingreso) => <p key={ingreso.idIngreso} className="mt-2 flex justify-between gap-3 text-sm"><span>{ingreso.nombreCompleto}</span><span>{ingreso.horaMarca ?? ingreso.resultado}</span></p>)}
+                {historial.length === 0 ? (
+                  <p className="mt-2 text-sm text-slate-400">No hay ingresos cargados.</p>
+                ) : (
+                  historial.map((ingreso) => (
+                    <p key={ingreso.idIngreso} className="mt-2 flex justify-between gap-3 text-sm">
+                      <span>{ingreso.nombreCompleto}</span>
+                      <span>{ingreso.horaMarca ?? ingreso.resultado}</span>
+                    </p>
+                  ))
+                )}
               </div>
             )}
           </div>

@@ -27,7 +27,6 @@ const CorreccionesTab = lazy(() => import("@/funcionalidades/administracion/pagi
 const ParametrosTab = lazy(() => import("@/funcionalidades/administracion/paginas/Parametros"));
 const Estudiantes = lazy(() => import("@/funcionalidades/administracion/paginas/Estudiantes"));
 const Asistencia = lazy(() => import("@/funcionalidades/administracion/paginas/Asistencia"));
-const Beneficios = lazy(() => import("@/funcionalidades/administracion/paginas/Beneficios"));
 const Cuentas = lazy(() => import("@/funcionalidades/administracion/paginas/Cuentas"));
 const Comedor = lazy(() => import("@/funcionalidades/comedor/paginas/Comedor"));
 const Reportes = lazy(() => import("@/funcionalidades/administracion/paginas/Reportes"));
@@ -144,17 +143,6 @@ export const ADMIN_NAVIGATION = [
     requiredPermissions: ["asistencia.leer"],
     icon: CalendarRange,
     C: Asistencia,
-  },
-  {
-    v: "beneficios",
-    id: "beneficios",
-    label: "Beneficios",
-    shortLabel: "Beneficios",
-    group: "personas",
-    path: "/admin/panel/personas/beneficios",
-    requiredPermissions: ["beneficios.leer"],
-    icon: Users,
-    C: Beneficios,
   },
   {
     v: "cuentas",

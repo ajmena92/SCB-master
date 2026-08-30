@@ -9,12 +9,12 @@ export interface AlertaDashboard {
 export interface DashboardSalida {
   alertas?: Array<AlertaDashboard>;
   asistencia: MetricaAsistencia;
-  becadosComedor: number;
+  beneficiariosComedor: number;
   consumoComedor: number;
   fecha: string;
   horarios?: Array<"diurno" | "nocturno">;
   ingresosHistoricos?: number;
-  noBecados: number;
+  noBeneficiarios: number;
   nominal: NominalPaginado;
   porEstadoComedor: Array<GrupoDashboard>;
   porHorario: Array<GrupoDashboard>;

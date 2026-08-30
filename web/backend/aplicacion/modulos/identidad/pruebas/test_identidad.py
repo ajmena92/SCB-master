@@ -3,6 +3,7 @@ from datetime import datetime, timedelta, timezone
 import pytest
 
 from aplicacion.modulos.identidad.esquemas import CredencialesUsuario, SesionPersistida
+from aplicacion.modulos.identidad.repositorio import RepositorioSqlIntentosAutenticacion
 from aplicacion.modulos.identidad.seguridad import (
     comparar_secreto_sesion,
     hash_contrasena,
@@ -155,3 +156,11 @@ def test_hash_contrasena_vacio_es_invalido() -> None:
 def test_requiere_rehash_rechaza_hash_invalido_y_acepta_hash_actual() -> None:
     assert requiere_rehash("no-es-un-hash")
     assert not requiere_rehash(hash_contrasena("Clave segura 2026"))
+
+
+def test_normaliza_datetime2_de_sql_server_a_utc() -> None:
+    fecha_sql = datetime(2026, 1, 1, 12, 0)
+    fecha = RepositorioSqlIntentosAutenticacion._fecha_utc(fecha_sql)
+    assert fecha is not None
+    assert fecha.tzinfo == timezone.utc
+    assert fecha.replace(tzinfo=None) == fecha_sql

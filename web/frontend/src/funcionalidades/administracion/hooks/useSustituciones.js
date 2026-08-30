@@ -5,10 +5,7 @@ import {
   consultarSustituciones,
   guardarSustitucion,
 } from "@/funcionalidades/administracion/consultas/menu";
-import {
-  prepararComponente,
-  prepararComponentes,
-} from "@/funcionalidades/menu/componentesMenu";
+import { prepararComponente, prepararComponentes } from "@/funcionalidades/menu/componentesMenu";
 import { toast } from "sonner";
 
 export function useSustituciones() {

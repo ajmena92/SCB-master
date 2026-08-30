@@ -72,6 +72,7 @@ class RepositorioSqlReportes(RepositorioSqlProfesores):
             FROM transporte.ruta AS r
             LEFT JOIN transporte.asignacion_ruta AS a
               ON a.id_ruta = r.id_ruta AND a.activa = 1
+            WHERE LTRIM(RTRIM(r.codigo)) <> N'0000'
             GROUP BY r.id_ruta, r.codigo, r.descripcion, r.activo
             ORDER BY r.activo DESC, r.codigo, r.id_ruta
         """
@@ -147,6 +148,7 @@ class RepositorioSqlReportes(RepositorioSqlProfesores):
         busqueda: str | None = None,
         id_ruta: int | None = None,
         id_estado_comedor: int | None = None,
+        beneficio_transporte: str | None = None,
         seccion: str | None = None,
         estado: str | None = None,
         tipo_persona: str = "estudiante",
@@ -162,8 +164,12 @@ class RepositorioSqlReportes(RepositorioSqlProfesores):
             filtros.append("(e.nombre LIKE ? OR e.primer_apellido LIKE ? OR e.cedula LIKE ? OR e.seccion LIKE ?)")
             filtro_parametros.extend([f"%{busqueda}%"] * 4)
         if id_ruta is not None:
-            filtros.append("ar.id_ruta=?")
+            filtros.append("r.id_ruta=?")
             filtro_parametros.append(id_ruta)
+        if beneficio_transporte == "beneficiario":
+            filtros.append("r.id_ruta IS NOT NULL")
+        elif beneficio_transporte == "no_beneficiario":
+            filtros.append("r.id_ruta IS NULL")
         if id_estado_comedor:
             filtros.append("cp.id_estado_comedor=?")
             filtro_parametros.append(id_estado_comedor)
@@ -185,7 +191,8 @@ class RepositorioSqlReportes(RepositorioSqlProfesores):
             OUTER APPLY (SELECT TOP 1 id_ruta FROM transporte.asignacion_ruta
                          WHERE id_estudiante=e.id_estudiante AND activa=1
                          ORDER BY fecha_creacion DESC, id_asignacion DESC) ar
-            LEFT JOIN transporte.ruta r ON r.id_ruta=ar.id_ruta
+            LEFT JOIN transporte.ruta r ON r.id_ruta=ar.id_ruta AND r.activo=1
+                AND LTRIM(RTRIM(r.codigo))<>N'0000'
             LEFT JOIN comedor.ingreso ci ON ci.id_persona=cp.id_persona AND ci.fecha=?
             INNER JOIN comedor.estado_comedor ec ON ec.id_estado_comedor=cp.id_estado_comedor
             WHERE {where}
@@ -213,7 +220,8 @@ class RepositorioSqlReportes(RepositorioSqlProfesores):
                     OUTER APPLY (SELECT TOP 1 id_ruta FROM transporte.asignacion_ruta
                                  WHERE id_estudiante=e.id_estudiante AND activa=1
                                  ORDER BY fecha_creacion DESC, id_asignacion DESC) ar
-                    LEFT JOIN transporte.ruta r ON r.id_ruta=ar.id_ruta
+                    LEFT JOIN transporte.ruta r ON r.id_ruta=ar.id_ruta AND r.activo=1
+                        AND LTRIM(RTRIM(r.codigo))<>N'0000'
                     LEFT JOIN comedor.ingreso ci ON ci.id_persona=cp.id_persona AND ci.fecha=?
                     INNER JOIN comedor.estado_comedor ec ON ec.id_estado_comedor=cp.id_estado_comedor
                     WHERE {where}
@@ -232,7 +240,7 @@ class RepositorioSqlReportes(RepositorioSqlProfesores):
                 *base_parametros,
             )
             fila = cursor.fetchone() or (0,) * 8
-            total, presentes, ausentes, tardanzas, justificadas, consumo, becados, no_becados = map(int, fila)
+            total, presentes, ausentes, tardanzas, justificadas, consumo, beneficiarios, no_beneficiarios = map(int, fila)
 
             cursor.execute(
                 """SELECT
@@ -242,13 +250,13 @@ class RepositorioSqlReportes(RepositorioSqlProfesores):
                 """ + base,
                 *base_parametros,
             )
-            sin_asistencia, becados_sin_consumo, no_becados_sin_ingreso = map(
+            sin_asistencia, beneficiarios_sin_consumo, no_beneficiarios_sin_ingreso = map(
                 int, cursor.fetchone() or (0, 0, 0)
             )
             alertas = [
-                {"tipo": "becados_sin_asistencia", "titulo": "Becados sin asistencia", "cantidad": sin_asistencia},
-                {"tipo": "becados_sin_consumo", "titulo": "Becados sin consumo", "cantidad": becados_sin_consumo},
-                {"tipo": "no_becados_sin_ingreso", "titulo": "No becados sin ingreso", "cantidad": no_becados_sin_ingreso},
+                {"tipo": "beneficiarios_sin_asistencia", "titulo": "Beneficiarios sin asistencia", "cantidad": sin_asistencia},
+                {"tipo": "beneficiarios_sin_consumo", "titulo": "Beneficiarios sin consumo", "cantidad": beneficiarios_sin_consumo},
+                {"tipo": "no_beneficiarios_sin_ingreso", "titulo": "No beneficiarios sin ingreso", "cantidad": no_beneficiarios_sin_ingreso},
             ]
 
             grupos: dict[str, list[dict]] = {}
@@ -297,7 +305,9 @@ class RepositorioSqlReportes(RepositorioSqlProfesores):
                 """SELECT e.id_estudiante, CONCAT(e.nombre,N' ',e.primer_apellido,N' ',ISNULL(e.segundo_apellido,N'')), e.cedula,
                     COALESCE(e.turno,N'Sin horario'), COALESCE(e.seccion,N'Sin sección'),
                     cp.id_estado_comedor, ec.descripcion,
-                    COALESCE(r.codigo,N'Sin ruta'), m.estado, m.id_marca, e.activo, cp.id_persona
+                    CASE WHEN r.id_ruta IS NULL THEN N'No beneficiario'
+                         ELSE CONCAT(N'Beneficiario – ',r.descripcion) END,
+                    m.estado, m.id_marca, e.activo, cp.id_persona
                 """ + base + " ORDER BY e.primer_apellido,e.nombre,e.id_estudiante OFFSET ? ROWS FETCH NEXT ? ROWS ONLY",
                 *base_parametros,
                 (pagina - 1) * por_pagina,
@@ -319,7 +329,9 @@ class RepositorioSqlReportes(RepositorioSqlProfesores):
             "horarios": horarios,
             "alertas": alertas,
             "asistencia": {"total": total, "presentes": presentes, "ausentes": ausentes, "tardanzas": tardanzas, "justificadas": justificadas, "sin_registro": max(total - presentes - ausentes - tardanzas - justificadas, 0), "cobertura_registro": self._porcentaje(presentes + ausentes + tardanzas + justificadas, total), "porcentaje": self._porcentaje(presentes, total)},
-            "consumo_comedor": consumo, "becados_comedor": becados, "no_becados": no_becados,
+            "consumo_comedor": consumo,
+            "beneficiarios_comedor": beneficiarios,
+            "no_beneficiarios": no_beneficiarios,
             **grupos, "por_ruta": por_ruta, "semana": semana, "ultimos_cinco_dias": ultimos,
             "nominal": {"elementos": nominal, "total": total_nominal, "pagina": pagina, "por_pagina": por_pagina},
         }

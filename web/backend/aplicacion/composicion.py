@@ -8,7 +8,6 @@ from aplicacion.dependencias import ContratoDependenciasModulo
 from aplicacion.modulos.administracion.api import crear_enrutador as crear_enrutador_administracion
 from aplicacion.modulos.asistencia.api import crear_enrutador as crear_enrutador_asistencia
 from aplicacion.modulos.auditoria.api import crear_enrutador as crear_enrutador_auditoria
-from aplicacion.modulos.beneficios.api import crear_enrutador as crear_enrutador_beneficios
 from aplicacion.modulos.comedor.api import crear_enrutador as crear_enrutador_comedor
 from aplicacion.modulos.comedor.profesor_portal import crear_enrutador_profesores
 from aplicacion.modulos.cuentas.api import crear_enrutador as crear_enrutador_cuentas
@@ -41,7 +40,6 @@ def crear_enrutador_aplicacion(
     dependencias_identidad: ContratoDependenciasModulo | None = None,
     dependencias_estudiantes: ContratoDependenciasModulo | None = None,
     dependencias_asistencia: ContratoDependenciasModulo | None = None,
-    dependencias_beneficios: ContratoDependenciasModulo | None = None,
     dependencias_cuentas: ContratoDependenciasModulo | None = None,
     dependencias_reportes: ContratoDependenciasModulo | None = None,
     dependencias_importaciones: ContratoDependenciasModulo | None = None,
@@ -126,15 +124,6 @@ def crear_enrutador_aplicacion(
                 obtener_ip=dependencias_asistencia["obtener_ip"],
             )
         )
-    if dependencias_beneficios:
-        enrutador.include_router(
-            crear_enrutador_beneficios(
-                obtener_repositorio=dependencias_beneficios["obtener_repositorio"],
-                exigir_permiso=dependencias_beneficios["exigir_permiso"],
-                exigir_csrf=dependencias_beneficios["exigir_csrf"],
-                obtener_ip=dependencias_beneficios["obtener_ip"],
-            )
-        )
     if dependencias_cuentas:
         enrutador.include_router(
             crear_enrutador_cuentas(
@@ -202,7 +191,6 @@ def incluir_modulos(
     dependencias_identidad: ContratoDependenciasModulo | None = None,
     dependencias_estudiantes: ContratoDependenciasModulo | None = None,
     dependencias_asistencia: ContratoDependenciasModulo | None = None,
-    dependencias_beneficios: ContratoDependenciasModulo | None = None,
     dependencias_cuentas: ContratoDependenciasModulo | None = None,
     dependencias_reportes: ContratoDependenciasModulo | None = None,
     dependencias_importaciones: ContratoDependenciasModulo | None = None,
@@ -222,7 +210,6 @@ def incluir_modulos(
             dependencias_identidad,
             dependencias_estudiantes,
             dependencias_asistencia,
-            dependencias_beneficios,
             dependencias_cuentas,
             dependencias_reportes,
             dependencias_importaciones,

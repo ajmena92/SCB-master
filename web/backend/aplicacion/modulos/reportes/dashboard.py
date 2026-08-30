@@ -83,8 +83,8 @@ class DashboardSalida(BaseModel):
     tipo_persona: Literal["estudiante", "profesor"] = Field(serialization_alias="tipoPersona")
     asistencia: MetricaAsistencia
     consumo_comedor: int = Field(serialization_alias="consumoComedor")
-    becados_comedor: int = Field(serialization_alias="becadosComedor")
-    no_becados: int = Field(serialization_alias="noBecados")
+    beneficiarios_comedor: int = Field(serialization_alias="beneficiariosComedor")
+    no_beneficiarios: int = Field(serialization_alias="noBeneficiarios")
     por_horario: list[GrupoDashboard] = Field(serialization_alias="porHorario")
     horarios: list[Literal["diurno", "nocturno"]] = Field(default_factory=list)
     alertas: list[AlertaDashboard] = Field(default_factory=list)
@@ -113,6 +113,9 @@ def crear_enrutador_dashboard(
         busqueda: str | None = Query(None),
         ruta: int | None = Query(None),
         id_estado_comedor: Literal[1, 2] | None = Query(None, alias="idEstadoComedor"),
+        beneficio_transporte: Literal["beneficiario", "no_beneficiario"] | None = Query(
+            None, alias="beneficioTransporte"
+        ),
         tipo_persona: Literal["estudiante", "profesor"] = Query(
             "estudiante", alias="tipoPersona"
         ),
@@ -130,6 +133,7 @@ def crear_enrutador_dashboard(
                 busqueda=busqueda,
                 id_ruta=ruta,
                 id_estado_comedor=id_estado_comedor,
+                beneficio_transporte=beneficio_transporte,
                 tipo_persona=tipo_persona,
                 seccion=seccion,
                 estado=estado,

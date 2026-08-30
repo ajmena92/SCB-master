@@ -46,7 +46,10 @@ class RepositorioSqlRutas:
         return dict(zip(columnas, fila))
 
     def listar(self, incluir_inactivas: bool = False) -> list[dict]:
-        filtro = "" if incluir_inactivas else "WHERE r.activo = 1"
+        condiciones = ["LTRIM(RTRIM(r.codigo)) <> N'0000'"]
+        if not incluir_inactivas:
+            condiciones.append("r.activo = 1")
+        filtro = "WHERE " + " AND ".join(condiciones)
         consulta = f"""
             SELECT r.id_ruta, r.codigo, r.descripcion, r.activo, r.color_hex,
                    COUNT(a.id_estudiante) AS estudiantes_asignados

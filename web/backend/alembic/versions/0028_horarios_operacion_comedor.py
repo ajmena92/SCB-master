@@ -36,15 +36,32 @@ def upgrade() -> None:
             IF OBJECT_ID(N'dbo.Horario', N'U') IS NOT NULL
                AND COL_LENGTH(N'dbo.Horario', N'HoraLimite') IS NOT NULL
                AND COL_LENGTH(N'dbo.Horario', N'IdHorario') IS NOT NULL
+               AND COL_LENGTH(N'dbo.Horario', N'Descripcion') IS NOT NULL
             BEGIN
                 IF EXISTS (SELECT 1 FROM dbo.Horario WHERE HoraLimite IS NULL)
                     THROW 50060, 'Horario contiene registros sin HoraLimite; corte abortado', 1;
                 IF (SELECT COUNT(*) FROM dbo.Horario) > 2
                     THROW 50064, 'dbo.Horario contiene más de dos horarios; mapeo explícito requerido', 1;
                 EXEC sys.sp_executesql N'
+                    IF EXISTS (
+                        SELECT 1 FROM dbo.Horario
+                        WHERE UPPER(LTRIM(RTRIM(Descripcion))) NOT LIKE N''%DIURN%''
+                          AND UPPER(LTRIM(RTRIM(Descripcion))) NOT LIKE N''%NOCTURN%''
+                    )
+                        THROW 50071, ''Horario contiene una descripción no soportada'', 1;
+                    IF EXISTS (
+                        SELECT codigo FROM (
+                            SELECT CASE
+                                WHEN UPPER(LTRIM(RTRIM(Descripcion))) LIKE N''%NOCTURN%'' THEN ''nocturno''
+                                ELSE ''diurno'' END codigo
+                            FROM dbo.Horario
+                        ) clasificados GROUP BY codigo HAVING COUNT(*) > 1
+                    )
+                        THROW 50072, ''Horario contiene descripciones semánticas duplicadas'', 1;
                     INSERT comedor.horario_operacion(codigo,descripcion,hora_limite,origen,hora_limite_origen,id_horario_origen)
-                    SELECT CASE WHEN ROW_NUMBER() OVER (ORDER BY IdHorario)=1 THEN ''diurno'' ELSE ''nocturno'' END,
-                           CONCAT(N''Horario '',CONVERT(nvarchar(20),IdHorario)),HoraLimite,''dbo.Horario'',HoraLimite
+                    SELECT CASE WHEN UPPER(LTRIM(RTRIM(Descripcion))) LIKE N''%NOCTURN%''
+                                THEN ''nocturno'' ELSE ''diurno'' END,
+                           Descripcion,HoraLimite,''dbo.Horario'',HoraLimite
                            ,IdHorario
                     FROM (SELECT * FROM dbo.Horario) h
                     WHERE NOT EXISTS (SELECT 1 FROM comedor.horario_operacion o
@@ -56,6 +73,9 @@ def upgrade() -> None:
             IF OBJECT_ID(N'dbo.Horario', N'U') IS NOT NULL
                AND COL_LENGTH(N'dbo.Horario', N'IdHorario') IS NULL
                 THROW 50063, 'dbo.Horario no contiene IdHorario; corte abortado', 1;
+            IF OBJECT_ID(N'dbo.Horario', N'U') IS NOT NULL
+               AND COL_LENGTH(N'dbo.Horario', N'Descripcion') IS NULL
+                THROW 50071, 'dbo.Horario no contiene Descripcion; corte abortado', 1;
             IF NOT EXISTS (SELECT 1 FROM comedor.horario_operacion WHERE codigo='diurno')
                 INSERT comedor.horario_operacion(codigo,descripcion,hora_limite,origen)
                 VALUES ('diurno',N'Diurno','12:00','valor_predeterminado');

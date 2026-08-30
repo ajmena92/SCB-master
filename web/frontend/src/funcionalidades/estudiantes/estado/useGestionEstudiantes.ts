@@ -137,9 +137,7 @@ export function useGestionEstudiantes() {
         idEstadoComedor,
       });
       setPerfil((actual) =>
-        actual
-          ? { ...actual, estudiante: { ...actual.estudiante, idEstadoComedor } }
-          : actual,
+        actual ? { ...actual, estudiante: { ...actual.estudiante, idEstadoComedor } } : actual,
       );
       toast.success("Estado de comedor actualizado");
       await recargar();
@@ -152,24 +150,13 @@ export function useGestionEstudiantes() {
   const guardarRuta = async (evento: ChangeEvent<HTMLSelectElement>) => {
     if (!estudianteSeleccionado) return;
     const idRuta = evento.target.value === "" ? null : Number(evento.target.value);
-    const ruta = rutas.find((actual) => actual.idRuta === idRuta);
     setGuardandoPerfil(true);
     try {
-      await api.put(`/v1/estudiantes/${estudianteSeleccionado.idEstudiante}/ruta`, { idRuta });
-      setPerfil((actual) =>
-        actual
-          ? {
-              ...actual,
-              estudiante: {
-                ...actual.estudiante,
-                idRuta,
-                rutaCodigo: ruta?.codigo || null,
-                rutaDescripcion: ruta?.descripcion || null,
-                rutaColor: ruta?.colorCarnetHex || "#CBD5E1",
-              },
-            }
-          : actual,
+      const { data } = await api.put<PerfilEstudiante>(
+        `/v1/estudiantes/${estudianteSeleccionado.idEstudiante}/ruta`,
+        { idRuta },
       );
+      setPerfil(data);
       toast.success("Ruta actualizada");
       await recargar();
     } catch (error) {

@@ -83,12 +83,6 @@ export const OPERACIONES_ESTUDIANTES: readonly OperacionApi[] = [
   },
   {
     metodo: "PUT",
-    ruta: "/api/v1/estudiantes/{id_estudiante}/beneficio",
-    operacionId: "beneficio_api_v1_estudiantes__id_estudiante__beneficio_put",
-    dominio: "estudiantes",
-  },
-  {
-    metodo: "PUT",
     ruta: "/api/v1/estudiantes/{id_estudiante}/estado-comedor",
     operacionId: "estado_comedor_api_v1_estudiantes__id_estudiante__estado_comedor_put",
     dominio: "estudiantes",

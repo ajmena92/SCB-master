@@ -39,6 +39,7 @@ export default function DashboardTab() {
   const [busqueda, setBusqueda] = useState("");
   const [ruta, setRuta] = useState("");
   const [idEstadoComedor, setIdEstadoComedor] = useState("");
+  const [beneficioTransporte, setBeneficioTransporte] = useState("");
   const [seccion, setSeccion] = useState("");
   const [estado, setEstado] = useState("");
   const [horario, setHorario] = useState("");
@@ -48,6 +49,7 @@ export default function DashboardTab() {
     ...(busqueda ? { busqueda } : {}),
     ...(ruta ? { ruta } : {}),
     ...(idEstadoComedor ? { idEstadoComedor } : {}),
+    ...(beneficioTransporte ? { beneficioTransporte } : {}),
     ...(seccion ? { seccion } : {}),
     ...(estado ? { estado } : {}),
     ...(horario ? { horario } : {}),
@@ -185,9 +187,11 @@ export default function DashboardTab() {
               icon={Users}
             />
             <MetricCard
-              label={esProfesor ? "Personas no becadas" : "Becados comedor"}
-              value={data?.becadosComedor ?? 0}
-              detail={esProfesor ? "Requieren tiquete" : `${data?.noBecados ?? 0} sin beca`}
+              label={esProfesor ? "Personas con tiquete" : "Beneficiarios de comedor"}
+              value={data?.beneficiariosComedor ?? 0}
+              detail={
+                esProfesor ? "Requieren tiquete" : `${data?.noBeneficiarios ?? 0} no beneficiarios`
+              }
               icon={GraduationCap}
             />
             <MetricCard
@@ -334,6 +338,22 @@ export default function DashboardTab() {
             </div>
             {!esProfesor && (
               <select
+                aria-label="Filtrar beneficio de transporte"
+                value={beneficioTransporte}
+                onChange={(e) => {
+                  setBeneficioTransporte(e.target.value);
+                  setRuta("");
+                  setPagina(1);
+                }}
+                className="h-10 rounded-md border bg-background px-3 text-sm"
+              >
+                <option value="">Todo beneficio de transporte</option>
+                <option value="beneficiario">Beneficiario</option>
+                <option value="no_beneficiario">No beneficiario</option>
+              </select>
+            )}
+            {!esProfesor && (
+              <select
                 aria-label="Filtrar ruta"
                 value={ruta}
                 onChange={(e) => {
@@ -403,7 +423,7 @@ export default function DashboardTab() {
                 <TableHead>{esProfesor ? "Profesor" : "Estudiante"}</TableHead>
                 {!esProfesor && <TableHead>Sección</TableHead>}
                 {!esProfesor && <TableHead>Ruta</TableHead>}
-                <TableHead>{esProfesor ? "Persona" : "Estado comedor"}</TableHead>
+                <TableHead>{esProfesor ? "Persona" : "Beneficio de comedor"}</TableHead>
                 <TableHead>Estado</TableHead>
               </TableRow>
             </TableHeader>

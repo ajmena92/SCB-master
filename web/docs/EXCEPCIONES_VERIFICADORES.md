@@ -8,8 +8,23 @@ Los controles se aplican al backend activo (`backend/aplicacion`) y a la estruct
 
 ## Archivos mayores a 300 líneas
 
-No hay excepciones permanentes para contratos generados. El inventario de operaciones se
-mantiene separado de los esquemas y las salidas por dominio no requieren exclusión del límite.
+No hay excepciones para contratos generados. El inventario de operaciones se mantiene
+separado de los esquemas y las salidas por dominio no requieren exclusión del límite.
+
+Los siguientes archivos productivos superan temporalmente el límite. La excepción solo
+evita mezclar esta deuda conocida con regresiones nuevas; no los declara conformes:
+
+- `comedor/repositorio_operacion.py`: transacción atómica y auditoría del ingreso;
+- `identidad/repositorio.py` y `identidad/servicio.py`: autenticación administrativa y estudiantil;
+- `reportes/repositorio.py`: agregados y nominal del dashboard;
+- `Dashboard.jsx`: composición de métricas, filtros y gráficas;
+- `usePortalEstudiante.ts`: orquestación del portal estudiantil;
+- `Plantillas.tsx`: editor semanal de menú.
+
+Las pruebas y los ejecutores de mantenimiento se excluyen de las reglas de tamaño y SQL,
+respectivamente: no son componentes productivos ni endpoints y necesitan expresar escenarios
+o tareas operativas completas. Cualquier archivo productivo nuevo mayor a 300 líneas continúa
+fallando la guardia.
 
 ## Inglés propio permitido
 

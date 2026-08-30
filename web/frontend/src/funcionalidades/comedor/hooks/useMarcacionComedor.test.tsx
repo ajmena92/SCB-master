@@ -1,6 +1,6 @@
 import { act } from "react";
 import { createRoot } from "react-dom/client";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 /* El arnés inspecciona el valor del hook para verificar el temporizador. */
 /* eslint-disable react-hooks/refs */
@@ -47,12 +47,17 @@ function PruebaHook() {
 describe("useMarcacionComedor", () => {
   beforeEach(() => {
     vi.useFakeTimers();
+    registrarMarcacion.mockClear();
     registrarMarcacion.mockResolvedValue({
       idIngreso: 1,
       nombreCompleto: "Estudiante",
       modalidad: "beca",
       resultado: "registrado",
     });
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it("limpia el último resultado después de 60 segundos", async () => {
@@ -69,6 +74,35 @@ describe("useMarcacionComedor", () => {
     expect(contenedor.querySelector("output")?.textContent).toBe("vacio");
     act(() => raiz.unmount());
     contenedor.remove();
-    vi.useRealTimers();
+  });
+
+  it("ignora una segunda lectura mientras la primera sigue en curso", async () => {
+    let resolver!: (valor: Record<string, unknown>) => void;
+    registrarMarcacion.mockReturnValueOnce(
+      new Promise((resolve) => {
+        resolver = resolve;
+      }),
+    );
+    const contenedor = document.createElement("div");
+    document.body.appendChild(contenedor);
+    const raiz = createRoot(contenedor);
+    act(() => raiz.render(<PruebaHook />));
+    const [registrar, preparar] = contenedor.querySelectorAll("button");
+    act(() => preparar.click());
+    act(() => {
+      registrar.click();
+      registrar.click();
+    });
+    expect(registrarMarcacion).toHaveBeenCalledTimes(1);
+    await act(async () =>
+      resolver({
+        idIngreso: 1,
+        nombreCompleto: "Estudiante",
+        modalidad: "beca",
+        resultado: "registrado",
+      }),
+    );
+    act(() => raiz.unmount());
+    contenedor.remove();
   });
 });

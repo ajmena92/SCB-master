@@ -19,7 +19,7 @@ npm run verificar:cliente
 
 Los esquemas se separan por dominio en `frontend/src/compartido/contratos/`:
 
-- `identidad.ts`, `estudiantes.ts`, `transporte.ts`, `asistencia.ts` y `beneficios.ts`;
+- `identidad.ts`, `estudiantes.ts`, `transporte.ts` y `asistencia.ts`;
 - `cuentas.ts`, `reportes.ts`, `importaciones.ts`, `auditoria.ts` y `administracion.ts`;
 - `menu.ts`, `comedor.ts`, `soporte.ts`, `parametros.ts`, `salud.ts` y `comunes.ts`.
 
@@ -42,12 +42,23 @@ actualiza el backend, se regenera el cliente y se ejecutan las comprobaciones de
 
 ## Contrato de comedor
 
-El contrato canónico de comedor define personas, estado (`becado_comedor` o `no_becado_comedor`),
-cuentas y movimientos de tiquetes, reservas e ingresos. El estado de comedor es la
-única fuente para decidir la autorización de ingreso. La modalidad histórica de `0023`
+El contrato canónico de comedor define personas, el catálogo de estado, cuentas y
+movimientos de tiquetes, reservas e ingresos. `comedor.persona` persiste únicamente
+`id_estado_comedor`: `1` representa beneficio completo y `2` ausencia de beneficio.
+La descripción visible (`Beneficiario` o `No beneficiario`) se obtiene mediante el
+catálogo `comedor.estado_comedor`; no se almacena un segundo estado textual en la persona.
+Este identificador es la única fuente para decidir la autorización de ingreso. La modalidad histórica de `0023`
 no constituye por sí sola un endpoint vigente. Las operaciones públicas deben mantenerse separadas
 por estado, cuentas, reservas, ingreso por carnet y estadísticas por `tipoPersona`
 (`estudiante` o `profesor`).
+
+En transporte, una asignación vigente a la ruta técnica `0000`, una ruta inactiva o la
+ausencia de asignación significan `No beneficiario`. Una ruta activa distinta de `0000`
+se presenta como `Beneficiario – descripción de ruta`; el frontend no interpreta códigos.
+
+El esquema histórico `beneficios` se conserva solo para trazabilidad de beneficios no
+operativos y reconciliación. `TipoBeca`, `id_beneficio` y `dias_permitidos` no forman
+parte del contrato ni de las reglas activas de comedor.
 
 Las estadísticas estudiantiles deben excluir profesores en el servidor, no solo en la
 interfaz. Estos endpoints no se consideran disponibles hasta contar con persistencia

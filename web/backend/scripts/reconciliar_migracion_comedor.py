@@ -33,11 +33,21 @@ CONSULTAS_COMPARATIVAS = {
             CONCAT(N'Saldo local=',u.CantidadTiquetes,N'; saldo web=',ct.saldo,
                    N'; reservados web=',ct.reservados)
             FROM dbo.Usuario u
-            INNER JOIN comedor.persona p ON
-                (u.CodTipo=1 AND p.tipo_persona='estudiante' AND p.id_estudiante=u.IdUsuario)
-                OR (u.CodTipo=2 AND p.tipo_persona='profesor' AND p.id_usuario=u.IdUsuario)
+            INNER JOIN comedor.persona p ON p.tipo_persona='estudiante'
+                AND p.id_estudiante=u.IdUsuario
             INNER JOIN comedor.cuenta_tiquetes ct ON ct.id_persona=p.id_persona
-            WHERE ISNULL(u.CantidadTiquetes,0) <> ISNULL(ct.saldo,0)""",
+            WHERE u.CodTipo=1
+              AND ISNULL(u.CantidadTiquetes,0) <> ISNULL(ct.saldo,0)
+            UNION ALL
+            SELECT CONVERT(varchar(200),u.IdUsuario),
+            CONCAT(N'Saldo local=',u.CantidadTiquetes,N'; saldo web=',ct.saldo,
+                   N'; reservados web=',ct.reservados)
+            FROM dbo.Usuario u
+            INNER JOIN comedor.persona p ON p.tipo_persona='profesor'
+                AND p.id_usuario=u.IdUsuario
+            INNER JOIN comedor.cuenta_tiquetes ct ON ct.id_persona=p.id_persona
+            WHERE u.CodTipo=2
+              AND ISNULL(u.CantidadTiquetes,0) <> ISNULL(ct.saldo,0)""",
     ),
     "conteo_ingresos_local_web": (
         ("dbo.RegistroComedor", "comedor.ingreso"),
@@ -60,8 +70,12 @@ CONSULTAS_COMPARATIVAS = {
                            COUNT_BIG(*) locales, CONVERT(bigint,0) webs
                     FROM dbo.Usuario u WHERE u.CodTipo=1 AND u.Activo=1 GROUP BY CASE WHEN u.TipoBeca=2 THEN 'becado_comedor' ELSE 'no_becado_comedor' END
                     UNION ALL
-                    SELECT p.estado_comedor, CONVERT(bigint,0), COUNT_BIG(*)
-                    FROM comedor.persona p WHERE p.tipo_persona='estudiante' AND p.activo=1 GROUP BY p.estado_comedor
+                    SELECT ec.codigo, CONVERT(bigint,0), COUNT_BIG(*)
+                    FROM comedor.persona p
+                    INNER JOIN comedor.estado_comedor ec
+                        ON ec.id_estado_comedor=p.id_estado_comedor
+                    WHERE p.tipo_persona='estudiante' AND p.activo=1
+                    GROUP BY ec.codigo
                 ) datos GROUP BY estado
             ) x WHERE x.locales <> x.webs""",
     ),

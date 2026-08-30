@@ -66,7 +66,7 @@ export function DialogoPerfilEstudiante({
             <div className="grid gap-4 sm:grid-cols-[1fr_180px]">
               <div className="space-y-3">
                 <label htmlFor="estado-comedor" className="text-sm font-medium">
-                  Estado de comedor
+                  Beneficio de comedor
                 </label>
                 <select
                   id="estado-comedor"
@@ -79,7 +79,7 @@ export function DialogoPerfilEstudiante({
                   <option value="2">No beneficiario</option>
                 </select>
                 <p className="text-xs text-muted-foreground">
-                  Los becados no compran tiquetes; los no becados requieren un tiquete para ingresar.
+                  Los beneficiarios no compran tiquetes; las demás personas requieren un tiquete.
                 </p>
                 <label htmlFor="estudiante-ruta" className="block pt-2 text-sm font-medium">
                   Ruta de transporte
@@ -103,6 +103,9 @@ export function DialogoPerfilEstudiante({
                       </option>
                     ))}
                 </select>
+                <p className="text-xs font-medium text-foreground">
+                  {perfil.estudiante.beneficioTransporte}
+                </p>
                 <p className="flex items-center gap-2 text-xs text-muted-foreground">
                   <span
                     className="h-3 w-3 rounded-full border"

@@ -1,11 +1,12 @@
 """Casos de uso puros del dominio de estudiantes."""
 
+from .beneficios import normalizar_beneficio_transporte
 from .esquemas import EstudianteEntrada, EstudianteSalida, PaginaEstudiantes
 from .repositorio import RepositorioEstudiantes
 
 
 def _salida(datos: dict) -> EstudianteSalida:
-    return EstudianteSalida(**datos)
+    return EstudianteSalida(**normalizar_beneficio_transporte(datos))
 
 
 class ServicioEstudiantes:
