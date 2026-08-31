@@ -67,7 +67,7 @@ export function useInicioSesionAdministrativo() {
 export function useInicioSesionEstudiantil() {
   const navegar = useNavigate();
   const { loadMe, setDebeCambiarPin } = useAutenticacion();
-  const { formulario, cambiar } = useFormularioInicial({ carne: "", pin: "" });
+  const { formulario, cambiar } = useFormularioInicial({ cedula: "", pin: "" });
   const [estado, setEstado] = useState({ cargando: false, error: "", tipoError: "credenciales" });
 
   const enviar = useCallback(
@@ -85,7 +85,7 @@ export function useInicioSesionEstudiantil() {
       try {
         const { data } = await api.post(
           "/v1/autenticacion/portal",
-          { codigo: formulario.carne, pin: formulario.pin },
+          { cedula: formulario.cedula.trim(), pin: formulario.pin },
           { omitirManejoFalloAutenticacion: true, omitirCsrf: true },
         );
         guardarTokenSesion(data.token);
@@ -108,9 +108,9 @@ export function useInicioSesionEstudiantil() {
   );
 
   return {
-    carne: formulario.carne,
+    cedula: formulario.cedula,
     pin: formulario.pin,
-    cambiarCarne: cambiar("carne"),
+    cambiarCedula: cambiar("cedula"),
     cambiarPin: cambiar("pin"),
     enviar,
     ...estado,

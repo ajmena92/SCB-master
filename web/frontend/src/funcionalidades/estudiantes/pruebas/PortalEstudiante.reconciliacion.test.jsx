@@ -116,7 +116,9 @@ describe("Portal del estudiante", () => {
         .dispatchEvent(new MouseEvent("click", { bubbles: true }));
       await Promise.resolve();
     });
-    expect(api.post).toHaveBeenCalledWith("/v1/estudiantes/asistencia/confirm");
+    expect(api.post).toHaveBeenCalledWith("/v1/comedor/reservas", {
+      fecha: expect.any(String),
+    });
     expect(api.get).toHaveBeenCalledTimes(4);
 
     await act(async () => {

@@ -13,13 +13,13 @@ describe("consulta del dashboard", () => {
     });
   });
 
-  it("envía el horario seleccionado sin alterar la consulta base", async () => {
+  it("envía los filtros operativos sin alterar la consulta base", async () => {
     vi.spyOn(api, "get").mockResolvedValueOnce({ data: {} });
 
-    await consultarDashboard("2026-08-27", { horario: "nocturno", pagina: 1 });
+    await consultarDashboard("2026-08-27", { ruta: "12", pagina: 1 });
 
     expect(api.get).toHaveBeenCalledWith("/v1/reportes/dashboard", {
-      params: { fecha: "2026-08-27", porPagina: 25, horario: "nocturno", pagina: 1 },
+      params: { fecha: "2026-08-27", porPagina: 25, ruta: "12", pagina: 1 },
     });
   });
 });

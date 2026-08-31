@@ -1,137 +1,85 @@
-# Requisitos del portal web de comedor
+# Requisitos vigentes del portal y la operación de comedor
 
-## Objetivo
+## Alcance
 
-Permitir que cada estudiante decida su asistencia al comedor para el día actual,
-mostrando antes el menú. La plataforma web es la autoridad operativa después del
-corte único; no existe doble escritura ni dependencia en ejecución del sistema de
-escritorio.
+La plataforma `web/` es la única aplicación operativa. PostgreSQL es la única
+base de datos en ejecución; WinForms y SQL Server son únicamente referencias del
+corte histórico y no participan en autenticación, consultas ni escrituras.
 
-## Roles y operaciones
+La instancia conserva un único padrón operativo. Las 214 matrículas y las rutas
+exclusivas del nocturno fueron retiradas después de un respaldo verificable. La
+interfaz no ofrece filtros, selectores ni reportes por horario.
 
-- **Estudiante:** inicia con `Cedula`/carné y PIN numérico de seis dígitos; debe cambiar el PIN inicial. Ve el menú de hoy, confirma asistencia o cancela su propia confirmación antes del cierre.
-- **Operador y Administrador:** usan los usuarios administrativos existentes para publicar menús, asignar o reiniciar PINes, consultar el tablero y ajustar los parámetros exclusivos del portal.
-- **Administrador:** además puede corregir una asistencia después del cierre; el motivo es obligatorio y queda auditado.
+## Identidad y carné
 
-## Estado de comedor y tiquetes
+- Estudiantes y profesores ingresan al portal con **cédula y PIN de seis dígitos**.
+- El código institucional se usa en el código de barras del carné y en los lectores
+  operativos; no sustituye la cédula durante el inicio de sesión.
+- El PIN inicial obliga a definir uno nuevo y las sesiones anteriores se revocan al
+  cambiarlo.
+- El carné muestra la matrícula anual vigente, sección, beneficio y ruta.
+- `ruta.codigo` conserva literalmente la nomenclatura MEP; `ruta.descripcion`
+  conserva el texto administrado por la persona usuaria.
+- `ruta.color_hex` usa la paleta institucional recuperada y es la fuente única del
+  color mostrado tanto en el catálogo como en el carné.
 
-`comedor.persona` almacena únicamente `id_estado_comedor` como `TINYINT` y lo
-relaciona con `comedor.estado_comedor`:
+## Menú y reserva
 
-- `1` (`becado_comedor`, visible como **Beneficiario**): beca completa de cinco días;
-  no compra tiquetes y su ingreso se registra con modalidad `beca`.
-- `2` (`no_becado_comedor`, visible como **No beneficiario**): requiere un tiquete
-  válido para reservar asistencia y entrar al comedor.
+- Las plantillas se organizan por las cinco semanas del mes y los cinco días
+  laborales, con componentes ordenados.
+- Una publicación para una fecha conserva una copia de los componentes de la
+  plantilla y puede sustituirse sin alterar el historial de otras fechas.
+- El portal muestra el menú publicado para hoy y permite reservar o cancelar para
+  la propia persona; nunca acepta operar sobre una identidad ajena.
+- Una persona beneficiaria reserva sin consumir saldo. Una persona no beneficiaria
+  inmoviliza un tiquete al reservar; cancelar lo libera e ingresar lo consume.
+- Los profesores ingresan directamente, pero consumen tiquete.
 
-La persona no almacena simultáneamente un código ni una descripción. Ambos se
-obtienen mediante el catálogo. Las becas parciales están depreciadas y se convierten
-al estado `2`, dejando trazabilidad en `comedor.reconciliacion_migracion`.
-`TipoBeca`, `id_beneficio` y `dias_permitidos` solo pueden leerse durante migración
-o reconciliación histórica; nunca autorizan una operación de comedor.
+## Captura de comedor
 
-La autorización debe consultar únicamente el estado canónico y la disponibilidad del
-tiquete. Los profesores también requieren tiquete, pero no son estudiantes becados ni
-no becados.
+`POST /api/v1/comedor/operacion` reemplaza el lector de teclado del WinForms:
 
-La reserva se realiza al confirmar asistencia y el consumo al registrar el ingreso.
-Cancelar antes del cierre libera la reserva. Reserva y consumo deben ser atómicos e
-impedir que un mismo tiquete se utilice dos veces.
+1. El escáner USB escribe el código institucional y envía Enter.
+2. La interfaz conserva el foco para la siguiente lectura.
+3. La API identifica a la persona activa y valida matrícula anual, reserva o
+   autorización excepcional, beneficio, saldo y duplicidad diaria.
+4. La marca de transporte es informativa: su ausencia produce una advertencia, no
+   autoriza ni rechaza por sí sola el ingreso.
+5. Cada intento, aceptado o rechazado, se registra en
+   `evento_operacion_comedor` con resultado, operador, duración y motivo.
+6. `GET /api/v1/comedor/operacion/estado` publica meta, progreso, duplicados,
+   rechazos y lecturas recientes.
 
-> Estado actual: el contrato canónico ya define personas, estados, cuentas, reservas e
-> ingresos. La migración `0023` corresponde al registro histórico de modalidad y no
-> debe confundirse con un endpoint vigente. La compra, la reserva y el ingreso deben
-> validarse contra el contrato canónico y sus pruebas de persistencia.
+Un segundo ingreso de la misma persona y fecha responde `409`. Una excepción para
+un estudiante sin reserva requiere decisión y motivo asociados al operador.
 
-## Reglas de asistencia
+## Transporte y rutas
 
-- El sistema solo permite actuar sobre la fecha actual y usa la hora del servidor.
-- El reloj operativo oficial es `GETDATE()` de SQL Server, configurado con la zona local del centro (`America/Costa_Rica`). Los timestamps técnicos con `SYSUTCDATETIME()` se almacenan en UTC; no se usan para decidir el cierre operativo.
-- El cierre corresponde a la hora límite efectiva configurada en `comedor.horario_operacion` para el horario del estudiante. La configuración se administra desde el módulo `parametros` y no depende del sistema local.
-- El aviso previo al cierre (`minutosAvisoPrevio`) es un parámetro global web (de 1 a 120 minutos). Los cambios se auditan con usuario administrativo y valores anteriores/nuevos.
-- Los cambios de hora límite se aplican en caliente, incluso después del cierre: ampliar el límite puede reabrir de inmediato la confirmación del día actual. La siguiente consulta o acción vuelve a calcular la ventana con la hora de SQL Server y el valor auditado.
-- Transporte solo expone la existencia de la marca diaria importada en `transporte.uso_diario`; no aporta la hora para calcular tardanzas y el comedor no crea ni modifica esa marca.
-- La operación de comedor registra su propia fecha/hora de servidor, horario aplicado y si existía uso diario de transporte.
-- La operación permite o rechaza tardanzas y ausencia de transporte mediante políticas independientes (`permitirMarcaTardia` y `permitirSinMarcaTransporte`).
-- La API de kiosco está bajo `/api/v1/comedor/operacion`; cada ingreso conserva la hora límite, resultado, advertencias y políticas aplicadas.
-- Un segundo ingreso de la misma persona en la misma fecha responde `409` con código `ingreso_duplicado`.
-- Debe existir una única confirmación por estudiante y fecha; no se deben modificar marcas históricas o creadas por otro flujo.
+El catálogo y la captura de transporte forman una sola funcionalidad visual. Las
+rutas se leen y escriben exclusivamente mediante `/api/v1/rutas`; la marca diaria
+se registra en `/api/v1/transporte/marcas`. No existe un segundo catálogo ni un
+endpoint conectado a SQL Server.
 
-## Profesores y estadísticas
+La asignación se relaciona con la matrícula anual, tiene vigencia y no admite dos
+vigencias solapadas para la misma matrícula. Una marca de transporte utiliza la
+asignación vigente y es única por matrícula y fecha.
 
-Los profesores pueden confirmar asistencia y consumir tiquetes, pero se identifican
-como personas de tipo `profesor`. Las estadísticas estudiantiles excluyen siempre a
-los profesores: no suman padrón, asistencia, consumo, becas, rutas ni secciones.
-Una vista o filtro explícito de profesores puede mostrar sus propias confirmaciones,
-ingresos y consumo. Los estudiantes inactivos no aparecen en el padrón activo; sus
-marcas e ingresos históricos se conservan para consulta histórica.
+## Tablero y separación de personas
 
-## Experiencia del estudiante
+El tablero se construye desde PostgreSQL y conserva gráficas de semana laboral,
+últimos cinco días, estado de comedor y rutas. La vista estudiantil excluye
+profesores; la vista docente no reutiliza cifras estudiantiles. No hay desglose ni
+filtro Diurno/Nocturno.
 
-- Mientras no haya confirmado y el período esté abierto, se muestran el reloj basado en la hora de SQL Server, el tiempo restante y el aviso configurado al acercarse el cierre. Ambos se actualizan en pantalla y se reconcilian periódicamente con el servidor.
-- Cuando el estudiante confirma, la interfaz muestra la hora registrada por el servidor, detiene el reloj y oculta el aviso de tiempo. **Confirmar almuerzo** permanece visible pero deshabilitado; **No asistiré** se vuelve rojo y permite retirar la marca antes del cierre.
-- Al cancelar, el estado vuelve a no asistir y, si el período continúa abierto, se puede confirmar nuevamente.
-- Desde la hora límite exacta, confirmar y cancelar quedan bloqueados tanto en API como en interfaz. Se conserva el menú y se muestra únicamente el resultado final: “Marcó asistencia al comedor” o “No marcó asistencia al comedor”.
-- La apertura, el cierre y una extensión dinámica de la hora límite se confirman con la respuesta de SQL Server; el cliente no autoriza acciones por su cuenta.
+## Aceptación
 
-## Menú y tablero
+La integración se acepta con:
 
-El menú base se define por semana del mes (1–5) y día laboral (lunes a viernes), con título, componentes ordenados y observaciones. Puede existir una sustitución para una fecha específica. El tablero muestra total confirmado y desglose por horario, sección y estado de comedor, además de la lista nominal autorizada. La vista estudiantil excluye profesores; la vista de profesores se habilita mediante filtro explícito.
-
-El beneficio de transporte se deriva exclusivamente de la asignación vigente. La
-ruta técnica `0000`, una ruta inactiva o la ausencia de ruta significan **No
-beneficiario** y no se muestran como ruta operativa. Una ruta activa distinta de
-`0000` se muestra como **Beneficiario – descripción oficial de la ruta**. Esta regla
-se aplica en backend y los componentes no interpretan códigos por su cuenta.
-
-## Contratos y pruebas de aceptación
-
-El contrato público debe separar las operaciones de estado de comedor, cuentas y
-movimientos de tiquetes, reservas, ingreso por carnet y estadísticas por tipo de
-persona. Los errores mínimos son: persona inactiva, carnet no reconocido, tiquete
-agotado, reserva duplicada e intento de ingreso sin reserva.
-
-La integración se acepta únicamente con pruebas HTTP contra la aplicación y pruebas
-de persistencia en SQL Server de staging para becados, no becados, profesores,
-reservas, consumo único, concurrencia, históricos, migración y smoke test posterior.
-Las pruebas de contrato no sustituyen las pruebas unitarias de backend ni las pruebas
-de componentes del frontend. Las pruebas HTTP independientes están en
-`backend/tests/integracion/test_requerimiento_comedor.py`.
-
-## Corte y reconciliación de datos
-
-La revisión Alembic `0033_horarios_origen_comedor` conserva el `IdHorario` de
-`dbo.Horario` en `comedor.horario_operacion.id_horario_origen`. El mapeo soportado es
-determinista mediante `dbo.Horario.Descripcion`: solo se aceptan descripciones
-semánticas diurnas o nocturnas y se conserva su `IdHorario`. Si el origen contiene
-más de dos horarios, una descripción desconocida o dos descripciones del mismo
-turno, el corte aborta; no se descartan límites ni se inventan turnos.
-
-Antes de crear el índice único de carnés, la migración detecta carnés duplicados y
-aborta con `50034`. El reconciliador puede ejecutarse en lectura y luego con
-`--apply`, siempre con escrituras congeladas. Compara saldos, conteos totales y por
-fecha, estados de comedor y profesores habilitados entre las tablas de origen
-disponibles y el catálogo web. Las tablas de origen se consultan solo durante el
-corte y nunca en la operación web.
-
-Las revisiones `0034_migracion_datos_legados` y `0035_normaliza_estado_horario_comedor` trasladan usuarios, rutas, transporte,
-asistencia, comedor y fotografías al modelo canónico. Las filas duplicadas de
-comedor se conservan en `comedor.migracion_ingreso_0034` y se registran en
-`comedor.reconciliacion_migracion`.
-
-La revisión `0036_estado_comedor_catalogo` elimina el estado textual de la persona y
-crea la FK por ID. La revisión `0037_valida_horarios_operativos` impide activar el
-corte si un estudiante habilitado conserva un turno no canónico o sin horario activo.
-
-## Datos complementarios propuestos
-
-- `ComedorPortal.CredencialEstudiante`: `IdUsuario`, hash/salt/iteraciones del PIN, `DebeCambiarPin`, intentos, bloqueo y fechas.
-- `ComedorPortal.MenuPlantilla` y `MenuComponente`: semana, día, título, observaciones, orden y tipo de componente.
-- `ComedorPortal.MenuSustitucion`: fecha, título, observaciones y usuario que modificó.
-- `ComedorPortal.ConfirmacionAsistencia`: estudiante, fecha, `IdRegistroTransporte`, estado, fechas de confirmación/cancelación, administrador y motivo de corrección.
-- `ComedorPortal.AuditoriaConfirmacion`: evento, detalle, fecha, IP y actores involucrados, incluido `ParametrosPortal`.
-- `comedor.parametro` y `comedor.horario_operacion`: aviso previo y hora límite por horario, administrados por el módulo `parametros`.
-
-La implementación definitiva deberá reemplazar este inventario histórico por tablas
-canónicas web de personas habilitadas, estado de comedor, cuenta/movimiento de
-tiquetes, reserva e ingreso. La migración requiere respaldo, congelamiento de
-escrituras, reconciliación y aprobación del DBA; no se permite doble escritura.
+- pruebas HTTP de autenticación, autorización, matrícula anual, rutas, reserva,
+  consumo, duplicados, captura y carné;
+- pruebas de componentes y compilación TypeScript del frontend;
+- migraciones Alembic verificadas desde una base vacía, con `upgrade`, `downgrade`
+  y nuevo `upgrade`;
+- comprobación visual de Dashboard, Menú, Rutas, captura de comedor, portal y carné;
+- respaldo anterior a cualquier depuración de datos y reconciliación posterior sin
+  matrículas nocturnas ni identidades estudiantiles huérfanas.

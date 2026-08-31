@@ -25,6 +25,12 @@ interface PlantillaMenu extends Omit<FormularioPlantilla, "Componentes"> {
 }
 const SEMANAS_MENU = [1, 2, 3, 4, 5] as const;
 
+function fechaLocalActual(): string {
+  const ahora = new Date();
+  const completar = (valor: number) => String(valor).padStart(2, "0");
+  return `${ahora.getFullYear()}-${completar(ahora.getMonth() + 1)}-${completar(ahora.getDate())}`;
+}
+
 function obtenerSemanaActual(): number {
   return Math.min(5, Math.ceil(new Date().getDate() / 7));
 }
@@ -56,23 +62,28 @@ export default function Plantillas() {
     queryFn: async () => {
       const { data } = await api.get<PlantillaMenu[]>("/v1/menu/plantillas");
       return data
-        .map((p) => {
+        .map((p, indice) => {
           const dato = p as unknown as DatoMenu;
+          const componentes = (campo(dato, "componentes", "Componentes") as unknown[]) ?? [];
           return {
             ...p,
-            IdMenuPlantilla: campo(dato, "idPlantilla", "IdMenuPlantilla"),
-            SemanaMes: campo(dato, "semana", "SemanaMes"),
-            DiaSemana: campo(dato, "dia", "DiaSemana"),
-            Titulo: campo(dato, "titulo", "Titulo"),
-            Observaciones: campo(dato, "observaciones", "Observaciones"),
-            Activo: campo(dato, "activo", "Activo"),
-            Componentes: ((campo(dato, "componentes", "Componentes") as DatoMenu[]) ?? []).map(
-              (c) => ({
-                Nombre: campo(c, "nombre", "Nombre"),
-                TipoComponente: campo(c, "tipo", "TipoComponente"),
-                Orden: campo(c, "orden", "Orden"),
-              }),
-            ),
+            IdMenuPlantilla: Number(campo(dato, "id", "IdMenuPlantilla")),
+            SemanaMes: Number(campo(dato, "semana", "SemanaMes") ?? Math.floor(indice / 5) + 1),
+            DiaSemana: Number(campo(dato, "dia", "DiaSemana") ?? (indice % 5) + 1),
+            Titulo: String(campo(dato, "nombre", "Titulo") ?? "Menú"),
+            Observaciones: String(campo(dato, "observaciones", "Observaciones") ?? ""),
+            Activo: Boolean(campo(dato, "activa", "Activo") ?? true),
+            Componentes: componentes.map((componente, orden) => {
+              const c =
+                typeof componente === "string"
+                  ? ({ nombre: componente } as DatoMenu)
+                  : (componente as DatoMenu);
+              return {
+                Nombre: String(campo(c, "nombre", "Nombre") ?? ""),
+                TipoComponente: String(campo(c, "tipo", "TipoComponente") ?? "Principal"),
+                Orden: Number(campo(c, "orden", "Orden") ?? orden + 1),
+              };
+            }),
           } as PlantillaMenu;
         })
         .sort((a, b) => a.SemanaMes - b.SemanaMes || a.DiaSemana - b.DiaSemana);
@@ -125,19 +136,18 @@ export default function Plantillas() {
     }
     setSaving(true);
     try {
-      await api.post("/v1/menu/plantillas", {
-        semana: Number(form.SemanaMes),
-        dia: Number(form.DiaSemana),
-        titulo: form.Titulo,
-        observaciones: form.Observaciones || "",
-        activo: !!form.Activo,
-        componentes: form.Componentes.filter((c) => c.Nombre.trim()).map((c) => ({
-          nombre: c.Nombre,
-          tipo: c.TipoComponente,
-          orden: c.Orden,
-        })),
+      const payload = {
+        nombre: form.Titulo,
+        componentes: form.Componentes.filter((c) => c.Nombre.trim()).map((c) => c.Nombre),
+      };
+      const { data: plantilla } = form.IdMenuPlantilla
+        ? await api.put(`/v1/menu/plantillas/${form.IdMenuPlantilla}`, payload)
+        : await api.post("/v1/menu/plantillas", payload);
+      await api.post("/v1/menu/publicaciones", {
+        plantillaId: plantilla.id,
+        fecha: fechaLocalActual(),
       });
-      toast.success("Menú publicado");
+      toast.success("Menú guardado y publicado para hoy");
       setOpen(false);
       await refetch();
     } catch (e) {

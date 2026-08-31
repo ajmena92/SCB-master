@@ -1,6 +1,8 @@
 """Adaptadores HTTP para comedor, transporte y tiquetes."""
 
-from fastapi import APIRouter, Depends
+from datetime import date
+
+from fastapi import APIRouter, Depends, Response
 
 from aplicacion.esquemas import (
     AutorizacionEntrada,
@@ -56,9 +58,20 @@ def crear_router(obtener_servicio, portal_operativo, administrativo, administrad
 
     @router.post("/comedor/operacion", status_code=201)
     async def ingresar(
-        datos: IngresoEntrada, identidad=Depends(administrativo), servicio=Depends(obtener_servicio)
+        datos: IngresoEntrada,
+        response: Response,
+        identidad=Depends(administrativo),
+        servicio=Depends(obtener_servicio),
     ):
-        return servicio.ingresar(datos, identidad["cuenta"].id)
+        resultado, estado_http = servicio.capturar_ingreso(datos, identidad["cuenta"].id)
+        response.status_code = estado_http
+        return resultado
+
+    @router.get("/comedor/operacion/estado")
+    async def estado_operacion(
+        fecha: date, identidad=Depends(administrativo), servicio=Depends(obtener_servicio)
+    ):
+        return servicio.estado_captura(fecha)
 
     @router.post("/transporte/marcas", status_code=201)
     async def marcar(

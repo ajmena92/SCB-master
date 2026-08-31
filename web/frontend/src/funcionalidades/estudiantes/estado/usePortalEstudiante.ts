@@ -72,7 +72,6 @@ export type EstadoPortal = {
 };
 
 export function usePortalEstudiante(tipoPersona: TipoPersonaComedor = "estudiante"): EstadoPortal {
-  const basePortal = tipoPersona === "profesor" ? "/v1/profesores" : "/v1/estudiantes";
   const [menu, setMenu] = useState<MenuEstudiante | null>(null);
   const [vistaActiva, setVistaActiva] = useState<"menu" | "carnet">("menu");
   const [estado, setEstado] = useState<EstadoPortalApi | null>(null);
@@ -99,16 +98,20 @@ export function usePortalEstudiante(tipoPersona: TipoPersonaComedor = "estudiant
   const cargar = useCallback(async () => {
     const actualizar = async () => {
       setError("");
-      const [resultadoMenu, resultadoAsistencia] = await Promise.allSettled([
-        api.get(`${basePortal}/menu`),
-        api.get(`${basePortal}/asistencia/hoy`),
+      const [resultadoMenu, resultadoEstado] = await Promise.allSettled([
+        api.get("/v1/portal/estado", { params: { fecha: fechaLocalActual() } }),
+        api.get("/v1/portal/estado", { params: { fecha: fechaLocalActual() } }),
       ]);
-
       if (resultadoMenu.status === "fulfilled")
-        setMenu(resultadoMenu.value.data.menu as MenuEstudiante);
+        setMenu(resultadoMenu.value.data.menu as MenuEstudiante | null);
 
-      if (resultadoAsistencia.status === "fulfilled") {
-        const siguienteEstado = resultadoAsistencia.value.data as EstadoPortalApi;
+      if (resultadoEstado.status === "fulfilled") {
+        const respuestaEstado = resultadoEstado.value.data;
+        const siguienteEstado = (
+          typeof respuestaEstado.estado === "object" && respuestaEstado.estado !== null
+            ? respuestaEstado.estado
+            : respuestaEstado
+        ) as EstadoPortalApi;
         const sincronizadoEn = Date.now();
         setEstado(siguienteEstado);
         setSincronizacion({
@@ -123,7 +126,7 @@ export function usePortalEstudiante(tipoPersona: TipoPersonaComedor = "estudiant
         });
         setAhoraMs(sincronizadoEn);
       } else {
-        setError(errMsg(resultadoAsistencia.reason));
+        setError(errMsg(resultadoEstado.reason));
       }
       setCargando(false);
     };
@@ -131,11 +134,12 @@ export function usePortalEstudiante(tipoPersona: TipoPersonaComedor = "estudiant
     const actualizacionProgramada = colaActualizacionRef.current.then(actualizar, actualizar);
     colaActualizacionRef.current = actualizacionProgramada.catch(() => undefined);
     return actualizacionProgramada;
-  }, [basePortal]);
+  }, []);
 
   const carnet = useQuery({
     queryKey: [tipoPersona, "carnet"],
-    queryFn: async () => (await api.get(`${basePortal}/carnet`)).data,
+    queryFn: async () =>
+      (await api.get("/v1/portal/carnet", { params: { fecha: fechaLocalActual() } })).data,
     enabled: vistaActiva === "carnet",
     retry: false,
   });
@@ -254,15 +258,11 @@ export function usePortalEstudiante(tipoPersona: TipoPersonaComedor = "estudiant
   const registrarAsistencia = async (tipo: "confirm" | "decline") => {
     setEjecutando(true);
     const fecha = fechaLocalActual();
-    let reservaCreada = false;
     try {
       if (tipo === "confirm") {
-        if (tipoPersona === "estudiante") await reservarComedorEstudiante(fecha);
-        reservaCreada = tipoPersona === "estudiante";
-      }
-      await api.post(basePortal + "/asistencia/" + tipo);
-      if (tipo === "decline") {
-        if (tipoPersona === "estudiante") await cancelarComedorEstudiante(fecha);
+        await reservarComedorEstudiante(fecha);
+      } else {
+        await cancelarComedorEstudiante(fecha);
       }
       if (tipo === "confirm") enfocarConfirmacionRef.current = true;
       toast.success(
@@ -270,13 +270,6 @@ export function usePortalEstudiante(tipoPersona: TipoPersonaComedor = "estudiant
       );
       await cargar();
     } catch (errorAsistencia) {
-      if (reservaCreada) {
-        try {
-          if (tipoPersona === "estudiante") await cancelarComedorEstudiante(fecha);
-        } catch {
-          toast.error("No se pudo liberar la reserva de comedor");
-        }
-      }
       toast.error(errMsg(errorAsistencia));
     } finally {
       setEjecutando(false);

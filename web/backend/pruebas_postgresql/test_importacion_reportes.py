@@ -13,7 +13,6 @@ def test_importacion_previsualiza_confirma_y_es_idempotente(entorno):
                 "nombres": "Importada",
                 "tipo": "estudiante",
                 "seccion": "9-1",
-                "turno": "almuerzo",
                 "becado": True,
                 "ruta": "Centro",
             }

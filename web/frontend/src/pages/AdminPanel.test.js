@@ -6,13 +6,13 @@ import {
 } from "@/config/adminNavigation";
 
 describe("administrative tabs", () => {
-  it("exposes all ten modules to an Administrador", () => {
+  it("expone todos los módulos PostgreSQL al Administrador", () => {
     const adminModules = obtenerModulosVisibles({ usuario: { Rol: "Administrador" } });
 
     expect(adminModules).toHaveLength(ADMIN_NAVIGATION.length);
-    expect(adminModules.map((module) => module.v)).toContain("correcciones");
+    expect(adminModules.map((module) => module.v)).toContain("dashboard");
     expect(adminModules.find((module) => module.id === "comedor").path).toBe(
-      "/admin/comedor/operacion",
+      "/admin/panel/comedor",
     );
     expect(adminModules).toEqual(ADMIN_NAVIGATION);
   });
@@ -32,10 +32,8 @@ describe("administrative tabs", () => {
   });
 
   it("resolves the navigation group from a target route", () => {
-    expect(obtenerGrupoAdministrativoActivo("/admin/panel/operacion/rutas")).toBe("operacion");
-    expect(obtenerGrupoAdministrativoActivo("/admin/panel/personas/estudiantes/details")).toBe(
-      "personas",
-    );
+    expect(obtenerGrupoAdministrativoActivo("/admin/panel/rutas")).toBe("operacion");
+    expect(obtenerGrupoAdministrativoActivo("/admin/panel/personas/details")).toBe("personas");
     expect(obtenerGrupoAdministrativoActivo("/unknown")).toBeNull();
   });
 
@@ -43,9 +41,9 @@ describe("administrative tabs", () => {
     expect(ADMIN_NAVIGATION.every((module) => Array.isArray(module.requiredPermissions))).toBe(
       true,
     );
-    expect(
-      ADMIN_NAVIGATION.find((module) => module.v === "correcciones").requiredPermissions,
-    ).toEqual(["asistencia.correcciones.editar"]);
+    expect(ADMIN_NAVIGATION.find((module) => module.v === "dashboard").requiredPermissions).toEqual(
+      ["reportes.dashboard.leer"],
+    );
   });
 
   it("does not resolve a route that is not part of the catalog", () => {
@@ -55,9 +53,9 @@ describe("administrative tabs", () => {
   it("filters an operator by the permissions returned by the API", () => {
     const modules = obtenerModulosVisibles({
       usuario: { Rol: "Profesor" },
-      permisos: ["rutas.administrar"],
+      permisos: ["comedor.registrar"],
     });
-    expect(modules.map((module) => module.id)).toEqual(["rutas"]);
+    expect(modules.map((module) => module.id)).toEqual(["comedor"]);
   });
 
   it("muestra Inicio a un usuario con el permiso canónico del dashboard", () => {

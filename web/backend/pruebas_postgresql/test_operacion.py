@@ -26,7 +26,7 @@ def test_reserva_inmoviliza_cancelar_libera_e_ingreso_consume(entorno):
     token = cliente.post(
         "/api/v1/autenticacion/portal",
         json={
-            "codigo": persona["codigo"],
+            "cedula": persona["cedula"],
             "pin": "123456",
         },
     ).json()["token"]
@@ -74,6 +74,20 @@ def test_reserva_inmoviliza_cancelar_libera_e_ingreso_consume(entorno):
             "reserva",
             "consumo",
         ]
+    duplicado = cliente.post(
+        "/api/v1/comedor/operacion",
+        headers=h["operador"],
+        json={"codigo": persona["codigo"], "fecha": "2026-09-02"},
+    )
+    assert duplicado.status_code == 409
+    assert duplicado.json()["resultado"] == "duplicado"
+    estado = cliente.get(
+        "/api/v1/comedor/operacion/estado",
+        headers=h["operador"],
+        params={"fecha": "2026-09-02"},
+    ).json()
+    assert estado["ingresos"] == 1 and estado["duplicados"] == 1
+    assert estado["recientes"][0]["codigo"] == persona["codigo"]
 
 
 def test_estudiante_sin_reserva_exige_decision_y_profesor_no(entorno):
@@ -120,7 +134,7 @@ def test_beca_es_anual_y_no_consume_saldo(entorno):
     token = cliente.post(
         "/api/v1/autenticacion/portal",
         json={
-            "codigo": persona["codigo"],
+            "cedula": persona["cedula"],
             "pin": "123456",
         },
     ).json()["token"]
@@ -141,7 +155,7 @@ def test_beca_es_anual_y_no_consume_saldo(entorno):
                 "codigo": persona["codigo"],
                 "fecha": "2026-09-04",
             },
-        ).json()["consumio_tiquete"]
+        ).json()["consumioTiquete"]
         is False
     )
 
@@ -149,9 +163,13 @@ def test_beca_es_anual_y_no_consume_saldo(entorno):
 def test_transporte_es_informativo_y_rechaza_doble_marca(entorno):
     cliente, _, h = entorno
     persona, _, matricula = preparar_estudiante(cliente, h["admin"])
-    ruta = cliente.post("/api/v1/rutas", headers=h["admin"], json={"nombre": "Ruta Sur"}).json()
+    ruta = cliente.post(
+        "/api/v1/rutas",
+        headers=h["admin"],
+        json={"codigo": "5369", "descripcion": "Ruta Sur", "colorHex": "#EF4444"},
+    ).json()
     cliente.post(
-        f"/api/v1/rutas/{ruta['id']}/asignaciones",
+        f"/api/v1/rutas/{ruta['idRuta']}/asignaciones",
         headers=h["admin"],
         json={
             "matriculaId": matricula["id"],

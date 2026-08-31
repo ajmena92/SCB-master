@@ -68,7 +68,6 @@ describe("plataformaApi", () => {
       personaId: 7,
       anioLectivoId: 3,
       seccion: "10-2",
-      turno: "Mañana",
       becaComedor: true,
       estado: "activo",
     });
@@ -77,7 +76,6 @@ describe("plataformaApi", () => {
       personaId: 7,
       anioLectivoId: 3,
       seccion: "10-2",
-      turno: "Mañana",
       becado: true,
       estado: "activo",
     });

@@ -79,13 +79,14 @@ plantillas y componentes. Se excluyen explícitamente marcas, ventas, saldos,
 reservas, ingresos, contraseñas, PIN y auditoría. El CSV de PIN nuevos tiene
 datos sensibles: entréguelo por canal seguro y destrúyalo después.
 
-Reconcile conteos por tipo, sección, turno, beca y ruta contra el reporte. Una
+Reconcile conteos por tipo, sección, beca y ruta contra el reporte. Una
 cédula ausente o duplicada y una ruta inválida bloquean toda la aplicación.
 
 ## Padrón anual XLSX
 
 La primera hoja debe contener `cedula`, `nombres` y `tipo`; admite además
-`seccion`, `turno`, `becado`, `ruta` y `estado`. Primero genere la vista previa:
+`seccion`, `becado`, `ruta` y `estado`. El padrón anual se registra en la única
+población operativa y no admite selección de horario. Primero genere la vista previa:
 
 ```bash
 docker compose --env-file ops/.env -f ops/compose.production.yml \
@@ -101,8 +102,8 @@ por persona y año. El año importado no se activa automáticamente.
 ## Evidencia de validación 2026-08-30
 
 - PostgreSQL `17.6` quedó saludable, sin publicar `5432`, con Alembic
-  `0005_normaliza_checks` y 23 tablas públicas.
-- Se reconstruyeron las imágenes de API y web; `GET /health` respondió
+  `0007_colores_rutas`.
+- Se reconstruyeron las imágenes de API y web; `GET /api/v1/salud` respondió
   `{"estado":"ok","baseDatos":"postgresql"}`.
 - El respaldo lógico, global, físico y WAL pasó la restauración temporal y la
   verificación de sus cuatro sumas SHA-256. El respaldo definitivo posterior
@@ -132,13 +133,29 @@ por persona y año. El año importado no se activa automáticamente.
   relaciones restrictivas.
 - La migración inicial dejó de depender de la metadata ORM mutable y quedó
   congelada como DDL explícito. En una base temporal vacía se verificó la
-  cadena completa `0001` → `0005` (22 tablas de aplicación) y su rollback hasta
+  cadena completa `0001` → `0007` y su rollback hasta
   `base`; la base temporal se eliminó al finalizar.
-- Pruebas: backend 18/18, frontend 100/100 y Playwright de la plataforma nueva
-  4/4. TypeScript, ESLint, Ruff, formato, build y reglas de arquitectura fueron
-  aprobados.
+- Pruebas: backend 21/21 y frontend 100/100; TypeScript y la compilación de
+  producción fueron aprobados. Alembic completó `upgrade`, `downgrade base` y
+  un segundo `upgrade` sobre una base temporal vacía.
+- La validación final del 2026-08-31 aprobó Ruff, MyPy sobre los 39 módulos
+  PostgreSQL activos, las reglas arquitectónicas y `alembic check`. La carga
+  diferida dejó todos los fragmentos JavaScript de producción por debajo de
+  400 kB sin comprimir.
 
-Después de la aplicación se creó y comprobó la cuenta administrativa inicial.
+### Depuración de nocturno 2026-08-30
+
+- Se creó `web/ops/backups/scb_antes_eliminar_nocturno_20260830.dump` antes del cambio.
+- Se eliminaron 214 matrículas con `turno = '2'`, sus 214 asignaciones y las 214
+  personas exclusivamente nocturnas junto con sus dependencias.
+- No existían personas con matrículas de ambos horarios.
+- Se eliminaron `02-NARANJO` y `08-CONCEPCIÓN`, demostradas por el respaldo como
+  rutas exclusivamente nocturnas; las rutas con al menos una asignación diurna se
+  conservaron.
+- La reconciliación final dejó 729 matrículas, cero matrículas nocturnas y cero
+  identidades estudiantiles sin matrícula.
+
+Después de la aplicación se creó y comprobó la cuenta `administrador`.
 El CSV de 1.093 PIN temporales y la contraseña administrativa se retiraron del
 workspace y se guardaron con permisos `0600` en
 `/home/dev/scb-entrega-segura/`. No deben copiarse al repositorio ni enviarse

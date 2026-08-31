@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterator
+from collections.abc import AsyncIterator
 
 from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
@@ -21,7 +21,7 @@ def crear_fabrica_sesiones(motor: Engine) -> sessionmaker[Session]:
 
 
 def dependencia_sesion(fabrica: sessionmaker[Session]):
-    async def obtener() -> Iterator[Session]:
+    async def obtener() -> AsyncIterator[Session]:
         with fabrica() as sesion:
             try:
                 yield sesion

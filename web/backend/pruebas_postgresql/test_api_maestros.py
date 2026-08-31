@@ -18,6 +18,8 @@ def test_rutas_publicas_y_rbac(entorno):
         "/api/v1/transporte/marcas",
         "/api/v1/reportes/ventas",
     } <= rutas
+    assert "/api/v1/transporte/rutas" not in rutas
+    assert cliente.get("/api/v1/transporte/rutas", headers=h["admin"]).status_code == 404
     assert cliente.get("/api/v1/personas").status_code == 401
     assert (
         cliente.post(
@@ -32,7 +34,7 @@ def test_rutas_publicas_y_rbac(entorno):
     )
 
 
-def test_identidad_codigo_pin_y_matricula_anual_unica(entorno):
+def test_identidad_cedula_pin_y_matricula_anual_unica(entorno):
     cliente, _, h = entorno
     persona, anio, matricula = preparar_estudiante(cliente, h["admin"])
     assert persona["codigo"].startswith("E-") and len(persona["codigo"]) == 10
@@ -40,7 +42,7 @@ def test_identidad_codigo_pin_y_matricula_anual_unica(entorno):
     token = cliente.post(
         "/api/v1/autenticacion/portal",
         json={
-            "codigo": persona["codigo"],
+            "cedula": persona["cedula"],
             "pin": "123456",
         },
     ).json()["token"]
@@ -55,12 +57,12 @@ def test_identidad_codigo_pin_y_matricula_anual_unica(entorno):
             "personaId": persona["id"],
             "anioLectivoId": anio["id"],
             "seccion": "8-1",
-            "turno": "almuerzo",
             "becado": False,
         },
     )
     assert duplicada.status_code == 409
     assert matricula["persona_id"] == persona["id"]
+    assert matricula["turno"] == "1"
 
 
 def test_cambio_pin_revoca_sesion_y_desactiva_cambio_obligatorio(entorno):
@@ -73,7 +75,7 @@ def test_cambio_pin_revoca_sesion_y_desactiva_cambio_obligatorio(entorno):
     acceso = cliente.post(
         "/api/v1/autenticacion/portal",
         json={
-            "codigo": persona["codigo"],
+            "cedula": persona["cedula"],
             "pin": persona["pinTemporal"],
         },
     ).json()
@@ -106,7 +108,7 @@ def test_cambio_pin_revoca_sesion_y_desactiva_cambio_obligatorio(entorno):
         cliente.post(
             "/api/v1/autenticacion/portal",
             json={
-                "codigo": persona["codigo"],
+                "cedula": persona["cedula"],
                 "pin": persona["pinTemporal"],
             },
         ).status_code
@@ -115,7 +117,7 @@ def test_cambio_pin_revoca_sesion_y_desactiva_cambio_obligatorio(entorno):
     nuevo = cliente.post(
         "/api/v1/autenticacion/portal",
         json={
-            "codigo": persona["codigo"],
+            "cedula": persona["cedula"],
             "pin": "654321",
         },
     )
@@ -151,18 +153,23 @@ def test_un_solo_anio_vigente_y_rutas_sin_solape(entorno):
         a for a in cliente.get("/api/v1/anios-lectivos", headers=h["admin"]).json() if a["vigente"]
     ]
     assert [a["anio"] for a in vigentes] == [2027]
-    ruta = cliente.post("/api/v1/rutas", headers=h["admin"], json={"nombre": "Ruta Norte"}).json()
+    ruta = cliente.post(
+        "/api/v1/rutas",
+        headers=h["admin"],
+        json={"codigo": "1115306", "descripcion": "Ruta Norte MEP", "colorHex": "#F59E0B"},
+    ).json()
+    assert ruta["codigo"] == "1115306" and ruta["colorCarnetHex"] == "#F59E0B"
     datos = {"matriculaId": matricula["id"], "fechaInicio": "2026-02-01", "fechaFin": "2026-06-30"}
     assert (
         cliente.post(
-            f"/api/v1/rutas/{ruta['id']}/asignaciones", headers=h["admin"], json=datos
+            f"/api/v1/rutas/{ruta['idRuta']}/asignaciones", headers=h["admin"], json=datos
         ).status_code
         == 201
     )
     datos["fechaInicio"], datos["fechaFin"] = "2026-06-01", None
     assert (
         cliente.post(
-            f"/api/v1/rutas/{ruta['id']}/asignaciones", headers=h["admin"], json=datos
+            f"/api/v1/rutas/{ruta['idRuta']}/asignaciones", headers=h["admin"], json=datos
         ).status_code
         == 409
     )

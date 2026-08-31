@@ -15,9 +15,9 @@ class RepositorioIdentidad:
     def __init__(self, sesion: Session):
         self.sesion = sesion
 
-    def persona_por_codigo(self, codigo: str) -> Persona | None:
+    def persona_por_cedula(self, cedula: str) -> Persona | None:
         return self.sesion.scalar(
-            select(Persona).where(Persona.codigo == codigo, Persona.activo.is_(True))
+            select(Persona).where(Persona.cedula == cedula, Persona.activo.is_(True))
         )
 
     def credencial(self, persona_id: int) -> CredencialPortal | None:

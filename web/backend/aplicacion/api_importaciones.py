@@ -1,6 +1,7 @@
 """Adaptador HTTP de importacion JSON o Excel multipart."""
 
 from fastapi import APIRouter, Depends, HTTPException, Request
+from starlette.datastructures import UploadFile
 
 from aplicacion.esquemas import ConfirmacionImportacion, ImportacionEntrada
 
@@ -18,9 +19,14 @@ def crear_router(obtener_servicio, administrador) -> APIRouter:
         if request.headers.get("content-type", "").startswith("multipart/form-data"):
             formulario = await request.form()
             archivo = formulario.get("archivo")
-            anio = int(formulario.get("anio", 0))
-            if archivo is None or not str(getattr(archivo, "filename", "")).lower().endswith(
-                ".xlsx"
+            valor_anio = formulario.get("anio")
+            if isinstance(valor_anio, UploadFile):
+                raise HTTPException(422, "El año es invalido")
+            anio = int(str(valor_anio or 0))
+            if (
+                not isinstance(archivo, UploadFile)
+                or not archivo.filename
+                or not archivo.filename.lower().endswith(".xlsx")
             ):
                 raise HTTPException(422, "Se requiere archivo .xlsx")
             datos = servicio.desde_excel(await archivo.read(), anio)

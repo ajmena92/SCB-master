@@ -55,12 +55,12 @@ export function validarRuta(formulario: Pick<FormularioRuta, "codigo" | "descrip
 }
 
 export async function obtenerRutas(): Promise<Ruta[]> {
-  const { data } = await api.get<FilaRuta[]>("/v1/transporte/rutas");
+  const { data } = await api.get<FilaRuta[]>("/v1/rutas");
   return (data || []).map(normalizeRuta);
 }
 
 export async function obtenerPaleta(): Promise<ColorRuta[]> {
-  const { data } = await api.get<ColorRuta[]>("/v1/transporte/rutas/paleta");
+  const { data } = await api.get<ColorRuta[]>("/v1/rutas/paleta");
   return data || [];
 }
 
@@ -77,9 +77,27 @@ export interface RutaParaGuardar {
 }
 
 export async function crearRuta(datos: RutaParaGuardar): Promise<void> {
-  await api.post("/v1/transporte/rutas", datos);
+  await api.post("/v1/rutas", {
+    codigo: datos.codigo,
+    descripcion: datos.descripcion,
+    colorHex: datos.colorHex,
+    activa: datos.activo,
+  });
 }
 
 export async function actualizarRuta(idRuta: number, datos: RutaParaGuardar): Promise<void> {
-  await api.put(`/v1/transporte/rutas/${idRuta}`, datos);
+  await api.put(`/v1/rutas/${idRuta}`, {
+    codigo: datos.codigo,
+    descripcion: datos.descripcion,
+    colorHex: datos.colorHex,
+    activa: datos.activo,
+  });
+}
+
+export async function registrarMarcaTransporte(codigo: string): Promise<string> {
+  const { data } = await api.post<{ mensaje?: string }>("/v1/transporte/marcas", {
+    codigo,
+    fecha: new Date().toISOString().slice(0, 10),
+  });
+  return data.mensaje || "Marca de transporte registrada.";
 }

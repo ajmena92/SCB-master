@@ -42,7 +42,6 @@ export default function DashboardTab() {
   const [beneficioTransporte, setBeneficioTransporte] = useState("");
   const [seccion, setSeccion] = useState("");
   const [estado, setEstado] = useState("");
-  const [horario, setHorario] = useState("");
   const [tipoPersona, setTipoPersona] = useState("estudiante");
   const [pagina, setPagina] = useState(1);
   const filtros = {
@@ -52,7 +51,6 @@ export default function DashboardTab() {
     ...(beneficioTransporte ? { beneficioTransporte } : {}),
     ...(seccion ? { seccion } : {}),
     ...(estado ? { estado } : {}),
-    ...(horario ? { horario } : {}),
     tipoPersona,
     pagina,
   };
@@ -67,7 +65,6 @@ export default function DashboardTab() {
   const nominal = data?.nominal?.elementos || [];
   const rutas = data?.porRuta || [];
   const estadosComedor = data?.porEstadoComedor || [];
-  const horarios = data?.horarios || [];
   const alertas = data?.alertas || [];
   const esProfesor = tipoPersona === "profesor";
   const vistaDocenteSinContrato = esProfesor && data?.tipoPersona !== "profesor";
@@ -120,28 +117,12 @@ export default function DashboardTab() {
               <option value="estudiante">Estudiantes</option>
               <option value="profesor">Profesores</option>
             </select>
-            {!esProfesor && horarios.length > 1 && (
-              <select
-                aria-label="Filtrar horario"
-                value={horario}
-                onChange={(e) => {
-                  setHorario(e.target.value);
-                  setPagina(1);
-                }}
-                className="h-10 rounded-md border bg-background px-3 text-sm"
-              >
-                <option value="">Todos los horarios</option>
-                {horarios.map((opcion) => (
-                  <option key={opcion} value={opcion}>
-                    {opcion === "diurno" ? "Diurno" : "Nocturno"}
-                  </option>
-                ))}
-              </select>
-            )}
           </div>
           <Button
             variant="outline"
             size="icon"
+            aria-label="Actualizar dashboard"
+            title="Actualizar dashboard"
             data-testid="dashboard-refresh"
             onClick={() => refetch()}
           >

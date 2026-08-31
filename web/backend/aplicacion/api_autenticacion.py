@@ -29,6 +29,7 @@ def crear_router(obtener_servicio, actual) -> APIRouter:
                 "tipo": "portal",
                 "personaId": persona.id,
                 "codigo": persona.codigo,
+                "nombres": persona.nombres,
                 "rol": persona.tipo,
                 "cambioObligatorio": identidad.get("cambioObligatorio", False),
             }

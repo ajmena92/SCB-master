@@ -16,6 +16,12 @@ def crear_router(obtener_servicio, administrador) -> APIRouter:
     async def crear(datos: PlantillaEntrada, servicio=Depends(obtener_servicio)):
         return servicio.crear_plantilla(datos)
 
+    @router.put("/menu/plantillas/{plantilla_id}", dependencies=[Depends(administrador)])
+    async def actualizar(
+        plantilla_id: int, datos: PlantillaEntrada, servicio=Depends(obtener_servicio)
+    ):
+        return servicio.actualizar_plantilla(plantilla_id, datos)
+
     @router.get("/menu/publicaciones")
     async def publicaciones(servicio=Depends(obtener_servicio)):
         return servicio.listar_publicaciones()

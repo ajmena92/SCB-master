@@ -62,7 +62,6 @@ export default function PersonasMatriculas() {
       personaId: Number(datos.get("personaId")),
       anioLectivoId: Number(datos.get("anioLectivoId")),
       seccion: String(datos.get("seccion")),
-      turno: String(datos.get("turno")),
       becaComedor: datos.get("becaComedor") === "on",
       estado: "activo",
     });
@@ -77,7 +76,7 @@ export default function PersonasMatriculas() {
       />
       <EncabezadoPagina
         titulo="Personas y matrículas"
-        descripcion="La identidad permanece; sección, turno y beca se registran por año lectivo."
+        descripcion="La identidad permanece; sección y beca se registran por año lectivo."
       />
       <div className="tabs" role="tablist">
         <button
@@ -165,12 +164,6 @@ export default function PersonasMatriculas() {
             <Campo etiqueta="Sección">
               <input name="seccion" required placeholder="Ej. 10-2" />
             </Campo>
-            <Campo etiqueta="Turno">
-              <select name="turno">
-                <option>Mañana</option>
-                <option>Tarde</option>
-              </select>
-            </Campo>
             <label className="check">
               <input name="becaComedor" type="checkbox" /> Beca de comedor
             </label>
@@ -182,13 +175,12 @@ export default function PersonasMatriculas() {
             <EstadoCarga />
           ) : (
             <Tabla
-              columnas={["Persona", "Año", "Sección", "Turno", "Beca", "Estado"]}
+              columnas={["Persona", "Año", "Sección", "Beca", "Estado"]}
               filas={(matriculas.data?.elementos ?? []).map((m) => [
                 personas.data?.elementos.find((p) => p.id === m.personaId)?.codigo ?? m.personaId,
                 anios.data?.elementos.find((a) => a.id === m.anioLectivoId)?.anio ??
                   m.anioLectivoId,
                 m.seccion,
-                m.turno,
                 m.becaComedor ? "Sí" : "No",
                 m.estado,
               ])}
