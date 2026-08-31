@@ -49,15 +49,15 @@ class MatriculaEntrada(Contrato):
     persona_id: int
     anio_lectivo_id: int
     seccion: str
-    turno: str
     becado: bool = False
     estado: str = "activo"
 
 
 class RutaEntrada(Contrato):
-    nombre: str
+    codigo: str = Field(min_length=1, max_length=50)
+    descripcion: str = Field(min_length=6, max_length=500)
+    color_hex: str = Field(default="#CBD5E1", pattern=r"^#[0-9A-Fa-f]{6}$")
     activa: bool = True
-    descripcion: str | None = None
 
 
 class AsignacionRutaEntrada(Contrato):
@@ -90,12 +90,12 @@ class VentaEntrada(Contrato):
 
 
 class ReservaEntrada(Contrato):
-    codigo: str
+    codigo: str | None = None
     fecha: date
 
 
 class CancelacionReservaEntrada(Contrato):
-    codigo: str
+    codigo: str | None = None
     fecha: date
 
 
@@ -122,7 +122,7 @@ class CambioPinEntrada(Contrato):
 
 
 class PortalEntrada(Contrato):
-    codigo: str
+    cedula: str
     pin: str
 
 
@@ -145,7 +145,6 @@ class FilaImportacion(Contrato):
     nombres: str
     tipo: Literal["estudiante", "profesor"]
     seccion: str | None = None
-    turno: str | None = None
     becado: bool = False
     ruta: str | None = None
 

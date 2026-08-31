@@ -11,7 +11,6 @@ import type {
   ResultadoConfirmacionImportacion,
   ResultadoOperacion,
   ResumenImportacion,
-  RutaTransporte,
   Tarifa,
 } from "@/compartido/contratos/plataforma";
 import { api } from "@/compartido/consultas/cliente_http";
@@ -81,7 +80,6 @@ export const plataformaApi = {
         personaId: datos.personaId,
         anioLectivoId: datos.anioLectivoId,
         seccion: datos.seccion,
-        turno: datos.turno,
         becado: datos.becaComedor,
         estado: datos.estado,
       }),
@@ -120,10 +118,6 @@ export const plataformaApi = {
       }>(data);
       return { ...normalizados, credenciales: normalizados.credenciales ?? [] };
     },
-  },
-  rutas: {
-    listar: () => listar<RutaTransporte>("/v1/rutas"),
-    crear: (datos: Omit<RutaTransporte, "id">) => api.post<RutaTransporte>("/v1/rutas", datos),
   },
   menu: {
     plantillas: () => listar<PlantillaMenu>("/v1/menu/plantillas"),
@@ -171,12 +165,25 @@ export const plataformaApi = {
         codigo,
         fecha: new Date().toISOString().slice(0, 10),
       });
-      return {
-        estado: "aceptada",
-        mensaje: data.mensaje ?? "Ingreso registrado.",
-        saldo: data.saldo,
-      };
+      return normalizarObjeto<ResultadoOperacion>(data);
     },
+    estadoOperacion: async (fecha: string) =>
+      normalizarObjeto<{
+        fecha: string;
+        ingresos: number;
+        meta: number;
+        porcentaje: number;
+        duplicados: number;
+        errores: number;
+        recientes: Array<{
+          id: number;
+          hora: string;
+          codigo: string;
+          nombre: string;
+          resultado: string;
+          motivo?: string;
+        }>;
+      }>((await api.get("/v1/comedor/operacion/estado", { params: { fecha } })).data),
     decidirAutorizacion: (
       codigo: string,
       decision: "aprobada" | "rechazada",

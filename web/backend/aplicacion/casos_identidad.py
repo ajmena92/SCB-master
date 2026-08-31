@@ -14,10 +14,12 @@ class ServicioIdentidad:
         self.repo = repositorio
 
     def autenticar_portal(self, datos: PortalEntrada) -> SesionSalida:
-        persona = self.repo.persona_por_codigo(datos.codigo)
-        credencial = self.repo.credencial(persona.id) if persona else None
+        persona = self.repo.persona_por_cedula(datos.cedula.strip())
+        if persona is None:
+            raise HTTPException(401, "Cedula o PIN incorrecto")
+        credencial = self.repo.credencial(persona.id)
         if credencial is None or not verificar_secreto(credencial.pin_hash, datos.pin):
-            raise HTTPException(401, "Codigo o PIN incorrecto")
+            raise HTTPException(401, "Cedula o PIN incorrecto")
         token, acceso = nueva_sesion(
             tipo="portal",
             persona_id=persona.id,
@@ -49,6 +51,8 @@ class ServicioIdentidad:
         ):
             raise HTTPException(401, "Sesion invalida o vencida")
         if acceso.tipo == "portal":
+            if acceso.persona_id is None:
+                raise HTTPException(401, "Sesion invalida")
             persona = self.repo.persona(acceso.persona_id)
             if persona is None or not persona.activo:
                 raise HTTPException(401, "Persona inactiva")
@@ -58,6 +62,8 @@ class ServicioIdentidad:
                 "cambioObligatorio": acceso.cambio_obligatorio,
                 "_token": token,
             }
+        if acceso.cuenta_id is None:
+            raise HTTPException(401, "Sesion invalida")
         cuenta = self.repo.cuenta(acceso.cuenta_id)
         if cuenta is None or not cuenta.activo:
             raise HTTPException(401, "Cuenta inactiva")

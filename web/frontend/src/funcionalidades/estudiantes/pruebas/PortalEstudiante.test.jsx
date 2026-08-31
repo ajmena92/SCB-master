@@ -143,9 +143,8 @@ describe("Portal del estudiante", () => {
       declineButton.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     });
 
-    expect(api.post).toHaveBeenCalledWith("/v1/estudiantes/asistencia/decline");
-    expect(api.delete).toHaveBeenCalledWith("/v1/comedor/reservas/estudiante", {
-      params: expect.objectContaining({ fecha: expect.any(String) }),
+    expect(api.delete).toHaveBeenCalledWith("/v1/comedor/reservas", {
+      data: expect.objectContaining({ fecha: expect.any(String) }),
     });
     expect(container.querySelector('[data-testid="estado-rechazado"]')).not.toBeNull();
     expect(container.querySelector('[data-testid="confirm-btn"]').disabled).toBe(false);

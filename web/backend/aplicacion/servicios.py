@@ -1,6 +1,7 @@
 """Casos de uso operativos; toda persistencia se delega al repositorio."""
 
 from datetime import date, datetime, time
+from time import perf_counter
 
 from fastapi import HTTPException
 from sqlalchemy.exc import IntegrityError
@@ -67,7 +68,11 @@ class ServicioOperacion:
         return venta
 
     def reservar(self, datos, identidad):
-        persona = self._persona(codigo=datos.codigo)
+        persona = (
+            identidad["persona"]
+            if identidad["tipo"] == "portal" and not datos.codigo
+            else self._persona(codigo=datos.codigo)
+        )
         if identidad["tipo"] == "portal" and identidad["persona"].codigo != persona.codigo:
             raise HTTPException(403, "No puede reservar para otra persona")
         if self.repo.reserva_fecha(persona.id, datos.fecha):
@@ -96,7 +101,11 @@ class ServicioOperacion:
         )
 
     def cancelar(self, datos, identidad):
-        persona = self._persona(codigo=datos.codigo)
+        persona = (
+            identidad["persona"]
+            if identidad["tipo"] == "portal" and not datos.codigo
+            else self._persona(codigo=datos.codigo)
+        )
         if identidad["tipo"] == "portal" and identidad["persona"].codigo != persona.codigo:
             raise HTTPException(403, "No puede cancelar una reserva ajena")
         reserva = self.repo.reserva_fecha(persona.id, datos.fecha, True)
@@ -137,6 +146,15 @@ class ServicioOperacion:
                 raise HTTPException(409, "Estudiante sin reserva requiere autorizacion")
             modalidad = "autorizacion"
         consume = not self._becado(persona, datos.fecha)
+        matricula = self._matricula(persona, datos.fecha)
+        marca_transporte = bool(
+            matricula and self.repo.tiene_marca_transporte(matricula.id, datos.fecha)
+        )
+        advertencia = (
+            "Sin marca de transporte"
+            if persona.tipo == "estudiante" and not marca_transporte
+            else None
+        )
         if reserva and reserva.tiquete_inmovilizado:
             cuenta = self.repo.obtener_o_crear_cuenta(persona.id)
             cuenta.reservados -= 1
@@ -152,9 +170,103 @@ class ServicioOperacion:
                 autorizacion_id=autorizacion.id if autorizacion else None,
                 modalidad=modalidad,
                 consumio_tiquete=consume,
+                marca_transporte_existente=marca_transporte,
+                advertencia=advertencia,
                 operador_id=operador_id,
             )
         )
+
+    def capturar_ingreso(self, datos, operador_id):
+        inicio = perf_counter()
+        persona = self.repo.persona_codigo(datos.codigo)
+        try:
+            ingreso = self.ingresar(datos, operador_id)
+        except HTTPException as exc:
+            detalle = str(exc.detail)
+            resultado = "rechazado"
+            if "no encontrada" in detalle.lower():
+                resultado = "no_encontrado"
+            elif "duplicado" in detalle.lower():
+                resultado = "duplicado"
+            elif "reserva" in detalle.lower():
+                resultado = "sin_reserva"
+            elif "saldo" in detalle.lower() or "tiquete" in detalle.lower():
+                resultado = "sin_tiquete"
+            self.repo.registrar_evento(
+                fecha=datos.fecha,
+                codigo=datos.codigo,
+                resultado=resultado,
+                operador_id=operador_id,
+                persona_id=persona.id if persona else None,
+                motivo=detalle,
+                duracion_ms=round((perf_counter() - inicio) * 1000),
+            )
+            return {
+                "estado": "rechazada",
+                "resultado": resultado,
+                "mensaje": detalle,
+                "persona": self._persona_salida(persona),
+            }, exc.status_code
+
+        cuenta = self.repo.cuenta(persona.id)
+        advertencia = ingreso.advertencia
+        self.repo.registrar_evento(
+            fecha=datos.fecha,
+            codigo=datos.codigo,
+            resultado="aceptado",
+            operador_id=operador_id,
+            persona_id=persona.id,
+            motivo=advertencia,
+            advertencia=bool(advertencia),
+            duracion_ms=round((perf_counter() - inicio) * 1000),
+        )
+        return {
+            "id": ingreso.id,
+            "estado": "aceptada",
+            "resultado": "aceptado",
+            "mensaje": advertencia or "Ingreso registrado correctamente",
+            "modalidad": ingreso.modalidad,
+            "consumioTiquete": ingreso.consumio_tiquete,
+            "marcaTransporteExistente": ingreso.marca_transporte_existente,
+            "advertencia": advertencia,
+            "saldo": cuenta.saldo if cuenta else None,
+            "persona": self._persona_salida(persona),
+        }, 201
+
+    @staticmethod
+    def _persona_salida(persona):
+        if not persona:
+            return None
+        return {
+            "id": persona.id,
+            "codigo": persona.codigo,
+            "cedula": persona.cedula,
+            "nombres": persona.nombres,
+            "tipo": persona.tipo,
+            "activo": persona.activo,
+        }
+
+    def estado_captura(self, fecha):
+        total, meta, duplicados, errores, eventos = self.repo.estado_captura(fecha)
+        return {
+            "fecha": fecha,
+            "ingresos": total,
+            "meta": meta,
+            "porcentaje": round(total * 100 / meta, 1) if meta else 0,
+            "duplicados": duplicados,
+            "errores": errores,
+            "recientes": [
+                {
+                    "id": evento.id,
+                    "hora": evento.fecha_evento,
+                    "codigo": evento.codigo_capturado,
+                    "nombre": persona.nombres if persona else "Código no reconocido",
+                    "resultado": evento.resultado,
+                    "motivo": evento.motivo,
+                }
+                for evento, persona in eventos
+            ],
+        }
 
     def marcar_transporte(self, datos, operador_id):
         matricula = self._matricula(self._persona(codigo=datos.codigo), datos.fecha)

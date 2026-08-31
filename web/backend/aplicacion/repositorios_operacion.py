@@ -2,7 +2,7 @@
 
 from datetime import date
 
-from sqlalchemy import or_, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
 from aplicacion.modelos.maestros import (
@@ -15,7 +15,9 @@ from aplicacion.modelos.maestros import (
 from aplicacion.modelos.operacion import (
     AutorizacionComedor,
     CuentaTiquete,
+    EventoOperacionComedor,
     IngresoComedor,
+    MarcaTransporte,
     MovimientoTiquete,
     ReservaComedor,
     Tarifa,
@@ -101,6 +103,19 @@ class RepositorioOperacion:
             )
         )
 
+    def tiene_marca_transporte(self, matricula_id, fecha):
+        if not matricula_id:
+            return False
+        return (
+            self.sesion.scalar(
+                select(MarcaTransporte.id).where(
+                    MarcaTransporte.matricula_id == matricula_id,
+                    MarcaTransporte.fecha == fecha,
+                )
+            )
+            is not None
+        )
+
     def autorizacion_aprobada(self, persona_id, fecha):
         return self.sesion.scalar(
             select(AutorizacionComedor).where(
@@ -123,6 +138,82 @@ class RepositorioOperacion:
         self.sesion.add_all(registros)
         self.sesion.flush()
         return registros[0]
+
+    def registrar_evento(
+        self,
+        *,
+        fecha,
+        codigo,
+        resultado,
+        operador_id,
+        persona_id=None,
+        motivo=None,
+        advertencia=False,
+        duracion_ms=None,
+    ):
+        return self.guardar(
+            EventoOperacionComedor(
+                fecha_operativa=fecha,
+                codigo_capturado=codigo,
+                resultado=resultado,
+                operador_id=operador_id,
+                persona_id=persona_id,
+                motivo=motivo,
+                advertencia=advertencia,
+                duracion_ms=duracion_ms,
+            )
+        )
+
+    def estado_captura(self, fecha):
+        total = (
+            self.sesion.scalar(
+                select(func.count(IngresoComedor.id)).where(IngresoComedor.fecha == fecha)
+            )
+            or 0
+        )
+        matriculas = (
+            self.sesion.scalar(
+                select(func.count(Matricula.id))
+                .join(AnioLectivo)
+                .outerjoin(CuentaTiquete, CuentaTiquete.persona_id == Matricula.persona_id)
+                .where(
+                    AnioLectivo.anio == fecha.year,
+                    Matricula.estado == "activo",
+                    or_(
+                        Matricula.becado.is_(True),
+                        CuentaTiquete.saldo > 0,
+                        CuentaTiquete.reservados > 0,
+                    ),
+                )
+            )
+            or 0
+        )
+        eventos = self.sesion.execute(
+            select(EventoOperacionComedor, Persona)
+            .outerjoin(Persona, Persona.id == EventoOperacionComedor.persona_id)
+            .where(EventoOperacionComedor.fecha_operativa == fecha)
+            .order_by(EventoOperacionComedor.fecha_evento.desc())
+            .limit(12)
+        ).all()
+        duplicados = (
+            self.sesion.scalar(
+                select(func.count(EventoOperacionComedor.id)).where(
+                    EventoOperacionComedor.fecha_operativa == fecha,
+                    EventoOperacionComedor.resultado == "duplicado",
+                )
+            )
+            or 0
+        )
+        errores = (
+            self.sesion.scalar(
+                select(func.count(EventoOperacionComedor.id)).where(
+                    EventoOperacionComedor.fecha_operativa == fecha,
+                    EventoOperacionComedor.resultado.not_in(("aceptado", "duplicado")),
+                )
+            )
+            or 0
+        )
+        return int(total), int(matriculas), int(duplicados), int(errores), eventos
 
     def movimiento(self, persona_id, tipo, cantidad, saldo, referencia=None):
         self.guardar(

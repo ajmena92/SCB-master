@@ -1,0 +1,95 @@
+from datetime import date
+
+from .conftest import preparar_estudiante
+
+
+def _token_portal(cliente, cedula):
+    respuesta = cliente.post(
+        "/api/v1/autenticacion/portal",
+        json={"cedula": cedula, "pin": "123456"},
+    )
+    assert respuesta.status_code == 200, respuesta.text
+    return {"Authorization": f"Bearer {respuesta.json()['token']}"}
+
+
+def test_dashboard_usa_padron_anual_postgresql(entorno):
+    cliente, _, auth = entorno
+    persona, anio, _ = preparar_estudiante(cliente, auth["admin"], "dashboard-1")
+
+    respuesta = cliente.get(
+        "/api/v1/reportes/dashboard",
+        headers=auth["admin"],
+        params={"fecha": f"{anio['anio']}-08-30", "tipoPersona": "estudiante"},
+    )
+
+    assert respuesta.status_code == 200, respuesta.text
+    datos = respuesta.json()
+    assert datos["asistencia"]["total"] == 1
+    assert datos["nominal"]["elementos"][0]["idPersona"] == persona["id"]
+    assert datos["cobertura"]["conMatricula"] == 1
+    assert len(datos["ultimosCincoDias"]) == 5
+
+
+def test_portal_publica_menu_del_dia_y_carnet(entorno):
+    cliente, _, auth = entorno
+    persona, _, matricula = preparar_estudiante(cliente, auth["admin"], "portal-1")
+    ruta = cliente.post(
+        "/api/v1/rutas",
+        headers=auth["admin"],
+        json={
+            "codigo": "1115308",
+            "descripcion": "SIERRA",
+            "colorHex": "#38BDF8",
+        },
+    ).json()
+    asignacion = cliente.post(
+        f"/api/v1/rutas/{ruta['idRuta']}/asignaciones",
+        headers=auth["admin"],
+        json={
+            "matriculaId": matricula["id"],
+            "fechaInicio": f"{date.today().year}-01-01",
+        },
+    )
+    assert asignacion.status_code == 201, asignacion.text
+    plantilla = cliente.post(
+        "/api/v1/menu/plantillas",
+        headers=auth["admin"],
+        json={"nombre": "Almuerzo tradicional", "componentes": ["Arroz", "Frijoles"]},
+    ).json()
+    cliente.post(
+        "/api/v1/menu/publicaciones",
+        headers=auth["admin"],
+        json={"plantillaId": plantilla["id"], "fecha": date.today().isoformat()},
+    )
+    portal = _token_portal(cliente, persona["cedula"])
+
+    estado = cliente.get("/api/v1/portal/estado", headers=portal)
+    carnet = cliente.get("/api/v1/portal/carnet", headers=portal)
+
+    assert estado.status_code == 200, estado.text
+    assert estado.json()["menu"]["Titulo"] == "Almuerzo tradicional"
+    assert [c["Nombre"] for c in estado.json()["menu"]["Componentes"]] == [
+        "Arroz",
+        "Frijoles",
+    ]
+    assert carnet.status_code == 200, carnet.text
+    assert carnet.json()["barcode"] == persona["codigo"]
+    assert carnet.json()["seccion"] == "7-1"
+    assert carnet.json()["rutaCodigo"] == "1115308"
+    assert carnet.json()["rutaDescripcion"] == "SIERRA"
+    assert carnet.json()["rutaColor"] == "#38BDF8"
+    assert carnet.json()["anioLectivo"] == date.today().year
+
+
+def test_reserva_portal_no_requiere_repetir_codigo(entorno):
+    cliente, _, auth = entorno
+    persona, _, _ = preparar_estudiante(cliente, auth["admin"], "reserva-portal-1")
+    portal = _token_portal(cliente, persona["cedula"])
+
+    respuesta = cliente.post(
+        "/api/v1/comedor/reservas",
+        headers=portal,
+        json={"fecha": date.today().isoformat()},
+    )
+
+    assert respuesta.status_code in {201, 409}, respuesta.text

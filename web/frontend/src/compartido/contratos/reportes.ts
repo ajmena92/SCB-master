@@ -12,7 +12,6 @@ export interface DashboardSalida {
   beneficiariosComedor: number;
   consumoComedor: number;
   fecha: string;
-  horarios?: Array<"diurno" | "nocturno">;
   ingresosHistoricos?: number;
   noBeneficiarios: number;
   nominal: NominalPaginado;

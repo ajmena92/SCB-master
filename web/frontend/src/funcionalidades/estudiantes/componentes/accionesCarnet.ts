@@ -36,13 +36,6 @@ export function obtenerNombreCompleto(estudiante: DatosCarnet = {}): string {
     .join(" ");
 }
 
-export function obtenerUrlFotoCarnet(
-  idEstudiante?: number,
-  version: string | number = "estudiante",
-): string | null {
-  return idEstudiante ? `/api/v1/estudiantes/carnet/foto?v=${idEstudiante}-${version}` : null;
-}
-
 export function obtenerAnioCarnet(estudiante: DatosCarnet = {}): number {
   return estudiante.anio ?? estudiante.anioLectivo ?? estudiante.ano ?? new Date().getFullYear();
 }

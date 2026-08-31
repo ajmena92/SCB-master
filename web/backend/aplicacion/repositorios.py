@@ -2,10 +2,10 @@
 
 from datetime import date
 
-from sqlalchemy import func, select, update
+from sqlalchemy import and_, func, or_, select, update
 from sqlalchemy.orm import Session
 
-from aplicacion.modelos.maestros import AnioLectivo, Persona, Ruta
+from aplicacion.modelos.maestros import AnioLectivo, AsignacionRuta, Matricula, Persona, Ruta
 from aplicacion.modelos.operacion import IngresoComedor, MarcaTransporte, VentaTiquete
 
 
@@ -66,3 +66,43 @@ class RepositorioReportes:
 
     def ventas(self, desde: date, hasta: date):
         return filas_reporte_ventas(self.sesion, desde, hasta)
+
+    def personas_dashboard(self, fecha: date, tipo_persona: str):
+        if tipo_persona == "profesor":
+            return self.sesion.execute(
+                select(Persona, Matricula, Ruta)
+                .outerjoin(Matricula, Matricula.id == -1)
+                .outerjoin(Ruta, Ruta.id == -1)
+                .where(Persona.tipo == "profesor", Persona.activo.is_(True))
+                .order_by(Persona.nombres)
+            ).all()
+        return self.sesion.execute(
+            select(Persona, Matricula, Ruta)
+            .join(Matricula, Matricula.persona_id == Persona.id)
+            .join(AnioLectivo, AnioLectivo.id == Matricula.anio_lectivo_id)
+            .outerjoin(
+                AsignacionRuta,
+                and_(
+                    AsignacionRuta.matricula_id == Matricula.id,
+                    AsignacionRuta.fecha_inicio <= fecha,
+                    or_(AsignacionRuta.fecha_fin.is_(None), AsignacionRuta.fecha_fin >= fecha),
+                ),
+            )
+            .outerjoin(Ruta, Ruta.id == AsignacionRuta.ruta_id)
+            .where(
+                Persona.tipo == "estudiante",
+                Persona.activo.is_(True),
+                AnioLectivo.anio == fecha.year,
+                Matricula.estado == "activo",
+            )
+            .order_by(Persona.nombres)
+        ).all()
+
+    def ingresos_en_fechas(self, fechas: list[date]):
+        if not fechas:
+            return []
+        return self.sesion.execute(
+            select(IngresoComedor.persona_id, IngresoComedor.fecha).where(
+                IngresoComedor.fecha.in_(fechas)
+            )
+        ).all()

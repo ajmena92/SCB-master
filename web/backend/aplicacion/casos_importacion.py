@@ -5,6 +5,7 @@ import io
 import json
 import secrets
 from datetime import date
+from typing import Literal, cast
 
 from fastapi import HTTPException
 
@@ -33,13 +34,13 @@ class ServicioImportacion:
                 fila = dict(zip(encabezados, valores))
                 if not any(v is not None for v in valores):
                     continue
+                tipo = str(fila.get("tipo") or "").lower()
                 datos.append(
                     FilaImportacion(
                         cedula=str(fila.get("cedula") or "") or None,
                         nombres=str(fila.get("nombres") or ""),
-                        tipo=str(fila.get("tipo") or "").lower(),
+                        tipo=cast(Literal["estudiante", "profesor"], tipo),
                         seccion=str(fila.get("seccion") or "") or None,
-                        turno=str(fila.get("turno") or "") or None,
                         becado=str(fila.get("becado") or "").lower() in {"1", "si", "sí", "true"},
                         ruta=str(fila.get("ruta") or "") or None,
                     )
@@ -68,8 +69,8 @@ class ServicioImportacion:
             existente = self.repo.persona_cedula(fila.cedula)
             altas += existente is None
             cambios += existente is not None
-            if fila.tipo == "estudiante" and (not fila.seccion or not fila.turno):
-                errores.append({"fila": indice, "error": "seccion y turno requeridos"})
+            if fila.tipo == "estudiante" and not fila.seccion:
+                errores.append({"fila": indice, "error": "seccion requerida"})
         return {
             "huella": self._huella(datos),
             "total": len(datos.filas),
@@ -120,14 +121,22 @@ class ServicioImportacion:
             )
             matricula.seccion, matricula.turno, matricula.becado, matricula.estado = (
                 fila.seccion or "",
-                fila.turno or "",
+                "1",
                 fila.becado,
                 "activo",
             )
             self.repo.guardar(matricula)
             if fila.ruta:
                 ruta = self.repo.ruta_nombre(fila.ruta) or self.repo.guardar(
-                    Ruta(nombre=fila.ruta, activo=True)
+                    Ruta(
+                        nombre=fila.ruta,
+                        codigo=fila.ruta.split("-", 1)[0].strip(),
+                        descripcion=(
+                            fila.ruta.split("-", 1)[1].strip() if "-" in fila.ruta else fila.ruta
+                        ),
+                        color_hex="#CBD5E1",
+                        activo=True,
+                    )
                 )
                 inicio = date(datos.anio, 1, 1)
                 if not self.repo.asignacion(matricula.id, inicio):

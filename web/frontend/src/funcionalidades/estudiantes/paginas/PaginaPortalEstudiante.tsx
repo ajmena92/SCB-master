@@ -13,7 +13,11 @@ export default function PaginaPortalComedor() {
       : "estudiante";
   const estadoPortal = usePortalEstudiante(tipoPersona);
   const nombre =
-    session?.usuario?.Nombre || session?.usuario?.nombreCompleto || session?.usuario?.nombre || "";
+    session?.usuario?.Nombre ||
+    session?.usuario?.nombreCompleto ||
+    session?.usuario?.nombres ||
+    session?.usuario?.nombre ||
+    "";
 
   return (
     <PortalComedor

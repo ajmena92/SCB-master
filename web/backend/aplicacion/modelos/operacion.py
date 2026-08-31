@@ -134,6 +134,8 @@ class IngresoComedor(BaseDeclarativa):
     )
     modalidad: Mapped[str] = mapped_column(String(24))
     consumio_tiquete: Mapped[bool] = mapped_column(Boolean)
+    marca_transporte_existente: Mapped[bool] = mapped_column(Boolean, default=False)
+    advertencia: Mapped[str | None] = mapped_column(String(120), nullable=True)
     operador_id: Mapped[int] = mapped_column(ForeignKey("cuenta_administrativa.id"))
     creado_en: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
@@ -145,6 +147,33 @@ class IngresoComedor(BaseDeclarativa):
             name="modalidad_ingreso_comedor",
         ),
         Index("ix_ingreso_comedor_fecha", "fecha"),
+    )
+
+
+class EventoOperacionComedor(BaseDeclarativa):
+    __tablename__ = "evento_operacion_comedor"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    fecha_evento: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
+    )
+    fecha_operativa: Mapped[date] = mapped_column(Date, index=True)
+    persona_id: Mapped[int | None] = mapped_column(
+        ForeignKey("persona.id", ondelete="SET NULL"), nullable=True
+    )
+    codigo_capturado: Mapped[str] = mapped_column(String(40))
+    resultado: Mapped[str] = mapped_column(String(24))
+    motivo: Mapped[str | None] = mapped_column(String(240), nullable=True)
+    operador_id: Mapped[int] = mapped_column(ForeignKey("cuenta_administrativa.id"))
+    advertencia: Mapped[bool] = mapped_column(Boolean, default=False)
+    duracion_ms: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    __table_args__ = (
+        CheckConstraint(
+            "resultado IN ('aceptado','duplicado','no_encontrado','sin_reserva',"
+            "'sin_tiquete','rechazado','error')",
+            name="resultado_evento_operacion_comedor",
+        ),
+        CheckConstraint("duracion_ms IS NULL OR duracion_ms >= 0", name="duracion_evento_comedor"),
+        Index("ix_evento_operacion_comedor_fecha_evento", "fecha_evento"),
     )
 
 

@@ -8,7 +8,6 @@ import {
   obtenerColorRutaSeguro,
   obtenerColorTextoRuta,
   obtenerNombreCompleto,
-  obtenerUrlFotoCarnet,
 } from "./accionesCarnet";
 import type { DatosCarnet } from "./accionesCarnet";
 
@@ -16,7 +15,6 @@ export function TarjetaCarnet({
   datosCarnet = {},
   tipoPersona = datosCarnet.tipoPersona ?? "estudiante",
   tieneFoto,
-  versionFoto = "estudiante",
 }: {
   datosCarnet?: DatosCarnet;
   tieneFoto?: boolean;
@@ -26,10 +24,7 @@ export function TarjetaCarnet({
   const colorRuta = obtenerColorRutaSeguro(datosCarnet.rutaColor);
   const nombre = obtenerNombreCompleto(datosCarnet);
   const codigo = datosCarnet.barcode || datosCarnet.carne;
-  const fotoUrl =
-    tipoPersona === "estudiante"
-      ? obtenerUrlFotoCarnet(datosCarnet.idEstudiante, versionFoto)
-      : null;
+  const fotoUrl = null;
   const fotoDisponible = tieneFoto ?? Boolean(datosCarnet.tieneFoto);
   return (
     <div

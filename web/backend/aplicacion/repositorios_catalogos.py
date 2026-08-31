@@ -1,6 +1,6 @@
 """Persistencia tipada de catalogos, matriculas, rutas y menu."""
 
-from sqlalchemy import select
+from sqlalchemy import delete, func, select
 from sqlalchemy.orm import Session
 
 from aplicacion.modelos.maestros import (
@@ -70,7 +70,20 @@ class RepositorioCatalogos:
         return registro
 
     def listar_rutas(self):
-        return self.sesion.scalars(select(Ruta).order_by(Ruta.nombre)).all()
+        return self.sesion.execute(
+            select(Ruta, func.count(AsignacionRuta.id))
+            .outerjoin(AsignacionRuta, AsignacionRuta.ruta_id == Ruta.id)
+            .group_by(Ruta.id)
+            .order_by(Ruta.codigo)
+        ).all()
+
+    def contar_asignados(self, ruta_id: int) -> int:
+        return int(
+            self.sesion.scalar(
+                select(func.count(AsignacionRuta.id)).where(AsignacionRuta.ruta_id == ruta_id)
+            )
+            or 0
+        )
 
     def ruta(self, ruta_id: int):
         return self.sesion.get(Ruta, ruta_id)
@@ -113,6 +126,20 @@ class RepositorioCatalogos:
         self.sesion.add_all(componentes)
         return plantilla
 
+    def actualizar_plantilla(self, plantilla_id, nombre, componentes):
+        plantilla = self.sesion.get(PlantillaMenu, plantilla_id)
+        if not plantilla:
+            return None
+        plantilla.nombre = nombre
+        self.sesion.execute(
+            delete(ComponenteMenu).where(ComponenteMenu.plantilla_id == plantilla_id)
+        )
+        self.sesion.flush()
+        for componente in componentes:
+            componente.plantilla_id = plantilla_id
+        self.sesion.add_all(componentes)
+        return plantilla
+
     def listar_publicaciones(self):
         salida = []
         for publicacion in self.sesion.scalars(
@@ -141,6 +168,24 @@ class RepositorioCatalogos:
 
     def guardar_publicacion(self, publicacion, componentes):
         self.sesion.add(publicacion)
+        self.sesion.flush()
+        for componente in componentes:
+            componente.publicacion_id = publicacion.id
+        self.sesion.add_all(componentes)
+        return publicacion
+
+    def reemplazar_publicacion(self, fecha, nombre, componentes):
+        publicacion = self.sesion.scalar(
+            select(PublicacionMenu).where(PublicacionMenu.fecha == fecha)
+        )
+        if not publicacion:
+            return self.guardar_publicacion(
+                PublicacionMenu(fecha=fecha, nombre=nombre), componentes
+            )
+        publicacion.nombre = nombre
+        self.sesion.execute(
+            delete(ComponentePublicado).where(ComponentePublicado.publicacion_id == publicacion.id)
+        )
         self.sesion.flush()
         for componente in componentes:
             componente.publicacion_id = publicacion.id

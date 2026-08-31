@@ -33,16 +33,8 @@ export interface Matricula {
   personaId: number;
   anioLectivoId: number;
   seccion: string;
-  turno: string;
   becaComedor: boolean;
   estado: "activo" | "retirado" | "egresado";
-}
-
-export interface RutaTransporte {
-  id: number;
-  nombre: string;
-  descripcion?: string;
-  activa: boolean;
 }
 
 export interface PlantillaMenu {
@@ -87,6 +79,11 @@ export interface ResultadoOperacion {
   mensaje: string;
   persona?: Persona;
   saldo?: number;
+  resultado?: string;
+  modalidad?: string;
+  consumioTiquete?: boolean;
+  marcaTransporteExistente?: boolean;
+  advertencia?: string | null;
 }
 
 export interface ReporteFila {

@@ -114,6 +114,9 @@ class Ruta(BaseDeclarativa):
     __tablename__ = "ruta"
     id: Mapped[int] = mapped_column(primary_key=True)
     nombre: Mapped[str] = mapped_column(String(120), unique=True)
+    codigo: Mapped[str] = mapped_column(String(50), unique=True)
+    descripcion: Mapped[str] = mapped_column(String(500))
+    color_hex: Mapped[str] = mapped_column(String(7), default="#CBD5E1")
     activo: Mapped[bool] = mapped_column(Boolean, default=True)
 
 

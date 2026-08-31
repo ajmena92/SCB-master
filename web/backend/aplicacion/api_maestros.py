@@ -10,6 +10,7 @@ from aplicacion.esquemas import (
     PersonaSalida,
     RutaEntrada,
 )
+from aplicacion.paleta_rutas import opciones
 
 
 def crear_router(obtener_servicio, administrador) -> APIRouter:
@@ -49,9 +50,17 @@ def crear_router(obtener_servicio, administrador) -> APIRouter:
     async def rutas(servicio=Depends(obtener_servicio)):
         return servicio.listar_rutas()
 
+    @router.get("/rutas/paleta")
+    async def paleta_rutas():
+        return opciones()
+
     @router.post("/rutas", status_code=201)
     async def crear_ruta(datos: RutaEntrada, servicio=Depends(obtener_servicio)):
         return servicio.crear_ruta(datos)
+
+    @router.put("/rutas/{ruta_id}")
+    async def actualizar_ruta(ruta_id: int, datos: RutaEntrada, servicio=Depends(obtener_servicio)):
+        return servicio.actualizar_ruta(ruta_id, datos)
 
     @router.post("/rutas/{ruta_id}/asignaciones", status_code=201)
     async def asignar(

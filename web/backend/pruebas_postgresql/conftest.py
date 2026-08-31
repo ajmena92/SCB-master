@@ -111,7 +111,7 @@ def crear_persona(cliente, cabecera, *, tipo="estudiante", cedula="1", nombres="
     persona = respuesta.json()
     acceso = cliente.post(
         "/api/v1/autenticacion/portal",
-        json={"codigo": persona["codigo"], "pin": persona["pinTemporal"]},
+        json={"cedula": persona["cedula"], "pin": persona["pinTemporal"]},
     ).json()
     cambio = cliente.post(
         "/api/v1/autenticacion/portal/pin",
@@ -134,7 +134,6 @@ def preparar_estudiante(cliente, cabecera, cedula="1"):
             "personaId": persona["id"],
             "anioLectivoId": anio["id"],
             "seccion": "7-1",
-            "turno": "almuerzo",
             "becado": False,
         },
     ).json()

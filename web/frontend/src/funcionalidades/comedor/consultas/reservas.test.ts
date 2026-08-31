@@ -8,7 +8,7 @@ describe("reservas de comedor", () => {
 
     await reservarComedorEstudiante("2026-08-27");
 
-    expect(api.post).toHaveBeenCalledWith("/v1/comedor/reservas/estudiante", {
+    expect(api.post).toHaveBeenCalledWith("/v1/comedor/reservas", {
       fecha: "2026-08-27",
     });
   });
@@ -18,7 +18,7 @@ describe("reservas de comedor", () => {
 
     await reservarComedorProfesor("2026-08-27");
 
-    expect(api.post).toHaveBeenCalledWith("/v1/comedor/reservas/profesor", {
+    expect(api.post).toHaveBeenCalledWith("/v1/comedor/reservas", {
       fecha: "2026-08-27",
     });
   });

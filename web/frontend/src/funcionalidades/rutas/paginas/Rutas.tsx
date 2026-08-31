@@ -20,6 +20,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Map, Pencil, Plus, Route as IconoRuta, Search } from "lucide-react";
 import { toast } from "sonner";
 import { EditorRuta } from "@/funcionalidades/rutas/EditorRuta";
+import { CapturaTransporte } from "@/funcionalidades/rutas/componentes/CapturaTransporte";
 import {
   actualizarRuta,
   crearRuta,
@@ -130,7 +131,7 @@ export default function RutasTab() {
             Rutas de transporte
           </h2>
           <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-            Administrá códigos y recorridos que comparten el portal y la aplicación local.
+            Administrá la nomenclatura MEP, la descripción y el color usado en el carné digital.
           </p>
         </div>
         <Button onClick={abrirNueva} data-testid="ruta-nueva">
@@ -147,6 +148,7 @@ export default function RutasTab() {
           </AlertDescription>
         </Alert>
       )}
+      <CapturaTransporte />
       <div className="flex items-center gap-3 border-b pb-4">
         <Search className="h-4 w-4 text-muted-foreground" />
         <Input

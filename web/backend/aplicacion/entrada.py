@@ -11,10 +11,12 @@ from aplicacion.api_importaciones import crear_router as router_importaciones
 from aplicacion.api_maestros import crear_router as router_maestros
 from aplicacion.api_menu import crear_router as router_menu
 from aplicacion.api_operacion import crear_router as router_operacion
+from aplicacion.api_portal import crear_router as router_portal
 from aplicacion.api_reportes import crear_router as router_reportes
 from aplicacion.casos_catalogos import ServicioCatalogos
 from aplicacion.casos_identidad import ServicioIdentidad
 from aplicacion.casos_importacion import ServicioImportacion
+from aplicacion.casos_portal import ServicioPortal
 from aplicacion.casos_reportes import ServicioReportes
 from aplicacion.dependencias_v1 import crear_dependencias
 from aplicacion.nucleo.postgresql import crear_fabrica_sesiones, crear_motor, dependencia_sesion
@@ -23,6 +25,7 @@ from aplicacion.repositorios_catalogos import RepositorioCatalogos
 from aplicacion.repositorios_identidad import RepositorioIdentidad
 from aplicacion.repositorios_importacion import RepositorioImportacion
 from aplicacion.repositorios_operacion import RepositorioOperacion
+from aplicacion.repositorios_portal import RepositorioPortal
 from aplicacion.servicios import ServicioOperacion
 from config import Settings
 
@@ -49,6 +52,9 @@ def crear_aplicacion(
     async def obtener_reportes(sesion=__import__("fastapi").Depends(obtener_sesion)):
         return ServicioReportes(RepositorioReportes(sesion))
 
+    async def obtener_portal(sesion=__import__("fastapi").Depends(obtener_sesion)):
+        return ServicioPortal(RepositorioPortal(sesion))
+
     actual, portal_operativo, administrativo, administrador = crear_dependencias(obtener_identidad)
 
     aplicacion = FastAPI(title="SCB Plataforma Web", version="1.0.0")
@@ -73,5 +79,6 @@ def crear_aplicacion(
         router_operacion(obtener_operacion, portal_operativo, administrativo, administrador)
     )
     api.include_router(router_reportes(obtener_reportes, administrativo))
+    api.include_router(router_portal(obtener_portal, portal_operativo))
     aplicacion.include_router(api)
     return aplicacion

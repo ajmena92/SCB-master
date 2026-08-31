@@ -10,9 +10,9 @@ import { AlertTriangle, Loader2, UtensilsCrossed, ShieldCheck } from "lucide-rea
 export default function StudentLogin() {
   const pinInputRef = useRef(null);
   const {
-    carne,
+    cedula,
     pin,
-    cambiarCarne,
+    cambiarCedula,
     cambiarPin,
     enviar,
     cargando,
@@ -63,13 +63,13 @@ export default function StudentLogin() {
 
           <form onSubmit={enviar} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="carne">Código institucional</Label>
+              <Label htmlFor="cedula">Cédula</Label>
               <Input
-                id="carne"
-                data-testid="student-carne-input"
-                value={carne}
-                onChange={(e) => cambiarCarne(e.target.value)}
-                placeholder="E-00000000 o P-00000000"
+                id="cedula"
+                data-testid="student-cedula-input"
+                value={cedula}
+                onChange={(e) => cambiarCedula(e.target.value)}
+                placeholder="Número de cédula"
                 className="h-12 text-base"
                 autoComplete="username"
               />

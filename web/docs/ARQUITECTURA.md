@@ -71,7 +71,7 @@ interfaz/API → servicio de aplicación → dominio → puerto de repositorio
 - Las rupturas futuras se versionan; no se mantienen aliases heredados permanentes.
 - PostgreSQL 17 es el único motor web; SQL Server es solo origen de lectura durante el corte.
 - Alembic es la autoridad de cambios y comienza con una única migración base PostgreSQL.
-- Persona y matrícula anual son entidades distintas; los cambios de sección, turno, beca y ruta preservan el historial por año.
+- Persona y matrícula anual son entidades distintas; los cambios de sección, beca y ruta preservan el historial por año. La plataforma activa contiene un único padrón sin filtros por horario.
 
 ## Migración y retiro del sistema local
 

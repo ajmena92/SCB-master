@@ -30,7 +30,12 @@ describe("consultas de rutas", () => {
       colorHex: "#fff",
       activo: true,
     });
-    expect(api.post).toHaveBeenCalledWith("/v1/transporte/rutas", expect.anything());
-    expect(api.put).toHaveBeenCalledWith("/v1/transporte/rutas/2", expect.anything());
+    expect(api.post).toHaveBeenCalledWith("/v1/rutas", {
+      codigo: "A",
+      descripcion: "Ruta Norte",
+      colorHex: "#fff",
+      activa: true,
+    });
+    expect(api.put).toHaveBeenCalledWith("/v1/rutas/2", expect.anything());
   });
 });

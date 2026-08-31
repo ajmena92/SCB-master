@@ -18,7 +18,6 @@ from aplicacion.modelos.menu import (
     ComponenteMenu,
     ComponentePublicado,
     PlantillaMenu,
-    PublicacionMenu,
 )
 from aplicacion.modelos.operacion import CuentaTiquete
 from aplicacion.seguridad import generar_codigo, hash_secreto
@@ -39,8 +38,15 @@ class ServicioCatalogos:
 
     def listar_rutas(self):
         return [
-            {"id": ruta.id, "nombre": ruta.nombre, "activa": ruta.activo}
-            for ruta in self.repo.listar_rutas()
+            {
+                "idRuta": ruta.id,
+                "codigo": ruta.codigo,
+                "descripcion": ruta.descripcion,
+                "colorCarnetHex": ruta.color_hex,
+                "activo": ruta.activo,
+                "estudiantesAsignados": asignados,
+            }
+            for ruta, asignados in self.repo.listar_rutas()
         ]
 
     def crear_persona(self, datos):
@@ -73,13 +79,48 @@ class ServicioCatalogos:
         if not persona or persona.tipo != "estudiante":
             raise HTTPException(409, "La matricula requiere estudiante")
         try:
-            return self.repo.guardar(Matricula(**datos.model_dump()))
+            return self.repo.guardar(Matricula(**datos.model_dump(), turno="1"))
         except IntegrityError as exc:
             raise HTTPException(409, "Ya existe matricula para persona y año") from exc
 
     def crear_ruta(self, datos):
-        ruta = self.repo.guardar(Ruta(nombre=datos.nombre, activo=datos.activa))
-        return {"id": ruta.id, "nombre": ruta.nombre, "activa": ruta.activo}
+        codigo = datos.codigo.strip()
+        descripcion = " ".join(datos.descripcion.split())
+        ruta = self.repo.guardar(
+            Ruta(
+                nombre=f"{codigo}-{descripcion}",
+                codigo=codigo,
+                descripcion=descripcion,
+                color_hex=datos.color_hex.upper(),
+                activo=datos.activa,
+            )
+        )
+        return self._ruta_salida(ruta, 0)
+
+    def actualizar_ruta(self, ruta_id, datos):
+        ruta = self.repo.ruta(ruta_id)
+        if not ruta:
+            raise HTTPException(404, "Ruta no encontrada")
+        if ruta.codigo == "0":
+            raise HTTPException(409, "La ruta 0 esta protegida")
+        ruta.codigo = datos.codigo.strip()
+        ruta.descripcion = " ".join(datos.descripcion.split())
+        ruta.nombre = f"{ruta.codigo}-{ruta.descripcion}"
+        ruta.color_hex = datos.color_hex.upper()
+        ruta.activo = datos.activa
+        self.repo.guardar(ruta)
+        return self._ruta_salida(ruta, self.repo.contar_asignados(ruta.id))
+
+    @staticmethod
+    def _ruta_salida(ruta, asignados):
+        return {
+            "idRuta": ruta.id,
+            "codigo": ruta.codigo,
+            "descripcion": ruta.descripcion,
+            "colorCarnetHex": ruta.color_hex,
+            "activo": ruta.activo,
+            "estudiantesAsignados": asignados,
+        }
 
     def asignar_ruta(self, ruta_id, datos):
         if not self.repo.ruta(ruta_id) or not self.repo.matricula(datos.matricula_id):
@@ -105,6 +146,13 @@ class ServicioCatalogos:
         self.repo.guardar_plantilla(p, cs)
         return {"id": p.id, **datos.model_dump()}
 
+    def actualizar_plantilla(self, plantilla_id, datos):
+        cs = [ComponenteMenu(nombre=n, orden=i) for i, n in enumerate(datos.componentes, 1)]
+        p = self.repo.actualizar_plantilla(plantilla_id, datos.nombre, cs)
+        if not p:
+            raise HTTPException(404, "Plantilla no encontrada")
+        return {"id": p.id, **datos.model_dump()}
+
     def listar_publicaciones(self):
         return [
             {
@@ -120,9 +168,8 @@ class ServicioCatalogos:
         plantilla, origen = self.repo.plantilla_componentes(datos.plantilla_id)
         if not plantilla:
             raise HTTPException(404, "Plantilla no encontrada")
-        p = PublicacionMenu(fecha=datos.fecha, nombre=plantilla.nombre)
         cs = [ComponentePublicado(nombre=c.nombre, orden=c.orden) for c in origen]
-        self.repo.guardar_publicacion(p, cs)
+        p = self.repo.reemplazar_publicacion(datos.fecha, plantilla.nombre, cs)
         return {
             "id": p.id,
             "fecha": p.fecha,

@@ -3,8 +3,9 @@
 import csv
 import io
 from datetime import date
+from typing import Annotated
 
-from fastapi import APIRouter, Depends, Response
+from fastapi import APIRouter, Depends, Query, Response
 
 
 def _respuesta(filas: list[dict], formato: str):
@@ -71,6 +72,33 @@ def crear_router(obtener_servicio, administrativo) -> APIRouter:
                 for r in registros
             ],
             formato,
+        )
+
+    @router.get("/dashboard")
+    async def dashboard(
+        fecha: date,
+        tipo_persona: Annotated[str, Query(alias="tipoPersona")] = "estudiante",
+        busqueda: str = "",
+        ruta: str = "",
+        seccion: str = "",
+        estado: str = "",
+        beneficio_transporte: Annotated[str, Query(alias="beneficioTransporte")] = "",
+        pagina: int = 1,
+        por_pagina: Annotated[int, Query(alias="porPagina")] = 25,
+        servicio=Depends(obtener_servicio),
+    ):
+        return servicio.dashboard(
+            fecha,
+            {
+                "tipoPersona": tipo_persona,
+                "busqueda": busqueda,
+                "ruta": ruta,
+                "seccion": seccion,
+                "estado": estado,
+                "beneficioTransporte": beneficio_transporte,
+                "pagina": pagina,
+                "porPagina": por_pagina,
+            },
         )
 
     return router
