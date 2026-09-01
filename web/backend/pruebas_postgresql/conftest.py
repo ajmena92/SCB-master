@@ -8,10 +8,16 @@ from sqlalchemy.orm import Session
 
 import aplicacion.modelos  # noqa: F401
 from aplicacion.entrada import crear_aplicacion
-from aplicacion.modelos.maestros import CuentaAdministrativa
+from aplicacion.modelos.maestros import (
+    CuentaAdministrativa,
+    CuentaPermiso,
+    PermisoAdministrativo,
+    Persona,
+)
 from aplicacion.modelos.operacion import Tarifa
 from aplicacion.nucleo.modelos_base import BaseDeclarativa
 from aplicacion.nucleo.postgresql import crear_motor
+from aplicacion.permisos import PERMISOS_ADMINISTRATIVOS
 from aplicacion.seguridad import hash_secreto
 from config import Settings
 
@@ -36,6 +42,9 @@ class ClienteASGI:
     def post(self, ruta, **opciones):
         return self.request("POST", ruta, **opciones)
 
+    def put(self, ruta, **opciones):
+        return self.request("PUT", ruta, **opciones)
+
     def delete(self, ruta, **opciones):
         return self.request("DELETE", ruta, **opciones)
 
@@ -45,20 +54,42 @@ def entorno():
     motor = crear_motor("sqlite://")
     BaseDeclarativa.metadata.create_all(motor)
     with Session(motor) as sesion:
+        admin_persona = Persona(
+            codigo="P-00000001",
+            cedula="900000001",
+            nombres="Administrador Pruebas",
+            tipo="profesor",
+            activo=True,
+        )
+        operador_persona = Persona(
+            codigo="P-00000002",
+            cedula="900000002",
+            nombres="Operador Pruebas",
+            tipo="profesor",
+            activo=True,
+        )
+        sesion.add_all([admin_persona, operador_persona])
+        sesion.flush()
+        admin_cuenta = CuentaAdministrativa(
+            persona_id=admin_persona.id,
+            usuario="admin",
+            contrasena_hash=hash_secreto("Clave-segura-2026"),
+            rol="administrador",
+            activo=True,
+            vinculacion_pendiente=False,
+        )
+        operador_cuenta = CuentaAdministrativa(
+            persona_id=operador_persona.id,
+            usuario="operador",
+            contrasena_hash=hash_secreto("Clave-operador-2026"),
+            rol="operador",
+            activo=True,
+            vinculacion_pendiente=False,
+        )
         sesion.add_all(
             [
-                CuentaAdministrativa(
-                    usuario="admin",
-                    contrasena_hash=hash_secreto("Clave-segura-2026"),
-                    rol="administrador",
-                    activo=True,
-                ),
-                CuentaAdministrativa(
-                    usuario="operador",
-                    contrasena_hash=hash_secreto("Clave-operador-2026"),
-                    rol="operador",
-                    activo=True,
-                ),
+                admin_cuenta,
+                operador_cuenta,
                 Tarifa(
                     tipo_persona="estudiante", monto=Decimal("700"), fecha_inicio=date(2026, 1, 1)
                 ),
@@ -67,6 +98,23 @@ def entorno():
                 ),
             ]
         )
+        sesion.flush()
+        for clave, nombre, descripcion, modulo in PERMISOS_ADMINISTRATIVOS:
+            sesion.add(
+                PermisoAdministrativo(
+                    clave=clave,
+                    nombre=nombre,
+                    descripcion=descripcion,
+                    modulo=modulo,
+                )
+            )
+            if clave in {
+                "comedor.operar",
+                "transporte.operar",
+                "tiquetes.operar",
+                "reportes.leer",
+            }:
+                sesion.add(CuentaPermiso(cuenta_id=operador_cuenta.id, permiso_clave=clave))
         sesion.commit()
     app = crear_aplicacion(
         motor=motor,

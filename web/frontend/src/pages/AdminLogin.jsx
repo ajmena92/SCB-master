@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useInicioSesionAdministrativo } from "@/funcionalidades/identidad/hooks/useInicioSesion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Loader2, ShieldCheck, ArrowLeft } from "lucide-react";
 
 export default function AdminLogin() {
+  const [parametros] = useSearchParams();
   const {
     nombreUsuario,
     contrasena,
@@ -32,6 +33,14 @@ export default function AdminLogin() {
             Usuario de la plataforma web
           </p>
           <h1 className="font-display text-2xl font-bold tracking-tight mb-6">Iniciar sesión</h1>
+          {parametros.get("contrasena") === "actualizada" && (
+            <p
+              className="mb-5 rounded-xl bg-emerald-100 px-4 py-3 text-sm font-semibold text-emerald-900"
+              role="status"
+            >
+              Contraseña actualizada. Iniciá sesión con tu nueva contraseña.
+            </p>
+          )}
           <form onSubmit={enviar} className="space-y-5">
             <div className="space-y-2">
               <Label htmlFor="usuario">Nombre de usuario</Label>

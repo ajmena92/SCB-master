@@ -3,7 +3,11 @@ import { useAutenticacion } from "@/aplicacion/estado/ContextoAutenticacion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ShieldCheck, LogOut } from "lucide-react";
-import { obtenerGrupoAdministrativoActivo, ADMIN_NAVIGATION } from "@/config/adminNavigation";
+import {
+  obtenerGrupoAdministrativoActivo,
+  ADMIN_NAVIGATION,
+  obtenerRutaAdministrativaPredeterminada,
+} from "@/config/adminNavigation";
 import AdminSidebar from "@/compartido/componentes/AdminSidebar";
 import AdminBottomNav from "@/compartido/componentes/AdminBottomNav";
 
@@ -27,7 +31,9 @@ export default function AdminPanel() {
           <button
             type="button"
             className="flex min-w-0 items-center gap-3 rounded-xl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            onClick={() => navigate("/admin/panel/inicio")}
+            onClick={() =>
+              navigate(obtenerRutaAdministrativaPredeterminada(session) || "/admin/panel")
+            }
             aria-label="Ir al inicio de administración"
           >
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-secondary text-secondary-foreground">
@@ -44,9 +50,11 @@ export default function AdminPanel() {
           </button>
           <div className="flex items-center gap-3">
             <div className="text-right hidden sm:block">
-              <p className="text-sm font-semibold leading-tight">{session?.usuario?.Nombre}</p>
+              <p className="text-sm font-semibold leading-tight">
+                {session?.nombres || session?.usuario}
+              </p>
               <Badge className="bg-primary text-white text-[10px]" data-testid="admin-rol-badge">
-                {session?.usuario?.Rol}
+                {session?.rol}
               </Badge>
             </div>
             <Button

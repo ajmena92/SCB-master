@@ -13,17 +13,13 @@ export default function PortalPersona() {
     mutationFn: () => plataformaApi.comedor.reservar(new Date().toISOString().slice(0, 10)),
     onSuccess: () => cliente.invalidateQueries(),
   });
+  const usuario = session && typeof session.usuario === "object" ? session.usuario : undefined;
   return (
     <main className="portal-shell">
       <header>
         <div>
           <span className="eyebrow">Portal personal</span>
-          <h1>
-            Hola,{" "}
-            {(session && session.usuario?.nombres) ||
-              (session && session.usuario?.Nombre) ||
-              "bienvenido"}
-          </h1>
+          <h1>Hola, {String(usuario?.nombres || usuario?.Nombre || "bienvenido")}</h1>
         </div>
         <button className="button secondary" onClick={logout}>
           Cerrar sesión

@@ -6,6 +6,7 @@ from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.engine import Engine
 
+from aplicacion.api_administracion import crear_router as router_administracion
 from aplicacion.api_autenticacion import crear_router as router_autenticacion
 from aplicacion.api_importaciones import crear_router as router_importaciones
 from aplicacion.api_maestros import crear_router as router_maestros
@@ -13,6 +14,7 @@ from aplicacion.api_menu import crear_router as router_menu
 from aplicacion.api_operacion import crear_router as router_operacion
 from aplicacion.api_portal import crear_router as router_portal
 from aplicacion.api_reportes import crear_router as router_reportes
+from aplicacion.casos_administracion import ServicioAdministracion
 from aplicacion.casos_catalogos import ServicioCatalogos
 from aplicacion.casos_identidad import ServicioIdentidad
 from aplicacion.casos_importacion import ServicioImportacion
@@ -21,6 +23,7 @@ from aplicacion.casos_reportes import ServicioReportes
 from aplicacion.dependencias_v1 import crear_dependencias
 from aplicacion.nucleo.postgresql import crear_fabrica_sesiones, crear_motor, dependencia_sesion
 from aplicacion.repositorios import RepositorioReportes
+from aplicacion.repositorios_administracion import RepositorioAdministracion
 from aplicacion.repositorios_catalogos import RepositorioCatalogos
 from aplicacion.repositorios_identidad import RepositorioIdentidad
 from aplicacion.repositorios_importacion import RepositorioImportacion
@@ -55,7 +58,17 @@ def crear_aplicacion(
     async def obtener_portal(sesion=__import__("fastapi").Depends(obtener_sesion)):
         return ServicioPortal(RepositorioPortal(sesion))
 
-    actual, portal_operativo, administrativo, administrador = crear_dependencias(obtener_identidad)
+    async def obtener_administracion(sesion=__import__("fastapi").Depends(obtener_sesion)):
+        return ServicioAdministracion(RepositorioAdministracion(sesion))
+
+    (
+        actual,
+        portal_operativo,
+        administrativo,
+        administrador,
+        exigir_permiso,
+        exigir_alguno,
+    ) = crear_dependencias(obtener_identidad)
 
     aplicacion = FastAPI(title="SCB Plataforma Web", version="1.0.0")
     aplicacion.add_middleware(
@@ -72,13 +85,14 @@ def crear_aplicacion(
         return {"estado": "ok", "baseDatos": "postgresql"}
 
     api.include_router(router_autenticacion(obtener_identidad, actual))
-    api.include_router(router_maestros(obtener_catalogos, administrador))
-    api.include_router(router_importaciones(obtener_importacion, administrador))
-    api.include_router(router_menu(obtener_catalogos, administrador))
+    api.include_router(router_administracion(obtener_administracion, actual, administrador))
+    api.include_router(router_maestros(obtener_catalogos, exigir_permiso, exigir_alguno))
+    api.include_router(router_importaciones(obtener_importacion, exigir_permiso))
+    api.include_router(router_menu(obtener_catalogos, exigir_permiso))
     api.include_router(
-        router_operacion(obtener_operacion, portal_operativo, administrativo, administrador)
+        router_operacion(obtener_operacion, portal_operativo, exigir_permiso, exigir_alguno)
     )
-    api.include_router(router_reportes(obtener_reportes, administrativo))
+    api.include_router(router_reportes(obtener_reportes, exigir_permiso))
     api.include_router(router_portal(obtener_portal, portal_operativo))
     aplicacion.include_router(api)
     return aplicacion

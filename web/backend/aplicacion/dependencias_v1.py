@@ -14,6 +14,10 @@ def crear_dependencias(obtener_servicio):
     async def administrativo(identidad: dict = Depends(actual)) -> dict:
         if identidad["tipo"] != "administracion":
             raise HTTPException(403, "Se requiere una cuenta administrativa")
+        if identidad["cuenta"].vinculacion_pendiente:
+            raise HTTPException(403, "Debe completar la vinculacion inicial")
+        if identidad["cuenta"].cambio_contrasena_obligatorio:
+            raise HTTPException(403, "Debe cambiar la contrasena temporal")
         return identidad
 
     async def portal_operativo(identidad: dict = Depends(actual)) -> dict:
@@ -26,4 +30,22 @@ def crear_dependencias(obtener_servicio):
             raise HTTPException(403, "Se requiere rol administrador")
         return identidad
 
-    return actual, portal_operativo, administrativo, administrador
+    def exigir_permiso(clave: str):
+        async def dependencia(identidad: dict = Depends(administrativo)) -> dict:
+            if identidad["rol"] != "administrador" and clave not in identidad["permisos"]:
+                raise HTTPException(403, "No tiene permiso para esta operacion")
+            return identidad
+
+        return dependencia
+
+    def exigir_alguno(*claves: str):
+        async def dependencia(identidad: dict = Depends(administrativo)) -> dict:
+            if identidad["rol"] != "administrador" and not set(claves).intersection(
+                identidad["permisos"]
+            ):
+                raise HTTPException(403, "No tiene permiso para esta operacion")
+            return identidad
+
+        return dependencia
+
+    return actual, portal_operativo, administrativo, administrador, exigir_permiso, exigir_alguno

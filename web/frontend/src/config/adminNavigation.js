@@ -1,6 +1,7 @@
 import {
   CalendarDays,
   FileSpreadsheet,
+  KeyRound,
   LayoutDashboard,
   Route,
   Ticket,
@@ -9,111 +10,109 @@ import {
 } from "lucide-react";
 
 export const ADMIN_NAVIGATION_GROUPS = [
-  { id: "inicio", label: "Inicio" },
-  { id: "operacion", label: "Operación" },
-  { id: "personas", label: "Personas" },
-  { id: "reportes", label: "Reportes" },
-  { id: "mas", label: "Más" },
+  { id: "principal", label: "Principal" },
+  { id: "operacion", label: "Operación diaria" },
+  { id: "administracion", label: "Administración" },
 ];
 
 export const ADMIN_NAVIGATION = [
   {
-    v: "dashboard",
     id: "dashboard",
     label: "Dashboard",
-    group: "inicio",
+    shortLabel: "Inicio",
+    group: "principal",
     path: "/admin/panel/inicio",
-    requiredPermissions: ["reportes.dashboard.leer"],
+    requiredPermissions: ["dashboard.leer"],
     icon: LayoutDashboard,
   },
   {
-    v: "menu",
-    id: "menu",
-    label: "Menú",
-    group: "operacion",
-    path: "/admin/panel/menu",
-    requiredPermissions: ["menu.leer"],
-    icon: CalendarDays,
-    adminOnly: true,
-  },
-  {
-    v: "comedor",
     id: "comedor",
     label: "Ingreso al comedor",
+    shortLabel: "Comedor",
     group: "operacion",
     path: "/admin/panel/comedor",
-    requiredPermissions: ["comedor.registrar"],
+    requiredPermissions: ["comedor.operar"],
     icon: UtensilsCrossed,
   },
   {
-    v: "rutas",
     id: "rutas",
     label: "Rutas y transporte",
+    shortLabel: "Rutas",
     group: "operacion",
     path: "/admin/panel/rutas",
-    requiredPermissions: ["rutas.administrar"],
+    requiredPermissions: ["transporte.operar", "rutas.administrar"],
     icon: Route,
-    adminOnly: true,
   },
   {
-    v: "estudiantes",
-    id: "estudiantes",
-    label: "Estudiantes y profesores",
-    group: "personas",
-    path: "/admin/panel/personas",
-    requiredPermissions: ["estudiantes.leer"],
-    icon: Users,
-    adminOnly: true,
+    id: "menu",
+    label: "Menú del comedor",
+    shortLabel: "Menú",
+    group: "operacion",
+    path: "/admin/panel/menu",
+    requiredPermissions: ["menu.administrar"],
+    icon: CalendarDays,
   },
   {
-    v: "tiquetes",
     id: "tiquetes",
-    label: "Tiquetes y saldos",
-    group: "personas",
+    label: "Tiquetes y tarifas",
+    shortLabel: "Tiquetes",
+    group: "operacion",
     path: "/admin/panel/tiquetes",
-    requiredPermissions: ["cuentas.leer"],
+    requiredPermissions: ["tiquetes.operar", "tarifas.administrar"],
     icon: Ticket,
   },
   {
-    v: "reporte",
-    id: "reporte",
+    id: "personas",
+    label: "Personas y matrículas",
+    shortLabel: "Personas",
+    group: "administracion",
+    path: "/admin/panel/personas",
+    requiredPermissions: ["personas.administrar"],
+    icon: Users,
+  },
+  {
+    id: "reportes",
     label: "Reportes",
-    group: "reportes",
+    shortLabel: "Reportes",
+    group: "administracion",
     path: "/admin/panel/reportes",
     requiredPermissions: ["reportes.leer"],
     icon: FileSpreadsheet,
   },
   {
-    v: "anios",
     id: "anios",
     label: "Años e importación",
-    group: "mas",
+    shortLabel: "Años",
+    group: "administracion",
     path: "/admin/panel/anios",
-    requiredPermissions: ["importaciones.leer"],
+    requiredPermissions: ["importaciones.administrar"],
     icon: FileSpreadsheet,
+  },
+  {
+    id: "usuarios",
+    label: "Usuarios y permisos",
+    shortLabel: "Usuarios",
+    group: "administracion",
+    path: "/admin/panel/usuarios",
+    requiredPermissions: [],
+    icon: KeyRound,
     adminOnly: true,
   },
 ];
 
-function roleFromSession(session) {
-  return session?.usuario?.Rol || session?.Rol || "";
-}
-
 export function isAdministratorSession(session) {
-  const role = roleFromSession(session).toLocaleLowerCase();
-  return role === "administrador" || (session?.tipo === "admin" && !role);
+  return session?.tipo === "administracion" && session?.rol === "administrador";
 }
 
 export function obtenerModulosVisibles(session) {
-  const isAdmin = isAdministratorSession(session);
-  const esCuentaAdministrativa = session?.tipo === "admin";
-  const permissions = Array.isArray(session?.permisos) ? session.permisos : [];
-  return ADMIN_NAVIGATION.filter((module) => {
-    if (module.adminOnly && !isAdmin) return false;
-    if (isAdmin) return true;
-    if (esCuentaAdministrativa) return true;
-    return module.requiredPermissions.some((permission) => permissions.includes(permission));
-  });
+  if (session?.tipo !== "administracion") return [];
+  if (isAdministratorSession(session)) return ADMIN_NAVIGATION;
+  const permissions = Array.isArray(session.permisos) ? session.permisos : [];
+  return ADMIN_NAVIGATION.filter(
+    (module) =>
+      !module.adminOnly &&
+      module.requiredPermissions.some((permission) => permissions.includes(permission)),
+  );
 }
 
 export function obtenerGrupoAdministrativoActivo(pathname = "") {
@@ -123,6 +122,6 @@ export function obtenerGrupoAdministrativoActivo(pathname = "") {
   return module?.group || null;
 }
 
-export function getDefaultAdminRoute(session) {
-  return obtenerModulosVisibles(session)[0]?.path || "/admin/panel/inicio";
+export function obtenerRutaAdministrativaPredeterminada(session) {
+  return obtenerModulosVisibles(session)[0]?.path || null;
 }

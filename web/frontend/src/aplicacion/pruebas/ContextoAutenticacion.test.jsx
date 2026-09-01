@@ -38,17 +38,19 @@ describe("ProveedorAutenticacion", () => {
     contenedor.remove();
   });
 
-  it("conserva los roles y permisos explícitos devueltos por la sesión canónica", async () => {
+  it("conserva el rol y los permisos explícitos de la sesión canónica", async () => {
     api.get.mockResolvedValueOnce({
       status: 200,
       data: {
-        tipo: "admin",
-        usuario: {
-          IdUsuario: 42,
-          NombreCompleto: "Docente de prueba",
-          roles: ["Profesor"],
-          permisos: ["rutas.administrar"],
-        },
+        tipo: "administracion",
+        cuentaId: 42,
+        personaId: 7,
+        usuario: "docente.prueba",
+        nombres: "Docente de prueba",
+        rol: "operador",
+        permisos: ["rutas.administrar"],
+        cambioContrasenaObligatorio: false,
+        vinculacionPendiente: false,
       },
     });
     const alCambiar = vi.fn();
@@ -63,13 +65,12 @@ describe("ProveedorAutenticacion", () => {
 
     const sesion = alCambiar.mock.calls.at(-1)[0].session;
     expect(sesion).toMatchObject({
-      tipo: "admin",
-      roles: ["Profesor"],
+      tipo: "administracion",
+      cuentaId: 42,
+      rol: "operador",
       permisos: ["rutas.administrar"],
-      usuario: {
-        Nombre: "Docente de prueba",
-        Rol: "Profesor",
-      },
+      usuario: "docente.prueba",
+      nombres: "Docente de prueba",
     });
   });
 
@@ -77,13 +78,15 @@ describe("ProveedorAutenticacion", () => {
     api.get.mockResolvedValueOnce({
       status: 200,
       data: {
-        tipo: "admin",
-        usuario: {
-          IdUsuario: 43,
-          NombreCompleto: "Cuenta sin asignación",
-          roles: [],
-          permisos: [],
-        },
+        tipo: "administracion",
+        cuentaId: 43,
+        personaId: 8,
+        usuario: "sin.permisos",
+        nombres: "Cuenta sin asignación",
+        rol: "operador",
+        permisos: [],
+        cambioContrasenaObligatorio: false,
+        vinculacionPendiente: false,
       },
     });
     const alCambiar = vi.fn();
@@ -97,9 +100,9 @@ describe("ProveedorAutenticacion", () => {
     });
 
     const sesion = alCambiar.mock.calls.at(-1)[0].session;
-    expect(sesion.roles).toEqual([]);
     expect(sesion.permisos).toEqual([]);
-    expect(sesion.usuario.Rol).toBe("");
+    expect(sesion.rol).toBe("operador");
+    expect(sesion.usuario).toBe("sin.permisos");
   });
 
   it("trata 204 como ausencia normal de sesión", async () => {

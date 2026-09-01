@@ -1,69 +1,66 @@
 import {
   ADMIN_NAVIGATION,
   obtenerGrupoAdministrativoActivo,
-  getDefaultAdminRoute,
+  obtenerRutaAdministrativaPredeterminada,
   obtenerModulosVisibles,
 } from "@/config/adminNavigation";
 
-describe("administrative tabs", () => {
-  it("expone todos los módulos PostgreSQL al Administrador", () => {
-    const adminModules = obtenerModulosVisibles({ usuario: { Rol: "Administrador" } });
-
-    expect(adminModules).toHaveLength(ADMIN_NAVIGATION.length);
-    expect(adminModules.map((module) => module.v)).toContain("dashboard");
-    expect(adminModules.find((module) => module.id === "comedor").path).toBe(
-      "/admin/panel/comedor",
-    );
-    expect(adminModules).toEqual(ADMIN_NAVIGATION);
+describe("navegación administrativa", () => {
+  it("expone todos los módulos PostgreSQL al administrador", () => {
+    const modulos = obtenerModulosVisibles({
+      tipo: "administracion",
+      rol: "administrador",
+      permisos: [],
+    });
+    expect(modulos).toEqual(ADMIN_NAVIGATION);
+    expect(modulos.find((modulo) => modulo.id === "comedor").path).toBe("/admin/panel/comedor");
   });
 
-  it("reconoce una sesión administrativa aunque el backend aún no haya cargado el rol", () => {
-    const adminModules = obtenerModulosVisibles({ tipo: "admin", usuario: { idUsuario: 1 } });
-
-    expect(adminModules).toEqual(ADMIN_NAVIGATION);
+  it("no concede módulos cuando el backend no declara rol ni permisos", () => {
+    expect(obtenerModulosVisibles({ tipo: "administracion", permisos: [] })).toEqual([]);
+    expect(
+      obtenerRutaAdministrativaPredeterminada({ tipo: "administracion", permisos: [] }),
+    ).toBeNull();
   });
 
-  it("does not expose modules to an Usuario sin permisos explícitos", () => {
-    const operatorModules = obtenerModulosVisibles({ usuario: { Rol: "Profesor" } });
-
-    expect(operatorModules).toHaveLength(0);
-    expect(operatorModules.map((module) => module.v)).not.toContain("correcciones");
-    expect(getDefaultAdminRoute({ usuario: { Rol: "Profesor" } })).toBe("/admin/panel/inicio");
-  });
-
-  it("resolves the navigation group from a target route", () => {
+  it("resuelve los tres grupos compactos desde sus rutas", () => {
+    expect(obtenerGrupoAdministrativoActivo("/admin/panel/inicio")).toBe("principal");
     expect(obtenerGrupoAdministrativoActivo("/admin/panel/rutas")).toBe("operacion");
-    expect(obtenerGrupoAdministrativoActivo("/admin/panel/personas/details")).toBe("personas");
+    expect(obtenerGrupoAdministrativoActivo("/admin/panel/personas/detalle")).toBe(
+      "administracion",
+    );
     expect(obtenerGrupoAdministrativoActivo("/unknown")).toBeNull();
   });
 
-  it("keeps permission metadata in the central catalog for later RBAC enforcement", () => {
-    expect(ADMIN_NAVIGATION.every((module) => Array.isArray(module.requiredPermissions))).toBe(
+  it("usa exclusivamente las claves canónicas del catálogo RBAC", () => {
+    expect(ADMIN_NAVIGATION.every((modulo) => Array.isArray(modulo.requiredPermissions))).toBe(
       true,
     );
-    expect(ADMIN_NAVIGATION.find((module) => module.v === "dashboard").requiredPermissions).toEqual(
-      ["reportes.dashboard.leer"],
-    );
+    expect(
+      ADMIN_NAVIGATION.find((modulo) => modulo.id === "dashboard").requiredPermissions,
+    ).toEqual(["dashboard.leer"]);
+    expect(ADMIN_NAVIGATION.find((modulo) => modulo.id === "comedor").requiredPermissions).toEqual([
+      "comedor.operar",
+    ]);
   });
 
-  it("does not resolve a route that is not part of the catalog", () => {
-    expect(obtenerGrupoAdministrativoActivo("/admin/panel/operacion/no-existe")).toBeNull();
-  });
-
-  it("filters an operator by the permissions returned by the API", () => {
-    const modules = obtenerModulosVisibles({
-      usuario: { Rol: "Profesor" },
-      permisos: ["comedor.registrar"],
+  it("filtra al operador por permisos explícitos y nunca muestra usuarios", () => {
+    const modulos = obtenerModulosVisibles({
+      tipo: "administracion",
+      rol: "operador",
+      permisos: ["comedor.operar", "rutas.administrar"],
     });
-    expect(modules.map((module) => module.id)).toEqual(["comedor"]);
+    expect(modulos.map((modulo) => modulo.id)).toEqual(["comedor", "rutas"]);
+    expect(modulos.map((modulo) => modulo.id)).not.toContain("usuarios");
   });
 
-  it("muestra Inicio a un usuario con el permiso canónico del dashboard", () => {
-    const modules = obtenerModulosVisibles({
-      usuario: { Rol: "Profe" },
-      permisos: ["reportes.dashboard.leer"],
-    });
-
-    expect(modules.map((module) => module.id)).toEqual(["dashboard"]);
+  it("elige como destino inicial el primer módulo realmente autorizado", () => {
+    expect(
+      obtenerRutaAdministrativaPredeterminada({
+        tipo: "administracion",
+        rol: "operador",
+        permisos: ["reportes.leer"],
+      }),
+    ).toBe("/admin/panel/reportes");
   });
 });

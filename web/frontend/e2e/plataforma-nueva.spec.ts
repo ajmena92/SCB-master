@@ -1,14 +1,23 @@
 import { expect, test } from "@playwright/test";
 
+const sesionAdministrador = {
+  tipo: "administracion",
+  cuentaId: 1,
+  personaId: 10,
+  usuario: "direccion",
+  nombres: "Dirección",
+  rol: "administrador",
+  permisos: [],
+  cambioContrasenaObligatorio: false,
+  vinculacionPendiente: false,
+};
+
 test("el administrador navega al padrón anual", async ({ page }) => {
   await page.route("**/api/v1/sesion", (route) =>
     route.fulfill({
       status: 200,
       contentType: "application/json",
-      body: JSON.stringify({
-        tipo: "admin",
-        usuario: { Nombre: "Dirección", roles: ["Administrador"], permisos: [] },
-      }),
+      body: JSON.stringify(sesionAdministrador),
     }),
   );
   await page.route("**/api/v1/personas**", (route) =>
@@ -50,7 +59,7 @@ test("el administrador navega al padrón anual", async ({ page }) => {
   );
 
   await page.goto("/admin/panel/personas");
-  await expect(page.getByRole("heading", { name: "Personas y matrículas" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Personas y matrículas" }).last()).toBeVisible();
   await expect(page.getByText("E-00000018")).toBeVisible();
   await expect(page.getByRole("link", { name: "Años e importación" })).toBeVisible();
 });
@@ -61,13 +70,16 @@ test("el operador no recibe enlaces de configuración", async ({ page }) => {
       status: 200,
       contentType: "application/json",
       body: JSON.stringify({
-        tipo: "admin",
-        usuario: { Nombre: "Operador", roles: ["operador"], permisos: [] },
+        ...sesionAdministrador,
+        usuario: "operador",
+        nombres: "Operador",
+        rol: "operador",
+        permisos: ["comedor.operar"],
       }),
     }),
   );
   await page.goto("/admin/panel/inicio");
-  await expect(page.getByRole("link", { name: "Comedor", exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Ingreso al comedor" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Personas" })).toHaveCount(0);
   await expect(page.getByRole("link", { name: "Años e importación" })).toHaveCount(0);
 });
@@ -81,7 +93,7 @@ test("muestra la credencial creada una sola vez y permite copiarla y descargarla
     route.fulfill({
       status: 200,
       contentType: "application/json",
-      body: JSON.stringify({ tipo: "administracion", usuario: "Dirección", rol: "administrador" }),
+      body: JSON.stringify(sesionAdministrador),
     }),
   );
   await page.route("**/api/v1/personas**", async (route) => {
@@ -145,7 +157,7 @@ test("consume las credenciales de la confirmación y ofrece el CSV sin persistir
     route.fulfill({
       status: 200,
       contentType: "application/json",
-      body: JSON.stringify({ tipo: "administracion", usuario: "Dirección", rol: "administrador" }),
+      body: JSON.stringify(sesionAdministrador),
     }),
   );
   await page.route("**/api/v1/anios-lectivos**", (route) =>

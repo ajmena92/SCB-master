@@ -44,12 +44,43 @@ class CredencialPortal(BaseDeclarativa):
 class CuentaAdministrativa(BaseDeclarativa):
     __tablename__ = "cuenta_administrativa"
     id: Mapped[int] = mapped_column(primary_key=True)
+    persona_id: Mapped[int | None] = mapped_column(
+        ForeignKey("persona.id", ondelete="RESTRICT"), nullable=True
+    )
     usuario: Mapped[str] = mapped_column(String(80), unique=True)
     contrasena_hash: Mapped[str] = mapped_column(String(255))
     rol: Mapped[str] = mapped_column(String(16))
     activo: Mapped[bool] = mapped_column(Boolean, default=True)
+    cambio_contrasena_obligatorio: Mapped[bool] = mapped_column(Boolean, default=False)
+    vinculacion_pendiente: Mapped[bool] = mapped_column(Boolean, default=True)
     __table_args__ = (
         CheckConstraint("rol IN ('administrador','operador')", name="rol_administrativo"),
+        CheckConstraint(
+            "(persona_id IS NULL AND vinculacion_pendiente) OR "
+            "(persona_id IS NOT NULL AND NOT vinculacion_pendiente)",
+            name="estado_vinculacion_cuenta",
+        ),
+        UniqueConstraint("persona_id", name="uq_cuenta_administrativa_persona_id"),
+        Index("ix_cuenta_administrativa_persona_id", "persona_id"),
+        Index("uq_cuenta_administrativa_usuario_lower", text("lower(usuario)"), unique=True),
+    )
+
+
+class PermisoAdministrativo(BaseDeclarativa):
+    __tablename__ = "permiso_administrativo"
+    clave: Mapped[str] = mapped_column(String(80), primary_key=True)
+    nombre: Mapped[str] = mapped_column(String(120))
+    descripcion: Mapped[str] = mapped_column(String(300))
+    modulo: Mapped[str] = mapped_column(String(80), index=True)
+
+
+class CuentaPermiso(BaseDeclarativa):
+    __tablename__ = "cuenta_permiso"
+    cuenta_id: Mapped[int] = mapped_column(
+        ForeignKey("cuenta_administrativa.id", ondelete="CASCADE"), primary_key=True
+    )
+    permiso_clave: Mapped[str] = mapped_column(
+        ForeignKey("permiso_administrativo.clave", ondelete="CASCADE"), primary_key=True
     )
 
 

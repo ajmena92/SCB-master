@@ -18,11 +18,13 @@ const alertVariants = cva(
   },
 );
 
+/** @param {import("react").ComponentPropsWithRef<"div"> & import("class-variance-authority").VariantProps<typeof alertVariants>} props */
 const Alert = ({ ref, className, variant, ...props }) => (
   <div ref={ref} role="alert" className={cn(alertVariants({ variant }), className)} {...props} />
 );
 Alert.displayName = "Alert";
 
+/** @param {import("react").ComponentPropsWithRef<"h5">} props */
 const AlertTitle = ({ ref, className, children, ...props }) => (
   <h5
     ref={ref}
@@ -34,6 +36,7 @@ const AlertTitle = ({ ref, className, children, ...props }) => (
 );
 AlertTitle.displayName = "AlertTitle";
 
+/** @param {import("react").ComponentPropsWithRef<"div">} props */
 const AlertDescription = ({ ref, className, ...props }) => (
   <div ref={ref} className={cn("text-sm [&_p]:leading-relaxed", className)} {...props} />
 );

@@ -6,11 +6,11 @@ import argparse
 import os
 from pathlib import Path
 
-from sqlalchemy import select
+from sqlalchemy import delete, func, select
 from sqlalchemy.orm import Session
 
 import aplicacion.modelos  # noqa: F401
-from aplicacion.modelos.maestros import CuentaAdministrativa
+from aplicacion.modelos.maestros import CuentaAdministrativa, SesionAcceso
 from aplicacion.nucleo.postgresql import crear_motor
 from aplicacion.seguridad import hash_secreto
 
@@ -26,23 +26,29 @@ def main() -> None:
     contrasena = Path(args.contrasena_file).read_text(encoding="utf-8").strip()
     if len(contrasena) < 12:
         raise SystemExit("La contraseña debe tener al menos 12 caracteres")
+    usuario = args.usuario.strip().lower()
     with Session(crear_motor(url)) as sesion, sesion.begin():
         cuenta = sesion.scalar(
-            select(CuentaAdministrativa).where(CuentaAdministrativa.usuario == args.usuario)
+            select(CuentaAdministrativa).where(func.lower(CuentaAdministrativa.usuario) == usuario)
         )
         if cuenta is None:
             cuenta = CuentaAdministrativa(
-                usuario=args.usuario,
+                usuario=usuario,
                 contrasena_hash=hash_secreto(contrasena),
                 rol="administrador",
                 activo=True,
+                persona_id=None,
+                vinculacion_pendiente=True,
             )
             sesion.add(cuenta)
+            sesion.flush()
         else:
+            cuenta.usuario = usuario
             cuenta.contrasena_hash = hash_secreto(contrasena)
             cuenta.rol = "administrador"
             cuenta.activo = True
-    print(f"Administrador '{args.usuario}' listo")
+        sesion.execute(delete(SesionAcceso).where(SesionAcceso.cuenta_id == cuenta.id))
+    print(f"Administrador '{usuario}' listo")
 
 
 if __name__ == "__main__":

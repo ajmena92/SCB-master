@@ -4,7 +4,12 @@ from datetime import datetime, timezone
 
 from fastapi import HTTPException
 
-from aplicacion.esquemas import AdministracionEntrada, PortalEntrada, SesionSalida
+from aplicacion.esquemas import (
+    AdministracionEntrada,
+    CambioContrasenaAdministrativaEntrada,
+    PortalEntrada,
+    SesionSalida,
+)
 from aplicacion.repositorios_identidad import RepositorioIdentidad
 from aplicacion.seguridad import hash_secreto, nueva_sesion, token_hash, verificar_secreto
 
@@ -35,13 +40,31 @@ class ServicioIdentidad:
         )
 
     def autenticar_administracion(self, datos: AdministracionEntrada) -> SesionSalida:
-        cuenta = self.repo.cuenta_por_usuario(datos.usuario)
+        cuenta = self.repo.cuenta_por_usuario(datos.usuario.strip().lower())
         if cuenta is None or not verificar_secreto(cuenta.contrasena_hash, datos.contrasena):
             raise HTTPException(401, "Usuario o contrasena incorrectos")
+        if cuenta.rol == "operador" and cuenta.vinculacion_pendiente:
+            raise HTTPException(403, "La cuenta requiere vinculacion por un administrador")
+        persona = self.repo.persona(cuenta.persona_id) if cuenta.persona_id else None
+        if cuenta.persona_id is not None and (
+            persona is None or not persona.activo or persona.tipo != "profesor"
+        ):
+            raise HTTPException(401, "Profesor inactivo o invalido")
+        if not cuenta.vinculacion_pendiente and persona is None:
+            raise HTTPException(401, "Cuenta sin profesor")
         token, acceso = nueva_sesion(tipo="administracion", cuenta_id=cuenta.id)
         self.repo.guardar_sesion(acceso)
         return SesionSalida(
-            token=token, tipo="administracion", rol=cuenta.rol, expira_en=acceso.expira_en
+            token=token,
+            tipo="administracion",
+            rol=cuenta.rol,
+            persona_id=cuenta.persona_id,
+            cuenta_id=cuenta.id,
+            usuario=cuenta.usuario,
+            permisos=[] if cuenta.rol == "administrador" else self.repo.permisos(cuenta.id),
+            vinculacion_pendiente=cuenta.vinculacion_pendiente,
+            cambio_contrasena_obligatorio=cuenta.cambio_contrasena_obligatorio,
+            expira_en=acceso.expira_en,
         )
 
     def identidad_por_token(self, token: str) -> dict:
@@ -67,7 +90,19 @@ class ServicioIdentidad:
         cuenta = self.repo.cuenta(acceso.cuenta_id)
         if cuenta is None or not cuenta.activo:
             raise HTTPException(401, "Cuenta inactiva")
-        return {"tipo": "administracion", "cuenta": cuenta, "rol": cuenta.rol, "_token": token}
+        persona = self.repo.persona(cuenta.persona_id) if cuenta.persona_id else None
+        if persona is not None and (not persona.activo or persona.tipo != "profesor"):
+            raise HTTPException(401, "Profesor inactivo o invalido")
+        if not cuenta.vinculacion_pendiente and persona is None:
+            raise HTTPException(401, "Cuenta sin profesor")
+        return {
+            "tipo": "administracion",
+            "cuenta": cuenta,
+            "persona": persona,
+            "rol": cuenta.rol,
+            "permisos": [] if cuenta.rol == "administrador" else self.repo.permisos(cuenta.id),
+            "_token": token,
+        }
 
     def cambiar_pin(self, identidad: dict, datos) -> dict:
         if identidad["tipo"] != "portal":
@@ -79,6 +114,21 @@ class ServicioIdentidad:
             raise HTTPException(422, "El PIN nuevo debe ser diferente")
         self.repo.cambiar_pin(credencial, hash_secreto(datos.pin_nuevo))
         return {"cambioObligatorio": False, "sesionesRevocadas": True}
+
+    def cambiar_contrasena_administrativa(
+        self, identidad: dict, datos: CambioContrasenaAdministrativaEntrada
+    ) -> dict:
+        if identidad["tipo"] != "administracion":
+            raise HTTPException(403, "Se requiere una cuenta administrativa")
+        cuenta = identidad["cuenta"]
+        if not verificar_secreto(cuenta.contrasena_hash, datos.contrasena_actual):
+            raise HTTPException(401, "La contrasena actual es incorrecta")
+        if datos.contrasena_actual == datos.contrasena_nueva:
+            raise HTTPException(422, "La contrasena nueva debe ser diferente")
+        cuenta.contrasena_hash = hash_secreto(datos.contrasena_nueva)
+        cuenta.cambio_contrasena_obligatorio = False
+        self.repo.revocar_sesiones_cuenta(cuenta.id)
+        return {"cambioContrasenaObligatorio": False, "sesionesRevocadas": True}
 
     def cerrar_sesion(self, token: str) -> None:
         self.repo.revocar_sesion(token_hash(token))
