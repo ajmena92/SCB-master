@@ -12,6 +12,7 @@ const SheetClose = SheetPrimitive.Close;
 
 const SheetPortal = SheetPrimitive.Portal;
 
+/** @param {import("react").ComponentPropsWithRef<typeof SheetPrimitive.Overlay>} props */
 const SheetOverlay = ({ ref, className, ...props }) => (
   <SheetPrimitive.Overlay
     className={cn(
@@ -43,6 +44,10 @@ const sheetVariants = cva(
   },
 );
 
+/**
+ * @param {import("react").ComponentPropsWithRef<typeof SheetPrimitive.Content> &
+ * import("class-variance-authority").VariantProps<typeof sheetVariants>} props
+ */
 const SheetContent = ({ ref, side = "right", className, children, ...props }) => (
   <SheetPortal>
     <SheetOverlay />
@@ -57,11 +62,13 @@ const SheetContent = ({ ref, side = "right", className, children, ...props }) =>
 );
 SheetContent.displayName = SheetPrimitive.Content.displayName;
 
+/** @param {import("react").ComponentPropsWithRef<"div">} props */
 const SheetHeader = ({ className, ...props }) => (
   <div className={cn("flex flex-col space-y-2 text-center sm:text-left", className)} {...props} />
 );
 SheetHeader.displayName = "SheetHeader";
 
+/** @param {import("react").ComponentPropsWithRef<"div">} props */
 const SheetFooter = ({ className, ...props }) => (
   <div
     className={cn("flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2", className)}
@@ -70,6 +77,7 @@ const SheetFooter = ({ className, ...props }) => (
 );
 SheetFooter.displayName = "SheetFooter";
 
+/** @param {import("react").ComponentPropsWithRef<typeof SheetPrimitive.Title>} props */
 const SheetTitle = ({ ref, className, ...props }) => (
   <SheetPrimitive.Title
     ref={ref}
@@ -79,6 +87,7 @@ const SheetTitle = ({ ref, className, ...props }) => (
 );
 SheetTitle.displayName = SheetPrimitive.Title.displayName;
 
+/** @param {import("react").ComponentPropsWithRef<typeof SheetPrimitive.Description>} props */
 const SheetDescription = ({ ref, className, ...props }) => (
   <SheetPrimitive.Description
     ref={ref}

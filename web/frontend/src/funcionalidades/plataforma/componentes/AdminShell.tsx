@@ -30,7 +30,7 @@ export default function AdminShell() {
   const { session, logout } = useAutenticacion() as unknown as AutenticacionPlataforma;
   const location = useLocation();
   const administrador = esAdministrador(session);
-  const usuario = session ? session.usuario : undefined;
+  const usuario = session && typeof session.usuario === "object" ? session.usuario : undefined;
   const visibles = navegacion.filter((item) => !item.admin || administrador);
   const titulo =
     navegacion.find((item) => item.ruta === location.pathname)?.titulo ?? "Administración";
@@ -46,7 +46,7 @@ export default function AdminShell() {
         </div>
         <div className="user-box">
           <span>
-            {usuario?.Nombre || usuario?.nombres || "Usuario"}
+            {String(usuario?.Nombre || usuario?.nombres || "Usuario")}
             <small>{administrador ? "Administrador" : "Operador"}</small>
           </span>
           <button onClick={logout} aria-label="Cerrar sesión">

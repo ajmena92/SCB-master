@@ -1,13 +1,15 @@
 import { expect, test } from "@playwright/test";
 
 const sesionAdministrativa = {
-  tipo: "admin",
-  usuario: {
-    idUsuario: 977,
-    NombreCompleto: "Operador de prueba",
-    roles: ["Administrador"],
-    permisos: ["comedor.registrar"],
-  },
+  tipo: "administracion",
+  cuentaId: 977,
+  personaId: 10,
+  usuario: "operador.prueba",
+  nombres: "Operador de prueba",
+  rol: "operador",
+  permisos: ["comedor.operar"],
+  cambioContrasenaObligatorio: false,
+  vinculacionPendiente: false,
 };
 
 test.beforeEach(async ({ page }) => {
@@ -18,71 +20,70 @@ test.beforeEach(async ({ page }) => {
       body: JSON.stringify(sesionAdministrativa),
     }),
   );
-  await page.route("**/api/v1/comedor/operacion/configuracion", (ruta) =>
+  await page.route("**/api/v1/comedor/operacion/estado**", (ruta) =>
     ruta.fulfill({
       status: 200,
       contentType: "application/json",
       body: JSON.stringify({
-        fechaServidor: "2026-08-29",
-        horaServidor: "11:30:00",
-        horarios: [
-          { codigo: "diurno", descripcion: "Diurno", horaLimite: "12:00:00", activo: true },
-        ],
-        minutosAvisoPrevio: 15,
-        permitirMarcaTardia: false,
-        permitirSinMarcaTransporte: true,
+        fecha: "2026-08-31",
+        ingresos: 0,
+        meta: 10,
+        porcentaje: 0,
+        duplicados: 0,
+        errores: 0,
+        recientes: [],
       }),
     }),
-  );
-  await page.route("**/api/v1/comedor/operacion/historial**", (ruta) =>
-    ruta.fulfill({ status: 200, contentType: "application/json", body: "[]" }),
   );
 });
 
 test("el kiosco independiente enfoca el lector y bloquea una lectura doble", async ({ page }) => {
   let solicitudes = 0;
-  await page.route("**/api/v1/comedor/operacion/ingresos", async (ruta) => {
+  await page.route("**/api/v1/comedor/operacion", async (ruta) => {
     solicitudes += 1;
     await new Promise((resolver) => setTimeout(resolver, 150));
     await ruta.fulfill({
       status: 200,
       contentType: "application/json",
       body: JSON.stringify({
-        idIngreso: 1,
-        idPersona: 10,
-        fecha: "2026-08-29",
-        modalidad: "beca",
-        nombreCompleto: "Estudiante de prueba",
-        resultado: "registrado",
+        estado: "aceptada",
+        mensaje: "Ingreso registrado.",
+        persona: { codigo: "E-10", nombres: "Estudiante de prueba", tipo: "estudiante" },
       }),
     });
   });
 
   await page.setViewportSize({ width: 1366, height: 768 });
-  await page.goto("/admin/comedor/operacion");
-  const lector = page.getByLabel("Código de barras");
-  await expect(page.getByTestId("operacion-comedor")).toBeVisible();
+  await page.goto("/admin/panel/comedor");
+  const lector = page.getByLabel("Lector de carnet o código institucional");
+  await expect(page.getByRole("heading", { name: "Control de comedor" })).toBeVisible();
   await expect(lector).toBeFocused();
   await lector.fill("E-10");
   await lector.press("Enter");
   await lector.press("Enter");
-  await expect(page.getByRole("status")).toContainText("Ingreso registrado");
+  await expect(page.getByText("Ingreso registrado.")).toBeVisible();
   expect(solicitudes).toBe(1);
 
   await page.keyboard.press("F3");
   await expect(lector).toBeFocused();
 });
 
-test("una resolución pequeña bloquea realmente el registro", async ({ page }) => {
+test("una resolución pequeña conserva la captura sin desborde", async ({ page }) => {
   let solicitudes = 0;
-  await page.route("**/api/v1/comedor/operacion/ingresos", (ruta) => {
+  await page.route("**/api/v1/comedor/operacion", (ruta) => {
     solicitudes += 1;
-    return ruta.fulfill({ status: 500 });
+    return ruta.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ estado: "aceptada", mensaje: "Ingreso registrado." }),
+    });
   });
-  await page.setViewportSize({ width: 1024, height: 700 });
-  await page.goto("/admin/comedor/operacion");
-  await page.getByLabel("Código de barras").fill("E-10");
-  await expect(page.getByRole("alert")).toContainText("1280×720");
-  await expect(page.getByRole("button", { name: "Registrar ingreso" })).toBeDisabled();
-  expect(solicitudes).toBe(0);
+  await page.setViewportSize({ width: 320, height: 720 });
+  await page.goto("/admin/panel/comedor");
+  const lector = page.getByLabel("Lector de carnet o código institucional");
+  await lector.fill("E-10");
+  await lector.press("Enter");
+  await expect(page.getByText("Ingreso registrado.")).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
+  expect(solicitudes).toBe(1);
 });

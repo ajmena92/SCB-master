@@ -39,8 +39,9 @@ export function useInicioSesionAdministrativo() {
           { omitirManejoFalloAutenticacion: true, omitirCsrf: true },
         );
         guardarTokenSesion(data.token);
-        await loadMe();
-        navegar("/admin/panel", { replace: true });
+        const autenticacion = await loadMe();
+        if (!autenticacion.session) throw new Error("No se pudo restaurar la sesión.");
+        navegar("/", { replace: true });
       } catch (error) {
         setEstado({
           cargando: false,

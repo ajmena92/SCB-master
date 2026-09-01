@@ -3,6 +3,7 @@ import { Check } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
+/** @param {import("react").ComponentPropsWithRef<typeof CheckboxPrimitive.Root>} props */
 const Checkbox = ({ ref, className, ...props }) => (
   <CheckboxPrimitive.Root
     ref={ref}

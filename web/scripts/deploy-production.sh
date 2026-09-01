@@ -25,7 +25,7 @@ script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 web_dir="$(cd "$script_dir/.." && pwd)"
 remote_host="${SCSC_PRODUCTION_HOST:-scsc-production}"
 remote_dir="${SCSC_PRODUCTION_DIR:-/home/plat/scsc-comedor}"
-health_url="${SCSC_HEALTH_URL:-http://127.0.0.1:8081/api/ready}"
+health_url="${SCSC_HEALTH_URL:-http://127.0.0.1:8081/health}"
 compose="docker compose --env-file ops/.env -f ops/compose.production.yml"
 
 run_remote() {

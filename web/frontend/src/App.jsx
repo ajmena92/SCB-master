@@ -15,6 +15,15 @@ import AdminPanel from "@/pages/AdminPanel";
 import RutaRol from "@/funcionalidades/plataforma/componentes/RutaRol";
 
 const Dashboard = lazy(() => import("@/funcionalidades/administracion/paginas/Dashboard"));
+const UsuariosAdministrativos = lazy(
+  () => import("@/funcionalidades/administracion/paginas/UsuariosAdministrativos"),
+);
+const VinculacionInicial = lazy(
+  () => import("@/funcionalidades/administracion/paginas/VinculacionInicial"),
+);
+const CambioContrasenaAdministrativa = lazy(
+  () => import("@/funcionalidades/administracion/paginas/CambioContrasenaAdministrativa"),
+);
 const PersonasMatriculas = lazy(
   () => import("@/funcionalidades/plataforma/paginas/PersonasMatriculas"),
 );
@@ -38,8 +47,32 @@ function Inicio() {
   const { session, debeCambiarPin } = useAutenticacion();
   if (session === null) return <div className="splash">Cargando plataforma…</div>;
   if (!session) return <StudentLogin />;
-  if (session.tipo === "admin") return <Navigate to="/admin/panel/inicio" replace />;
+  if (session.tipo === "administracion") {
+    if (session.vinculacionPendiente) return <Navigate to="/admin/vinculacion-inicial" replace />;
+    if (session.cambioContrasenaObligatorio)
+      return <Navigate to="/admin/cambiar-contrasena" replace />;
+    return <Navigate to="/admin/panel" replace />;
+  }
   return <Navigate to={debeCambiarPin ? "/cambiar-pin" : "/portal"} replace />;
+}
+
+function PanelAdministrativoProtegido() {
+  const { session } = useAutenticacion();
+  if (session?.vinculacionPendiente) return <Navigate to="/admin/vinculacion-inicial" replace />;
+  if (session?.cambioContrasenaObligatorio)
+    return <Navigate to="/admin/cambiar-contrasena" replace />;
+  return <AdminPanel />;
+}
+
+function PreparacionAdministrativa({ paso, children }) {
+  const { session } = useAutenticacion();
+  if (session?.tipo !== "administracion") return <Navigate to="/admin" replace />;
+  if (paso === "vinculacion" && !session.vinculacionPendiente) return <Navigate to="/" replace />;
+  if (paso === "contrasena" && session.vinculacionPendiente)
+    return <Navigate to="/admin/vinculacion-inicial" replace />;
+  if (paso === "contrasena" && !session.cambioContrasenaObligatorio)
+    return <Navigate to="/" replace />;
+  return children;
 }
 
 function PortalProtegido() {
@@ -61,6 +94,26 @@ export default function App() {
             <Route path="/" element={<Inicio />} />
             <Route path="/admin" element={<AdminLogin />} />
             <Route
+              path="/admin/vinculacion-inicial"
+              element={
+                <ProtectedRoute tipo="administracion">
+                  <PreparacionAdministrativa paso="vinculacion">
+                    <VinculacionInicial />
+                  </PreparacionAdministrativa>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/cambiar-contrasena"
+              element={
+                <ProtectedRoute tipo="administracion">
+                  <PreparacionAdministrativa paso="contrasena">
+                    <CambioContrasenaAdministrativa />
+                  </PreparacionAdministrativa>
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/cambiar-pin"
               element={
                 <ProtectedRoute tipo={["estudiante", "profesor"]}>
@@ -73,17 +126,24 @@ export default function App() {
             <Route
               path="/admin/panel"
               element={
-                <ProtectedRoute tipo="admin">
-                  <AdminPanel />
+                <ProtectedRoute tipo="administracion">
+                  <PanelAdministrativoProtegido />
                 </ProtectedRoute>
               }
             >
               <Route index element={<Navigate to="inicio" replace />} />
-              <Route path="inicio" element={<Dashboard />} />
+              <Route
+                path="inicio"
+                element={
+                  <RutaRol permisos={["dashboard.leer"]}>
+                    <Dashboard />
+                  </RutaRol>
+                }
+              />
               <Route
                 path="personas"
                 element={
-                  <RutaRol soloAdministrador>
+                  <RutaRol permisos={["personas.administrar"]}>
                     <PersonasMatriculas />
                   </RutaRol>
                 }
@@ -91,7 +151,7 @@ export default function App() {
               <Route
                 path="anios"
                 element={
-                  <RutaRol soloAdministrador>
+                  <RutaRol permisos={["importaciones.administrar"]}>
                     <AniosImportacion />
                   </RutaRol>
                 }
@@ -99,7 +159,7 @@ export default function App() {
               <Route
                 path="rutas"
                 element={
-                  <RutaRol soloAdministrador>
+                  <RutaRol permisos={["transporte.operar", "rutas.administrar"]}>
                     <Rutas />
                   </RutaRol>
                 }
@@ -108,14 +168,43 @@ export default function App() {
               <Route
                 path="menu"
                 element={
-                  <RutaRol soloAdministrador>
+                  <RutaRol permisos={["menu.administrar"]}>
                     <PlantillasMenu />
                   </RutaRol>
                 }
               />
-              <Route path="tiquetes" element={<TarifasVentas />} />
-              <Route path="comedor" element={<OperacionComedor />} />
-              <Route path="reportes" element={<ReportesOperativos />} />
+              <Route
+                path="tiquetes"
+                element={
+                  <RutaRol permisos={["tiquetes.operar", "tarifas.administrar"]}>
+                    <TarifasVentas />
+                  </RutaRol>
+                }
+              />
+              <Route
+                path="comedor"
+                element={
+                  <RutaRol permisos={["comedor.operar"]}>
+                    <OperacionComedor />
+                  </RutaRol>
+                }
+              />
+              <Route
+                path="reportes"
+                element={
+                  <RutaRol permisos={["reportes.leer"]}>
+                    <ReportesOperativos />
+                  </RutaRol>
+                }
+              />
+              <Route
+                path="usuarios"
+                element={
+                  <RutaRol soloAdministrador>
+                    <UsuariosAdministrativos />
+                  </RutaRol>
+                }
+              />
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

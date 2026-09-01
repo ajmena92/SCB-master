@@ -2,6 +2,7 @@ import * as SwitchPrimitives from "@radix-ui/react-switch";
 
 import { cn } from "@/lib/utils";
 
+/** @param {import("react").ComponentPropsWithRef<typeof SwitchPrimitives.Root>} props */
 const Switch = ({ ref, className, ...props }) => (
   <SwitchPrimitives.Root
     className={cn(

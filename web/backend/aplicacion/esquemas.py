@@ -6,7 +6,7 @@ from datetime import date, datetime
 from decimal import Decimal
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
 def _camel(nombre: str) -> str:
@@ -131,12 +131,73 @@ class AdministracionEntrada(Contrato):
     contrasena: str
 
 
+class ProfesorNuevoAdministrativo(Contrato):
+    cedula: str = Field(min_length=1, max_length=32)
+    nombres: str = Field(min_length=2, max_length=180)
+
+
+class CuentaAdministrativaEntrada(Contrato):
+    persona_id: int | None = None
+    profesor_nuevo: ProfesorNuevoAdministrativo | None = None
+    usuario: str = Field(min_length=3, max_length=80, pattern=r"^[a-zA-Z0-9._-]+$")
+    rol: Literal["administrador", "operador"]
+    permisos: list[str] = Field(default_factory=list)
+
+    @field_validator("usuario", mode="before")
+    @classmethod
+    def normalizar_usuario(cls, valor):
+        return valor.strip().lower() if isinstance(valor, str) else valor
+
+    @model_validator(mode="after")
+    def validar_origen_profesor(self):
+        if (self.persona_id is None) != (self.profesor_nuevo is None):
+            return self
+        raise ValueError("Debe indicar exactamente un profesor existente o uno nuevo")
+
+
+class CuentaAdministrativaActualizacion(Contrato):
+    usuario: str | None = Field(
+        default=None, min_length=3, max_length=80, pattern=r"^[a-zA-Z0-9._-]+$"
+    )
+    rol: Literal["administrador", "operador"] | None = None
+    activo: bool | None = None
+    permisos: list[str] | None = None
+    persona_id: int | None = None
+
+    @field_validator("usuario", mode="before")
+    @classmethod
+    def normalizar_usuario(cls, valor):
+        return valor.strip().lower() if isinstance(valor, str) else valor
+
+
+class VinculacionCuentaEntrada(Contrato):
+    persona_id: int | None = None
+    profesor_nuevo: ProfesorNuevoAdministrativo | None = None
+
+    @model_validator(mode="after")
+    def validar_origen_profesor(self):
+        if (self.persona_id is None) != (self.profesor_nuevo is None):
+            return self
+        raise ValueError("Debe indicar exactamente un profesor existente o uno nuevo")
+
+
+class CambioContrasenaAdministrativaEntrada(Contrato):
+    contrasena_actual: str
+    contrasena_nueva: str = Field(min_length=12, max_length=128)
+
+
 class SesionSalida(Contrato):
     token: str
     tipo: str
     rol: str | None = None
     persona_id: int | None = None
+    cuenta_id: int | None = None
+    nombres: str | None = None
+    usuario: str | None = None
+    permisos: list[str] = Field(default_factory=list)
+    vinculacion_pendiente: bool = False
     cambio_obligatorio: bool = False
+    cambio_contrasena_obligatorio: bool = False
     expira_en: datetime
 
 

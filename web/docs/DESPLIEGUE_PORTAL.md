@@ -1,121 +1,107 @@
-# Despliegue seguro del portal de comedor
+# Despliegue seguro de la plataforma web
 
-## Alcance y arquitectura
+## Alcance
 
-Estos artefactos despliegan el portal dentro de la infraestructura institucional. El contenedor `web` sirve la aplicación React y reenvía `/api` al contenedor `api`; la API es la única que puede conectar a SQL Server. El puerto SQL no se publica, ni se agregan credenciales a las imágenes o al repositorio.
+`web/` es el único producto desplegable. El sistema WinForms y SQL Server son
+fuentes históricas del corte y no participan en tiempo de ejecución. El stack
+usa React/Nginx, FastAPI y PostgreSQL 17.6; solo Nginx publica
+`127.0.0.1:8081`. La API y PostgreSQL permanecen en la red privada de Compose.
 
-El puerto local `127.0.0.1:8080` debe ser publicado al exterior exclusivamente por el proxy institucional con HTTPS y el dominio aprobado. El proxy debe preservar `Host` y `X-Forwarded-Proto`, aplicar redirección HTTP→HTTPS y limitar solicitudes según la política institucional. La API no tiene puertos publicados; el firewall de la red institucional debe permitir desde el host únicamente la salida necesaria hacia SQL Server (TCP 1433 o el puerto que indique el DBA).
+La entrada del backend es `aplicacion.entrada:crear_aplicacion`. La API no
+ejecuta DDL al arrancar y su cuenta PostgreSQL no tiene permisos para hacerlo.
+Las migraciones se ejecutan con la imagen aislada `migracion`. El proxy publica
+la comprobación canónica `GET /health`, que reenvía a `GET /api/v1/salud`.
 
-La entrada única de producción es `aplicacion.entrada:crear_aplicacion`, cargada por Uvicorn con
-`--factory`. El contenedor no inicia ningún módulo histórico del sistema local. El healthcheck interno consulta `GET /api/ready` y el
-proxy expone el mismo contrato bajo `/api/health` y `/api/ready`.
+Los secretos se suministran mediante `web/ops/.env` y archivos de Docker
+secrets, nunca en imágenes, commits, logs ni parámetros visibles. En producción
+`COOKIE_SECURE=true`, `CORS_ORIGIN` es un único origen HTTPS y las redes de
+proxy se declaran explícitamente, sin comodines.
 
-`COMPOSE_PRIVATE_SUBNET`, `FORWARDED_ALLOW_IPS` y `TRUSTED_PROXY_CIDRS` deben describir la misma red privada del proxy Nginx. Infraestructura debe reemplazar el ejemplo por una red no superpuesta con las redes institucionales; no se permite `*`.
+## Preparación
 
-Variables requeridas para producción: `SQL_CONNECTION_STRING` (ODBC Driver 18 con `Encrypt=yes`),
-`CORS_ORIGIN` (un único origen HTTPS) y `COMPOSE_PRIVATE_SUBNET`. Deben definirse también
-`FORWARDED_ALLOW_IPS` y `TRUSTED_PROXY_CIDRS` con la red exacta del proxy. `COOKIE_SECURE` debe
-permanecer en `true`; los límites de sesión y bloqueo tienen valores seguros documentados en
-`web/ops/.env.example`.
-
-El bloqueo de autenticación se persiste en `identidad.intento_autenticacion`; por eso la
-migración `0013_intentos_autenticacion` de Alembic (o `017_intentos_autenticacion.sql` en el
-flujo SQL manual) debe aplicarse antes de habilitar el servicio con varios workers. El portal
-usa 8 intentos y 5 minutos para estudiantes, y 5 intentos y 15 minutos para administrativos.
-
-## Prerrequisitos de staging
-
-- Docker Engine y Docker Compose v2 en un host Linux institucional.
-- DNS y certificado TLS administrados por infraestructura; la aplicación no termina TLS directamente.
-- Conectividad privada API→SQL Server con TLS validado. El usuario SQL debe tener mínimo privilegio: lectura de las tablas existentes indispensables y lectura/escritura únicamente de `ComedorPortal`; sin DDL, `db_owner` ni acceso de navegador.
-- La migración se ejecuta manualmente por el DBA, primero sobre una copia restaurada o staging. La API no ejecuta migraciones ni datos semilla al iniciar.
-- El backend expone `GET /api/health` y `GET /api/ready`; ambos validan la configuración y ejecutan una consulta SQL mínima. Devuelven `200` solo si la aplicación puede operar. El proxy publica estas rutas bajo `/api` y no publica `/ready` sin el prefijo.
-
-## Preparación y despliegue en staging
-
-Desde `web/ops`, crear el archivo local de secretos y completar únicamente valores de staging:
+Desde `web/ops`:
 
 ```bash
 cp .env.example .env
 chmod 600 .env
-docker compose --env-file .env -f compose.production.yml config
+docker compose --env-file .env -f compose.production.yml config --quiet
 docker compose --env-file .env -f compose.production.yml build
-docker compose --env-file .env -f compose.production.yml up -d
+```
+
+Antes de cada migración se crea y se restaura un respaldo de verificación:
+
+```bash
+docker compose --env-file .env -f compose.production.yml \
+  --profile respaldo run --rm respaldo
+docker compose --env-file .env -f compose.production.yml \
+  --profile verificacion_respaldo run --rm verificar_restauracion
+```
+
+El DBA aplica Alembic con el proxy todavía cerrado:
+
+```bash
+CONFIRMAR_MIGRACION_DBA=SI ../scripts/validar_alembic_docker.sh current
+CONFIRMAR_MIGRACION_DBA=SI ../scripts/validar_alembic_docker.sh check
+CONFIRMAR_MIGRACION_DBA=SI ../scripts/validar_alembic_docker.sh upgrade
+```
+
+Después se levantan las imágenes y se comprueba el servicio:
+
+```bash
+docker compose --env-file .env -f compose.production.yml up -d --build api web
 docker compose --env-file .env -f compose.production.yml ps
-curl --fail http://127.0.0.1:8080/api/health
-curl --fail http://127.0.0.1:8080/api/ready
+curl --fail --silent --show-error http://127.0.0.1:8081/health
 ```
 
-Antes de abrir el proxy externo, ejecutar el smoke test con cuentas autorizadas: inicio de sesión, cambio de PIN, menú, confirmación, cancelación, permisos de Operador/Administrador, auditoría y una confirmación concurrente. En la prueba de estudiante, verificar además que al confirmar se muestre la hora de registro, **Confirmar almuerzo** quede deshabilitado y **No asistiré** retire la marca antes del cierre; sin confirmar deben mostrarse reloj y aviso de tiempo. Comprobar también `docker compose ... logs --tail=200 api` para confirmar que no aparezcan PINes, contraseñas, cookies ni cadenas de conexión.
+El procedimiento ampliado, incluidas las puertas de datos y reversión, está en
+[RUNBOOK_DEPLOY_PRODUCCION.md](RUNBOOK_DEPLOY_PRODUCCION.md).
 
-## Promoción a producción
+## Cuentas administrativas y permisos
 
-El procedimiento operativo completo está en [RUNBOOK_DEPLOY_PRODUCCION.md](RUNBOOK_DEPLOY_PRODUCCION.md).
-Ese runbook sustituye la secuencia histórica de ejecutar solo tres scripts SQL:
-primero exige la migración total canónica validada por Alembic, luego despliega el
-código y finalmente permite un smoke test y el retiro separado del legado.
+Toda cuenta administrativa nueva se vincula uno a uno con una persona activa
+registrada como profesor. Un administrador puede seleccionar un profesor sin
+cuenta o registrar uno nuevo. En este último caso se generan por separado un
+PIN temporal del portal docente y una contraseña administrativa temporal; solo
+se muestran una vez y deben entregarse por un canal seguro.
 
-1. Obtener aprobación del DBA, respaldo verificado, plan de reversión y ventana de cambio.
-2. Usar una cuenta de producción separada de staging y secretos entregados por el almacén institucional. La primera conexión de la aplicación debe ser solo de lectura para validar esquema, certificados y roles.
-3. Ejecutar la migración total con `validar_alembic_docker.sh` según el runbook. No combinar Alembic con scripts SQL manuales que afecten las mismas tablas. La API nunca ejecuta DDL.
-4. Desplegar con el proxy público aún deshabilitado, ejecutar las pruebas de staging contra producción con cuentas autorizadas y verificar que la marca aparece en el reporte existente.
-5. Habilitar el dominio HTTPS para un piloto controlado y monitorear errores, latencia, sesiones revocadas y duplicados.
+La cuenta administradora creada antes de esta migración conserva su usuario y
+contraseña. Tras el despliegue queda en vinculación pendiente y solo puede
+consultar su sesión, cerrar sesión, cambiar su contraseña y completar la
+vinculación inicial. No se elige automáticamente uno de los profesores de
+producción. Las contraseñas temporales obligan a un cambio antes de operar.
 
-### Comando automatizado
+La API consulta la cuenta, el profesor y los permisos vigentes en PostgreSQL en
+cada solicitud. El rol `administrador` tiene acceso completo. El rol `operador`
+solo accede a los permisos asignados explícitamente; ocultar una opción del menú
+no reemplaza esta comprobación. Cambiar rol, permisos, estado o contraseña
+revoca todas las sesiones de la cuenta.
 
-Tras completar los controles anteriores, el despliegue de código puede ejecutarse desde la raíz del repositorio con un único comando:
+## Smoke test previo a publicar
+
+Con cuentas controladas, verificar:
+
+- vinculación inicial del administrador sin cambiar su contraseña existente;
+- creación de operador con profesor existente y con profesor nuevo;
+- visualización única de credenciales temporales y cambio obligatorio;
+- rechazo de módulos y URLs sin permiso, y acceso inmediato al concederlo;
+- revocación inmediata al retirar permisos, desactivar o restablecer contraseña;
+- protección contra auto-desactivación y contra eliminar el último administrador;
+- login estudiantil con cédula/PIN, carné, menú, comedor, rutas, gráficos y reportes;
+- ausencia de contraseñas, PIN, cookies o datos personales innecesarios en logs.
+
+## Promoción y reversión
+
+El código puede promoverse desde la raíz con:
 
 ```bash
-./web/scripts/deploy-production.sh api
+./web/scripts/deploy-production.sh all
 ```
 
-El script usa el alias SSH `scsc-production`, sincroniza solo el componente solicitado, preserva `ops/.env` y demás secretos del servidor, reconstruye los contenedores necesarios y espera `GET /api/ready`. Los destinos `web` y `all` están disponibles cuando corresponda. Para inspeccionar archivos sin cambiar producción: `./web/scripts/deploy-production.sh api --dry-run`.
+El script preserva secretos, reconstruye los servicios solicitados y espera
+`GET /health`. No ejecuta migraciones ni elimina datos. Para inspeccionar la
+sincronización use `--dry-run`.
 
-No guarda contraseñas ni ejecuta migraciones SQL. Estas siguen requiriendo el procedimiento y la aprobación del DBA.
-
-### Migración y retiro de tablas históricas
-
-El despliegue de código no elimina tablas ni datos. Primero se aplica la migración de menú
-(`019_migra_menu_historico.sql` o `0015_migra_menu_historico`), se valida el funcionamiento
-en staging y se obtiene respaldo y aprobación de retiro. Solo entonces el DBA puede ejecutar
-la rutina explícita `web/scripts/retirar_tablas_menu_legacy.sh`. Esta rutina está limitada a
-`ComedorPortal.MenuComponente` y `ComedorPortal.MenuPlantilla`, valida los conteos contra
-`menu.componente` y `menu.plantilla`, y aborta ante cualquier diferencia. Nunca se ejecuta
-automáticamente como parte de `deploy-production.sh`.
-
-## Reversión e incidentes
-
-Para detener el servicio sin alterar datos históricos:
-
-```bash
-docker compose --env-file .env -f compose.production.yml down
-```
-
-Deshabilitar primero la ruta del proxy público y revocar las sesiones desde la herramienta administrativa prevista. No borrar confirmaciones ni auditoría para revertir. Una cancelación solo elimina una fila de `RegistroTransporte` si fue creada por el portal y está explícitamente vinculada con `MarcaCreadaPorPortal=1`; una marca originada por escritorio nunca se elimina ni se reinterpreta. Una restauración de SQL Server solo puede decidirla y ejecutarla el DBA según el respaldo y la ventana aprobados.
-
-Si falla SQL Server, `ready` debe devolver error y las operaciones de asistencia deben fallar de forma atómica, sin reintentos ciegos. Guardar los registros de contenedor y el identificador de solicitud, rotar secretos potencialmente expuestos y seguir el procedimiento institucional de incidentes.
-
-### Reversión de la entrada de aplicación
-
-La reversión operativa consiste en detener el stack web, deshabilitar el proxy público y restaurar
-la imagen previamente aprobada (`docker compose ... down` y despliegue de la etiqueta anterior).
-No se activa ningún fallback histórico ni se ejecutan escrituras o migraciones desde
-el contenedor. Si la etiqueta anterior no corresponde a la entrada modular, la reversión requiere
-una decisión formal de operación; no se permite convivencia ni doble escritura.
-
-## Controles previos a publicar
-
-No se permite ejecutar contra producción hasta que staging complete las pruebas de confirmación, cancelación, concurrencia y recuperación de SQL. Configure `CORS_ORIGIN` como un único dominio HTTPS y `FORWARDED_ALLOW_IPS`/`TRUSTED_PROXY_CIDRS` con la red exacta del proxy inverso; nunca use `*`. Los Dockerfile canónicos son `web/ops/Dockerfile.api` y `web/ops/Dockerfile.migracion`; Nginx usa `web/ops/Dockerfile.frontend` y `web/ops/nginx/default.conf`.
-
-Antes de fijar los límites de memoria de Compose, ejecute la medición operativa con la carga
-representativa de staging. El resultado debe conservarse junto con la aprobación del entorno;
-no se aceptan valores basados únicamente en el arranque en reposo. La puerta debe confirmar
-que el uso de memoria no supera 70 %, no hay reinicios ni `OOMKilled`, la latencia no aumenta
-fuera del objetivo aprobado y no aparecen errores 5xx. Deben conservarse los TSV fechados con
-usuarios concurrentes, workers, duración, picos, latencia y errores.
-
-La imagen `Dockerfile.migracion` no es una imagen de servicio: su entrada solo ejecuta Alembic
-y rechaza el inicio sin `MIGRACION_MANUAL_DBA=confirmada`. El servicio Compose está bajo el
-perfil `migracion`, excluido del arranque normal, sin reinicio automático. El DBA ejecuta
-exclusivamente `CONFIRMAR_MIGRACION_DBA=SI ./web/scripts/validar_alembic_docker.sh upgrade`
-desde una cuenta perteneciente a `GRUPO_DBA_MIGRACION` (por defecto, `dba`).
+Si falla el smoke test, cerrar el proxy, conservar logs y detener `api` y `web`.
+Se vuelve a la imagen aprobada anterior; no se activa WinForms, no se habilita
+doble escritura y no se ejecuta un downgrade automático. La restauración de
+PostgreSQL se decide según el respaldo verificado y la ventana del DBA.

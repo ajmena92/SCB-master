@@ -1,11 +1,12 @@
 """Persistencia de identidad sin reglas de negocio."""
 
-from sqlalchemy import delete, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.orm import Session
 
 from aplicacion.modelos.maestros import (
     CredencialPortal,
     CuentaAdministrativa,
+    CuentaPermiso,
     Persona,
     SesionAcceso,
 )
@@ -26,8 +27,16 @@ class RepositorioIdentidad:
     def cuenta_por_usuario(self, usuario: str) -> CuentaAdministrativa | None:
         return self.sesion.scalar(
             select(CuentaAdministrativa).where(
-                CuentaAdministrativa.usuario == usuario, CuentaAdministrativa.activo.is_(True)
+                func.lower(CuentaAdministrativa.usuario) == usuario,
+                CuentaAdministrativa.activo.is_(True),
             )
+        )
+
+    def permisos(self, cuenta_id: int) -> list[str]:
+        return list(
+            self.sesion.scalars(
+                select(CuentaPermiso.permiso_clave).where(CuentaPermiso.cuenta_id == cuenta_id)
+            ).all()
         )
 
     def sesion_acceso(self, hash_token: str) -> SesionAcceso | None:
@@ -57,3 +66,6 @@ class RepositorioIdentidad:
 
     def revocar_sesion(self, hash_token: str) -> None:
         self.sesion.execute(delete(SesionAcceso).where(SesionAcceso.token_hash == hash_token))
+
+    def revocar_sesiones_cuenta(self, cuenta_id: int) -> None:
+        self.sesion.execute(delete(SesionAcceso).where(SesionAcceso.cuenta_id == cuenta_id))

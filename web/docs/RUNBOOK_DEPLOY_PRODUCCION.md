@@ -11,7 +11,7 @@ No iniciar una ventana de producción si alguna condición falla:
 - ventana aprobada, responsable DBA y plan de reversión;
 - staging validado con la misma imagen y configuración de producción;
 - revisión Alembic y esquema físico confirmados;
-- `SQL_CONNECTION_STRING` con `Encrypt=yes`, usuario de mínimo privilegio y sin DDL para la API;
+- credenciales PostgreSQL de mínimo privilegio mediante secretos de Docker; la API no recibe permisos DDL;
 - `COOKIE_SECURE=true`, `CORS_ORIGIN` HTTPS y redes de proxy coincidentes;
 - pruebas de login, permisos, menú, asistencia, reportes y cierre de sesión aprobadas.
 
@@ -126,7 +126,7 @@ Con la migración aprobada:
 ```
 
 El script sincroniza `backend/`, `frontend/` y `ops/`, conserva los secretos del
-servidor, reconstruye `api` y `web`, y espera `GET /api/ready`. Para inspeccionar
+servidor, reconstruye `api` y `web`, y espera `GET /health`. Para inspeccionar
 sin modificar producción:
 
 ```bash
@@ -145,9 +145,7 @@ ssh scsc-production 'cd /home/plat/scsc-comedor && \
   docker compose --env-file ops/.env -f ops/compose.production.yml ps'
 
 ssh scsc-production 'curl --fail --silent --show-error \
-  http://127.0.0.1:8081/api/health'
-ssh scsc-production 'curl --fail --silent --show-error \
-  http://127.0.0.1:8081/api/ready'
+  http://127.0.0.1:8081/health'
 ```
 
 El smoke test autorizado debe comprobar login administrativo y estudiantil,

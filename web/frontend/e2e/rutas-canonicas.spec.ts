@@ -10,7 +10,7 @@ test("acceso administrativo presenta formulario accesible", async ({ page }) => 
 
 test("acceso estudiantil presenta controles etiquetados", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByTestId("student-carne-input")).toBeVisible();
+  await expect(page.getByTestId("student-cedula-input")).toBeVisible();
   await expect(page.getByTestId("student-pin-input")).toBeVisible();
   await expect(page.getByTestId("student-login-submit")).toBeVisible();
 });

@@ -10,9 +10,11 @@ export function ProtectedRoute({ tipo, children }) {
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
-  if (!session) return <Navigate to={tipo === "admin" ? "/admin" : "/"} replace />;
+  if (!session) return <Navigate to={tipo === "administracion" ? "/admin" : "/"} replace />;
   const tiposPermitidos = Array.isArray(tipo) ? tipo : tipo ? [tipo] : [];
   if (tiposPermitidos.length > 0 && !tiposPermitidos.includes(session.tipo))
-    return <Navigate to={session.tipo === "admin" ? "/admin/panel" : "/comedor"} replace />;
+    return (
+      <Navigate to={session.tipo === "administracion" ? "/admin/panel" : "/comedor"} replace />
+    );
   return children;
 }

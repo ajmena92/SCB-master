@@ -6,7 +6,7 @@
 | --- | ---: | --- |
 | Accesibilidad | 4/4 | Todos los controles de las rutas activas tienen nombre accesible; foco de captura y navegación por teclado comprobados. |
 | Rendimiento | 4/4 | Carga diferida por pantalla; ningún fragmento JavaScript supera 400 kB sin comprimir. |
-| Adaptación responsive | 4/4 | Dashboard, rutas, personas, menú, comedor, años, reportes y tiquetes sin desbordamiento horizontal a 390 px. |
+| Adaptación responsive | 4/4 | Dashboard, rutas, personas, menú, comedor, años, reportes, usuarios y vinculación sin desbordamiento horizontal; vinculación comprobada también a 320 px. |
 | Tematización | 3/4 | Tokens compartidos predominantes; los colores de rutas y carné son valores institucionales de dominio. |
 | Antipatrones | 3/4 | No hay texto degradado, franjas laterales decorativas ni glassmorphism; se conservan tarjetas y sombras del diseño histórico. |
 | **Total** | **18/20** | **Excelente; sin bloqueos de salida.** |
@@ -35,23 +35,29 @@ tarjetas redondeadas es moderada y responde al lenguaje visual histórico solici
 
 - La composición activa de FastAPI publica 32 rutas PostgreSQL y no publica
   `/api/v1/transporte/rutas` ni adaptadores SQL Server.
-- Alembic está en `0007_colores_rutas` y `alembic check` no detecta operaciones pendientes.
+- Alembic está en `0008_usuarios_administrativos` y `alembic check` no detecta operaciones pendientes.
 - La reconciliación contiene 729 matrículas del único padrón operativo, cero matrículas con
   `turno = '2'`, cero identidades estudiantiles huérfanas y cero rutas `02`/`08`.
 - El respaldo previo a la depuración existe y mide 182 630 bytes.
-- La cuenta `administrador` se comprobó, su clave se rotó y sus sesiones anteriores fueron
-  revocadas. La clave solo existe en el archivo local protegido con permiso `0600`.
+- La cuenta heredada `administrador` conserva su clave, tiene sus sesiones anteriores
+  revocadas y queda obligada a vincularse una sola vez con un profesor activo. La clave solo
+  existe en el archivo local protegido con permiso `0600`.
+- Administradores y operadores se gestionan desde el portal. Toda cuenta queda vinculada
+  uno a uno con un profesor; el backend valida rol, permisos vigentes, estado y protección
+  del último administrador.
 
 ## Verificaciones ejecutadas
 
-- Backend: Ruff aprobado, MyPy aprobado en 39 módulos activos y 21/21 pruebas aprobadas.
-- Frontend: TypeScript, ESLint, Prettier y reglas arquitectónicas aprobadas; 100/100 pruebas y
-  compilación Vite aprobadas.
+- Backend: Ruff aprobado en todos los archivos del corte, MyPy aprobado en los 16 módulos
+  activos afectados y 27/27 pruebas aprobadas.
+- Frontend: TypeScript, ESLint, Prettier y reglas arquitectónicas aprobadas; 101/101 pruebas
+  unitarias, 8/8 recorridos E2E y compilación Vite aprobadas.
 - Base de datos: ciclo Alembic completo en base temporal, revisión actual y `alembic check`.
 - Despliegue: PostgreSQL 17.6, API y frontend saludables en Docker Compose.
 - Navegador real: acceso administrativo, cinco gráficos, menú, rutas, captura, personas,
   comedor y adaptación móvil comprobados. El acceso estudiantil con cédula y PIN respondió
-  200 y exigió el cambio inicial de PIN.
+  200 y exigió el cambio inicial de PIN. El flujo administrativo pendiente cargó profesores,
+  impidió evadir la vinculación inicial y no produjo errores de consola ni desborde a 320 px.
 
 ## Pendientes
 

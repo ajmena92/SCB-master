@@ -6,8 +6,11 @@ from starlette.datastructures import UploadFile
 from aplicacion.esquemas import ConfirmacionImportacion, ImportacionEntrada
 
 
-def crear_router(obtener_servicio, administrador) -> APIRouter:
-    router = APIRouter(prefix="/importaciones", dependencies=[Depends(administrador)])
+def crear_router(obtener_servicio, exigir_permiso) -> APIRouter:
+    router = APIRouter(
+        prefix="/importaciones",
+        dependencies=[Depends(exigir_permiso("importaciones.administrar"))],
+    )
 
     @router.post(
         "/previsualizar",
