@@ -1,15 +1,14 @@
 """Persistencia de importaciones anuales."""
 
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from aplicacion.modelos.maestros import (
     AnioLectivo,
-    AsignacionRuta,
     CredencialPortal,
     Matricula,
     Persona,
-    Ruta,
+    SesionAcceso,
 )
 from aplicacion.modelos.operacion import CuentaTiquete, LoteImportacion
 
@@ -27,6 +26,21 @@ class RepositorioImportacion:
     def persona_cedula(self, cedula):
         return self.sesion.scalar(select(Persona).where(Persona.cedula == cedula))
 
+    def activas_ausentes_del_padron(self, tipos, cedulas_presentes):
+        consulta = select(Persona).where(Persona.activo.is_(True), Persona.tipo.in_(tipos))
+        if cedulas_presentes:
+            consulta = consulta.where(Persona.cedula.not_in(cedulas_presentes))
+        return self.sesion.scalars(consulta).all()
+
+    def desactivar_personas(self, personas):
+        ids = [persona.id for persona in personas]
+        if not ids:
+            return
+        self.sesion.execute(delete(SesionAcceso).where(SesionAcceso.persona_id.in_(ids)))
+        for persona in personas:
+            persona.activo = False
+        self.sesion.flush()
+
     def codigo_existe(self, codigo):
         return self.sesion.scalar(select(Persona.id).where(Persona.codigo == codigo)) is not None
 
@@ -34,16 +48,6 @@ class RepositorioImportacion:
         return self.sesion.scalar(
             select(Matricula).where(
                 Matricula.persona_id == persona_id, Matricula.anio_lectivo_id == anio_id
-            )
-        )
-
-    def ruta_nombre(self, nombre):
-        return self.sesion.scalar(select(Ruta).where(Ruta.nombre == nombre))
-
-    def asignacion(self, matricula_id, inicio):
-        return self.sesion.scalar(
-            select(AsignacionRuta.id).where(
-                AsignacionRuta.matricula_id == matricula_id, AsignacionRuta.fecha_inicio == inicio
             )
         )
 

@@ -8,8 +8,11 @@ DATABASE_URL="$(python -c 'import os,urllib.parse as u; print("postgresql+psycop
 export DATABASE_URL
 unset password URL_PASSWORD
 if [ -r "${SQL_SERVER_ORIGEN_FILE:-/run/secrets/sql_server_origen}" ]; then
-    SQL_SERVER_ORIGEN="$(leer "${SQL_SERVER_ORIGEN_FILE:-/run/secrets/sql_server_origen}")"
-    export SQL_SERVER_ORIGEN
+    origen_archivo="$(leer "${SQL_SERVER_ORIGEN_FILE:-/run/secrets/sql_server_origen}")"
+    if [ -n "$origen_archivo" ]; then
+        SQL_SERVER_ORIGEN="$origen_archivo"
+        export SQL_SERVER_ORIGEN
+    fi
 fi
 CODIGO_MIGRACION_SEMILLA="$(leer "${CODIGO_MIGRACION_SEMILLA_FILE:-/run/secrets/codigo_migracion_semilla}")"
 export CODIGO_MIGRACION_SEMILLA

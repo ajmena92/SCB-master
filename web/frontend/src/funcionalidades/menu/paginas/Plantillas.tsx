@@ -19,38 +19,43 @@ import type { ComponenteMenu } from "@/funcionalidades/menu/componentesMenu";
 import { DIAS_MENU, EditorPlantilla } from "@/funcionalidades/menu/EditorPlantilla";
 import type { FormularioPlantilla } from "@/funcionalidades/menu/EditorPlantilla";
 
-interface PlantillaMenu extends Omit<FormularioPlantilla, "Componentes"> {
-  IdMenuPlantilla: number;
+interface PlantillaMenu extends Omit<FormularioPlantilla, "Componentes" | "IdMenuPlantilla"> {
+  id: number;
   Componentes: ComponenteMenu[];
 }
 const SEMANAS_MENU = [1, 2, 3, 4, 5] as const;
 
-function fechaLocalActual(): string {
-  const ahora = new Date();
-  const completar = (valor: number) => String(valor).padStart(2, "0");
-  return `${ahora.getFullYear()}-${completar(ahora.getMonth() + 1)}-${completar(ahora.getDate())}`;
+function fechaCostaRica(): { fecha: string; diaSemana: number } {
+  const partes = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Costa_Rica", year: "numeric", month: "2-digit", day: "2-digit", weekday: "short",
+  }).formatToParts(new Date());
+  const valor = (tipo: string) => partes.find((parte) => parte.type === tipo)?.value ?? "";
+  const semana = partes.find((parte) => parte.type === "weekday")?.value;
+  const dias = { Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5 } as const;
+  return {
+    fecha: `${valor("year")}-${valor("month")}-${valor("day")}`,
+    diaSemana: semana ? (dias[semana as keyof typeof dias] ?? 0) : 0,
+  };
 }
 
-function obtenerSemanaActual(): number {
-  return Math.min(5, Math.ceil(new Date().getDate() / 7));
+function semanaDelMes(fecha: string): number {
+  const dia = Number(fecha.slice(-2));
+  return Math.floor((dia - 1) / 7) + 1;
 }
 
 function obtenerDiaActual(): number | null {
-  const dia = new Date().getDay();
+  const dia = fechaCostaRica().diaSemana;
   return dia >= 1 && dia <= 5 ? dia : null;
 }
-
-type DatoMenu = Record<string, unknown>;
-const campo = (dato: DatoMenu, canonico: string, legado: string): unknown =>
-  dato[canonico] ?? dato[legado];
 
 export default function Plantillas() {
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState<FormularioPlantilla | null>(null);
-  const semanaActual = obtenerSemanaActual();
-  const [semanaActiva, setSemanaActiva] = useState<number>(semanaActual);
+  const hoyCostaRica = fechaCostaRica();
+  const [semanaActiva, setSemanaActiva] = useState<number>(1);
   const diaActual = obtenerDiaActual();
+  const semanaActual = semanaDelMes(hoyCostaRica.fecha);
   const {
     data: plantillas = [],
     error,
@@ -60,33 +65,21 @@ export default function Plantillas() {
     queryKey: ["admin", "menu", "plantillas"],
     staleTime: 60_000,
     queryFn: async () => {
-      const { data } = await api.get<PlantillaMenu[]>("/v1/menu/plantillas");
-      return data
-        .map((p, indice) => {
-          const dato = p as unknown as DatoMenu;
-          const componentes = (campo(dato, "componentes", "Componentes") as unknown[]) ?? [];
-          return {
-            ...p,
-            IdMenuPlantilla: Number(campo(dato, "id", "IdMenuPlantilla")),
-            SemanaMes: Number(campo(dato, "semana", "SemanaMes") ?? Math.floor(indice / 5) + 1),
-            DiaSemana: Number(campo(dato, "dia", "DiaSemana") ?? (indice % 5) + 1),
-            Titulo: String(campo(dato, "nombre", "Titulo") ?? "Menú"),
-            Observaciones: String(campo(dato, "observaciones", "Observaciones") ?? ""),
-            Activo: Boolean(campo(dato, "activa", "Activo") ?? true),
-            Componentes: componentes.map((componente, orden) => {
-              const c =
-                typeof componente === "string"
-                  ? ({ nombre: componente } as DatoMenu)
-                  : (componente as DatoMenu);
-              return {
-                Nombre: String(campo(c, "nombre", "Nombre") ?? ""),
-                TipoComponente: String(campo(c, "tipo", "TipoComponente") ?? "Principal"),
-                Orden: Number(campo(c, "orden", "Orden") ?? orden + 1),
-              };
-            }),
-          } as PlantillaMenu;
-        })
-        .sort((a, b) => a.SemanaMes - b.SemanaMes || a.DiaSemana - b.DiaSemana);
+      const { data } = await api.get<Array<{
+        id: number; semana: number; dia: number; titulo: string; observaciones?: string | null;
+        activo: boolean; componentes: Array<{ nombre: string; tipo: string; orden: number }>;
+      }>>("/v1/menu/plantillas");
+      return data.map((p) => ({
+        id: p.id,
+        SemanaMes: p.semana,
+        DiaSemana: p.dia,
+        Titulo: p.titulo,
+        Observaciones: p.observaciones ?? "",
+        Activo: p.activo,
+        Componentes: p.componentes.map((c) => ({
+          Nombre: c.nombre, TipoComponente: c.tipo, Orden: c.orden,
+        })),
+      }));
     },
   });
 
@@ -110,13 +103,17 @@ export default function Plantillas() {
     if (error) toast.error(errMsg(error));
   }, [error]);
 
+  useEffect(() => {
+    setSemanaActiva(semanaActual);
+  }, [semanaActual]);
+
   const abrir = (plantilla: PlantillaMenu | null) => {
     setForm(
       plantilla
         ? { ...plantilla, Componentes: prepararComponentes(plantilla.Componentes) }
         : {
-            SemanaMes: 1,
-            DiaSemana: 1,
+            SemanaMes: semanaActiva,
+            DiaSemana: diaActual ?? 1,
             Titulo: "",
             Observaciones: "",
             Activo: true,
@@ -137,17 +134,21 @@ export default function Plantillas() {
     setSaving(true);
     try {
       const payload = {
-        nombre: form.Titulo,
-        componentes: form.Componentes.filter((c) => c.Nombre.trim()).map((c) => c.Nombre),
+        semana: form.SemanaMes,
+        dia: form.DiaSemana,
+        titulo: form.Titulo,
+        observaciones: form.Observaciones || null,
+        activo: form.Activo,
+        componentes: form.Componentes.filter((c) => c.Nombre.trim()).map((c, indice) => ({
+          nombre: c.Nombre.trim(), tipo: c.TipoComponente, orden: indice + 1,
+        })),
       };
-      const { data: plantilla } = form.IdMenuPlantilla
-        ? await api.put(`/v1/menu/plantillas/${form.IdMenuPlantilla}`, payload)
-        : await api.post("/v1/menu/plantillas", payload);
-      await api.post("/v1/menu/publicaciones", {
-        plantillaId: plantilla.id,
-        fecha: fechaLocalActual(),
-      });
-      toast.success("Menú guardado y publicado para hoy");
+      if (!payload.componentes.length) {
+        toast.error("Agregá al menos un componente");
+        return;
+      }
+      await api.put(`/v1/menu/plantillas/${payload.semana}/${payload.dia}`, payload);
+      toast.success("Plantilla semanal guardada.");
       setOpen(false);
       await refetch();
     } catch (e) {
@@ -165,7 +166,7 @@ export default function Plantillas() {
             Plantillas de menú
           </h2>
           <p className="mt-1 max-w-[65ch] text-sm leading-relaxed text-muted-foreground">
-            Organizá las cinco semanas de lunes a viernes. Los cambios se publican cuando guardás.
+            Organizá las semanas de cada mes, de lunes a viernes. Algunos meses tienen cuatro semanas operativas y otros cinco; las sustituciones y cierres se consultan en el calendario.
           </p>
         </div>
         <Button
@@ -269,7 +270,7 @@ export default function Plantillas() {
                   Semana {semanaActiva}
                 </h3>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Revisá y publicá los menús de lunes a viernes.
+                  Revisá los menús de lunes a viernes.
                 </p>
               </div>
               <span className="shrink-0 text-sm font-medium tabular-nums text-muted-foreground">
@@ -288,25 +289,25 @@ export default function Plantillas() {
                 </p>
               </div>
             ) : (
-              <div className="mt-4 hidden overflow-x-auto rounded-xl border border-border bg-card md:block">
-                <table className="w-full min-w-[40rem] text-left text-sm">
+              <div className="mt-4 hidden overflow-hidden rounded-xl border border-border bg-card md:block">
+                <table className="w-full table-fixed text-left text-sm">
                   <caption className="sr-only">Menús de la semana {semanaActiva}</caption>
                   <thead className="border-b border-border bg-muted/40 text-xs uppercase tracking-wide text-muted-foreground">
                     <tr>
-                      <th className="w-32 px-4 py-3 font-semibold">Día</th>
-                      <th className="px-4 py-3 font-semibold">Menú publicado</th>
-                      <th className="w-40 px-4 py-3 font-semibold">Componentes</th>
-                      <th className="w-28 px-4 py-3 text-right font-semibold">Acción</th>
+                      <th className="w-28 px-3 py-3 font-semibold">Día</th>
+                      <th className="px-4 py-3 font-semibold">Menú semanal</th>
+                      <th className="w-32 px-3 py-3 font-semibold">Componentes</th>
+                      <th className="w-24 px-3 py-3 text-right font-semibold">Acción</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
                     {plantillasSemanaActiva.map((p) => (
                       <tr
-                        key={p.IdMenuPlantilla}
+                        key={p.id}
                         data-testid={`plantilla-${p.SemanaMes}-${p.DiaSemana}`}
                         className={`group min-w-0 align-middle transition-colors hover:bg-muted/30 ${semanaActiva === semanaActual && p.DiaSemana === diaActual ? "bg-primary/[0.06]" : ""}`}
                       >
-                        <td className="whitespace-nowrap px-4 py-4 font-semibold text-foreground">
+                        <td className="whitespace-nowrap px-3 py-4 font-semibold text-foreground">
                           <span className="inline-flex items-center gap-2">
                             {DIAS_MENU[p.DiaSemana]}
                             {semanaActiva === semanaActual && p.DiaSemana === diaActual && (
@@ -318,7 +319,7 @@ export default function Plantillas() {
                         </td>
                         <td className="min-w-0 px-4 py-4">
                           <p
-                            className="min-w-0 break-words text-pretty font-display font-bold leading-snug text-foreground"
+                            className="line-clamp-2 min-w-0 break-words text-pretty font-display font-bold leading-snug text-foreground"
                             title={p.Titulo}
                           >
                             {p.Titulo}
@@ -337,16 +338,16 @@ export default function Plantillas() {
                             </Badge>
                           )}
                         </td>
-                        <td className="whitespace-nowrap px-4 py-4 text-muted-foreground">
+                        <td className="whitespace-nowrap px-3 py-4 text-muted-foreground">
                           <span className="inline-flex items-center gap-2">
                             <Layers3 className="h-4 w-4" aria-hidden="true" />
                             <span className="tabular-nums">{p.Componentes.length}</span>
                           </span>
                         </td>
-                        <td className="px-4 py-4 text-right">
+                        <td className="whitespace-nowrap px-3 py-4 text-right">
                           <Button
                             variant="ghost"
-                            className="h-10 rounded-lg px-3 text-primary hover:bg-primary/10 hover:text-primary"
+                            className="h-10 rounded-lg px-2 text-primary hover:bg-primary/10 hover:text-primary"
                             data-testid={`edit-plantilla-${p.SemanaMes}-${p.DiaSemana}`}
                             onClick={() => abrir(p)}
                           >
@@ -366,7 +367,7 @@ export default function Plantillas() {
                   const esHoy = semanaActiva === semanaActual && p.DiaSemana === diaActual;
                   return (
                     <article
-                      key={`movil-${p.IdMenuPlantilla}`}
+                      key={`movil-${p.id}`}
                       data-testid={`plantilla-movil-${p.SemanaMes}-${p.DiaSemana}`}
                       className={`rounded-xl border p-4 ${esHoy ? "border-primary/40 bg-primary/[0.06]" : "border-border bg-card"}`}
                     >

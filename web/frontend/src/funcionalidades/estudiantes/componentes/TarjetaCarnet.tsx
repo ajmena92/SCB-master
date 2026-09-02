@@ -1,5 +1,7 @@
+import { useEffect, useState } from "react";
 import { IdCard } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { api } from "@/compartido/consultas/cliente_http";
 import { CodigoBarras } from "./CodigoBarras";
 import {
   LOGO_COLEGIO,
@@ -21,11 +23,33 @@ export function TarjetaCarnet({
   versionFoto?: string | number;
   tipoPersona?: "estudiante" | "profesor";
 }) {
+  const [fotoUrl, setFotoUrl] = useState<string>();
   const colorRuta = obtenerColorRutaSeguro(datosCarnet.rutaColor);
   const nombre = obtenerNombreCompleto(datosCarnet);
   const codigo = datosCarnet.barcode || datosCarnet.carne;
-  const fotoUrl = null;
   const fotoDisponible = tieneFoto ?? Boolean(datosCarnet.tieneFoto);
+
+  useEffect(() => {
+    let url: string | undefined;
+    if (!fotoDisponible) {
+      setFotoUrl(undefined);
+      return undefined;
+    }
+    void api
+      .get("/v1/portal/carnet/foto", {
+        responseType: "blob",
+        omitirManejoFalloAutenticacion: true,
+      })
+      .then(({ data }) => {
+        url = URL.createObjectURL(data as Blob);
+        setFotoUrl(url);
+      })
+      .catch(() => setFotoUrl(undefined));
+    return () => {
+      if (url) URL.revokeObjectURL(url);
+    };
+  }, [fotoDisponible]);
+
   return (
     <div
       className="mx-auto w-full max-w-[23rem] overflow-hidden rounded-[1.75rem] border border-white/80 bg-white shadow-[0_20px_55px_rgb(64_68_170_/_0.2)]"
@@ -54,7 +78,7 @@ export function TarjetaCarnet({
         </div>
         <div className="relative mt-6 flex items-end gap-4">
           <div className="h-28 w-24 shrink-0 overflow-hidden rounded-2xl border-4 border-white/70 bg-white/25 shadow-lg">
-            {tipoPersona === "estudiante" && fotoDisponible && fotoUrl ? (
+            {fotoDisponible && fotoUrl ? (
               <img
                 src={fotoUrl}
                 alt={`Fotografía de ${nombre}`}

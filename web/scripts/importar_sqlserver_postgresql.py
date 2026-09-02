@@ -16,6 +16,7 @@ import secrets
 import sys
 from collections import Counter
 from dataclasses import dataclass
+from datetime import date
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -57,7 +58,9 @@ def _filas(cursor: pyodbc.Cursor, consulta: str) -> list[dict[str, Any]]:
     return [dict(zip(columnas, fila, strict=True)) for fila in cursor.fetchall()]
 
 
-def extraer(cadena: str) -> tuple[list[PersonaOrigen], list[dict[str, Any]], list[dict[str, Any]]]:
+def extraer(
+    cadena: str,
+) -> tuple[list[PersonaOrigen], list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]]]:
     with pyodbc.connect(cadena, autocommit=False, timeout=60) as conexion:
         cursor = conexion.cursor()
         usuarios = _filas(
@@ -86,17 +89,56 @@ def extraer(cadena: str) -> tuple[list[PersonaOrigen], list[dict[str, Any]], lis
             ).fetchall()
         }
         menu: list[dict[str, Any]] = []
-        if {"ComedorPortal.MenuPlantilla", "ComedorPortal.MenuComponente"} <= tablas:
+        calendario: list[dict[str, Any]] = []
+        sustituciones: list[dict[str, Any]] = []
+        if {"menu.plantilla", "menu.componente"} <= tablas:
+            menu = _filas(
+                cursor,
+                """
+                SELECT p.id_plantilla AS IdMenuPlantilla, p.semana AS SemanaMes, p.dia AS DiaSemana,
+                       p.titulo AS Titulo, p.observaciones AS Observaciones, p.activo AS Activo,
+                       c.nombre AS Componente, c.tipo AS TipoComponente, c.orden AS Orden
+                FROM menu.plantilla p LEFT JOIN menu.componente c ON c.id_plantilla=p.id_plantilla
+                WHERE p.activo=1 ORDER BY p.semana,p.dia,c.orden
+                """,
+            )
+        elif {"ComedorPortal.MenuPlantilla", "ComedorPortal.MenuComponente"} <= tablas:
             menu = _filas(
                 cursor,
                 """
                 SELECT p.IdMenuPlantilla, p.SemanaMes, p.DiaSemana, p.Titulo,
-                       p.Observaciones, c.Nombre AS Componente, c.Orden
+                       p.Observaciones, p.Activo, c.Nombre AS Componente,
+                       c.TipoComponente, c.Orden
                 FROM ComedorPortal.MenuPlantilla p
                 LEFT JOIN ComedorPortal.MenuComponente c
                   ON c.IdMenuPlantilla=p.IdMenuPlantilla
                 WHERE p.Activo=1
                 ORDER BY p.IdMenuPlantilla,c.Orden
+                """,
+            )
+        if "menu.calendario" in tablas:
+            calendario = _filas(cursor, "SELECT fecha AS Fecha, habilitado AS Habilitado FROM menu.calendario")
+        if {"menu.sustitucion", "menu.componente_sustitucion"} <= tablas:
+            sustituciones = _filas(
+                cursor,
+                """
+                SELECT s.fecha AS Fecha, s.titulo AS Titulo, s.observaciones AS Observaciones,
+                       c.nombre AS Componente, c.tipo AS TipoComponente, c.orden AS Orden
+                FROM menu.sustitucion s
+                LEFT JOIN menu.componente_sustitucion c ON c.id_sustitucion=s.id_sustitucion
+                ORDER BY s.fecha,c.orden
+                """,
+            )
+        elif {"ComedorPortal.MenuSustitucion", "ComedorPortal.MenuSustitucionComponente"} <= tablas:
+            sustituciones = _filas(
+                cursor,
+                """
+                SELECT s.Fecha, s.Titulo, s.Observaciones, c.Nombre AS Componente,
+                       c.TipoComponente, c.Orden
+                FROM ComedorPortal.MenuSustitucion s
+                LEFT JOIN ComedorPortal.MenuSustitucionComponente c
+                  ON c.IdMenuSustitucion=s.IdMenuSustitucion
+                ORDER BY s.Fecha,c.Orden
                 """,
             )
         conexion.rollback()
@@ -118,7 +160,7 @@ def extraer(cadena: str) -> tuple[list[PersonaOrigen], list[dict[str, Any]], lis
         )
         for fila in usuarios
     ]
-    return personas, rutas, menu
+    return personas, rutas, menu, calendario, sustituciones
 
 
 def validar(
@@ -172,11 +214,112 @@ def validar(
     }
 
 
+def validar_sustituciones(sustituciones: Iterable[dict[str, Any]]) -> dict[str, Any]:
+    """Valida el contenido que puede copiarse sin tocar el padrón ni el menú base."""
+    errores: list[dict[str, Any]] = []
+    por_fecha: dict[Any, list[dict[str, Any]]] = {}
+    for fila in sustituciones:
+        fecha = fila.get("Fecha")
+        por_fecha.setdefault(fecha, []).append(fila)
+        titulo = _texto(fila.get("Titulo"))
+        componente = _texto(fila.get("Componente"))
+        if not fecha:
+            errores.append({"tipo": "fecha_sustitucion_ausente"})
+        if not titulo:
+            errores.append({"tipo": "titulo_sustitucion_ausente", "fecha": str(fecha)})
+        elif len(titulo) > 180:
+            errores.append({"tipo": "titulo_sustitucion_muy_largo", "fecha": str(fecha)})
+        if componente and len(componente) > 180:
+            errores.append({"tipo": "componente_sustitucion_muy_largo", "fecha": str(fecha)})
+
+    for fecha, filas in por_fecha.items():
+        ordenes = [int(fila["Orden"]) for fila in filas if fila.get("Componente") and fila.get("Orden")]
+        if len(ordenes) != len(set(ordenes)):
+            errores.append({"tipo": "orden_componente_sustitucion_duplicado", "fecha": str(fecha)})
+    return {
+        "sustituciones": len(por_fecha),
+        "componentes_sustitucion": sum(1 for fila in sustituciones if _texto(fila.get("Componente"))),
+        "errores": errores,
+    }
+
+
+def aplicar_sustituciones(url: str, sustituciones: list[dict[str, Any]]) -> dict[str, int]:
+    """Inserta sustituciones históricas sin reemplazar decisiones ya tomadas en PostgreSQL."""
+    motor = create_engine(url, pool_pre_ping=True)
+    por_fecha: dict[Any, list[dict[str, Any]]] = {}
+    for fila in sustituciones:
+        por_fecha.setdefault(fila["Fecha"], []).append(fila)
+
+    conteos = Counter()
+    with motor.begin() as conexion:
+        for fecha, filas in por_fecha.items():
+            origen = {
+                "titulo": _texto(filas[0]["Titulo"]),
+                "observaciones": _texto(filas[0].get("Observaciones")) or None,
+                "componentes": [
+                    (
+                        _texto(fila["Componente"]),
+                        _texto(fila.get("TipoComponente")) or "Principal",
+                        int(fila["Orden"] or 1),
+                    )
+                    for fila in filas
+                    if _texto(fila.get("Componente"))
+                ],
+            }
+            existente = conexion.execute(
+                text("SELECT id,titulo,observaciones FROM sustitucion_menu WHERE fecha=:fecha"),
+                {"fecha": fecha},
+            ).mappings().first()
+            if existente:
+                componentes_existentes = [
+                    (fila["nombre"], fila["tipo"], fila["orden"])
+                    for fila in conexion.execute(
+                        text(
+                            """SELECT nombre,tipo,orden FROM componente_sustitucion_menu
+                            WHERE sustitucion_id=:id ORDER BY orden"""
+                        ),
+                        {"id": existente["id"]},
+                    ).mappings()
+                ]
+                misma_sustitucion = (
+                    existente["titulo"] == origen["titulo"]
+                    and existente["observaciones"] == origen["observaciones"]
+                    and componentes_existentes == origen["componentes"]
+                )
+                if misma_sustitucion:
+                    conteos["sustituciones_ya_importadas"] += 1
+                    continue
+                raise ValueError(
+                    f"Conflicto en sustitución {fecha}: ya existe una versión diferente en PostgreSQL"
+                )
+
+            sustitucion_id = conexion.execute(
+                text(
+                    """INSERT INTO sustitucion_menu(fecha,titulo,observaciones)
+                    VALUES (:fecha,:titulo,:observaciones) RETURNING id"""
+                ),
+                {"fecha": fecha, **origen},
+            ).scalar_one()
+            for nombre, tipo, orden in origen["componentes"]:
+                conexion.execute(
+                    text(
+                        """INSERT INTO componente_sustitucion_menu(sustitucion_id,nombre,tipo,orden)
+                        VALUES (:id,:nombre,:tipo,:orden)"""
+                    ),
+                    {"id": sustitucion_id, "nombre": nombre, "tipo": tipo, "orden": orden},
+                )
+                conteos["componentes_sustitucion"] += 1
+            conteos["sustituciones_importadas"] += 1
+    return dict(conteos)
+
+
 def aplicar(
     url: str,
     personas: list[PersonaOrigen],
     rutas: list[dict[str, Any]],
     menu: list[dict[str, Any]],
+    calendario: list[dict[str, Any]],
+    sustituciones: list[dict[str, Any]],
     semilla: str,
     credenciales: Path,
 ) -> dict[str, int]:
@@ -292,32 +435,66 @@ def aplicar(
         for fila in menu:
             legado = int(fila["IdMenuPlantilla"])
             if legado not in plantillas:
-                nombre = (
-                    _texto(fila["Titulo"]) or f"Semana {fila['SemanaMes']} día {fila['DiaSemana']}"
-                )
+                titulo = _texto(fila["Titulo"]) or f"Semana {fila['SemanaMes']} día {fila['DiaSemana']}"
                 plantilla_id = conexion.execute(
                     text(
-                        """INSERT INTO plantilla_menu(nombre,activo) VALUES (:nombre,true)
-                    ON CONFLICT(nombre) DO UPDATE SET activo=true RETURNING id"""
+                        """INSERT INTO plantilla_menu(semana,dia,titulo,observaciones,activo)
+                        VALUES (:semana,:dia,:titulo,:observaciones,true)
+                        ON CONFLICT(semana,dia) DO UPDATE SET titulo=excluded.titulo,
+                          observaciones=excluded.observaciones,activo=true RETURNING id"""
                     ),
-                    {"nombre": nombre},
+                    {"semana": int(fila["SemanaMes"]), "dia": int(fila["DiaSemana"]),
+                     "titulo": titulo, "observaciones": _texto(fila.get("Observaciones")) or None},
                 ).scalar_one()
                 plantillas[legado] = plantilla_id
                 conteos["plantillas"] += 1
             if fila["Componente"]:
                 conexion.execute(
                     text(
-                        """INSERT INTO componente_menu(plantilla_id,nombre,orden)
-                    VALUES (:plantilla,:nombre,:orden)
-                    ON CONFLICT(plantilla_id,orden) DO UPDATE SET nombre=excluded.nombre"""
+                        """INSERT INTO componente_menu(plantilla_id,nombre,tipo,orden)
+                    VALUES (:plantilla,:nombre,:tipo,:orden)
+                    ON CONFLICT(plantilla_id,orden) DO UPDATE SET nombre=excluded.nombre,tipo=excluded.tipo"""
                     ),
                     {
                         "plantilla": plantillas[legado],
                         "nombre": _texto(fila["Componente"]),
-                        "orden": int(fila["Orden"] or 0),
+                        "tipo": _texto(fila.get("TipoComponente")) or "Principal",
+                        "orden": int(fila["Orden"] or 1),
                     },
                 )
                 conteos["componentes"] += 1
+
+        for fila in calendario:
+            conexion.execute(
+                text("""INSERT INTO calendario_menu(fecha,habilitado) VALUES (:fecha,:habilitado)
+                ON CONFLICT(fecha) DO UPDATE SET habilitado=excluded.habilitado"""),
+                {"fecha": fila["Fecha"], "habilitado": bool(fila["Habilitado"])},
+            )
+            conteos["dias_calendario"] += 1
+
+        sustituciones_por_fecha: dict[Any, int] = {}
+        for fila in sustituciones:
+            fecha = fila["Fecha"]
+            if fecha not in sustituciones_por_fecha:
+                sustitucion_id = conexion.execute(
+                    text("""INSERT INTO sustitucion_menu(fecha,titulo,observaciones)
+                    VALUES (:fecha,:titulo,:observaciones)
+                    ON CONFLICT(fecha) DO UPDATE SET titulo=excluded.titulo,
+                    observaciones=excluded.observaciones RETURNING id"""),
+                    {"fecha": fecha, "titulo": _texto(fila["Titulo"]),
+                     "observaciones": _texto(fila.get("Observaciones")) or None},
+                ).scalar_one()
+                sustituciones_por_fecha[fecha] = sustitucion_id
+                conexion.execute(text("DELETE FROM componente_sustitucion_menu WHERE sustitucion_id=:id"), {"id": sustitucion_id})
+                conteos["sustituciones"] += 1
+            if fila.get("Componente"):
+                conexion.execute(
+                    text("""INSERT INTO componente_sustitucion_menu(sustitucion_id,nombre,tipo,orden)
+                    VALUES (:id,:nombre,:tipo,:orden)"""),
+                    {"id": sustituciones_por_fecha[fecha], "nombre": _texto(fila["Componente"]),
+                     "tipo": _texto(fila.get("TipoComponente")) or "Principal", "orden": int(fila["Orden"] or 1)},
+                )
+                conteos["componentes_sustitucion"] += 1
 
     credenciales.parent.mkdir(parents=True, exist_ok=True)
     with credenciales.open("w", encoding="utf-8", newline="") as archivo:
@@ -338,17 +515,31 @@ def main() -> int:
     )
     parser.add_argument("--reporte", type=Path, default=Path("reporte-importacion-2026.json"))
     parser.add_argument("--credenciales", type=Path, default=Path("credenciales-2026.csv"))
+    parser.add_argument(
+        "--fecha-corte", type=date.fromisoformat,
+        help="opcional: importa únicamente sustituciones desde AAAA-MM-DD",
+    )
+    parser.add_argument(
+        "--solo-sustituciones",
+        action="store_true",
+        help="recupera exclusivamente sustituciones de menú; no modifica personas, rutas ni plantillas",
+    )
     args = parser.parse_args()
     origen = os.getenv("SQL_SERVER_ORIGEN", "").strip()
     if not origen:
         parser.error("SQL_SERVER_ORIGEN es requerida")
-    personas, rutas, menu = extraer(origen)
-    reporte = validar(personas, rutas, menu)
+    personas, rutas, menu, calendario, sustituciones = extraer(origen)
+    if args.fecha_corte:
+        sustituciones = [fila for fila in sustituciones if fila["Fecha"] >= args.fecha_corte]
+    reporte = validar_sustituciones(sustituciones) if args.solo_sustituciones else validar(personas, rutas, menu)
     reporte.update(
         {
             "modo": "aplicar" if args.aplicar else "simulacion",
+            "alcance": "solo_sustituciones" if args.solo_sustituciones else "importacion_inicial",
             "rutas": len(rutas),
             "plantillas": len({m["IdMenuPlantilla"] for m in menu}),
+            "dias_calendario": len(calendario),
+            "sustituciones": len({m["Fecha"] for m in sustituciones}),
         }
     )
     if args.aplicar:
@@ -358,12 +549,20 @@ def main() -> int:
         else:
             url = os.getenv("DATABASE_URL", "").strip()
             semilla = os.getenv("CODIGO_MIGRACION_SEMILLA", "").strip()
-            if not url or len(semilla) < 32:
+            if not url:
+                parser.error("DATABASE_URL es requerida")
+            if args.solo_sustituciones:
+                reporte["aplicados"] = aplicar_sustituciones(url, sustituciones)
+                resultado = 0
+            elif len(semilla) < 32:
                 parser.error(
-                    "DATABASE_URL y CODIGO_MIGRACION_SEMILLA (mínimo 32 caracteres) son requeridas"
+                    "CODIGO_MIGRACION_SEMILLA (mínimo 32 caracteres) es requerida"
                 )
-            reporte["aplicados"] = aplicar(url, personas, rutas, menu, semilla, args.credenciales)
-            resultado = 0
+            else:
+                reporte["aplicados"] = aplicar(
+                    url, personas, rutas, menu, calendario, sustituciones, semilla, args.credenciales
+                )
+                resultado = 0
     else:
         resultado = 0 if not reporte["errores"] else 2
     args.reporte.write_text(

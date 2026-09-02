@@ -4,7 +4,6 @@ import { EncabezadoPagina } from "../componentes/ElementosComunes";
 const tareas = [
   ["Operar comedor", "/admin/panel/comedor", "Registrar ingresos y decidir excepciones."],
   ["Vender tiquetes", "/admin/panel/tiquetes", "Cargar saldo con la tarifa vigente."],
-  ["Registrar transporte", "/admin/panel/transporte", "Guardar la marca diaria del estudiante."],
   ["Publicar menú", "/admin/panel/menu", "Preparar el menú visible por fecha."],
 ];
 

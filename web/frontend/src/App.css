@@ -1,14 +1,22 @@
 :root {
-  --ink: oklch(25% 0.035 242);
-  --muted-ink: oklch(48% 0.025 242);
-  --paper: oklch(98% 0.008 242);
-  --surface: oklch(100% 0.004 242);
-  --line: oklch(89% 0.014 242);
-  --brand: oklch(46% 0.13 238);
-  --brand-dark: oklch(31% 0.09 238);
-  --positive: oklch(48% 0.12 151);
-  --danger: oklch(52% 0.17 25);
-  --warning: oklch(73% 0.14 85);
+  --ink: #111827;
+  --muted-ink: #6b7280;
+  --paper: #f6f8fb;
+  --surface: #ffffff;
+  --surface-alt: #f0f4f8;
+  --line: #e5e7eb;
+  --brand: #0a84ff;
+  --brand-dark: #0071e3;
+  --positive: #16a34a;
+  --danger: #dc2626;
+  --warning: #d97706;
+  --brand-soft: #e7f2ff;
+  --brand-subtle: #f0f7ff;
+  --success-soft: #edf9f0;
+  --warning-soft: #fff7ed;
+  --danger-soft: #fef2f2;
+  --radius: 0.5rem;
+  --radius-card: 0.75rem;
   --space-xs: 0.25rem;
   --space-sm: 0.5rem;
   --space-md: 0.75rem;
@@ -57,8 +65,8 @@ button:disabled {
   justify-content: space-between;
   gap: var(--space-lg);
   padding: 0 var(--space-xl);
-  background: var(--brand-dark);
-  color: oklch(97% 0.01 242);
+  background: #0f172a;
+  color: #ffffff;
 }
 .brand,
 .user-box {
@@ -78,7 +86,7 @@ button:disabled {
 }
 .brand span,
 .user-box small {
-  color: oklch(82% 0.035 242);
+  color: #cbd5e1;
   font-size: 0.78rem;
 }
 .user-box {
@@ -89,13 +97,13 @@ button:disabled {
   place-items: center;
   width: 2.75rem;
   height: 2.75rem;
-  border: 1px solid oklch(60% 0.05 242);
-  border-radius: 0.5rem;
+  border: 1px solid #334155;
+  border-radius: var(--radius);
   color: inherit;
   background: transparent;
 }
 .user-box button:hover {
-  background: oklch(40% 0.08 238);
+  background: #1e293b;
 }
 .user-box svg {
   width: 1.15rem;
@@ -103,7 +111,7 @@ button:disabled {
 
 .admin-nav {
   padding: var(--space-xl) var(--space-md);
-  background: oklch(95% 0.014 242);
+  background: var(--surface-alt);
   border-right: 1px solid var(--line);
   display: flex;
   flex-direction: column;
@@ -115,19 +123,19 @@ button:disabled {
   align-items: center;
   gap: var(--space-md);
   padding: var(--space-md);
-  border-radius: 0.45rem;
+  border-radius: var(--radius);
   color: var(--muted-ink);
   text-decoration: none;
   font-weight: 700;
   font-size: 0.9rem;
 }
 .admin-nav a:hover {
-  background: oklch(91% 0.025 242);
+  background: #e7eef6;
   color: var(--ink);
 }
 .admin-nav a.active {
   background: var(--brand);
-  color: oklch(98% 0.01 242);
+  color: #ffffff;
 }
 .admin-nav svg {
   width: 1.15rem;
@@ -180,13 +188,13 @@ h2 {
   justify-content: center;
   align-items: center;
   border: 1px solid transparent;
-  border-radius: 0.45rem;
+  border-radius: var(--radius);
   padding: 0.65rem 1rem;
   font-weight: 800;
 }
 .button.primary {
   background: var(--brand);
-  color: oklch(98% 0.01 242);
+  color: #ffffff;
 }
 .button.primary:hover {
   background: var(--brand-dark);
@@ -207,6 +215,21 @@ h2 {
   font-size: 1.05rem;
 }
 
+.dialogo-estandar {
+  border-color: var(--line);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  color: var(--ink);
+}
+.dialogo-estandar [data-slot="dialog-title"],
+.dialogo-estandar h2 {
+  color: var(--ink);
+}
+.dialogo-pie {
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--line);
+}
+
 .field {
   display: flex;
   min-width: 0;
@@ -222,8 +245,8 @@ h2 {
   width: 100%;
   min-height: 2.75rem;
   padding: 0.62rem 0.75rem;
-  border: 1px solid oklch(80% 0.02 242);
-  border-radius: 0.4rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
   background: var(--surface);
   color: var(--ink);
 }
@@ -235,7 +258,7 @@ h2 {
 .field textarea:focus,
 button:focus-visible,
 a:focus-visible {
-  outline: 3px solid oklch(77% 0.1 238);
+  outline: 3px solid #8fc7ff;
   outline-offset: 2px;
 }
 .check {
@@ -255,6 +278,19 @@ a:focus-visible {
   align-items: end;
   gap: var(--space-lg);
 }
+
+@media (max-width: 640px) {
+  .dialogo-estandar {
+    max-height: calc(100dvh - 1rem);
+    width: calc(100% - 1rem);
+    padding: var(--space-lg);
+  }
+  .dialogo-pie > .button,
+  .dialogo-pie > button {
+    width: 100%;
+    min-height: 2.75rem;
+  }
+}
 .stack {
   display: flex;
   flex-direction: column;
@@ -266,12 +302,12 @@ a:focus-visible {
   margin-bottom: var(--space-xl);
   padding: var(--space-xl);
   border: 1px solid var(--line);
-  border-radius: 0.65rem;
+  border-radius: var(--radius-card);
   background: var(--surface);
 }
 .scanner-panel {
   display: flex;
   flex-direction: column;
   gap: var(--space-lg);
-  background: oklch(96% 0.025 238);
+  background: var(--brand-subtle);
 }

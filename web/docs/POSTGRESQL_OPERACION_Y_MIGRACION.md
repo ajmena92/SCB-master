@@ -99,6 +99,25 @@ Después de corregir todas las filas, repita con `--aplicar` y `--credenciales`.
 La operación es transaccional, actualiza por cédula y crea una sola matrícula
 por persona y año. El año importado no se activa automáticamente.
 
+## Expediente, búsqueda y PIN administrativos
+
+El padrón administrativo permite buscar por código, cédula o nombre y filtrar
+personas **activas**, **inactivas** o **todas**, sin mezclar profesores con la
+matrícula estudiantil. El expediente modifica únicamente la identidad de la
+persona y los datos vigentes de su matrícula: sección, estado académico, beca
+completa de comedor y ruta operativa. La ruta técnica `0000` nunca se puede
+asignar desde este flujo.
+
+Un reinicio de PIN genera exactamente seis dígitos, obliga el cambio en el
+próximo acceso, revoca todas las sesiones del portal y registra el evento sin
+guardar el PIN. El reinicio por sección se limita a estudiantes activos del año
+lectivo indicado. Las credenciales se muestran una sola vez al operador y se
+deben entregar por un canal seguro.
+
+La plataforma opera únicamente el turno `diurno`; la migración `0012` normaliza
+las matrículas heredadas antes de aplicar esa restricción y crea la auditoría de
+credenciales `evento_credencial_portal`.
+
 ## Evidencia de validación 2026-08-30
 
 - PostgreSQL `17.6` quedó saludable, sin publicar `5432`, con Alembic

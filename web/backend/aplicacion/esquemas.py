@@ -40,9 +40,57 @@ class PersonaSalida(Contrato):
     pin_temporal: str | None = None
 
 
+class ResumenPersonasSalida(Contrato):
+    estudiantes_activos: int
+    estudiantes_inactivos: int
+
+
+class PersonaActualizacionEntrada(Contrato):
+    cedula: str | None = Field(default=None, max_length=32)
+    nombres: str = Field(min_length=2, max_length=180)
+
+
+class MatriculaBeneficioEntrada(Contrato):
+    becado: bool = False
+
+
+class MatriculaBeneficiosEntrada(Contrato):
+    """Beneficios administrados localmente para una matrícula del padrón."""
+
+    becado: bool = False
+    ruta_id: int | None = Field(default=None, ge=1)
+
+
+class CambioRutaMatriculaEntrada(Contrato):
+    ruta_id: int | None = Field(default=None, ge=1)
+
+
+class PinTemporalSalida(Contrato):
+    persona_id: int
+    codigo: str
+    nombre: str
+    pin_temporal: str
+
+
+class GeneracionPinesSeccionEntrada(Contrato):
+    anio_lectivo_id: int
+    seccion: str = Field(min_length=1, max_length=40)
+
+
 class AnioEntrada(Contrato):
     anio: int = Field(ge=2000, le=2200)
     vigente: bool = False
+
+
+class CicloMenuEntrada(Contrato):
+    inicio_ciclo_menu: date
+
+    @field_validator("inicio_ciclo_menu")
+    @classmethod
+    def validar_lunes(cls, valor: date) -> date:
+        if valor.isoweekday() != 1:
+            raise ValueError("El inicio del ciclo PANEA debe ser lunes")
+        return valor
 
 
 class MatriculaEntrada(Contrato):
@@ -66,14 +114,36 @@ class AsignacionRutaEntrada(Contrato):
     fecha_fin: date | None = None
 
 
-class PlantillaEntrada(Contrato):
+class ComponenteMenuEntrada(Contrato):
     nombre: str = Field(min_length=1, max_length=180)
-    componentes: list[str] = Field(min_length=1)
+    tipo: str = Field(default="Principal", min_length=1, max_length=40)
+    orden: int = Field(ge=1, le=20)
+
+
+class PlantillaEntrada(Contrato):
+    semana: int = Field(ge=1, le=5)
+    dia: int = Field(ge=1, le=5)
+    titulo: str = Field(min_length=1, max_length=180)
+    observaciones: str | None = Field(default=None, max_length=2000)
+    activo: bool = True
+    componentes: list[ComponenteMenuEntrada] = Field(min_length=1, max_length=20)
 
 
 class PublicacionEntrada(Contrato):
-    plantilla_id: int
     fecha: date
+
+
+class CalendarioMenuEntrada(Contrato):
+    fecha: date
+    habilitado: bool
+    motivo: str | None = Field(default=None, max_length=300)
+
+
+class SustitucionMenuEntrada(Contrato):
+    fecha: date
+    titulo: str = Field(min_length=1, max_length=180)
+    observaciones: str | None = Field(default=None, max_length=2000)
+    componentes: list[ComponenteMenuEntrada] = Field(min_length=1, max_length=20)
 
 
 class TarifaEntrada(Contrato):
@@ -206,8 +276,6 @@ class FilaImportacion(Contrato):
     nombres: str
     tipo: Literal["estudiante", "profesor"]
     seccion: str | None = None
-    becado: bool = False
-    ruta: str | None = None
 
 
 class ImportacionEntrada(Contrato):

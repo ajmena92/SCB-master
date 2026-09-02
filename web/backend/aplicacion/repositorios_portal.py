@@ -5,8 +5,14 @@ from datetime import date
 from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
-from aplicacion.modelos.maestros import AnioLectivo, AsignacionRuta, Matricula, Ruta
-from aplicacion.modelos.menu import ComponentePublicado, PublicacionMenu
+from aplicacion.modelos.maestros import AnioLectivo, AsignacionRuta, FotografiaPersona, Matricula, Ruta
+from aplicacion.modelos.menu import (
+    CalendarioMenu,
+    ComponenteMenu,
+    ComponenteSustitucionMenu,
+    PlantillaMenu,
+    SustitucionMenu,
+)
 from aplicacion.modelos.operacion import ReservaComedor
 
 
@@ -25,6 +31,11 @@ class RepositorioPortal:
             )
         )
 
+    def foto_persona(self, persona_id: int):
+        return self.sesion.scalar(
+            select(FotografiaPersona).where(FotografiaPersona.persona_id == persona_id)
+        )
+
     def ruta_fecha(self, matricula_id: int, fecha: date):
         return self.sesion.execute(
             select(Ruta)
@@ -37,17 +48,37 @@ class RepositorioPortal:
         ).scalar_one_or_none()
 
     def menu_fecha(self, fecha: date):
-        publicacion = self.sesion.scalar(
-            select(PublicacionMenu).where(PublicacionMenu.fecha == fecha)
+        if fecha.isoweekday() > 5:
+            return None, [], "sin_menu"
+        calendario = self.sesion.get(CalendarioMenu, fecha)
+        if calendario and not calendario.habilitado:
+            return None, [], "cerrado"
+        sustitucion = self.sesion.scalar(
+            select(SustitucionMenu).where(SustitucionMenu.fecha == fecha)
         )
-        if not publicacion:
-            return None, []
+        if sustitucion:
+            componentes = self.sesion.scalars(
+                select(ComponenteSustitucionMenu)
+                .where(ComponenteSustitucionMenu.sustitucion_id == sustitucion.id)
+                .order_by(ComponenteSustitucionMenu.orden)
+            ).all()
+            return sustitucion, componentes, "sustitucion"
+        semana = (fecha.day - 1) // 7 + 1
+        plantilla = self.sesion.scalar(
+            select(PlantillaMenu).where(
+                PlantillaMenu.semana == semana,
+                PlantillaMenu.dia == fecha.isoweekday(),
+                PlantillaMenu.activo.is_(True),
+            )
+        )
+        if not plantilla:
+            return None, [], "sin_menu"
         componentes = self.sesion.scalars(
-            select(ComponentePublicado)
-            .where(ComponentePublicado.publicacion_id == publicacion.id)
-            .order_by(ComponentePublicado.orden)
+            select(ComponenteMenu)
+            .where(ComponenteMenu.plantilla_id == plantilla.id)
+            .order_by(ComponenteMenu.orden)
         ).all()
-        return publicacion, componentes
+        return plantilla, componentes, "plantilla"
 
     def reserva_fecha(self, persona_id: int, fecha: date):
         return self.sesion.scalar(

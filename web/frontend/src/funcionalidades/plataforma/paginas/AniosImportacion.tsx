@@ -69,7 +69,7 @@ export default function AniosImportacion() {
     <section>
       <EncabezadoPagina
         titulo="Años lectivos e importación"
-        descripcion="Prepare el padrón anual, revise cada fila y confirme únicamente cuando el resumen sea correcto."
+        descripcion="Cree o seleccione el año lectivo, importe el padrón anual y confirme únicamente cuando el resumen sea correcto. Becas y rutas se gestionan después de la importación."
       />
       {error && <Aviso tipo="error">{errMsg(error)}</Aviso>}
       {confirmar.isSuccess && (
@@ -144,6 +144,7 @@ export default function AniosImportacion() {
             <Campo etiqueta="Archivo .xlsx">
               <input type="file" accept=".xlsx" onChange={(e) => setArchivo(e.target.files?.[0])} />
             </Campo>
+            <Aviso>El archivo debe contener cédula, nombres, tipo y, para estudiantes, sección. No incluya beca ni ruta.</Aviso>
             <button
               className="button primary"
               disabled={!archivo || !anio || previsualizar.isPending}
@@ -166,6 +167,9 @@ export default function AniosImportacion() {
             </span>
             <span>
               <b>{resumen.cambios}</b> cambios
+            </span>
+            <span>
+              <b>{resumen.desactivaciones}</b> desactivaciones
             </span>
             <span>
               <b>{resumen.errores}</b> errores

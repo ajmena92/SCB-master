@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { errMsg } from "@/compartido/consultas/errores_api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { registrarMarcaTransporte } from "@/funcionalidades/rutas/consultas/rutas";
+import { registrarMarcaTransporteEtapaDos } from "@/funcionalidades/rutas/consultas/rutas";
 
 export function CapturaTransporte() {
   const [resultado, setResultado] = useState("");
@@ -21,7 +21,7 @@ export function CapturaTransporte() {
     setMarcando(true);
     setResultado("");
     try {
-      const mensaje = await registrarMarcaTransporte(codigo);
+      const mensaje = await registrarMarcaTransporteEtapaDos(codigo);
       setResultado(mensaje);
       toast.success("Marca registrada");
       formulario.reset();

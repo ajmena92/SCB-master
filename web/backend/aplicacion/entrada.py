@@ -8,6 +8,7 @@ from sqlalchemy.engine import Engine
 
 from aplicacion.api_administracion import crear_router as router_administracion
 from aplicacion.api_autenticacion import crear_router as router_autenticacion
+from aplicacion.api_fotos import crear_router as router_fotos
 from aplicacion.api_importaciones import crear_router as router_importaciones
 from aplicacion.api_maestros import crear_router as router_maestros
 from aplicacion.api_menu import crear_router as router_menu
@@ -87,6 +88,7 @@ def crear_aplicacion(
     api.include_router(router_autenticacion(obtener_identidad, actual))
     api.include_router(router_administracion(obtener_administracion, actual, administrador))
     api.include_router(router_maestros(obtener_catalogos, exigir_permiso, exigir_alguno))
+    api.include_router(router_fotos(obtener_catalogos, exigir_permiso))
     api.include_router(router_importaciones(obtener_importacion, exigir_permiso))
     api.include_router(router_menu(obtener_catalogos, exigir_permiso))
     api.include_router(

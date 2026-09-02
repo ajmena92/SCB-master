@@ -94,7 +94,7 @@ export function EditorPlantilla({
         <DialogHeader>
           <DialogTitle className="font-display">Plantilla de menú</DialogTitle>
           <DialogDescription>
-            Definí la semana, el día y los componentes que se publicarán en el menú.
+            Definí la semana, el día y los componentes que se aplicarán automáticamente en el menú.
           </DialogDescription>
         </DialogHeader>
         {form && (

@@ -10,6 +10,7 @@ import type {
   ReporteFila,
   ResultadoConfirmacionImportacion,
   ResultadoOperacion,
+  ResumenPersonas,
   ResumenImportacion,
   Tarifa,
 } from "@/compartido/contratos/plataforma";
@@ -43,7 +44,18 @@ async function listar<T>(ruta: string, parametros?: Record<string, unknown>): Pr
 
 export const plataformaApi = {
   personas: {
-    listar: (buscar = "") => listar<Persona>("/v1/personas", { buscar }),
+    listar: (parametros: {
+      buscar?: string;
+      estado?: "activos" | "inactivos" | "todos";
+      tipo?: "estudiante" | "profesor";
+      pagina?: number;
+      tamano?: number;
+      ordenar_por?: "nombres" | "cedula" | "tipo" | "estado";
+      direccion?: "asc" | "desc";
+    } = {}) => listar<Persona>("/v1/personas", parametros),
+    obtener: async (id: number) =>
+      normalizarObjeto<Persona>((await api.get(`/v1/personas/${id}`)).data),
+    resumen: async () => normalizarObjeto<ResumenPersonas>((await api.get("/v1/personas/resumen")).data),
     crear: async (datos: Omit<Persona, "id" | "codigo">) =>
       (
         await api.post<PersonaCreada>("/v1/personas", {
@@ -53,14 +65,33 @@ export const plataformaApi = {
           activo: datos.activo,
         })
       ).data,
-    actualizar: (id: number, datos: Partial<Persona>) =>
-      api.put<Persona>(`/v1/personas/${id}`, datos),
+    actualizar: async (id: number, datos: Pick<Persona, "cedula" | "nombres">) =>
+      normalizarObjeto<Persona>((await api.put(`/v1/personas/${id}`, datos)).data),
+    desactivar: (id: number) => api.post(`/v1/personas/${id}/desactivar`),
+    reiniciarPin: async (id: number) =>
+      normalizarObjeto<CredencialTemporal>((await api.post(`/v1/personas/${id}/reiniciar-pin`)).data),
+    reiniciarPinesSeccion: async (datos: { anioLectivoId: number; seccion: string }) =>
+      normalizarObjeto<CredencialTemporal[]>((await api.post("/v1/personas/pines/seccion", datos)).data),
+    foto: {
+      obtener: async (id: number) =>
+        (await api.get(`/v1/personas/${id}/foto`, {
+          responseType: "blob",
+          omitirManejoFalloAutenticacion: true,
+        })).data as Blob,
+      cargar: (id: number, archivo: File) => {
+        const datos = new FormData();
+        datos.append("archivo", archivo);
+        return api.post(`/v1/personas/${id}/foto`, datos);
+      },
+      eliminar: (id: number) => api.delete(`/v1/personas/${id}/foto`),
+    },
   },
   anios: {
     listar: () => listar<AnioLectivo>("/v1/anios-lectivos"),
     crear: (datos: Pick<AnioLectivo, "anio" | "vigente">) =>
       api.post<AnioLectivo>("/v1/anios-lectivos", datos),
     activar: (id: number) => api.post<AnioLectivo>(`/v1/anios-lectivos/${id}/activar`),
+    secciones: (id: number) => listar<string>(`/v1/anios-lectivos/${id}/secciones`),
   },
   matriculas: {
     listar: async (anioLectivoId?: number) => {
@@ -83,6 +114,18 @@ export const plataformaApi = {
         becado: datos.becaComedor,
         estado: datos.estado,
       }),
+    actualizarBeneficios: async (id: number, datos: { becado: boolean; rutaId: number | null }) =>
+      normalizarObjeto<{ matriculaId: number; becado: boolean; rutaId: number | null }>(
+        (await api.put(`/v1/matriculas/${id}/beneficios`, datos)).data,
+      ),
+  },
+  rutas: {
+    listar: () => listar<{
+      idRuta: number;
+      codigo: string;
+      descripcion: string;
+      activo: boolean;
+    }>("/v1/rutas"),
   },
   importaciones: {
     previsualizar: async (archivo: File, anio: number) => {
@@ -102,6 +145,7 @@ export const plataformaApi = {
         filas: data.total,
         altas: data.altas,
         cambios: data.cambios,
+        desactivaciones: data.desactivaciones,
         errores: data.errores.length,
         detalle: data.errores.map((error) => ({
           fila: error.fila,
@@ -195,15 +239,6 @@ export const plataformaApi = {
         decision,
         motivo: observacion,
       }),
-  },
-  transporte: {
-    marcar: async (codigo: string): Promise<ResultadoOperacion> => {
-      const { data } = await api.post("/v1/transporte/marcas", {
-        codigo,
-        fecha: new Date().toISOString().slice(0, 10),
-      });
-      return { estado: "aceptada", mensaje: data.mensaje ?? "Marca registrada." };
-    },
   },
   reportes: {
     obtener: async (tipo: "comedor" | "transporte" | "ventas", desde: string, hasta: string) =>

@@ -9,12 +9,15 @@ from sqlalchemy.orm import Session
 import aplicacion.modelos  # noqa: F401
 from aplicacion.entrada import crear_aplicacion
 from aplicacion.modelos.maestros import (
+    AnioLectivo,
+    CredencialPortal,
     CuentaAdministrativa,
     CuentaPermiso,
+    Matricula,
     PermisoAdministrativo,
     Persona,
 )
-from aplicacion.modelos.operacion import Tarifa
+from aplicacion.modelos.operacion import CuentaTiquete, Tarifa
 from aplicacion.nucleo.modelos_base import BaseDeclarativa
 from aplicacion.nucleo.postgresql import crear_motor
 from aplicacion.permisos import PERMISOS_ADMINISTRATIVOS
@@ -121,6 +124,7 @@ def entorno():
         configuracion=Settings("postgresql+psycopg://no-usada", "http://localhost:5173", False),
     )
     cliente = ClienteASGI(app)
+    cliente.motor = motor
     admin = cliente.post(
         "/api/v1/autenticacion/administracion",
         json={
@@ -146,43 +150,41 @@ def entorno():
 
 
 def crear_persona(cliente, cabecera, *, tipo="estudiante", cedula="1", nombres="Ana Perez"):
-    respuesta = cliente.post(
-        "/api/v1/personas",
-        headers=cabecera,
-        json={
-            "cedula": cedula,
-            "nombres": nombres,
-            "tipo": tipo,
-        },
-    )
-    assert respuesta.status_code == 201, respuesta.text
-    persona = respuesta.json()
-    acceso = cliente.post(
-        "/api/v1/autenticacion/portal",
-        json={"cedula": persona["cedula"], "pin": persona["pinTemporal"]},
-    ).json()
-    cambio = cliente.post(
-        "/api/v1/autenticacion/portal/pin",
-        headers={"Authorization": f"Bearer {acceso['token']}"},
-        json={"pinActual": persona["pinTemporal"], "pinNuevo": "123456"},
-    )
-    assert cambio.status_code == 200, cambio.text
-    return persona
+    # El padrón es la única fuente de personas; la preparación de pruebas lo
+    # representa directamente en persistencia, nunca por el endpoint retirado.
+    with Session(cliente.motor) as sesion:
+        persona = Persona(
+            codigo=f"TMP-{cedula}", cedula=cedula, nombres=nombres, tipo=tipo, activo=True
+        )
+        sesion.add(persona)
+        sesion.flush()
+        persona.codigo = f"{'E' if tipo == 'estudiante' else 'P'}-{persona.id:08d}"
+        sesion.add_all([
+            CredencialPortal(persona_id=persona.id, pin_hash=hash_secreto("123456"), cambio_obligatorio=False),
+            CuentaTiquete(persona_id=persona.id, saldo=0, reservados=0),
+        ])
+        sesion.commit()
+        return {
+            "id": persona.id, "codigo": persona.codigo, "cedula": persona.cedula,
+            "nombres": persona.nombres, "tipo": persona.tipo, "activo": persona.activo,
+            "pinTemporal": "123456",
+        }
 
 
 def preparar_estudiante(cliente, cabecera, cedula="1"):
     persona = crear_persona(cliente, cabecera, cedula=cedula)
-    anio = cliente.post(
-        "/api/v1/anios-lectivos", headers=cabecera, json={"anio": 2026, "vigente": True}
-    ).json()
-    matricula = cliente.post(
-        "/api/v1/matriculas",
-        headers=cabecera,
-        json={
-            "personaId": persona["id"],
-            "anioLectivoId": anio["id"],
-            "seccion": "7-1",
-            "becado": False,
-        },
-    ).json()
-    return persona, anio, matricula
+    with Session(cliente.motor) as sesion:
+        anio = AnioLectivo(anio=2026, vigente=True)
+        sesion.add(anio)
+        sesion.flush()
+        matricula = Matricula(
+            persona_id=persona["id"], anio_lectivo_id=anio.id, seccion="7-1",
+            turno="diurno", becado=False, estado="activo",
+        )
+        sesion.add(matricula)
+        sesion.commit()
+        return persona, {"id": anio.id, "anio": anio.anio, "vigente": anio.vigente}, {
+            "id": matricula.id, "persona_id": matricula.persona_id,
+            "anio_lectivo_id": matricula.anio_lectivo_id, "seccion": matricula.seccion,
+            "turno": matricula.turno, "becado": matricula.becado, "estado": matricula.estado,
+        }
