@@ -171,19 +171,14 @@ class RepositorioOperacion:
             )
             or 0
         )
-        matriculas = (
+        reservas = (
             self.sesion.scalar(
-                select(func.count(Matricula.id))
-                .join(AnioLectivo)
-                .outerjoin(CuentaTiquete, CuentaTiquete.persona_id == Matricula.persona_id)
+                select(func.count(ReservaComedor.id))
+                .join(Persona, Persona.id == ReservaComedor.persona_id)
                 .where(
-                    AnioLectivo.anio == fecha.year,
-                    Matricula.estado == "activo",
-                    or_(
-                        Matricula.becado.is_(True),
-                        CuentaTiquete.saldo > 0,
-                        CuentaTiquete.reservados > 0,
-                    ),
+                    ReservaComedor.fecha == fecha,
+                    ReservaComedor.estado.in_(("reservada", "consumida")),
+                    Persona.tipo == "estudiante",
                 )
             )
             or 0
@@ -213,7 +208,7 @@ class RepositorioOperacion:
             )
             or 0
         )
-        return int(total), int(matriculas), int(duplicados), int(errores), eventos
+        return int(total), int(reservas), int(duplicados), int(errores), eventos
 
     def movimiento(self, persona_id, tipo, cantidad, saldo, referencia=None):
         self.guardar(

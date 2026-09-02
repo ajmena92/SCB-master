@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AlertTriangle, CheckCircle2, Clock3, ScanBarcode, Users, XCircle } from "lucide-react";
+import { Clock3, ScanBarcode, Users } from "lucide-react";
 import { plataformaApi } from "../consultas/plataforma";
 import { errMsg } from "@/compartido/consultas/errores_api";
 import { fechaLocalActual } from "@/compartido/utilidades/fecha";
@@ -9,28 +9,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import type { ResultadoOperacion } from "@/compartido/contratos/plataforma";
-
-function claseResultado(resultado?: ResultadoOperacion) {
-  if (!resultado) return "border-border bg-card text-foreground";
-  if (resultado.estado === "aceptada" && resultado.advertencia)
-    return "border-amber-300 bg-amber-50 text-amber-950";
-  if (resultado.estado === "aceptada") return "border-success/40 bg-success/10 text-foreground";
-  return "border-destructive/40 bg-destructive/10 text-destructive";
-}
-
-function IconoResultado({ resultado }: { resultado?: ResultadoOperacion }) {
-  if (!resultado) return <ScanBarcode className="h-12 w-12 text-primary" />;
-  if (resultado.estado === "aceptada" && resultado.advertencia)
-    return <AlertTriangle className="h-12 w-12 text-amber-600" />;
-  if (resultado.estado === "aceptada") return <CheckCircle2 className="h-12 w-12 text-success" />;
-  return <XCircle className="h-12 w-12 text-destructive" />;
-}
+import { ExcepcionSinReserva } from "../componentes/ExcepcionSinReserva";
+import { ResultadoLecturaComedor } from "../componentes/ResultadoLecturaComedor";
 
 export default function OperacionComedor() {
   const fecha = fechaLocalActual();
   const clienteConsultas = useQueryClient();
   const entradaRef = useRef<HTMLInputElement>(null);
   const [resultado, setResultado] = useState<ResultadoOperacion>();
+  const [codigoExcepcion, setCodigoExcepcion] = useState("");
   const estado = useQuery({
     queryKey: ["comedor", "operacion", fecha],
     queryFn: () => plataformaApi.comedor.estadoOperacion(fecha),
@@ -38,9 +25,17 @@ export default function OperacionComedor() {
   });
   const ingreso = useMutation({
     mutationFn: plataformaApi.comedor.registrarIngreso,
-    onSuccess: setResultado,
-    onError: (error: { response?: { data?: ResultadoOperacion } }) =>
-      setResultado(error.response?.data ?? { estado: "rechazada", mensaje: errMsg(error) }),
+    onSuccess: (respuesta) => {
+      setResultado(respuesta);
+      setCodigoExcepcion("");
+    },
+    onError: (error: { response?: { data?: ResultadoOperacion } }) => {
+      const respuesta = error.response?.data ?? { estado: "rechazada" as const, mensaje: errMsg(error) };
+      setResultado(respuesta);
+      if (respuesta.resultado === "sin_reserva" && respuesta.persona?.cedula) {
+        setCodigoExcepcion(respuesta.persona.cedula);
+      }
+    },
     onSettled: async () => {
       await clienteConsultas.invalidateQueries({ queryKey: ["comedor", "operacion", fecha] });
       window.setTimeout(() => entradaRef.current?.focus(), 0);
@@ -72,13 +67,11 @@ export default function OperacionComedor() {
     formulario.reset();
   }
 
-  function decidir(evento: FormEvent<HTMLFormElement>) {
-    evento.preventDefault();
-    const datos = new FormData(evento.currentTarget);
+  function decidir(valor: "aprobada" | "rechazada", observacion: string) {
     decision.mutate({
-      codigo: String(datos.get("codigo")),
-      valor: datos.get("decision") === "rechazada" ? "rechazada" : "aprobada",
-      observacion: String(datos.get("observacion")),
+      codigo: codigoExcepcion,
+      valor,
+      observacion,
     });
   }
 
@@ -97,10 +90,27 @@ export default function OperacionComedor() {
         </Badge>
       </div>
 
-      <section className="grid gap-4 sm:grid-cols-4" aria-label="Resumen de la operación">
-        <div className="rounded-xl border bg-card p-4 sm:col-span-2">
+      <section aria-label="Resumen de la operación">
+        <div className="flex items-center justify-between gap-3 rounded-xl border bg-card px-4 py-3 sm:hidden">
+          <div className="min-w-0">
+            <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">Reservas de hoy</p>
+            <p className="font-display text-2xl font-black tabular-nums">
+              {resumen?.ingresos ?? 0} / {resumen?.meta ?? 0}
+            </p>
+          </div>
+          <div className="flex shrink-0 items-center gap-3 text-right text-xs font-bold uppercase tracking-wide text-muted-foreground">
+            <span>
+              Dup. <strong className="ml-1 text-base text-foreground">{resumen?.duplicados ?? 0}</strong>
+            </span>
+            <span>
+              Rech. <strong className="ml-1 text-base text-foreground">{resumen?.errores ?? 0}</strong>
+            </span>
+          </div>
+        </div>
+        <div className="hidden grid-cols-3 gap-3 sm:grid lg:grid-cols-[1.4fr_0.8fr_0.8fr]">
+        <div className="col-span-3 rounded-xl border bg-card p-4 lg:col-span-1">
           <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wide text-muted-foreground">
-            <span>Meta diaria</span>
+            <span>Reservas confirmadas</span>
             <Users className="h-4 w-4 text-primary" />
           </div>
           <p className="mt-2 font-display text-3xl font-black">
@@ -124,6 +134,7 @@ export default function OperacionComedor() {
             Rechazos
           </p>
           <p className="mt-3 font-display text-3xl font-black">{resumen?.errores ?? 0}</p>
+        </div>
         </div>
       </section>
 
@@ -156,35 +167,18 @@ export default function OperacionComedor() {
             </p>
           </form>
 
-          <section
-            aria-live="polite"
-            className={`min-h-52 rounded-2xl border p-6 transition-colors ${claseResultado(resultado)}`}
-          >
-            <div className="flex flex-col items-center text-center sm:flex-row sm:text-left">
-              <IconoResultado resultado={resultado} />
-              <div className="mt-4 min-w-0 sm:ml-5 sm:mt-0">
-                <p className="text-xs font-black uppercase tracking-[0.18em]">
-                  {resultado?.estado === "aceptada"
-                    ? "Ingreso procesado"
-                    : resultado
-                      ? "Acceso no registrado"
-                      : "Lector listo"}
-                </p>
-                <h3 className="mt-1 font-display text-2xl font-black">
-                  {resultado?.persona?.nombres ?? "Esperando una lectura"}
-                </h3>
-                <p className="mt-2 font-semibold">
-                  {resultado?.mensaje ?? "Escaneá el código de barras del carnet digital."}
-                </p>
-                {resultado?.persona && (
-                  <p className="mt-2 text-sm opacity-80">
-                    {resultado.persona.codigo} · {resultado.persona.tipo}
-                    {resultado.saldo !== undefined && ` · Saldo: ${resultado.saldo}`}
-                  </p>
-                )}
-              </div>
-            </div>
-          </section>
+          <ResultadoLecturaComedor resultado={resultado} />
+
+          {resultado?.resultado === "sin_reserva" && (
+            <ExcepcionSinReserva
+              codigo={codigoExcepcion}
+              alCambiarCodigo={setCodigoExcepcion}
+              alDecidir={decidir}
+              pendiente={decision.isPending}
+              error={decision.error}
+              exito={decision.isSuccess}
+            />
+          )}
 
           <section className="overflow-hidden rounded-2xl border bg-card">
             <div className="border-b px-5 py-4">
@@ -215,46 +209,13 @@ export default function OperacionComedor() {
           </section>
         </div>
 
-        <aside className="rounded-2xl border bg-card p-5">
-          <h2 className="font-display text-lg font-bold">Excepción sin reserva</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            La decisión queda asociada al operador y requiere un motivo.
-          </p>
-          <form className="mt-5 space-y-4" onSubmit={decidir}>
-            <label htmlFor="excepcion-codigo" className="block text-sm font-bold">
-              Cédula del estudiante
-              <Input
-                id="excepcion-codigo"
-                name="codigo"
-                className="mt-2"
-                placeholder="Ej. 1-2091-0218"
-                required
-              />
-            </label>
-            <label className="block text-sm font-bold">
-              Decisión
-              <select
-                name="decision"
-                className="mt-2 h-10 w-full rounded-md border bg-background px-3"
-              >
-                <option value="aprobada">Aprobar</option>
-                <option value="rechazada">Rechazar</option>
-              </select>
-            </label>
-            <label className="block text-sm font-bold">
-              Motivo
-              <textarea
-                name="observacion"
-                className="mt-2 min-h-24 w-full rounded-md border bg-background p-3"
-                required
-              />
-            </label>
-            {decision.error && <p className="text-sm text-destructive">{errMsg(decision.error)}</p>}
-            {decision.isSuccess && <p className="text-sm text-success">Decisión guardada.</p>}
-            <Button variant="outline" className="w-full" disabled={decision.isPending}>
-              Guardar decisión
-            </Button>
-          </form>
+        <aside className="hidden xl:block">
+          <div className="rounded-2xl border bg-card p-6 text-sm text-muted-foreground">
+            <p className="font-display text-lg font-bold text-foreground">Operación ágil</p>
+            <p className="mt-2 leading-6">
+              La fotografía y la decisión aparecen al escanear. El lector conserva el foco para la siguiente persona.
+            </p>
+          </div>
         </aside>
       </div>
     </div>
