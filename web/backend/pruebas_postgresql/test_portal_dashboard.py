@@ -30,7 +30,7 @@ def test_dashboard_usa_padron_anual_postgresql(entorno):
     assert len(datos["ultimosCincoDias"]) == 5
 
 
-def test_portal_publica_menu_del_dia_y_carnet(entorno):
+def test_portal_muestra_plantilla_semanal_y_carnet(entorno):
     cliente, _, auth = entorno
     persona, _, matricula = preparar_estudiante(cliente, auth["admin"], "portal-1")
     ruta = cliente.post(
@@ -51,16 +51,23 @@ def test_portal_publica_menu_del_dia_y_carnet(entorno):
         },
     )
     assert asignacion.status_code == 201, asignacion.text
+    fecha = date.today()
+    semana_panea = (fecha.day - 1) // 7 + 1
     plantilla = cliente.post(
         "/api/v1/menu/plantillas",
         headers=auth["admin"],
-        json={"nombre": "Almuerzo tradicional", "componentes": ["Arroz", "Frijoles"]},
+        json={
+            "semana": semana_panea,
+            "dia": fecha.isoweekday(),
+            "titulo": "Almuerzo tradicional",
+            "activo": True,
+            "componentes": [
+                {"nombre": "Arroz", "tipo": "Principal", "orden": 1},
+                {"nombre": "Frijoles", "tipo": "Acompañamiento", "orden": 2},
+            ],
+        },
     ).json()
-    cliente.post(
-        "/api/v1/menu/publicaciones",
-        headers=auth["admin"],
-        json={"plantillaId": plantilla["id"], "fecha": date.today().isoformat()},
-    )
+    assert plantilla["id"] > 0
     portal = _token_portal(cliente, persona["cedula"])
 
     estado = cliente.get("/api/v1/portal/estado", headers=portal)

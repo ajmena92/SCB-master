@@ -160,7 +160,7 @@ def test_beca_es_anual_y_no_consume_saldo(entorno):
     )
 
 
-def test_transporte_es_informativo_y_rechaza_doble_marca(entorno):
+def test_captura_transporte_no_se_publica_hasta_etapa_dos(entorno):
     cliente, _, h = entorno
     persona, _, matricula = preparar_estudiante(cliente, h["admin"])
     ruta = cliente.post(
@@ -177,15 +177,8 @@ def test_transporte_es_informativo_y_rechaza_doble_marca(entorno):
         },
     )
     datos = {"codigo": persona["codigo"], "fecha": "2026-09-05"}
-    assert (
-        cliente.post("/api/v1/transporte/marcas", headers=h["operador"], json=datos).status_code
-        == 201
-    )
-    assert (
-        cliente.post("/api/v1/transporte/marcas", headers=h["operador"], json=datos).status_code
-        == 409
-    )
-    # La marca no autoriza comedor: sigue aplicando la regla de estudiante sin reserva.
+    assert cliente.post("/api/v1/transporte/marcas", headers=h["operador"], json=datos).status_code == 404
+    # Sin captura pública, se conserva la regla de estudiante sin reserva.
     assert (
         cliente.post(
             "/api/v1/comedor/operacion",

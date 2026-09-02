@@ -19,7 +19,6 @@ const navegacion = [
   { ruta: "/admin/panel/personas", titulo: "Personas", icono: Users, admin: true },
   { ruta: "/admin/panel/anios", titulo: "Años e importación", icono: CalendarRange, admin: true },
   { ruta: "/admin/panel/rutas", titulo: "Rutas", icono: Bus, admin: true },
-  { ruta: "/admin/panel/transporte", titulo: "Transporte", icono: Bus },
   { ruta: "/admin/panel/menu", titulo: "Menú", icono: BookOpen, admin: true },
   { ruta: "/admin/panel/tiquetes", titulo: "Tiquetes y ventas", icono: CreditCard },
   { ruta: "/admin/panel/comedor", titulo: "Comedor", icono: Soup },
@@ -41,7 +40,7 @@ export default function AdminShell() {
           <ShieldCheck aria-hidden="true" />
           <div>
             <strong>CTP Platanares</strong>
-            <span>Gestión de comedor y transporte</span>
+            <span>Gestión de comedor</span>
           </div>
         </div>
         <div className="user-box">

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 
 from sqlalchemy import (
     Boolean,
@@ -12,6 +12,7 @@ from sqlalchemy import (
     ForeignKey,
     Index,
     Integer,
+    LargeBinary,
     String,
     UniqueConstraint,
     text,
@@ -24,12 +25,24 @@ from aplicacion.nucleo.modelos_base import BaseDeclarativa
 class Persona(BaseDeclarativa):
     __tablename__ = "persona"
     id: Mapped[int] = mapped_column(primary_key=True)
-    codigo: Mapped[str] = mapped_column(String(10), unique=True, index=True)
+    codigo: Mapped[str] = mapped_column(String(32), unique=True, index=True)
     cedula: Mapped[str | None] = mapped_column(String(32), unique=True, nullable=True)
     nombres: Mapped[str] = mapped_column(String(180))
     tipo: Mapped[str] = mapped_column(String(12))
     activo: Mapped[bool] = mapped_column(Boolean, default=True)
     __table_args__ = (CheckConstraint("tipo IN ('estudiante','profesor')", name="tipo_persona"),)
+
+
+class FotografiaPersona(BaseDeclarativa):
+    """Fotografía privada asociada a una persona del padrón."""
+
+    __tablename__ = "fotografia_persona"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    persona_id: Mapped[int] = mapped_column(
+        ForeignKey("persona.id", ondelete="CASCADE"), unique=True
+    )
+    contenido: Mapped[bytes] = mapped_column(LargeBinary)
+    tipo_contenido: Mapped[str] = mapped_column(String(80))
 
 
 class CredencialPortal(BaseDeclarativa):
@@ -39,6 +52,28 @@ class CredencialPortal(BaseDeclarativa):
     )
     pin_hash: Mapped[str] = mapped_column(String(255))
     cambio_obligatorio: Mapped[bool] = mapped_column(Boolean, default=True)
+
+
+class EventoCredencialPortal(BaseDeclarativa):
+    """Trazabilidad de entregas y reinicios, sin persistir nunca el PIN."""
+
+    __tablename__ = "evento_credencial_portal"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    persona_id: Mapped[int] = mapped_column(ForeignKey("persona.id"), index=True)
+    cuenta_administrativa_id: Mapped[int | None] = mapped_column(
+        ForeignKey("cuenta_administrativa.id"), nullable=True
+    )
+    tipo: Mapped[str] = mapped_column(String(24))
+    creado_en: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
+    )
+    __table_args__ = (
+        CheckConstraint(
+            "tipo IN ('creacion','reinicio_individual','reinicio_masivo')",
+            name="tipo_evento_credencial_portal",
+        ),
+        Index("ix_evento_credencial_portal_persona_fecha", "persona_id", "creado_en"),
+    )
 
 
 class CuentaAdministrativa(BaseDeclarativa):
@@ -134,6 +169,7 @@ class Matricula(BaseDeclarativa):
     estado: Mapped[str] = mapped_column(String(16), default="activo")
     __table_args__ = (
         UniqueConstraint("persona_id", "anio_lectivo_id"),
+        CheckConstraint("turno = 'diurno'", name="turno_matricula_diurno"),
         CheckConstraint(
             "estado IN ('activo','retirado','graduado','trasladado')",
             name="estado_matricula",

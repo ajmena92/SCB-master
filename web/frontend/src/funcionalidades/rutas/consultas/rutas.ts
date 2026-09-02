@@ -94,7 +94,8 @@ export async function actualizarRuta(idRuta: number, datos: RutaParaGuardar): Pr
   });
 }
 
-export async function registrarMarcaTransporte(codigo: string): Promise<string> {
+/** Reserva técnica de la etapa 2; no se monta en la aplicación actual. */
+export async function registrarMarcaTransporteEtapaDos(codigo: string): Promise<string> {
   const { data } = await api.post<{ mensaje?: string }>("/v1/transporte/marcas", {
     codigo,
     fecha: new Date().toISOString().slice(0, 10),

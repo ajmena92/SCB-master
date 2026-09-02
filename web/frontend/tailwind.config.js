@@ -5,13 +5,15 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        display: ["Chivo", "sans-serif"],
-        sans: ["Karla", "sans-serif"],
+        display: ["Segoe UI", "Segoe UI Variable", "system-ui", "sans-serif"],
+        sans: ["Segoe UI", "Segoe UI Variable", "system-ui", "sans-serif"],
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        sm: "0.5rem",
+        md: "0.5rem",
+        lg: "0.75rem",
+        xl: "0.75rem",
+        "2xl": "0.75rem",
       },
       colors: {
         background: "hsl(var(--background))",

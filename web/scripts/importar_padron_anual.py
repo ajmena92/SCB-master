@@ -63,9 +63,6 @@ def normalizar(filas: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], list[
             "fila": fila["fila"], "cedula": cedula, "nombres": nombres, "tipo": tipo,
             "seccion": _texto(fila.get("seccion")) or None,
             "turno": _texto(fila.get("turno")) or None,
-            "becado": _clave(fila.get("becado")) in {"si", "true", "1", "becado"},
-            "ruta": _texto(fila.get("ruta")) or None,
-            "estado": _clave(fila.get("estado")) or "activo",
         })
     return validas, errores
 
@@ -84,14 +81,14 @@ def aplicar(url: str, anio: int, filas: list[dict[str, Any]], semilla: str, sali
                     raise ValueError(f"La fila {fila['fila']} cambia el tipo de una persona existente")
                 persona_id, codigo = existente["id"], existente["codigo"]
                 conexion.execute(text(
-                    "UPDATE persona SET nombres=:nombres,tipo=:tipo,activo=(:estado='activo') WHERE id=:id"
+                    "UPDATE persona SET nombres=:nombres,activo=true WHERE id=:id"
                 ), fila | {"id": persona_id})
                 conteos["personas_actualizadas"] += 1
             else:
                 codigo = _codigo(fila["tipo"], anio * 100_000 + indice, semilla + fila["cedula"])
                 persona_id = conexion.execute(text(
                     """INSERT INTO persona(codigo,cedula,nombres,tipo,activo)
-                    VALUES (:codigo,:cedula,:nombres,:tipo,(:estado='activo')) RETURNING id"""
+                    VALUES (:codigo,:cedula,:nombres,:tipo,true) RETURNING id"""
                 ), fila | {"codigo": codigo}).scalar_one()
                 pin = f"{secrets.randbelow(1_000_000):06d}"
                 conexion.execute(text(
@@ -103,25 +100,19 @@ def aplicar(url: str, anio: int, filas: list[dict[str, Any]], semilla: str, sali
                 continue
             matricula_id = conexion.execute(text(
                 """INSERT INTO matricula(persona_id,anio_lectivo_id,seccion,turno,becado,estado)
-                VALUES (:persona,:anio,:seccion,:turno,:becado,:estado)
+                VALUES (:persona,:anio,:seccion,:turno,false,'activo')
                 ON CONFLICT(persona_id,anio_lectivo_id) DO UPDATE SET seccion=excluded.seccion,
-                turno=excluded.turno,becado=excluded.becado,estado=excluded.estado RETURNING id"""
+                turno=excluded.turno,estado=excluded.estado RETURNING id"""
             ), fila | {"persona": persona_id, "anio": anio_id}).scalar_one()
-            if fila["ruta"]:
-                ruta_id = conexion.execute(text(
-                    """INSERT INTO ruta(nombre,activo) VALUES (:ruta,true)
-                    ON CONFLICT(nombre) DO UPDATE SET activo=true RETURNING id"""
-                ), fila).scalar_one()
-                parametros_ruta = {"matricula": matricula_id, "ruta": ruta_id, "anio": anio}
-                actualizado = conexion.execute(text(
-                    "UPDATE asignacion_ruta SET ruta_id=:ruta WHERE matricula_id=:matricula AND fecha_fin IS NULL"
-                ), parametros_ruta)
-                if actualizado.rowcount == 0:
-                    conexion.execute(text(
-                        """INSERT INTO asignacion_ruta(matricula_id,ruta_id,fecha_inicio,fecha_fin)
-                        VALUES (:matricula,:ruta,make_date(:anio,1,1),NULL)"""
-                    ), parametros_ruta)
             conteos["matriculas"] += 1
+        tipos = sorted({fila["tipo"] for fila in filas})
+        cedulas = [fila["cedula"] for fila in filas]
+        desactivadas = conexion.execute(text(
+            """UPDATE persona SET activo=false
+            WHERE activo=true AND tipo = ANY(CAST(:tipos AS text[]))
+              AND cedula <> ALL(CAST(:cedulas AS text[]))"""
+        ), {"tipos": tipos, "cedulas": cedulas})
+        conteos["personas_desactivadas"] = desactivadas.rowcount
     salida.parent.mkdir(parents=True, exist_ok=True)
     with salida.open("w", encoding="utf-8", newline="") as archivo:
         escritor = csv.writer(archivo); escritor.writerow(["codigo", "cedula", "pin_temporal"]); escritor.writerows(credenciales)

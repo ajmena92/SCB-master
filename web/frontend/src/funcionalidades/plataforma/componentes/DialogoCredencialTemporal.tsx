@@ -9,60 +9,58 @@ import {
 } from "@/components/ui/alert-dialog";
 import type { CredencialTemporal } from "@/compartido/contratos/plataforma";
 
-function descargarCredencial(credencial: CredencialTemporal) {
+function descargarCredenciales(credenciales: CredencialTemporal[]) {
   const escapar = (valor: string) => `"${valor.replaceAll('"', '""')}"`;
   const contenido = [
-    ["Código", "Nombre", "PIN temporal"].map(escapar).join(","),
-    [credencial.codigo, credencial.nombre, credencial.pinTemporal].map(escapar).join(","),
+    ["Cédula", "Nombre", "PIN temporal"].map(escapar).join(","),
+    ...credenciales.map((credencial) =>
+      [credencial.codigo, credencial.nombre, credencial.pinTemporal].map(escapar).join(","),
+    ),
   ].join("\n");
   const url = URL.createObjectURL(
     new Blob([`\ufeff${contenido}`], { type: "text/csv;charset=utf-8" }),
   );
   const enlace = document.createElement("a");
   enlace.href = url;
-  enlace.download = `credencial-${credencial.codigo}.csv`;
+  enlace.download = credenciales.length === 1
+    ? `credencial-${credenciales[0].codigo}.csv`
+    : "credenciales-temporales.csv";
   enlace.click();
   URL.revokeObjectURL(url);
 }
 
 export default function DialogoCredencialTemporal({
-  credencial,
+  credenciales,
   alCerrar,
 }: {
-  credencial?: CredencialTemporal;
+  credenciales?: CredencialTemporal[];
   alCerrar: () => void;
 }) {
   async function copiar() {
-    if (!credencial) return;
+    if (!credenciales?.length) return;
     await navigator.clipboard.writeText(
-      `Código: ${credencial.codigo}\nNombre: ${credencial.nombre}\nPIN temporal: ${credencial.pinTemporal}`,
+      credenciales
+        .map((credencial) => `Cédula: ${credencial.codigo}\nNombre: ${credencial.nombre}\nPIN temporal: ${credencial.pinTemporal}`)
+        .join("\n\n"),
     );
   }
 
   return (
-    <AlertDialog open={Boolean(credencial)}>
+    <AlertDialog open={Boolean(credenciales?.length)}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Credencial temporal creada</AlertDialogTitle>
+          <AlertDialogTitle>{credenciales?.length === 1 ? "Credencial temporal creada" : "Credenciales temporales creadas"}</AlertDialogTitle>
           <AlertDialogDescription>
             Entréguela de forma segura. El PIN no se guardará ni volverá a mostrarse después de
             cerrar este diálogo.
           </AlertDialogDescription>
         </AlertDialogHeader>
-        {credencial && (
+        {credenciales?.length && (
           <dl className="credential-summary">
-            <div>
-              <dt>Persona</dt>
-              <dd>{credencial.nombre}</dd>
-            </div>
-            <div>
-              <dt>Código</dt>
-              <dd>{credencial.codigo}</dd>
-            </div>
-            <div>
-              <dt>PIN temporal</dt>
+            {credenciales.map((credencial) => <div key={credencial.codigo}>
+              <dt>{credencial.nombre} · {credencial.codigo}</dt>
               <dd className="temporary-pin">{credencial.pinTemporal}</dd>
-            </div>
+            </div>)}
           </dl>
         )}
         <AlertDialogFooter>
@@ -72,7 +70,7 @@ export default function DialogoCredencialTemporal({
           <button
             className="button secondary"
             type="button"
-            onClick={() => credencial && descargarCredencial(credencial)}
+            onClick={() => credenciales && descargarCredenciales(credenciales)}
           >
             Descargar CSV
           </button>

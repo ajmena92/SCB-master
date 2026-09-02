@@ -11,9 +11,28 @@ describe("plataformaApi", () => {
 
   it("normaliza respuestas de lista y usa rutas versionadas", async () => {
     vi.mocked(api.get).mockResolvedValueOnce({ data: [{ id: 1, codigo: "E-1" }] });
-    const resultado = await plataformaApi.personas.listar("Ana");
-    expect(api.get).toHaveBeenCalledWith("/v1/personas", { params: { buscar: "Ana" } });
+    const resultado = await plataformaApi.personas.listar({ buscar: "Ana", estado: "activos" });
+    expect(api.get).toHaveBeenCalledWith("/v1/personas", { params: { buscar: "Ana", estado: "activos" } });
     expect(resultado).toEqual({ elementos: [{ id: 1, codigo: "E-1" }], total: 1 });
+  });
+
+  it("consulta el resumen global del padrón y normaliza sus campos", async () => {
+    vi.mocked(api.get).mockResolvedValueOnce({
+      data: {
+        total: 42,
+        estudiantes_activos: 30,
+        profesores_activos: 8,
+        inactivos: 4,
+      },
+    });
+
+    await expect(plataformaApi.personas.resumen()).resolves.toEqual({
+      total: 42,
+      estudiantesActivos: 30,
+      profesoresActivos: 8,
+      inactivos: 4,
+    });
+    expect(api.get).toHaveBeenCalledWith("/v1/personas/resumen");
   });
 
   it("devuelve la credencial temporal creada sin persistirla en el cliente", async () => {
@@ -49,6 +68,7 @@ describe("plataformaApi", () => {
         total: 0,
         altas: 0,
         cambios: 0,
+        desactivaciones: 0,
         errores: [],
         datos: { anio: 2026, filas: [] },
       },
@@ -81,6 +101,21 @@ describe("plataformaApi", () => {
     });
   });
 
+  it("actualiza los beneficios de la matrícula en una sola operación", async () => {
+    vi.mocked(api.put).mockResolvedValueOnce({
+      data: { matricula_id: 7, becado: true, ruta_id: 12 },
+    });
+
+    await expect(
+      plataformaApi.matriculas.actualizarBeneficios(7, { becado: true, rutaId: 12 }),
+    ).resolves.toEqual({ matriculaId: 7, becado: true, rutaId: 12 });
+
+    expect(api.put).toHaveBeenCalledWith("/v1/matriculas/7/beneficios", {
+      becado: true,
+      rutaId: 12,
+    });
+  });
+
   it("normaliza las credenciales devueltas al confirmar una importación", async () => {
     vi.mocked(api.post).mockResolvedValueOnce({
       data: {
@@ -97,7 +132,7 @@ describe("plataformaApi", () => {
     ]);
   });
 
-  it("usa código institucional en ventas y escaneos operativos", async () => {
+  it("usa código institucional en ventas y escaneos de comedor", async () => {
     vi.mocked(api.post).mockResolvedValue({ data: {} });
     await plataformaApi.tiquetes.vender({
       codigo: "E-00000018",
@@ -105,7 +140,6 @@ describe("plataformaApi", () => {
       medioPago: "efectivo",
     });
     await plataformaApi.comedor.registrarIngreso("E-00000018");
-    await plataformaApi.transporte.marcar("E-00000018");
 
     expect(api.post).toHaveBeenNthCalledWith(1, "/v1/tiquetes/ventas", {
       codigo: "E-00000018",
@@ -113,10 +147,6 @@ describe("plataformaApi", () => {
       medioPago: "efectivo",
     });
     expect(api.post).toHaveBeenNthCalledWith(2, "/v1/comedor/operacion", {
-      codigo: "E-00000018",
-      fecha: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
-    });
-    expect(api.post).toHaveBeenNthCalledWith(3, "/v1/transporte/marcas", {
       codigo: "E-00000018",
       fecha: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
     });

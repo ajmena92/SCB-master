@@ -4,15 +4,14 @@ import hashlib
 import io
 import json
 import secrets
-from datetime import date
 from typing import Literal, cast
 
 from fastapi import HTTPException
 
 from aplicacion.esquemas import FilaImportacion, ImportacionEntrada
-from aplicacion.modelos.maestros import AnioLectivo, AsignacionRuta, Matricula, Persona, Ruta
+from aplicacion.modelos.maestros import AnioLectivo, Matricula, Persona
 from aplicacion.modelos.operacion import LoteImportacion
-from aplicacion.seguridad import generar_codigo, hash_secreto
+from aplicacion.seguridad import hash_secreto
 
 
 class ServicioImportacion:
@@ -41,8 +40,6 @@ class ServicioImportacion:
                         nombres=str(fila.get("nombres") or ""),
                         tipo=cast(Literal["estudiante", "profesor"], tipo),
                         seccion=str(fila.get("seccion") or "") or None,
-                        becado=str(fila.get("becado") or "").lower() in {"1", "si", "sí", "true"},
-                        ruta=str(fila.get("ruta") or "") or None,
                     )
                 )
             return ImportacionEntrada(anio=anio, filas=datos)
@@ -58,6 +55,7 @@ class ServicioImportacion:
         errores = []
         cedulas = set()
         altas = cambios = 0
+        tipos = set()
         for indice, fila in enumerate(datos.filas, 1):
             if not fila.cedula:
                 errores.append({"fila": indice, "error": "cedula requerida"})
@@ -66,16 +64,21 @@ class ServicioImportacion:
                 errores.append({"fila": indice, "error": "cedula duplicada"})
                 continue
             cedulas.add(fila.cedula)
+            tipos.add(fila.tipo)
             existente = self.repo.persona_cedula(fila.cedula)
             altas += existente is None
             cambios += existente is not None
+            if existente and existente.tipo != fila.tipo:
+                errores.append({"fila": indice, "error": "el tipo no coincide con la persona existente"})
             if fila.tipo == "estudiante" and not fila.seccion:
                 errores.append({"fila": indice, "error": "seccion requerida"})
+        desactivaciones = len(self.repo.activas_ausentes_del_padron(tipos, cedulas))
         return {
             "huella": self._huella(datos),
             "total": len(datos.filas),
             "altas": altas,
             "cambios": cambios,
+            "desactivaciones": desactivaciones,
             "errores": errores,
             "aplicable": not errores,
         }
@@ -93,11 +96,14 @@ class ServicioImportacion:
             AnioLectivo(anio=datos.anio, vigente=False)
         )
         credenciales = []
+        tipos = {fila.tipo for fila in datos.filas}
+        cedulas = {fila.cedula for fila in datos.filas if fila.cedula}
+        ausentes = self.repo.activas_ausentes_del_padron(tipos, cedulas)
         for fila in datos.filas:
             persona = self.repo.persona_cedula(fila.cedula)
             if not persona:
                 persona = Persona(
-                    codigo=generar_codigo(self.repo.codigo_existe, fila.tipo),
+                    codigo=fila.cedula.strip(),
                     cedula=fila.cedula,
                     nombres=fila.nombres,
                     tipo=fila.tipo,
@@ -113,38 +119,19 @@ class ServicioImportacion:
                     }
                 )
             else:
-                persona.nombres, persona.tipo, persona.activo = fila.nombres, fila.tipo, True
+                persona.nombres, persona.activo = fila.nombres, True
             if fila.tipo != "estudiante":
                 continue
             matricula = self.repo.matricula(persona.id, anio.id) or Matricula(
                 persona_id=persona.id, anio_lectivo_id=anio.id
             )
-            matricula.seccion, matricula.turno, matricula.becado, matricula.estado = (
+            matricula.seccion, matricula.turno, matricula.estado = (
                 fila.seccion or "",
-                "1",
-                fila.becado,
+                "diurno",
                 "activo",
             )
             self.repo.guardar(matricula)
-            if fila.ruta:
-                ruta = self.repo.ruta_nombre(fila.ruta) or self.repo.guardar(
-                    Ruta(
-                        nombre=fila.ruta,
-                        codigo=fila.ruta.split("-", 1)[0].strip(),
-                        descripcion=(
-                            fila.ruta.split("-", 1)[1].strip() if "-" in fila.ruta else fila.ruta
-                        ),
-                        color_hex="#CBD5E1",
-                        activo=True,
-                    )
-                )
-                inicio = date(datos.anio, 1, 1)
-                if not self.repo.asignacion(matricula.id, inicio):
-                    self.repo.guardar(
-                        AsignacionRuta(
-                            matricula_id=matricula.id, ruta_id=ruta.id, fecha_inicio=inicio
-                        )
-                    )
+        self.repo.desactivar_personas(ausentes)
         lote = self.repo.guardar(
             LoteImportacion(huella=huella, estado="confirmado", resumen=json.dumps(resumen))
         )

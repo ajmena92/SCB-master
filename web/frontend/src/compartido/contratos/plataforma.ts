@@ -9,6 +9,15 @@ export interface Persona {
   apellidos?: string;
   tipo: TipoPersona;
   activo: boolean;
+  matriculaId?: number | null;
+  seccion?: string | null;
+  becado?: boolean;
+  beneficioComedor?: "Beneficiario" | "No beneficiario";
+  estadoMatricula?: "activo" | "retirado" | "graduado" | "trasladado" | null;
+  rutaId?: number | null;
+  descripcionRuta?: string | null;
+  beneficioTransporte?: string;
+  saldoTiquetes?: number;
 }
 
 export interface CredencialTemporal {
@@ -19,6 +28,11 @@ export interface CredencialTemporal {
 
 export interface PersonaCreada extends Persona {
   pinTemporal: string;
+}
+
+export interface ResumenPersonas {
+  estudiantesActivos: number;
+  estudiantesInactivos: number;
 }
 
 export interface AnioLectivo {
@@ -34,7 +48,7 @@ export interface Matricula {
   anioLectivoId: number;
   seccion: string;
   becaComedor: boolean;
-  estado: "activo" | "retirado" | "egresado";
+  estado: "activo" | "retirado" | "graduado" | "trasladado";
 }
 
 export interface PlantillaMenu {
@@ -65,6 +79,7 @@ export interface ResumenImportacion {
   filas: number;
   altas: number;
   cambios: number;
+  desactivaciones: number;
   errores: number;
   detalle: Array<{ fila: number; estado: string; mensaje: string }>;
 }

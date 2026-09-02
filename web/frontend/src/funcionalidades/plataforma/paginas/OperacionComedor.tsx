@@ -222,12 +222,12 @@ export default function OperacionComedor() {
           </p>
           <form className="mt-5 space-y-4" onSubmit={decidir}>
             <label htmlFor="excepcion-codigo" className="block text-sm font-bold">
-              Código del estudiante
+              Cédula del estudiante
               <Input
                 id="excepcion-codigo"
                 name="codigo"
                 className="mt-2"
-                placeholder="E-00000000"
+                placeholder="Ej. 1-2091-0218"
                 required
               />
             </label>

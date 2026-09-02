@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { vi } from "vitest";
 
 vi.mock("@/compartido/consultas/cliente_http", () => ({
-  api: { get: vi.fn(), post: vi.fn() },
+  api: { get: vi.fn(), post: vi.fn(), put: vi.fn() },
   errMsg: vi.fn(() => "No fue posible completar la operación."),
 }));
 
@@ -16,6 +16,12 @@ import Plantillas from "./Plantillas";
 import { api } from "@/compartido/consultas/cliente_http";
 
 const obtenerPlantillas = vi.mocked(api.get);
+
+function responderPlantillas(datos: unknown[]) {
+  obtenerPlantillas.mockImplementation(async (ruta: string) => ({
+    data: ruta === "/v1/menu/ciclo" ? { inicioCicloMenu: "2026-08-03" } : datos,
+  }));
+}
 
 async function flushAsyncWork() {
   await act(async () => {
@@ -42,21 +48,18 @@ async function renderTab() {
 describe("plantillas de menú", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    responderPlantillas([]);
   });
 
   it("mantiene contenidos largos dentro de la cuadrícula responsive", async () => {
-    obtenerPlantillas.mockResolvedValueOnce({
-      data: [
+    responderPlantillas([
         {
-          IdMenuPlantilla: 7,
-          SemanaMes: 1,
-          DiaSemana: 2,
-          Titulo: "Pasta corta con vegetales, ensalada y carne de res en salsa de tomate",
-          Activo: true,
-          Componentes: [{ Nombre: "Pasta" }, { Nombre: "Carne" }],
+          id: 7, semana: 1, dia: 2,
+          titulo: "Pasta corta con vegetales, ensalada y carne de res en salsa de tomate",
+          activo: true,
+          componentes: [{ nombre: "Pasta", tipo: "Principal", orden: 1 }, { nombre: "Carne", tipo: "Principal", orden: 2 }],
         },
-      ],
-    });
+    ]);
 
     const { container, root } = await renderTab();
     await act(async () => {
@@ -82,22 +85,16 @@ describe("plantillas de menú", () => {
   });
 
   it("muestra una previsualización breve de los componentes", async () => {
-    obtenerPlantillas.mockResolvedValueOnce({
-      data: [
+    responderPlantillas([
         {
-          IdMenuPlantilla: 8,
-          SemanaMes: 1,
-          DiaSemana: 1,
-          Titulo: "Arroz con pollo",
-          Activo: true,
-          Componentes: [
-            { Nombre: "Arroz", TipoComponente: "Principal", Orden: 1 },
-            { Nombre: "Ensalada", TipoComponente: "Acompañamiento", Orden: 2 },
-            { Nombre: "Fruta", TipoComponente: "Postre", Orden: 3 },
+          id: 8, semana: 1, dia: 1, titulo: "Arroz con pollo", activo: true,
+          componentes: [
+            { nombre: "Arroz", tipo: "Principal", orden: 1 },
+            { nombre: "Ensalada", tipo: "Acompañamiento", orden: 2 },
+            { nombre: "Fruta", tipo: "Postre", orden: 3 },
           ],
         },
-      ],
-    });
+    ]);
 
     const { container, root } = await renderTab();
     await act(async () => {
@@ -115,9 +112,12 @@ describe("plantillas de menú", () => {
   });
 
   it("muestra un error visible y permite reintentar la carga", async () => {
-    obtenerPlantillas
-      .mockRejectedValueOnce(new Error("network"))
-      .mockResolvedValueOnce({ data: [] });
+    let intentosPlantillas = 0;
+    obtenerPlantillas.mockImplementation(async (ruta: string) => {
+      if (ruta === "/v1/menu/ciclo") return { data: { inicioCicloMenu: "2026-08-03" } };
+      if (intentosPlantillas++ === 0) throw new Error("network");
+      return { data: [] };
+    });
 
     const { container, root } = await renderTab();
     expect(container.querySelector('[data-testid="plantillas-error"]')?.textContent).toMatch(
@@ -131,7 +131,9 @@ describe("plantillas de menú", () => {
     });
     await flushAsyncWork();
 
-    expect(obtenerPlantillas).toHaveBeenCalledTimes(2);
+    expect(
+      obtenerPlantillas.mock.calls.filter(([ruta]) => ruta === "/v1/menu/plantillas"),
+    ).toHaveLength(2);
     expect(container.querySelector('[data-testid="plantillas-error"]')).toBeNull();
 
     await act(async () => {
@@ -141,26 +143,14 @@ describe("plantillas de menú", () => {
   });
 
   it("muestra una sola semana activa y cambia de semana sin otra consulta", async () => {
-    obtenerPlantillas.mockResolvedValueOnce({
-      data: [
+    responderPlantillas([
         {
-          IdMenuPlantilla: 1,
-          SemanaMes: 1,
-          DiaSemana: 1,
-          Titulo: "Lunes de la semana 1",
-          Activo: true,
-          Componentes: [],
+          id: 1, semana: 1, dia: 1, titulo: "Lunes de la semana 1", activo: true, componentes: [],
         },
         {
-          IdMenuPlantilla: 2,
-          SemanaMes: 2,
-          DiaSemana: 3,
-          Titulo: "Miércoles de la semana 2",
-          Activo: true,
-          Componentes: [],
+          id: 2, semana: 2, dia: 3, titulo: "Miércoles de la semana 2", activo: true, componentes: [],
         },
-      ],
-    });
+    ]);
 
     const { container, root } = await renderTab();
     await act(async () => {
@@ -179,7 +169,9 @@ describe("plantillas de menú", () => {
 
     expect(container.textContent).toMatch(/Miércoles de la semana 2/);
     expect(container.textContent).not.toMatch(/Lunes de la semana 1/);
-    expect(obtenerPlantillas).toHaveBeenCalledTimes(1);
+    expect(
+      obtenerPlantillas.mock.calls.filter(([ruta]) => ruta === "/v1/menu/plantillas"),
+    ).toHaveLength(1);
 
     await act(async () => {
       root.unmount();

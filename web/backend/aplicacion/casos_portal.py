@@ -11,6 +11,7 @@ class ServicioPortal:
     def carnet(self, persona, fecha: date):
         matricula = self.repo.matricula_fecha(persona.id, fecha)
         ruta = self.repo.ruta_fecha(matricula.id, fecha) if matricula else None
+        fotografia = self.repo.foto_persona(persona.id)
         partes = persona.nombres.split()
         return {
             "tipoPersona": persona.tipo,
@@ -30,25 +31,28 @@ class ServicioPortal:
             "colegio": "Colegio Técnico Profesional de Platanares",
             "barcode": persona.codigo,
             "carne": persona.codigo,
-            "tieneFoto": False,
+            "tieneFoto": fotografia is not None,
             "anioLectivo": fecha.year,
         }
 
+    def foto_carnet(self, persona):
+        return self.repo.foto_persona(persona.id)
+
     def estado(self, persona, fecha: date):
-        publicacion, componentes = self.repo.menu_fecha(fecha)
+        menu, componentes, origen = self.repo.menu_fecha(fecha)
         reserva = self.repo.reserva_fecha(persona.id, fecha)
         ahora = datetime.now(ZoneInfo("America/Costa_Rica"))
         return {
             "menu": (
                 {
-                    "Titulo": publicacion.nombre,
+                    "Titulo": menu.titulo,
                     "Componentes": [
-                        {"Orden": c.orden, "Nombre": c.nombre, "TipoComponente": "Componente"}
+                        {"Orden": c.orden, "Nombre": c.nombre, "TipoComponente": c.tipo}
                         for c in componentes
                     ],
-                    "origen": "publicacion",
+                    "origen": origen,
                 }
-                if publicacion
+                if menu
                 else None
             ),
             "estado": {

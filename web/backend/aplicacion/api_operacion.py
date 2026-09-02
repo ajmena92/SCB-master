@@ -1,4 +1,7 @@
-"""Adaptadores HTTP para comedor, transporte y tiquetes."""
+"""Adaptadores HTTP para comedor y tiquetes.
+
+La captura de transporte queda preservada para la etapa 2, sin endpoint público.
+"""
 
 from datetime import date
 
@@ -8,7 +11,6 @@ from aplicacion.esquemas import (
     AutorizacionEntrada,
     CancelacionReservaEntrada,
     IngresoEntrada,
-    MarcaTransporteEntrada,
     ReservaEntrada,
     TarifaEntrada,
     VentaEntrada,
@@ -83,13 +85,5 @@ def crear_router(obtener_servicio, portal_operativo, exigir_permiso, exigir_algu
         servicio=Depends(obtener_servicio),
     ):
         return servicio.estado_captura(fecha)
-
-    @router.post("/transporte/marcas", status_code=201)
-    async def marcar(
-        datos: MarcaTransporteEntrada,
-        identidad=Depends(exigir_permiso("transporte.operar")),
-        servicio=Depends(obtener_servicio),
-    ):
-        return servicio.marcar_transporte(datos, identidad["cuenta"].id)
 
     return router

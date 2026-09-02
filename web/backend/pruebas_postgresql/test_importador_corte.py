@@ -38,3 +38,31 @@ def test_menu_mayor_al_contrato_se_rechaza_en_simulacion() -> None:
     tipos = {error["tipo"] for error in MODULO.validar([], [], menu)["errores"]}
 
     assert tipos == {"titulo_menu_muy_largo", "componente_menu_muy_largo"}
+
+
+def test_sustituciones_validas_se_pueden_recuperar_en_aislamiento() -> None:
+    sustituciones = [
+        {
+            "Fecha": "2026-09-07",
+            "Titulo": "Arroz con pollo",
+            "Observaciones": "Cambio por disponibilidad.",
+            "Componente": "Ensalada verde",
+            "TipoComponente": "Acompañamiento",
+            "Orden": 1,
+        }
+    ]
+
+    reporte = MODULO.validar_sustituciones(sustituciones)
+
+    assert reporte == {"sustituciones": 1, "componentes_sustitucion": 1, "errores": []}
+
+
+def test_sustituciones_con_orden_repetido_se_rechazan() -> None:
+    sustituciones = [
+        {"Fecha": "2026-09-07", "Titulo": "Cambio", "Componente": "A", "Orden": 1},
+        {"Fecha": "2026-09-07", "Titulo": "Cambio", "Componente": "B", "Orden": 1},
+    ]
+
+    tipos = {error["tipo"] for error in MODULO.validar_sustituciones(sustituciones)["errores"]}
+
+    assert tipos == {"orden_componente_sustitucion_duplicado"}

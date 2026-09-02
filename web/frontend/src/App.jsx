@@ -27,11 +27,15 @@ const CambioContrasenaAdministrativa = lazy(
 const PersonasMatriculas = lazy(
   () => import("@/funcionalidades/plataforma/paginas/PersonasMatriculas"),
 );
+const EditarEstudiante = lazy(
+  () => import("@/funcionalidades/plataforma/paginas/EditarEstudiante"),
+);
 const AniosImportacion = lazy(
   () => import("@/funcionalidades/plataforma/paginas/AniosImportacion"),
 );
 const Rutas = lazy(() => import("@/funcionalidades/rutas/paginas/Rutas"));
 const PlantillasMenu = lazy(() => import("@/funcionalidades/menu/paginas/Plantillas"));
+const CalendarioMenu = lazy(() => import("@/funcionalidades/menu/paginas/CalendarioMenu"));
 const TarifasVentas = lazy(() => import("@/funcionalidades/plataforma/paginas/TarifasVentas"));
 const OperacionComedor = lazy(
   () => import("@/funcionalidades/plataforma/paginas/OperacionComedor"),
@@ -149,6 +153,14 @@ export default function App() {
                 }
               />
               <Route
+                path="estudiantes/:id"
+                element={
+                  <RutaRol permisos={["personas.administrar"]}>
+                    <EditarEstudiante />
+                  </RutaRol>
+                }
+              />
+              <Route
                 path="anios"
                 element={
                   <RutaRol permisos={["importaciones.administrar"]}>
@@ -157,19 +169,26 @@ export default function App() {
                 }
               />
               <Route
-                path="rutas"
-                element={
-                  <RutaRol permisos={["transporte.operar", "rutas.administrar"]}>
+              path="rutas"
+              element={
+                  <RutaRol permisos={["rutas.administrar"]}>
                     <Rutas />
                   </RutaRol>
                 }
               />
-              <Route path="transporte" element={<Navigate to="../rutas" replace />} />
               <Route
-                path="menu"
+              path="menu"
                 element={
                   <RutaRol permisos={["menu.administrar"]}>
                     <PlantillasMenu />
+                  </RutaRol>
+              }
+            />
+              <Route
+                path="calendario-menu"
+                element={
+                  <RutaRol permisos={["menu.administrar"]}>
+                    <CalendarioMenu />
                   </RutaRol>
                 }
               />
