@@ -103,8 +103,7 @@ class ServicioImportacion:
             persona = self.repo.persona_cedula(fila.cedula)
             if not persona:
                 persona = Persona(
-                    codigo=fila.cedula.strip(),
-                    cedula=fila.cedula,
+                    cedula=fila.cedula.strip(),
                     nombres=fila.nombres,
                     tipo=fila.tipo,
                     activo=True,
@@ -113,7 +112,7 @@ class ServicioImportacion:
                 self.repo.guardar_persona_nueva(persona, hash_secreto(pin_temporal))
                 credenciales.append(
                     {
-                        "codigo": persona.codigo,
+                        "cedula": persona.cedula,
                         "nombre": persona.nombres,
                         "pinTemporal": pin_temporal,
                     }

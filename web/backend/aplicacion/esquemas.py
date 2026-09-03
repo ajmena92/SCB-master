@@ -32,7 +32,7 @@ class PersonaEntrada(Contrato):
 
 class PersonaSalida(Contrato):
     id: int
-    codigo: str
+    referencia_publica: str
     cedula: str | None
     nombres: str
     tipo: str
@@ -67,7 +67,7 @@ class CambioRutaMatriculaEntrada(Contrato):
 
 class PinTemporalSalida(Contrato):
     persona_id: int
-    codigo: str
+    cedula: str
     nombre: str
     pin_temporal: str
 
@@ -154,35 +154,49 @@ class TarifaEntrada(Contrato):
 
 
 class VentaEntrada(Contrato):
-    codigo: str
+    cedula: str
     cantidad: int = Field(gt=0)
     medio_pago: str = "efectivo"
 
 
+class HorarioReservaEntrada(Contrato):
+    turno: str = Field(min_length=1, max_length=24)
+    hora_limite: str = Field(pattern=r"^([01]\d|2[0-3]):[0-5]\d$")
+
+
+class ConfiguracionInstitucionalEntrada(Contrato):
+    nombre_colegio: str = Field(min_length=2, max_length=180)
+    subtitulo_reportes: str = Field(min_length=2, max_length=220)
+
+
+class ConfiguracionInstitucionalSalida(ConfiguracionInstitucionalEntrada):
+    pass
+
+
 class ReservaEntrada(Contrato):
-    codigo: str | None = None
+    cedula: str | None = None
     fecha: date
 
 
 class CancelacionReservaEntrada(Contrato):
-    codigo: str | None = None
+    cedula: str | None = None
     fecha: date
 
 
 class AutorizacionEntrada(Contrato):
-    codigo: str
+    cedula: str
     fecha: date
     decision: Literal["aprobada", "rechazada"]
     motivo: str | None = None
 
 
 class IngresoEntrada(Contrato):
-    codigo: str
+    cedula: str
     fecha: date
 
 
 class MarcaTransporteEntrada(Contrato):
-    codigo: str
+    cedula: str
     fecha: date
 
 
@@ -253,7 +267,7 @@ class VinculacionCuentaEntrada(Contrato):
 
 class CambioContrasenaAdministrativaEntrada(Contrato):
     contrasena_actual: str
-    contrasena_nueva: str = Field(min_length=12, max_length=128)
+    contrasena_nueva: str = Field(min_length=10, max_length=128)
 
 
 class SesionSalida(Contrato):

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import secrets
 from datetime import date, datetime, timezone
 
 from sqlalchemy import (
@@ -25,7 +26,9 @@ from aplicacion.nucleo.modelos_base import BaseDeclarativa
 class Persona(BaseDeclarativa):
     __tablename__ = "persona"
     id: Mapped[int] = mapped_column(primary_key=True)
-    codigo: Mapped[str] = mapped_column(String(32), unique=True, index=True)
+    referencia_publica: Mapped[str] = mapped_column(
+        String(32), unique=True, index=True, default=lambda: secrets.token_urlsafe(16)
+    )
     cedula: Mapped[str | None] = mapped_column(String(32), unique=True, nullable=True)
     nombres: Mapped[str] = mapped_column(String(180))
     tipo: Mapped[str] = mapped_column(String(12))
@@ -210,3 +213,10 @@ class HorarioReserva(BaseDeclarativa):
     __tablename__ = "horario_reserva"
     turno: Mapped[str] = mapped_column(String(24), primary_key=True)
     hora_limite: Mapped[str] = mapped_column(String(5))
+
+
+class ConfiguracionInstitucional(BaseDeclarativa):
+    __tablename__ = "configuracion_institucional"
+    id: Mapped[int] = mapped_column(primary_key=True, default=1)
+    nombre_colegio: Mapped[str] = mapped_column(String(180))
+    subtitulo_reportes: Mapped[str] = mapped_column(String(220))

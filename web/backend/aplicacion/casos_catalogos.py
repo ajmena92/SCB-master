@@ -37,6 +37,12 @@ class ServicioCatalogos:
             raise HTTPException(404, "Persona no encontrada")
         return persona
 
+    def obtener_persona_referencia_publica(self, referencia_publica: str):
+        persona = self.repo.persona_referencia_publica(referencia_publica)
+        if persona is None:
+            raise HTTPException(404, "Persona no encontrada")
+        return self.repo.obtener_persona_resumen(persona.id)
+
     def listar_anios(self):
         return self.repo.listar_anios()
 
@@ -44,6 +50,11 @@ class ServicioCatalogos:
         if not self.repo.anio(anio_id):
             raise HTTPException(404, "Año lectivo no encontrado")
         return {"elementos": self.repo.secciones_anio(anio_id)}
+
+    def resumen_pines_seccion(self, anio_id: int, seccion: str):
+        if not self.repo.anio(anio_id):
+            raise HTTPException(404, "Año lectivo no encontrado")
+        return {"estudiantesActivos": len(self.repo.estudiantes_seccion(anio_id, seccion.strip()))}
 
     def listar_matriculas(self, anio_id=None):
         return self.repo.listar_matriculas(anio_id)
@@ -158,7 +169,7 @@ class ServicioCatalogos:
             raise HTTPException(404, "Persona activa no encontrada")
         pin = f"{secrets.randbelow(1_000_000):06d}"
         self.repo.reiniciar_pin(persona, hash_secreto(pin), cuenta_id, tipo)
-        return {"personaId": persona.id, "codigo": persona.codigo, "nombre": persona.nombres, "pinTemporal": pin}
+        return {"personaId": persona.id, "cedula": persona.cedula, "nombre": persona.nombres, "pinTemporal": pin}
 
     def reiniciar_pines_seccion(self, datos, cuenta_id):
         estudiantes = self.repo.estudiantes_seccion(datos.anio_lectivo_id, datos.seccion.strip())

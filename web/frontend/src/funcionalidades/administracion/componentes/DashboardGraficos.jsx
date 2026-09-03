@@ -16,10 +16,11 @@ export function MetricCard({ label, value, detail, icon: Icon }) {
   );
 }
 
-export function GroupChart({ title, data = [], stacked = false }) {
+export function GroupChart({ title, description, data = [], stacked = false }) {
   return (
     <div className="rounded-xl border bg-card p-4">
       <h3 className="mb-4 font-display text-sm font-bold uppercase tracking-wide">{title}</h3>
+      {description && <p className="-mt-2 mb-4 text-xs leading-relaxed text-muted-foreground">{description}</p>}
       {data.length === 0 ? (
         <p className="py-8 text-center text-sm text-muted-foreground">Sin datos</p>
       ) : (

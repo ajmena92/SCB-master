@@ -11,6 +11,8 @@ from aplicacion.modelos.maestros import (
     HorarioReserva,
     Matricula,
     Persona,
+    FotografiaPersona,
+    ConfiguracionInstitucional,
 )
 from aplicacion.modelos.operacion import (
     AutorizacionComedor,
@@ -31,10 +33,14 @@ class RepositorioOperacion:
     def listar_tarifas(self):
         return self.sesion.scalars(select(Tarifa).order_by(Tarifa.fecha_inicio.desc())).all()
 
-    def tarifa_solapada(self, datos):
+    def tarifa_solapada(self, datos, excluir_id=None):
         return (
             self.sesion.scalar(
                 select(Tarifa.id).where(
+                    Tarifa.tipo_persona == datos.tipo_persona,
+                    Tarifa.fecha_inicio <= (datos.fecha_fin or date.max),
+                    or_(Tarifa.fecha_fin.is_(None), Tarifa.fecha_fin >= datos.fecha_inicio),
+                ).where(Tarifa.id != excluir_id) if excluir_id else select(Tarifa.id).where(
                     Tarifa.tipo_persona == datos.tipo_persona,
                     Tarifa.fecha_inicio <= (datos.fecha_fin or date.max),
                     or_(Tarifa.fecha_fin.is_(None), Tarifa.fecha_fin >= datos.fecha_inicio),
@@ -42,6 +48,9 @@ class RepositorioOperacion:
             )
             is not None
         )
+
+    def tarifa(self, tarifa_id):
+        return self.sesion.get(Tarifa, tarifa_id)
 
     def tarifa_vigente(self, tipo, fecha):
         return self.sesion.scalar(
@@ -57,10 +66,51 @@ class RepositorioOperacion:
     def persona(self, persona_id):
         return self.sesion.get(Persona, persona_id)
 
-    def persona_codigo(self, codigo):
+    def persona_cedula(self, cedula):
         return self.sesion.scalar(
-            select(Persona).where(Persona.codigo == codigo, Persona.activo.is_(True))
+            select(Persona).where(
+                Persona.cedula == cedula, Persona.activo.is_(True)
+            )
         )
+
+    def buscar_personas_venta(self, termino):
+        patron = f"%{' '.join(termino.split())}%"
+        return self.sesion.scalars(
+            select(Persona)
+            .where(
+                Persona.activo.is_(True),
+                or_(Persona.cedula.ilike(patron), Persona.nombres.ilike(patron)),
+            )
+            .order_by(Persona.nombres, Persona.id)
+            .limit(8)
+        ).all()
+
+    def foto_persona(self, persona_id):
+        return self.sesion.scalar(select(FotografiaPersona).where(FotografiaPersona.persona_id == persona_id))
+
+    def listar_horarios_reserva(self):
+        return self.sesion.scalars(select(HorarioReserva).order_by(HorarioReserva.turno)).all()
+
+    def actualizar_horario_reserva(self, turno, hora_limite):
+        horario = self.sesion.get(HorarioReserva, turno)
+        if not horario:
+            return None
+        horario.hora_limite = hora_limite
+        self.sesion.flush()
+        return horario
+
+    def configuracion_institucional(self):
+        return self.sesion.get(ConfiguracionInstitucional, 1)
+
+    def guardar_configuracion_institucional(self, datos):
+        configuracion = self.configuracion_institucional()
+        if not configuracion:
+            configuracion = ConfiguracionInstitucional(id=1, **datos.model_dump())
+            return self.guardar(configuracion)
+        configuracion.nombre_colegio = datos.nombre_colegio.strip()
+        configuracion.subtitulo_reportes = datos.subtitulo_reportes.strip()
+        self.sesion.flush()
+        return configuracion
 
     def matricula(self, matricula_id):
         return self.sesion.get(Matricula, matricula_id)

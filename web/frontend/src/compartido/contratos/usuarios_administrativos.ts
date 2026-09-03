@@ -2,7 +2,6 @@ export type RolAdministrativo = "administrador" | "operador";
 
 export interface PersonaCuentaAdministrativa {
   id: number;
-  codigo: string;
   cedula: string;
   nombres: string;
 }
@@ -20,7 +19,6 @@ export interface CuentaAdministrativa {
 
 export interface ProfesorDisponible {
   id: number;
-  codigo: string;
   cedula: string;
   nombres: string;
 }

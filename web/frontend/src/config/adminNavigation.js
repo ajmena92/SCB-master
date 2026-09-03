@@ -4,6 +4,7 @@ import {
   KeyRound,
   LayoutDashboard,
   Route,
+  Settings,
   Ticket,
   UtensilsCrossed,
   Users,
@@ -96,6 +97,15 @@ export const ADMIN_NAVIGATION = [
     path: "/admin/panel/anios",
     requiredPermissions: ["importaciones.administrar"],
     icon: FileSpreadsheet,
+  },
+  {
+    id: "parametros",
+    label: "Parámetros",
+    shortLabel: "Parámetros",
+    group: "administracion",
+    path: "/admin/panel/parametros",
+    requiredPermissions: ["tarifas.administrar"],
+    icon: Settings,
   },
   {
     id: "usuarios",

@@ -35,7 +35,7 @@ run_remote() {
 
 sync_directory() {
     local directory="$1"
-    local options=(-az --exclude '__pycache__/' --exclude '*.pyc' --exclude 'node_modules/' --exclude 'build/')
+    local options=(-az --delete --exclude '__pycache__/' --exclude '*.pyc' --exclude 'node_modules/' --exclude 'build/')
     if "$dry_run"; then
         options+=(--dry-run)
     fi
@@ -43,7 +43,7 @@ sync_directory() {
 }
 
 sync_ops_directory() {
-    local options=(-az --exclude '.env' --exclude '.env.local')
+    local options=(-az --delete --exclude '.env' --exclude '.env.local' --exclude 'secrets/' --exclude 'importaciones/')
     if "$dry_run"; then
         options+=(--dry-run)
     fi
@@ -77,11 +77,14 @@ fi
 deploy_log="/tmp/scsc-deploy-${component}.log"
 remote_deploy="set -euo pipefail
 cd $(printf '%q' "$remote_dir")
-if ! $compose up -d --build $services > $(printf '%q' "$deploy_log") 2>&1; then
+if [[ -f ops/compose.production.server.yml ]]; then
+    compose=\"\$compose -f ops/compose.production.server.yml\"
+fi
+if ! \$compose up -d --build $services > $(printf '%q' "$deploy_log") 2>&1; then
     tail -n 120 $(printf '%q' "$deploy_log")
     exit 1
 fi
-$compose ps $services
+\$compose ps $services
 rm -f $(printf '%q' "$deploy_log")"
 run_remote "$remote_deploy"
 

@@ -1,8 +1,15 @@
 import { useEffect, useState } from "react";
-import { IdCard } from "lucide-react";
+import { Expand, IdCard, ScanLine } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { api } from "@/compartido/consultas/cliente_http";
-import { CodigoBarras } from "./CodigoBarras";
+import { CodigoQrCarnet } from "./CodigoQrCarnet";
 import {
   LOGO_COLEGIO,
   NOMBRE_COLEGIO,
@@ -24,9 +31,9 @@ export function TarjetaCarnet({
   tipoPersona?: "estudiante" | "profesor";
 }) {
   const [fotoUrl, setFotoUrl] = useState<string>();
+  const [qrAbierto, setQrAbierto] = useState(false);
   const colorRuta = obtenerColorRutaSeguro(datosCarnet.rutaColor);
   const nombre = obtenerNombreCompleto(datosCarnet);
-  const codigo = datosCarnet.barcode || datosCarnet.carne;
   const fotoDisponible = tieneFoto ?? Boolean(datosCarnet.tieneFoto);
 
   useEffect(() => {
@@ -136,19 +143,49 @@ export function TarjetaCarnet({
             </div>
           )}
         </div>
-        <div
-          className="rounded-2xl bg-primary/5 p-4 text-secondary"
-          data-testid="student-card-barcode"
+        <button
+          type="button"
+          onClick={() => setQrAbierto(true)}
+          className="group relative block w-full overflow-hidden rounded-[1.5rem] border border-primary/15 bg-primary/5 p-4 text-secondary transition-[transform,background-color,border-color] duration-200 hover:-translate-y-0.5 hover:border-primary/35 hover:bg-primary/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+          aria-label="Ampliar QR del carnet"
+          aria-haspopup="dialog"
+          data-testid="student-card-qr"
         >
-          <CodigoBarras valor={codigo} />
-        </div>
+          <span className="absolute right-3 top-3 grid h-10 w-10 place-items-center rounded-full bg-background/90 text-primary shadow-sm transition-transform duration-200 group-hover:scale-105" aria-hidden="true">
+            <Expand className="h-4 w-4" />
+          </span>
+          <span className="mb-3 flex items-center gap-2 text-left text-[0.65rem] font-black uppercase tracking-[0.16em] text-primary">
+            <ScanLine className="h-4 w-4" aria-hidden="true" /> Listo para escanear
+          </span>
+          <span className="block rounded-xl bg-background p-3 shadow-sm">
+            <CodigoQrCarnet valor={datosCarnet.codigoQr} />
+          </span>
+          <span className="mt-3 block text-center text-xs font-semibold text-muted-foreground">
+            Tocá para ampliar
+          </span>
+        </button>
         {tipoPersona === "estudiante" && datosCarnet.beneficioComedor && (
           <Badge variant="secondary">{datosCarnet.beneficioComedor}</Badge>
         )}
         <p className="text-center text-xs font-semibold text-muted-foreground">
-          Presentá este código ante el lector del comedor.
+          Presentá este QR ante el lector del comedor.
         </p>
       </div>
+      <Dialog open={qrAbierto} onOpenChange={setQrAbierto}>
+        <DialogContent className="max-w-md p-5 sm:p-7">
+          <DialogHeader>
+            <DialogTitle className="font-display text-xl font-black">QR del carnet</DialogTitle>
+            <DialogDescription>
+              Presentalo completo y con buen brillo ante el lector del comedor.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="rounded-[1.75rem] border border-primary/15 bg-primary/5 p-4 text-secondary sm:p-6">
+            <div className="rounded-2xl bg-background p-3 shadow-sm sm:p-5">
+              <CodigoQrCarnet valor={datosCarnet.codigoQr} tamano={320} />
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

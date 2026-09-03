@@ -16,6 +16,42 @@ web/ops/.env
 web/ops/.env.local
 web/ops/importaciones/
 
+# Python caches, test results and local quality-tool artifacts for the active web backend.
+web/backend/**/__pycache__/
+web/backend/**/*.py[cod]
+web/backend/.pytest_cache/
+web/backend/.mypy_cache/
+web/backend/.ruff_cache/
+web/backend/.hypothesis/
+web/backend/.tox/
+web/backend/.nox/
+web/backend/.coverage
+web/backend/coverage.xml
+web/backend/htmlcov/
+
+# Locally generated operations data; deployment configuration and examples remain tracked.
+web/ops/backups/
+web/ops/postgres_data/
+web/ops/tmp/
+
+# Local credentials and certificates. Store the corresponding public setup in
+# documentation or an example file, never the private material itself.
+.envrc
+.direnv/
+*.key
+*.pem
+*.p12
+
+# Local Python environments for the active backend.
+web/backend/.venv/
+web/backend/venv/
+
+# Personal editor settings and operating-system metadata.
+.fleet/
+.vscode/*.local
+Thumbs.db
+Desktop.ini
+
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
@@ -360,3 +396,7 @@ web/frontend/node_modules-deps
 /web/frontend/node_modules-deps
 /web/frontend/playwright-report/
 /web/frontend/test-results/
+/.playwright-cli
+/web/.playwright-cli
+/web/backend/.venv-pruebas
+/output

@@ -5,7 +5,7 @@ La captura de transporte queda preservada para la etapa 2, sin endpoint público
 
 from datetime import date
 
-from fastapi import APIRouter, Depends, Response
+from fastapi import APIRouter, Depends, HTTPException, Response
 
 from aplicacion.esquemas import (
     AutorizacionEntrada,
@@ -14,6 +14,8 @@ from aplicacion.esquemas import (
     ReservaEntrada,
     TarifaEntrada,
     VentaEntrada,
+    HorarioReservaEntrada,
+    ConfiguracionInstitucionalEntrada,
 )
 
 
@@ -34,6 +36,49 @@ def crear_router(obtener_servicio, portal_operativo, exigir_permiso, exigir_algu
     )
     async def tarifa(datos: TarifaEntrada, servicio=Depends(obtener_servicio)):
         return servicio.crear_tarifa(datos)
+
+    @router.put("/tiquetes/tarifas/{tarifa_id}", dependencies=[Depends(exigir_permiso("tarifas.administrar"))])
+    async def actualizar_tarifa(tarifa_id: int, datos: TarifaEntrada, servicio=Depends(obtener_servicio)):
+        return servicio.actualizar_tarifa(tarifa_id, datos)
+
+    @router.get("/tiquetes/personas", dependencies=[Depends(exigir_permiso("tiquetes.operar"))])
+    async def buscar_personas_venta(buscar: str, servicio=Depends(obtener_servicio)):
+        return servicio.buscar_personas_venta(buscar)
+
+    @router.get("/tiquetes/personas/{persona_id}/foto", dependencies=[Depends(exigir_permiso("tiquetes.operar"))])
+    async def foto_persona_venta(persona_id: int, servicio=Depends(obtener_servicio)):
+        foto = servicio.foto_persona_venta(persona_id)
+        if foto is None:
+            return Response(status_code=404)
+        return Response(content=foto.contenido, media_type=foto.tipo_contenido)
+
+    @router.get(
+        "/comedor/personas/{persona_id}/foto",
+        dependencies=[Depends(exigir_permiso("comedor.operar"))],
+    )
+    async def foto_persona_comedor(persona_id: int, servicio=Depends(obtener_servicio)):
+        foto = servicio.foto_persona_comedor(persona_id)
+        if foto is None:
+            return Response(status_code=404)
+        return Response(content=foto.contenido, media_type=foto.tipo_contenido)
+
+    @router.get("/parametros-operativos/horarios-reserva", dependencies=[Depends(exigir_permiso("tarifas.administrar"))])
+    async def horarios_reserva(servicio=Depends(obtener_servicio)):
+        return servicio.listar_horarios_reserva()
+
+    @router.put("/parametros-operativos/horarios-reserva/{turno}", dependencies=[Depends(exigir_permiso("tarifas.administrar"))])
+    async def horario_reserva(turno: str, datos: HorarioReservaEntrada, servicio=Depends(obtener_servicio)):
+        if turno != datos.turno:
+            raise HTTPException(422, "El turno de la ruta no coincide con el cuerpo")
+        return servicio.actualizar_horario_reserva(datos)
+
+    @router.get("/parametros-operativos/institucion", dependencies=[Depends(exigir_permiso("tarifas.administrar"))])
+    async def institucion(servicio=Depends(obtener_servicio)):
+        return servicio.configuracion_institucional()
+
+    @router.put("/parametros-operativos/institucion", dependencies=[Depends(exigir_permiso("tarifas.administrar"))])
+    async def actualizar_institucion(datos: ConfiguracionInstitucionalEntrada, servicio=Depends(obtener_servicio)):
+        return servicio.actualizar_configuracion_institucional(datos)
 
     @router.post("/tiquetes/ventas", status_code=201)
     async def venta(

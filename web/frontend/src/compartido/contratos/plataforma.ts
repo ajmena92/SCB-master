@@ -3,7 +3,7 @@ export type TipoPersona = "estudiante" | "profesor";
 
 export interface Persona {
   id: number;
-  codigo: string;
+  referenciaPublica: string;
   cedula: string | null;
   nombres: string;
   apellidos?: string;
@@ -21,7 +21,7 @@ export interface Persona {
 }
 
 export interface CredencialTemporal {
-  codigo: string;
+  cedula: string;
   nombre: string;
   pinTemporal: string;
 }

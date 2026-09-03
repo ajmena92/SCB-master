@@ -24,8 +24,8 @@ def main() -> None:
     if not url.startswith(("postgresql://", "postgresql+psycopg://")):
         raise SystemExit("DATABASE_URL PostgreSQL es requerida")
     contrasena = Path(args.contrasena_file).read_text(encoding="utf-8").strip()
-    if len(contrasena) < 12:
-        raise SystemExit("La contraseña debe tener al menos 12 caracteres")
+    if len(contrasena) < 10:
+        raise SystemExit("La contraseña debe tener al menos 10 caracteres")
     usuario = args.usuario.strip().lower()
     with Session(crear_motor(url)) as sesion, sesion.begin():
         cuenta = sesion.scalar(

@@ -96,6 +96,7 @@ class ReservaComedor(BaseDeclarativa):
     fecha: Mapped[date] = mapped_column(Date)
     estado: Mapped[str] = mapped_column(String(16), default="reservada")
     tiquete_inmovilizado: Mapped[bool] = mapped_column(Boolean, default=False)
+    sin_tiquete: Mapped[bool] = mapped_column(Boolean, default=False)
     __table_args__ = (
         UniqueConstraint("persona_id", "fecha"),
         CheckConstraint(
@@ -208,4 +209,28 @@ class LoteImportacion(BaseDeclarativa):
             name="estado_lote_importacion",
         ),
         Index("ix_lote_importacion_creado_en", "creado_en"),
+    )
+
+
+class IndicadorAnaliticoComedor(BaseDeclarativa):
+    """Resultado diario de pandas; es una señal para revisión, no una decisión."""
+
+    __tablename__ = "indicador_analitico_comedor"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    persona_id: Mapped[int] = mapped_column(ForeignKey("persona.id"), index=True)
+    fecha_corte: Mapped[date] = mapped_column(Date, index=True)
+    dias_observados: Mapped[int] = mapped_column(Integer)
+    dias_presentes: Mapped[int] = mapped_column(Integer)
+    porcentaje_asistencia: Mapped[float] = mapped_column(Numeric(5, 2))
+    consumos_comedor: Mapped[int] = mapped_column(Integer, default=0)
+    consumos_tiquete: Mapped[int] = mapped_column(Integer, default=0)
+    senal: Mapped[str] = mapped_column(String(64))
+    generado_en: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
+    )
+    __table_args__ = (
+        UniqueConstraint("persona_id", "fecha_corte"),
+        CheckConstraint("dias_observados >= 0 AND dias_presentes >= 0", name="conteos_indicador_no_negativos"),
+        CheckConstraint("porcentaje_asistencia >= 0 AND porcentaje_asistencia <= 100", name="porcentaje_indicador_valido"),
+        Index("ix_indicador_analitico_corte_senal", "fecha_corte", "senal"),
     )

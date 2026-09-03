@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import { plataformaApi } from "../consultas/plataforma";
 import { useAutenticacion } from "@/aplicacion/estado/ContextoAutenticacion";
 import { Aviso } from "../componentes/ElementosComunes";
@@ -8,10 +9,14 @@ import type { AutenticacionPlataforma } from "../seguridad";
 export default function PortalPersona() {
   const { session, logout } = useAutenticacion() as unknown as AutenticacionPlataforma;
   const cliente = useQueryClient();
+  const [confirmacionSinTiquete, setConfirmacionSinTiquete] = useState(false);
   const menu = useQuery({ queryKey: ["menu-hoy"], queryFn: plataformaApi.menu.hoy });
   const reservar = useMutation({
     mutationFn: () => plataformaApi.comedor.reservar(new Date().toISOString().slice(0, 10)),
-    onSuccess: () => cliente.invalidateQueries(),
+    onSuccess: (respuesta) => {
+      setConfirmacionSinTiquete(Boolean(respuesta.data?.sin_tiquete));
+      return cliente.invalidateQueries();
+    },
   });
   const usuario = session && typeof session.usuario === "object" ? session.usuario : undefined;
   return (
@@ -39,7 +44,9 @@ export default function PortalPersona() {
       )}
       {reservar.isSuccess && (
         <Aviso tipo="exito">
-          Reserva registrada. Su tiquete quedó inmovilizado cuando corresponde.
+          {confirmacionSinTiquete
+            ? "Asistencia confirmada. No tenés tiquetes disponibles; consultá al operador al ingresar al comedor."
+            : "Asistencia confirmada. Su tiquete quedó inmovilizado cuando corresponde."}
         </Aviso>
       )}
       <button

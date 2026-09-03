@@ -123,12 +123,8 @@ export default function RutasTab() {
     <section className="space-y-6" aria-labelledby="rutas-title">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-xs uppercase tracking-[0.2em] font-bold text-primary">
-            Catálogo operativo
-          </p>
-          <h2 id="rutas-title" className="font-display text-2xl font-bold tracking-tight">
-            Rutas
-          </h2>
+          <p className="text-xs uppercase tracking-[0.16em] font-semibold text-primary">Catálogo operativo</p>
+          <h2 id="rutas-title" className="font-display text-xl font-semibold tracking-tight">Rutas de transporte</h2>
           <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
             Administrá la nomenclatura MEP, la descripción y el color usado en el carné digital.
           </p>
@@ -161,6 +157,10 @@ export default function RutasTab() {
           {visible.length} rutas
         </span>
       </div>
+      <aside className="flex flex-wrap items-center gap-2 rounded-xl border border-blue-100 bg-blue-50/60 px-4 py-3 text-xs text-slate-600" aria-label="Guía de colores TE-01">
+        <strong className="mr-1 text-slate-800">Guía TE-01</strong>
+        {data.palette.map((color) => <span key={color.clave} className="inline-flex items-center gap-1.5"><i className="h-3.5 w-3.5 rounded-full border border-slate-300" style={{ backgroundColor: color.hex }} />{color.nombre}</span>)}
+      </aside>
       {loading ? (
         <Skeleton className="h-64 w-full rounded-2xl" data-testid="rutas-loading" />
       ) : visible.length === 0 ? (
@@ -169,7 +169,7 @@ export default function RutasTab() {
           data-testid="rutas-empty"
         >
           <Map className="mx-auto mb-3 h-8 w-8 text-muted-foreground" />
-          <h3 className="font-display text-lg font-bold">No hay rutas para mostrar</h3>
+          <h3 className="font-display text-lg font-semibold">No hay rutas para mostrar</h3>
           <p className="mt-1 text-sm text-muted-foreground">
             Probá otra búsqueda o agregá una nueva ruta.
           </p>
@@ -179,7 +179,7 @@ export default function RutasTab() {
           {visible.map((ruta) => (
             <article
               key={ruta.idRuta}
-              className={`rounded-2xl border bg-card p-4 shadow-[0_8px_30px_rgb(45_54_150_/_0.05)] transition-transform duration-200 hover:-translate-y-0.5 ${ruta.activo ? "" : "opacity-65"}`}
+              className={`rounded-xl border bg-card p-4 shadow-[0_4px_14px_rgb(15_72_131_/_0.06)] transition-colors duration-200 hover:border-primary/35 ${ruta.activo ? "" : "opacity-65"}`}
               data-testid={`ruta-${ruta.idRuta}`}
             >
               <div className="flex items-start justify-between gap-3">
@@ -198,20 +198,21 @@ export default function RutasTab() {
                     <IconoRuta className="h-4 w-4 text-slate-900" />
                   </span>
                   <div className="min-w-0">
-                    <p className="font-display text-lg font-black tracking-tight">{ruta.codigo}</p>
-                    <p className="text-sm leading-relaxed text-muted-foreground">
+                    <p className="text-xs font-semibold tracking-wide text-primary">Ruta {ruta.codigo}</p>
+                    <p className="text-sm font-medium leading-relaxed text-foreground">
                       {ruta.descripcion}
                     </p>
                   </div>
                 </div>
-                <Badge className="" variant={ruta.activo ? "default" : "secondary"}>
+                <Badge className="text-[11px] font-medium" variant={ruta.activo ? "secondary" : "outline"}>
                   {ruta.activo ? "Activa" : "Inactiva"}
                 </Badge>
               </div>
-              <div className="mt-5 flex items-center justify-between border-t pt-3 text-xs text-muted-foreground">
+              <div className="mt-4 flex items-center justify-between border-t pt-3 text-xs text-muted-foreground">
                 <span>
                   {ruta.estudiantesAsignados} estudiante{ruta.estudiantesAsignados === 1 ? "" : "s"}
                 </span>
+                <span className="hidden items-center gap-1 sm:inline-flex"><i className="h-3 w-3 rounded-full border" style={{ backgroundColor: ruta.colorCarnetHex }} />Color TE-01</span>
                 <div className="flex gap-2">
                   <Button
                     ref={undefined}
@@ -222,7 +223,7 @@ export default function RutasTab() {
                     disabled={ruta.codigo === "0"}
                     data-testid={`ruta-editar-${ruta.idRuta}`}
                   >
-                    <Pencil className="mr-1 h-3.5 w-3.5" /> Editar
+                  <Pencil className="mr-1 h-3.5 w-3.5" /> Editar ruta
                   </Button>
                   {ruta.activo && ruta.codigo !== "0" && (
                     <Button

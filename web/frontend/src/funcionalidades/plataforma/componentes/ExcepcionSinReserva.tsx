@@ -1,75 +1,51 @@
-import { useRef } from "react";
 import { CheckCircle2, XCircle } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { errMsg } from "@/compartido/consultas/errores_api";
 
 type Props = {
   codigo: string;
-  alCambiarCodigo: (codigo: string) => void;
-  alDecidir: (decision: "aprobada" | "rechazada", motivo: string) => void;
+  alDecidir: (decision: "aprobada" | "rechazada") => void;
   pendiente: boolean;
   error: unknown;
-  exito: boolean;
 };
 
-export function ExcepcionSinReserva({
-  codigo,
-  alCambiarCodigo,
-  alDecidir,
-  pendiente,
-  error,
-  exito,
-}: Props) {
-  const formulario = useRef<HTMLFormElement>(null);
-
-  function decidir(decision: "aprobada" | "rechazada") {
-    const actual = formulario.current;
-    if (!actual?.reportValidity()) return;
-    const datos = new FormData(actual);
-    alDecidir(decision, String(datos.get("motivo") ?? ""));
-  }
-
+export function ExcepcionSinReserva({ codigo, alDecidir, pendiente, error }: Props) {
   return (
-    <aside className="rounded-2xl border border-amber-300 bg-amber-50 p-5 text-amber-950 sm:p-6">
-      <p className="text-xs font-black uppercase tracking-[0.16em]">Decisión de operador</p>
-      <h2 className="mt-1 font-display text-2xl font-black">Estudiante sin reserva</h2>
-      <p className="mt-2 text-sm leading-6 text-amber-950/80">
-        Confirmá la decisión y el motivo. Quedará registrada a tu nombre.
-      </p>
-      <form ref={formulario} className="mt-5 space-y-4">
-        <label htmlFor="excepcion-codigo" className="block text-sm font-bold">
-          Cédula del estudiante
-          <Input
-            id="excepcion-codigo"
-            name="codigo"
-            value={codigo}
-            onChange={(evento) => alCambiarCodigo(evento.target.value)}
-            className="mt-2 bg-background"
-            placeholder="Ej. 1-2091-0218"
-            required
-          />
-        </label>
-        <label className="block text-sm font-bold">
-          Motivo
-          <textarea
-            name="motivo"
-            className="mt-2 min-h-24 w-full rounded-md border bg-background p-3"
-            placeholder="Ej. Autorización de coordinación"
-            required
-          />
-        </label>
+    <AlertDialog open>
+      <AlertDialogContent className="border-amber-300 bg-amber-50 text-amber-950 sm:max-w-md">
+        <AlertDialogHeader>
+          <p className="text-xs font-black uppercase tracking-[0.16em] text-amber-800">
+            Decisión de operador
+          </p>
+          <AlertDialogTitle className="font-display text-2xl font-black text-amber-950">
+            Estudiante sin reserva
+          </AlertDialogTitle>
+          <AlertDialogDescription className="leading-6 text-amber-950/80">
+            Confirmá si permitís el ingreso. La decisión quedará registrada a tu nombre.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <div className="rounded-xl border border-amber-300/70 bg-white/65 px-4 py-3">
+          <p className="text-xs font-bold uppercase tracking-wide text-amber-800">Cédula del estudiante</p>
+          <p className="mt-1 font-mono text-lg font-bold tabular-nums text-amber-950">{codigo}</p>
+        </div>
         {error && <p className="text-sm font-semibold text-destructive">{errMsg(error)}</p>}
-        {exito && <p className="text-sm font-semibold text-success">Decisión guardada.</p>}
-        <div className="grid gap-3 sm:grid-cols-2">
-          <Button type="button" className="h-12 font-bold" disabled={pendiente} onClick={() => decidir("aprobada")}>
+        <AlertDialogFooter className="sm:grid sm:grid-cols-2">
+          <Button type="button" className="h-12 font-bold" disabled={pendiente} onClick={() => alDecidir("aprobada")}>
             <CheckCircle2 className="mr-2 h-5 w-5" /> Aprobar ingreso
           </Button>
-          <Button type="button" variant="destructive" className="h-12 font-bold" disabled={pendiente} onClick={() => decidir("rechazada")}>
+          <Button type="button" variant="destructive" className="h-12 font-bold" disabled={pendiente} onClick={() => alDecidir("rechazada")}>
             <XCircle className="mr-2 h-5 w-5" /> Rechazar ingreso
           </Button>
-        </div>
-      </form>
-    </aside>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

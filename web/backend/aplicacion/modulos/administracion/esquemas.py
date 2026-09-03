@@ -13,7 +13,7 @@ class UsuarioSalida(BaseModel):
 class UsuarioEntrada(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
     nombre_usuario: str = Field(alias="nombreUsuario", min_length=1, max_length=100)
-    contrasena: str | None = Field(default=None, min_length=12, max_length=200)
+    contrasena: str | None = Field(default=None, min_length=10, max_length=200)
     activo: bool = True
     roles: list[str] = []
     permisos: list[str] = []

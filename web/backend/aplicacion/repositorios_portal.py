@@ -5,7 +5,14 @@ from datetime import date
 from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
-from aplicacion.modelos.maestros import AnioLectivo, AsignacionRuta, FotografiaPersona, Matricula, Ruta
+from aplicacion.modelos.maestros import (
+    AnioLectivo,
+    AsignacionRuta,
+    FotografiaPersona,
+    HorarioReserva,
+    Matricula,
+    Ruta,
+)
 from aplicacion.modelos.menu import (
     CalendarioMenu,
     ComponenteMenu,
@@ -87,3 +94,6 @@ class RepositorioPortal:
                 ReservaComedor.fecha == fecha,
             )
         )
+
+    def horario_reserva_general(self):
+        return self.sesion.get(HorarioReserva, "general")

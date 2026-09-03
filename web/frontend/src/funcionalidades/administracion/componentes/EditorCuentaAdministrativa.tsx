@@ -46,10 +46,7 @@ export default function EditorCuentaAdministrativa({
   esPropia: boolean;
   alGuardar: (datos: DatosGuardar) => void;
 }) {
-  const [modo, setModo] = useState<"existente" | "nuevo">("existente");
-  const [personaId, setPersonaId] = useState("");
-  const [cedula, setCedula] = useState("");
-  const [nombres, setNombres] = useState("");
+  const [personaId, setPersonaId] = useState(String(cuenta?.persona?.id ?? ""));
   const [usuario, setUsuario] = useState(cuenta?.usuario ?? "");
   const [rol, setRol] = useState<RolAdministrativo>(cuenta?.rol ?? "operador");
   const [activo, setActivo] = useState(cuenta?.activo ?? true);
@@ -65,6 +62,12 @@ export default function EditorCuentaAdministrativa({
     return [...resultado.entries()];
   }, [permisos]);
 
+  const profesoresSeleccionables = useMemo(() => {
+    const actual = cuenta?.persona;
+    if (!actual || profesores.some((profesor) => profesor.id === actual.id)) return profesores;
+    return [{ id: actual.id, cedula: actual.cedula, nombres: actual.nombres }, ...profesores];
+  }, [cuenta?.persona, profesores]);
+
   function alternarPermiso(clave: string, marcado: boolean) {
     setSeleccionados((actual) =>
       marcado ? [...new Set([...actual, clave])] : actual.filter((item) => item !== clave),
@@ -75,21 +78,15 @@ export default function EditorCuentaAdministrativa({
     evento.preventDefault();
     const permisosCuenta = rol === "administrador" ? [] : seleccionados;
     if (cuenta) {
-      alGuardar({ rol, activo, permisos: permisosCuenta });
+      alGuardar({
+        rol,
+        activo,
+        permisos: permisosCuenta,
+        ...(Number(personaId) !== cuenta.persona?.id ? { personaId: Number(personaId) } : {}),
+      });
       return;
     }
-    const credencial = { usuario: usuario.trim(), rol, permisos: permisosCuenta };
-    alGuardar(
-      modo === "existente"
-        ? { ...credencial, personaId: Number(personaId) }
-        : {
-            ...credencial,
-            profesorNuevo: {
-              cedula: cedula.trim(),
-              nombres: nombres.trim(),
-            },
-          },
-    );
+    alGuardar({ usuario: usuario.trim(), rol, permisos: permisosCuenta, personaId: Number(personaId) });
   }
 
   return (
@@ -115,82 +112,40 @@ export default function EditorCuentaAdministrativa({
               </Alert>
             )}
 
-            {cuenta ? (
-              <div className="rounded-xl border bg-muted/40 p-4">
-                <p className="font-bold">{cuenta.persona?.nombres || "Vinculación pendiente"}</p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {cuenta.persona?.cedula || "Sin cédula vinculada"} · {cuenta.usuario}
-                </p>
-                <p className="mt-2 text-xs text-muted-foreground">
-                  La identidad vinculada no puede cambiarse. Para usar otro profesor, desactivá esta
-                  cuenta y creá una nueva.
-                </p>
-              </div>
-            ) : (
-              <section className="space-y-4" aria-labelledby="vinculacion-cuenta">
-                <h3 id="vinculacion-cuenta" className="font-display text-base font-bold">
-                  Profesor vinculado
-                </h3>
-                <div className="grid grid-cols-2 gap-2 rounded-xl bg-muted p-1" role="radiogroup">
-                  {(["existente", "nuevo"] as const).map((opcion) => (
-                    <button
-                      key={opcion}
-                      type="button"
-                      role="radio"
-                      aria-checked={modo === opcion}
-                      className={`min-h-11 rounded-lg px-3 text-sm font-bold ${modo === opcion ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}
-                      onClick={() => setModo(opcion)}
-                    >
-                      {opcion === "existente" ? "Profesor existente" : "Registrar profesor"}
-                    </button>
+            <section className="space-y-4" aria-labelledby="vinculacion-cuenta">
+              <h3 id="vinculacion-cuenta" className="font-display text-base font-bold">
+                Profesor vinculado
+              </h3>
+              <div className="space-y-2">
+                <Label htmlFor="cuenta-profesor">
+                  {cuenta ? "Profesor que usará esta cuenta" : "Profesor disponible"}
+                </Label>
+                <select
+                  id="cuenta-profesor"
+                  required
+                  value={personaId}
+                  onChange={(evento) => setPersonaId(evento.target.value)}
+                  className="min-h-11 w-full rounded-md border border-input bg-card px-3 text-sm"
+                >
+                  <option value="">Seleccioná un profesor…</option>
+                  {profesoresSeleccionables.map((profesor) => (
+                    <option key={profesor.id} value={profesor.id}>
+                      {profesor.nombres} — {profesor.cedula}
+                    </option>
                   ))}
-                </div>
-                {modo === "existente" ? (
-                  <div className="space-y-2">
-                    <Label htmlFor="cuenta-profesor">Profesor disponible</Label>
-                    <select
-                      id="cuenta-profesor"
-                      required
-                      value={personaId}
-                      onChange={(evento) => setPersonaId(evento.target.value)}
-                      className="min-h-11 w-full rounded-md border border-input bg-card px-3 text-sm"
-                    >
-                      <option value="">Seleccioná un profesor…</option>
-                      {profesores.map((profesor) => (
-                        <option key={profesor.id} value={profesor.id}>
-                          {profesor.nombres} — {profesor.cedula}
-                        </option>
-                      ))}
-                    </select>
-                    {!profesores.length && (
-                      <p className="text-xs text-muted-foreground">
-                        No hay profesores sin cuenta. Podés registrar uno nuevo.
-                      </p>
-                    )}
-                  </div>
-                ) : (
-                  <div className="grid gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="cuenta-cedula">Cédula</Label>
-                      <Input
-                        id="cuenta-cedula"
-                        required
-                        inputMode="numeric"
-                        value={cedula}
-                        onChange={(evento) => setCedula(evento.target.value)}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="cuenta-nombres">Nombre completo</Label>
-                      <Input
-                        id="cuenta-nombres"
-                        required
-                        value={nombres}
-                        onChange={(evento) => setNombres(evento.target.value)}
-                      />
-                    </div>
-                  </div>
+                </select>
+                <p className="text-xs text-muted-foreground">
+                  {cuenta
+                    ? "Al cambiarlo, se cerrarán las sesiones activas de esta cuenta."
+                    : "Solo se muestran profesores activos importados que todavía no tienen cuenta."}
+                </p>
+                {!profesoresSeleccionables.length && (
+                  <p className="text-xs text-muted-foreground">
+                    No hay profesores disponibles en el padrón actual.
+                  </p>
                 )}
+              </div>
+              {!cuenta && (
                 <div className="space-y-2">
                   <Label htmlFor="cuenta-usuario">Nombre de usuario</Label>
                   <Input
@@ -203,8 +158,8 @@ export default function EditorCuentaAdministrativa({
                     placeholder="Ej. mrojas"
                   />
                 </div>
-              </section>
-            )}
+              )}
+            </section>
 
             <section className="space-y-4" aria-labelledby="acceso-cuenta">
               <h3 id="acceso-cuenta" className="font-display text-base font-bold">

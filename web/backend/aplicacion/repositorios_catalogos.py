@@ -50,7 +50,7 @@ class RepositorioCatalogos:
         if termino:
             patron = f"%{termino}%"
             consulta = consulta.where(
-                or_(Persona.codigo.ilike(patron), Persona.cedula.ilike(patron), Persona.nombres.ilike(patron))
+                or_(Persona.cedula.ilike(patron), Persona.nombres.ilike(patron))
             )
         total = int(self.sesion.scalar(select(func.count()).select_from(consulta.subquery())) or 0)
         columnas_orden = {
@@ -118,7 +118,8 @@ class RepositorioCatalogos:
         cuenta = self.sesion.get(CuentaTiquete, persona.id)
         ruta_valida = ruta and ruta.activo and ruta.codigo != "0000"
         return {
-            "id": persona.id, "codigo": persona.codigo, "cedula": persona.cedula,
+            "id": persona.id, "referenciaPublica": persona.referencia_publica,
+            "cedula": persona.cedula,
             "nombres": persona.nombres, "tipo": persona.tipo, "activo": persona.activo,
             "matriculaId": matricula.id if matricula else None,
             "seccion": matricula.seccion if matricula else None,
@@ -133,6 +134,11 @@ class RepositorioCatalogos:
 
     def persona(self, persona_id: int):
         return self.sesion.get(Persona, persona_id)
+
+    def persona_referencia_publica(self, referencia_publica: str):
+        return self.sesion.scalar(
+            select(Persona).where(Persona.referencia_publica == referencia_publica)
+        )
 
     def foto_persona(self, persona_id: int):
         return self.sesion.scalar(
@@ -157,9 +163,6 @@ class RepositorioCatalogos:
         if foto is not None:
             self.sesion.delete(foto)
             self.sesion.flush()
-
-    def codigo_existe(self, codigo: str) -> bool:
-        return self.sesion.scalar(select(Persona.id).where(Persona.codigo == codigo)) is not None
 
     def guardar_persona(self, persona, credencial, cuenta) -> None:
         self.sesion.add(persona)

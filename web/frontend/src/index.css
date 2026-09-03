@@ -1,62 +1,133 @@
 @import "tailwindcss";
+@import "./plataforma.css";
 @config "../tailwind.config.js";
 
 @layer base {
   :root {
-    /* Guía visual histórica de SCSC: UIConstants.vb */
-    --background: 216 45% 97%;
-    --foreground: 222 47% 11%;
-    --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-    --primary: 210 100% 52%;
-    --brand-primary: 10 132 255;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 217 33% 17%;
-    --secondary-foreground: 0 0% 100%;
-    --muted: 210 29% 96%;
-    --muted-foreground: 220 9% 46%;
-    --accent: 210 100% 96%;
-    --accent-foreground: 222 47% 11%;
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 100%;
-    --success: 142 76% 37%;
-    --border: 220 14% 91%;
-    --input: 220 14% 91%;
-    --ring: 210 100% 52%;
-    --chart-1: 210 100% 52%;
-    --chart-2: 210 100% 44%;
-    --chart-3: 142 76% 37%;
-    --chart-4: 217 33% 17%;
-    --chart-5: 0 72% 51%;
+    --background: 247 248 255;
+    --foreground: 24 32 82;
+    --card: 255 255 255;
+    --card-foreground: 24 32 82;
+    --popover: 255 255 255;
+    --popover-foreground: 24 32 82;
+    --primary: 116 123 255;
+    --primary-foreground: 255 255 255;
+    --secondary: 24 32 82;
+    --secondary-foreground: 255 255 255;
+    --muted: 238 240 255;
+    --muted-foreground: 107 114 168;
+    --accent: 169 177 255;
+    --accent-foreground: 24 32 82;
+    --destructive: 255 107 122;
+    --destructive-foreground: 24 32 82;
+    --success: 81 216 154;
+    --warning: 217 119 6;
+    --border: 221 225 255;
+    --input: 221 225 255;
+    --ring: 116 123 255;
+    --chart-1: 116 123 255;
+    --chart-2: 24 32 82;
+    --chart-3: 81 216 154;
+    --chart-4: 169 177 255;
+    --chart-5: 255 107 122;
     --radius: 0.5rem;
     --radius-card: 0.75rem;
+    --ink: rgb(var(--foreground));
+    --muted-ink: rgb(var(--muted-foreground));
+    --paper: rgb(var(--background));
+    --surface: rgb(var(--card));
+    --surface-alt: rgb(var(--muted));
+    --line: rgb(var(--border));
+    --brand: rgb(var(--primary));
+    --brand-dark: color-mix(in srgb, rgb(var(--primary)) 82%, rgb(var(--foreground)));
+    --positive: rgb(var(--success));
+    --danger: rgb(var(--destructive));
+    --warning-soft: color-mix(in srgb, rgb(var(--warning)) 14%, rgb(var(--card)));
+    --brand-soft: color-mix(in srgb, rgb(var(--primary)) 14%, rgb(var(--card)));
+    --brand-subtle: color-mix(in srgb, rgb(var(--primary)) 8%, rgb(var(--card)));
+    --success-soft: color-mix(in srgb, rgb(var(--success)) 16%, rgb(var(--card)));
+    --danger-soft: color-mix(in srgb, rgb(var(--destructive)) 14%, rgb(var(--card)));
+    --space-xs: 0.25rem;
+    --space-sm: 0.5rem;
+    --space-md: 0.75rem;
+    --space-lg: 1rem;
+    --space-xl: 1.5rem;
+    --space-2xl: 2rem;
+    --space-3xl: 3rem;
   }
   .dark {
-    /* El panel administrativo no tiene variante oscura propia. */
-    --background: 216 45% 97%;
-    --foreground: 222 47% 11%;
-    --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-    --primary: 210 100% 52%;
-    --brand-primary: 10 132 255;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 222 47% 11%;
-    --secondary-foreground: 0 0% 100%;
-    --muted: 210 29% 96%;
-    --muted-foreground: 220 9% 46%;
-    --accent: 210 100% 96%;
-    --accent-foreground: 222 47% 11%;
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 100%;
-    --success: 142 76% 37%;
-    --border: 220 14% 91%;
-    --input: 220 14% 91%;
-    --ring: 210 100% 52%;
+    --background: 17 21 47;
+    --foreground: 244 245 255;
+    --card: 25 30 67;
+    --card-foreground: 244 245 255;
+    --popover: 25 30 67;
+    --popover-foreground: 244 245 255;
+    --primary: 135 144 255;
+    --primary-foreground: 17 21 47;
+    --secondary: 36 43 96;
+    --secondary-foreground: 255 255 255;
+    --muted: 32 38 82;
+    --muted-foreground: 170 177 229;
+    --accent: 53 61 131;
+    --accent-foreground: 220 224 255;
+    --destructive: 255 128 144;
+    --destructive-foreground: 17 21 47;
+    --success: 103 226 170;
+    --warning: 251 191 36;
+    --border: 53 61 115;
+    --input: 53 61 115;
+    --ring: 135 144 255;
+    --chart-1: 135 144 255;
+    --chart-2: 169 177 255;
+    --chart-3: 103 226 170;
+    --chart-4: 220 224 255;
+    --chart-5: 255 128 144;
   }
+}
+
+/* Compatibilidad temporal durante la migración: ningún texto usa peso 900. */
+@utility font-black {
+  font-weight: 700;
+}
+
+@utility button {
+  @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-transparent px-4 py-2 font-body text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-55;
+}
+@utility primary {
+  @apply bg-primary text-primary-foreground hover:bg-primary/90;
+}
+@utility secondary {
+  @apply border-border bg-card text-foreground hover:bg-accent hover:text-accent-foreground;
+}
+@utility warning {
+  @apply border-warning/45 bg-warning/15 text-foreground hover:bg-warning/25;
+}
+@utility danger {
+  @apply bg-destructive text-destructive-foreground hover:bg-destructive/90;
+}
+@utility link {
+  @apply min-h-0 bg-transparent px-1 py-1 text-primary hover:bg-primary/10;
+}
+@utility jumbo {
+  @apply min-h-14 text-base;
+}
+@utility stack {
+  @apply flex flex-col gap-4;
+}
+@utility form-grid {
+  @apply grid grid-cols-1 items-end gap-4 sm:grid-cols-2 lg:grid-cols-[repeat(auto-fit,minmax(10rem,1fr))];
+}
+@utility action-panel {
+  @apply mb-6 rounded-xl border border-border bg-card p-6;
+}
+@utility field {
+  @apply flex min-w-0 flex-col gap-2 font-body text-sm font-medium text-foreground;
+}
+@utility dialogo-estandar {
+  @apply max-h-[calc(100dvh-1rem)] w-[calc(100%-1rem)] rounded-xl border-border bg-card text-foreground;
+}
+@utility dialogo-pie {
+  @apply border-t border-border pt-3;
 }
 
 @layer base {
@@ -66,7 +137,8 @@
   body {
     @apply bg-background text-foreground;
     margin: 0;
-    font-family: "Segoe UI", "Segoe UI Variable", system-ui, sans-serif;
+    font-family: "Karla", system-ui, sans-serif;
+    font-kerning: normal;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -76,7 +148,7 @@
   h4,
   h5,
   .font-display {
-    font-family: "Segoe UI", "Segoe UI Variable", system-ui, sans-serif;
+    font-family: "Chivo Variable", "Chivo", system-ui, sans-serif;
   }
 }
 

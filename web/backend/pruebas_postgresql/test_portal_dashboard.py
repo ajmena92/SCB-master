@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, time
 
 from .conftest import preparar_estudiante
 
@@ -74,11 +74,22 @@ def test_portal_muestra_plantilla_semanal_y_carnet(entorno):
     carnet = cliente.get("/api/v1/portal/carnet", headers=portal)
 
     assert estado.status_code == 200, estado.text
-    assert estado.json()["menu"]["Titulo"] == "Almuerzo tradicional"
-    assert [c["Nombre"] for c in estado.json()["menu"]["Componentes"]] == [
+    estado_portal = estado.json()
+    estado_comedor = estado_portal["estado"]
+    assert estado_portal["menu"]["Titulo"] == "Almuerzo tradicional"
+    assert [c["Nombre"] for c in estado_portal["menu"]["Componentes"]] == [
         "Arroz",
         "Frijoles",
     ]
+    hora_servidor = time.fromisoformat(estado_comedor["horaServidor"])
+    hora_limite = time.fromisoformat(estado_comedor["horaLimite"])
+    esperados = max(0, int((
+        hora_limite.hour * 3600 + hora_limite.minute * 60 + hora_limite.second
+    ) - (
+        hora_servidor.hour * 3600 + hora_servidor.minute * 60 + hora_servidor.second
+    )))
+    assert abs(estado_comedor["segundosParaCierre"] - esperados) <= 1
+    assert estado_comedor["segundosParaApertura"] == 0
     assert carnet.status_code == 200, carnet.text
     assert carnet.json()["barcode"] == persona["codigo"]
     assert carnet.json()["seccion"] == "7-1"

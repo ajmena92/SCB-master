@@ -16,12 +16,13 @@ COPY backend/config.py ./config.py
 COPY ops/entrada_api_postgres.sh /usr/local/bin/entrada_api_postgres.sh
 RUN useradd --create-home --uid 10001 appuser \
     && chmod 0550 /usr/local/bin/entrada_api_postgres.sh \
-    && chown -R appuser:appuser /app /usr/local/bin/entrada_api_postgres.sh
-USER appuser
+    && chown -R appuser:appuser /app
 
 EXPOSE 8000
 
-# Readiness is checked outside HTTP so no endpoint contains SQL.
+# The entrypoint starts as root only to read the Docker secret, then it drops to
+# appuser before starting Uvicorn. Readiness is checked outside HTTP so no
+# endpoint contains SQL.
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
     CMD python -c "import os; from pathlib import Path; import psycopg; c=psycopg.connect(host=os.environ['POSTGRES_HOST'],port=os.environ.get('POSTGRES_PORT','5432'),dbname=os.environ['POSTGRES_DB'],user=os.environ['POSTGRES_USER'],password=Path(os.environ.get('POSTGRES_PASSWORD_FILE','/run/secrets/postgres_app_password')).read_text().strip(),connect_timeout=3); assert c.execute('SELECT 1').fetchone()==(1,); c.close()"
 

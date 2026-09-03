@@ -116,7 +116,7 @@ export function EditorRuta({
               </div>
             )}
             <p className="text-xs text-muted-foreground">
-              Podés usar un color de la paleta oficial o cualquier color HEX válido.
+              Elegí un color de la guía TE-01. El código HEX se conserva para compatibilidad visual.
             </p>
           </div>
           <label className="flex items-center gap-3 text-sm">

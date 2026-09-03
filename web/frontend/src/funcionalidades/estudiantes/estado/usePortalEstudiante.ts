@@ -29,6 +29,7 @@ export type EstadoPortalApi = {
   horaLimite?: string;
   horaInicio?: string;
   fechaHoraConfirmacionServidor?: string;
+  sinTiquete?: boolean;
 };
 export type TipoPersonaComedor = "estudiante" | "profesor";
 
@@ -260,14 +261,17 @@ export function usePortalEstudiante(tipoPersona: TipoPersonaComedor = "estudiant
     const fecha = fechaLocalActual();
     try {
       if (tipo === "confirm") {
-        await reservarComedorEstudiante(fecha);
+        const reserva = await reservarComedorEstudiante(fecha);
+        if ((reserva as typeof reserva & { sin_tiquete?: boolean }).sin_tiquete) {
+          toast.warning("Asistencia confirmada, pero no tenés tiquetes disponibles.");
+        } else {
+          toast.success("¡Asistencia confirmada!");
+        }
       } else {
         await cancelarComedorEstudiante(fecha);
+        toast.success("Registrado: no asistirás hoy");
       }
       if (tipo === "confirm") enfocarConfirmacionRef.current = true;
-      toast.success(
-        tipo === "confirm" ? "¡Asistencia confirmada!" : "Registrado: no asistirás hoy",
-      );
       await cargar();
     } catch (errorAsistencia) {
       toast.error(errMsg(errorAsistencia));

@@ -31,7 +31,7 @@ def crear_router(obtener_servicio, exigir_permiso) -> APIRouter:
             [
                 {
                     "fecha": r.fecha,
-                    "codigo": r.codigo,
+                    "cedula": r.cedula,
                     "nombres": r.nombres,
                     "modalidad": r.modalidad,
                     "consumioTiquete": r.consumio_tiquete,
@@ -63,7 +63,7 @@ def crear_router(obtener_servicio, exigir_permiso) -> APIRouter:
             [
                 {
                     "fecha": r.creado_en,
-                    "codigo": r.codigo,
+                    "cedula": r.cedula,
                     "cantidad": r.cantidad,
                     "tarifa": r.tarifa_aplicada,
                     "total": r.total,

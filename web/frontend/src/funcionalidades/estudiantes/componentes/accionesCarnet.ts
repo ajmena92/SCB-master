@@ -14,8 +14,7 @@ export type DatosCarnet = {
   idEstadoComedor?: 1 | 2;
   beneficioComedor?: string;
   colegio?: string;
-  barcode?: string;
-  carne?: string;
+  codigoQr?: string;
   tieneFoto?: boolean;
   anio?: number;
   anioLectivo?: number;

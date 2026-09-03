@@ -1,10 +1,11 @@
 import { createContext, use, useEffect, useState, useCallback } from "react";
 import { api } from "@/compartido/consultas/cliente_http";
-import { borrarTokenSesion } from "@/compartido/consultas/token_sesion";
+import { borrarTokenSesion, obtenerTokenSesion } from "@/compartido/consultas/token_sesion";
 
 const ContextoAutenticacionContext = createContext(null);
 
 async function obtenerSesion() {
+  if (!obtenerTokenSesion()) return { session: false, debeCambiarPin: false };
   const { data, status } = await api.get("/v1/sesion", {
     omitirManejoFalloAutenticacion: true,
   });
