@@ -24,17 +24,19 @@ function Etiqueta({ tono = "neutral", children }: { tono?: Tono; children: strin
 }
 
 function AccionExpediente({ persona, alEditar, alReiniciarPin }: Pick<Propiedades, "alEditar" | "alReiniciarPin"> & { persona: Persona }) {
+  const nombreTipo = persona.tipo === "estudiante" ? "estudiante" : "profesor";
   return <span className="person-quick-actions">
-    <button className="expediente-action" type="button" onClick={() => alEditar(persona)} aria-label={`Editar estudiante ${persona.nombres}`} title="Editar estudiante"><PencilSimple aria-hidden="true" size={19} /></button>
+    <button className="expediente-action" type="button" onClick={() => alEditar(persona)} aria-label={`Editar ${nombreTipo} ${persona.nombres}`} title={`Editar ${nombreTipo}`}><PencilSimple aria-hidden="true" size={19} /></button>
     <button className="expediente-action" type="button" onClick={() => alReiniciarPin(persona)} aria-label={`Reiniciar PIN de ${persona.nombres}`} title="Reiniciar PIN" disabled={!persona.activo}><Key aria-hidden="true" size={18} /></button>
   </span>;
 }
 
 function BeneficiosPersona({ persona }: { persona: Persona }) {
-  if (persona.tipo !== "estudiante") return <Etiqueta>Sin beneficios</Etiqueta>;
-  return <div className="person-tags">
-    <Etiqueta tono={persona.becado ? "info" : "neutral"}>{persona.becado ? "Beneficiario comedor" : "No beneficiario comedor"}</Etiqueta>
-    <Etiqueta tono={persona.rutaId ? "info" : "neutral"}>{persona.rutaId ? `Ruta - ${persona.descripcionRuta ?? "Sin descripción"}` : "Sin ruta asignada"}</Etiqueta>
+  if (persona.tipo !== "estudiante") return <span className="person-benefits person-benefits--empty">No aplica</span>;
+  const ruta = persona.rutaId ? persona.descripcionRuta ?? "Sin descripción" : "Sin ruta asignada";
+  return <div className="person-benefits">
+    <p><span>Comedor</span><strong>{persona.becado ? "Beneficiario" : "No beneficiario"}</strong></p>
+    <p title={ruta}><span>Ruta</span><strong>{ruta}</strong></p>
   </div>;
 }
 
@@ -55,7 +57,8 @@ export default function ListadoPersonas({ personas, total, pagina, tamano, orden
   return <>
     <div className="person-table" role="region" aria-label="Padrón de personas">
       <table>
-        <thead><tr><EncabezadoOrdenable columna="nombres" ordenarPor={ordenarPor} direccion={direccion} alOrdenar={alOrdenar}>Persona</EncabezadoOrdenable><EncabezadoOrdenable columna="cedula" ordenarPor={ordenarPor} direccion={direccion} alOrdenar={alOrdenar}>Cédula</EncabezadoOrdenable><EncabezadoOrdenable columna="tipo" ordenarPor={ordenarPor} direccion={direccion} alOrdenar={alOrdenar}>Tipo</EncabezadoOrdenable><th>Beneficios</th><EncabezadoOrdenable columna="estado" ordenarPor={ordenarPor} direccion={direccion} alOrdenar={alOrdenar}>Estado</EncabezadoOrdenable><th><span className="sr-only">Acciones</span></th></tr></thead>
+        <colgroup><col className="person-column--nombre" /><col className="person-column--cedula" /><col className="person-column--tipo" /><col className="person-column--beneficios" /><col className="person-column--estado" /><col className="person-column--acciones" /></colgroup>
+        <thead><tr><EncabezadoOrdenable columna="nombres" ordenarPor={ordenarPor} direccion={direccion} alOrdenar={alOrdenar}>Persona</EncabezadoOrdenable><EncabezadoOrdenable columna="cedula" ordenarPor={ordenarPor} direccion={direccion} alOrdenar={alOrdenar}>Cédula</EncabezadoOrdenable><EncabezadoOrdenable columna="tipo" ordenarPor={ordenarPor} direccion={direccion} alOrdenar={alOrdenar}>Tipo</EncabezadoOrdenable><th>Beneficios</th><EncabezadoOrdenable columna="estado" ordenarPor={ordenarPor} direccion={direccion} alOrdenar={alOrdenar}>Estado</EncabezadoOrdenable><th className="person-actions-heading">Acciones</th></tr></thead>
         <tbody>{personas.map((persona) => <tr key={persona.id}>
           <td><p className="person-name">{persona.nombres}</p></td>
           <td><span className="person-meta person-id">{persona.cedula ?? "Sin cédula"}</span></td>
@@ -71,7 +74,7 @@ export default function ListadoPersonas({ personas, total, pagina, tamano, orden
       <div className="person-card-details"><Etiqueta tono={persona.tipo === "estudiante" ? "info" : "neutral"}>{persona.tipo === "estudiante" ? "Estudiante" : "Profesor"}</Etiqueta><Etiqueta tono={persona.activo ? "exito" : "alerta"}>{persona.activo ? "Activa" : "Inactiva"}</Etiqueta></div>
       <div className="person-card-benefits"><span>Beneficios</span><BeneficiosPersona persona={persona} /></div>
     </article>)}</div>
-    <nav className="person-pagination" aria-label="Paginación de estudiantes">
+    <nav className="person-pagination" aria-label="Paginación de personas">
       <span>Mostrando {primera}–{ultima} de {total}</span>
       {totalPaginas > 1 && <div>
         <button className="button secondary" type="button" disabled={pagina === 1} onClick={() => alCambiarPagina(pagina - 1)}>Anterior</button>

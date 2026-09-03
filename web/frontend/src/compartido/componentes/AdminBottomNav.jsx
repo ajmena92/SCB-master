@@ -13,14 +13,19 @@ import {
 import { useAutenticacion } from "@/aplicacion/estado/ContextoAutenticacion";
 import { obtenerModulosVisibles } from "@/config/adminNavigation";
 
+const MODULOS_MOVILES_DESTACADOS = ["dashboard", "comedor", "personas"];
+
 export default function AdminBottomNav() {
   const { session } = useAutenticacion();
   const location = useLocation();
   const [abierto, setAbierto] = useState(false);
   const visibles = obtenerModulosVisibles(session);
-  const tieneMas = visibles.length > 4;
-  const directos = tieneMas ? visibles.slice(0, 3) : visibles.slice(0, 4);
-  const extras = tieneMas ? visibles.slice(3) : [];
+  const directos = MODULOS_MOVILES_DESTACADOS.flatMap((id) => {
+    const modulo = visibles.find((item) => item.id === id);
+    return modulo ? [modulo] : [];
+  });
+  const extras = visibles.filter((item) => !MODULOS_MOVILES_DESTACADOS.includes(item.id));
+  const tieneMas = extras.length > 0;
   const extraActivo = extras.some(
     (item) => location.pathname === item.path || location.pathname.startsWith(`${item.path}/`),
   );
@@ -42,7 +47,7 @@ export default function AdminBottomNav() {
             to={path}
             data-testid={`admin-bottom-${id}`}
             className={({ isActive }) =>
-              `flex min-h-12 min-w-0 flex-col items-center justify-center gap-1 rounded-xl px-1 text-[10px] font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${isActive ? "bg-primary text-primary-foreground" : "text-secondary-foreground/75 hover:bg-secondary-foreground/10"}`
+              `flex min-h-12 min-w-0 flex-col items-center justify-center gap-1 rounded-xl px-1 font-body text-[10px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${isActive ? "bg-primary text-primary-foreground" : "text-secondary-foreground/75 hover:bg-secondary-foreground/10"}`
             }
           >
             <Icon className="h-5 w-5" aria-hidden="true" />
@@ -56,7 +61,7 @@ export default function AdminBottomNav() {
                 type="button"
                 data-testid="admin-bottom-more"
                 aria-label="Abrir más módulos"
-                className={`flex min-h-12 min-w-0 flex-col items-center justify-center gap-1 rounded-xl px-1 text-[10px] font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${extraActivo ? "bg-primary text-primary-foreground" : "text-secondary-foreground/75 hover:bg-secondary-foreground/10"}`}
+                className={`flex min-h-12 min-w-0 flex-col items-center justify-center gap-1 rounded-xl px-1 font-body text-[10px] font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${extraActivo ? "bg-primary text-primary-foreground" : "text-secondary-foreground/75 hover:bg-secondary-foreground/10"}`}
               >
                 <MoreHorizontal className="h-5 w-5" aria-hidden="true" />
                 <span>Más</span>
@@ -75,7 +80,7 @@ export default function AdminBottomNav() {
                       <NavLink
                         to={item.path}
                         className={({ isActive }) =>
-                          `flex min-h-12 items-center gap-3 rounded-xl border px-4 text-sm font-semibold ${isActive ? "border-primary bg-primary/10 text-foreground" : "border-border bg-card text-foreground"}`
+                          `flex min-h-12 items-center gap-3 rounded-xl border px-4 font-body text-sm font-medium ${isActive ? "border-primary bg-primary/10 text-foreground" : "border-border bg-card text-foreground"}`
                         }
                       >
                         <Icon className="h-5 w-5 shrink-0 text-primary" aria-hidden="true" />

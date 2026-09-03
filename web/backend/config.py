@@ -25,6 +25,7 @@ class Settings:
     cors_origin: str
     cookie_secure: bool
     app_timezone: str = "America/Costa_Rica"
+    carnet_qr_clave: str = ""
 
     @classmethod
     def from_environment(cls) -> "Settings":
@@ -39,4 +40,9 @@ class Settings:
         seguro = os.getenv("COOKIE_SECURE", "true").lower()
         if seguro not in {"true", "false"}:
             raise RuntimeError("COOKIE_SECURE debe ser true o false")
-        return cls(database_url, _origen_https(origen), seguro == "true")
+        return cls(
+            database_url,
+            _origen_https(origen),
+            seguro == "true",
+            carnet_qr_clave=os.getenv("CARNET_QR_CLAVE", "").strip(),
+        )

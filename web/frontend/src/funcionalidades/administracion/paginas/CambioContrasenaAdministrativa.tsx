@@ -28,8 +28,8 @@ export default function CambioContrasenaAdministrativa() {
 
   function enviar(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault();
-    if (nueva.length < 12)
-      return setErrorLocal("La nueva contraseña debe tener al menos 12 caracteres.");
+    if (nueva.length < 10)
+      return setErrorLocal("La nueva contraseña debe tener al menos 10 caracteres.");
     if (nueva !== confirmacion)
       return setErrorLocal("La confirmación no coincide con la nueva contraseña.");
     if (actual === nueva)
@@ -86,12 +86,12 @@ export default function CambioContrasenaAdministrativa() {
               type="password"
               autoComplete="new-password"
               required
-              minLength={12}
+              minLength={10}
               value={nueva}
               onChange={(evento) => setNueva(evento.target.value)}
             />
             <p className="text-xs text-muted-foreground">
-              Usá al menos 12 caracteres y evitá datos fáciles de adivinar.
+              Usá al menos 10 caracteres y evitá datos fáciles de adivinar.
             </p>
           </div>
           <div className="space-y-2">
@@ -101,7 +101,7 @@ export default function CambioContrasenaAdministrativa() {
               type="password"
               autoComplete="new-password"
               required
-              minLength={12}
+              minLength={10}
               value={confirmacion}
               onChange={(evento) => setConfirmacion(evento.target.value)}
             />

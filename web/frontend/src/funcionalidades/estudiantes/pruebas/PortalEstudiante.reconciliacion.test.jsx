@@ -46,6 +46,13 @@ const asistenciaConfirmada = {
   },
 };
 
+const asistenciaConfirmadaSinTiquete = {
+  data: {
+    ...asistenciaConfirmada.data,
+    sinTiquete: true,
+  },
+};
+
 function diferida() {
   let resolve;
   let reject;
@@ -163,5 +170,20 @@ describe("Portal del estudiante", () => {
     expect(container.querySelector('[data-testid="confirmation-card"]')).not.toBeNull();
     expect(container.querySelector('[data-testid="confirm-btn"]').disabled).toBe(true);
     expect(container.querySelector('[data-testid="decline-btn"]')).not.toBeNull();
+  });
+
+  it("informa que la confirmación no incluye tiquete cuando el saldo es insuficiente", async () => {
+    api.get
+      .mockResolvedValueOnce(respuestaMenu)
+      .mockResolvedValueOnce(asistenciaConfirmadaSinTiquete);
+
+    await act(async () => {
+      root.render(<PortalEstudiantePrueba />);
+      await Promise.resolve();
+    });
+
+    expect(container.querySelector('[data-testid="confirmacion-sin-tiquete"]')?.textContent).toContain(
+      "No tenés tiquetes disponibles",
+    );
   });
 });

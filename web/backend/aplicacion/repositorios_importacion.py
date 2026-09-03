@@ -41,9 +41,6 @@ class RepositorioImportacion:
             persona.activo = False
         self.sesion.flush()
 
-    def codigo_existe(self, codigo):
-        return self.sesion.scalar(select(Persona.id).where(Persona.codigo == codigo)) is not None
-
     def matricula(self, persona_id, anio_id):
         return self.sesion.scalar(
             select(Matricula).where(

@@ -1,5 +1,3 @@
-import "@/App.css";
-import "@/plataforma.css";
 import { lazy, Suspense } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import {
@@ -37,6 +35,7 @@ const Rutas = lazy(() => import("@/funcionalidades/rutas/paginas/Rutas"));
 const PlantillasMenu = lazy(() => import("@/funcionalidades/menu/paginas/Plantillas"));
 const CalendarioMenu = lazy(() => import("@/funcionalidades/menu/paginas/CalendarioMenu"));
 const TarifasVentas = lazy(() => import("@/funcionalidades/plataforma/paginas/TarifasVentas"));
+const ParametrosOperativos = lazy(() => import("@/funcionalidades/plataforma/paginas/ParametrosOperativos"));
 const OperacionComedor = lazy(
   () => import("@/funcionalidades/plataforma/paginas/OperacionComedor"),
 );
@@ -153,7 +152,7 @@ export default function App() {
                 }
               />
               <Route
-                path="estudiantes/:id"
+                path="estudiantes/expediente/:referencia"
                 element={
                   <RutaRol permisos={["personas.administrar"]}>
                     <EditarEstudiante />
@@ -200,6 +199,7 @@ export default function App() {
                   </RutaRol>
                 }
               />
+              <Route path="parametros" element={<RutaRol permisos={["tarifas.administrar"]}><ParametrosOperativos /></RutaRol>} />
               <Route
                 path="comedor"
                 element={

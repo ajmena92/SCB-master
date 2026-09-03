@@ -58,14 +58,12 @@ def entorno():
     BaseDeclarativa.metadata.create_all(motor)
     with Session(motor) as sesion:
         admin_persona = Persona(
-            codigo="P-00000001",
             cedula="900000001",
             nombres="Administrador Pruebas",
             tipo="profesor",
             activo=True,
         )
         operador_persona = Persona(
-            codigo="P-00000002",
             cedula="900000002",
             nombres="Operador Pruebas",
             tipo="profesor",
@@ -149,23 +147,27 @@ def entorno():
     )
 
 
-def crear_persona(cliente, cabecera, *, tipo="estudiante", cedula="1", nombres="Ana Perez"):
+def crear_persona(
+    cliente, cabecera, *, tipo="estudiante", cedula="1", nombres="Ana Perez",
+    cambio_pin_obligatorio=False,
+):
     # El padrón es la única fuente de personas; la preparación de pruebas lo
     # representa directamente en persistencia, nunca por el endpoint retirado.
     with Session(cliente.motor) as sesion:
-        persona = Persona(
-            codigo=f"TMP-{cedula}", cedula=cedula, nombres=nombres, tipo=tipo, activo=True
-        )
+        persona = Persona(cedula=cedula, nombres=nombres, tipo=tipo, activo=True)
         sesion.add(persona)
         sesion.flush()
-        persona.codigo = f"{'E' if tipo == 'estudiante' else 'P'}-{persona.id:08d}"
         sesion.add_all([
-            CredencialPortal(persona_id=persona.id, pin_hash=hash_secreto("123456"), cambio_obligatorio=False),
+            CredencialPortal(
+                persona_id=persona.id,
+                pin_hash=hash_secreto("123456"),
+                cambio_obligatorio=cambio_pin_obligatorio,
+            ),
             CuentaTiquete(persona_id=persona.id, saldo=0, reservados=0),
         ])
         sesion.commit()
         return {
-            "id": persona.id, "codigo": persona.codigo, "cedula": persona.cedula,
+            "id": persona.id, "codigo": persona.cedula, "cedula": persona.cedula,
             "nombres": persona.nombres, "tipo": persona.tipo, "activo": persona.activo,
             "pinTemporal": "123456",
         }

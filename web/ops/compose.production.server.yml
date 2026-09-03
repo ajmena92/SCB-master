@@ -1,0 +1,8 @@
+# Ajuste exclusivo del servidor de producción: PostgreSQL persiste en el
+# montaje LUKS administrado por infraestructura, no en el directorio Docker.
+services:
+  postgres:
+    volumes:
+      - type: bind
+        source: ${POSTGRES_DATA_PATH:?Defina POSTGRES_DATA_PATH en el host de producción}
+        target: /var/lib/postgresql/data

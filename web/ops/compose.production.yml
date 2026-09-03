@@ -75,6 +75,7 @@ services:
       POSTGRES_PASSWORD_FILE: /run/secrets/postgres_app_password
       CORS_ORIGIN: ${CORS_ORIGIN:?Defina CORS_ORIGIN}
       COOKIE_SECURE: ${COOKIE_SECURE:-true}
+      CARNET_QR_CLAVE: ${CARNET_QR_CLAVE:?Defina CARNET_QR_CLAVE}
       ENVIRONMENT: ${ENVIRONMENT:-production}
       APP_TZ: ${APP_TZ:-America/Costa_Rica}
       TRUSTED_PROXY_CIDRS: ${TRUSTED_PROXY_CIDRS:?Defina TRUSTED_PROXY_CIDRS}
@@ -99,6 +100,9 @@ services:
     tmpfs: [/tmp]
     security_opt: [no-new-privileges:true]
     cap_drop: [ALL]
+    # Needed only by the root entrypoint to switch permanently to appuser
+    # after reading the root-owned Docker secret.
+    cap_add: [SETUID, SETGID]
 
   respaldo:
     profiles: [respaldo]
@@ -153,6 +157,28 @@ services:
     security_opt: [no-new-privileges:true]
     cap_drop: [ALL]
 
+  analitica:
+    profiles: [analitica]
+    build:
+      context: ..
+      dockerfile: ops/Dockerfile.analitica
+    restart: "no"
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: ${POSTGRES_DB:-scb}
+      POSTGRES_USER: ${POSTGRES_MIGRATOR_USER:-scb_migrador}
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_migrator_password
+    secrets: [postgres_migrator_password]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [privada]
+    read_only: true
+    tmpfs: [/tmp]
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+
   verificar_restauracion:
     profiles: [verificacion_respaldo]
     image: postgres:17.6-bookworm
@@ -185,7 +211,9 @@ services:
         condition: service_healthy
     restart: unless-stopped
     networks: [salida_web]
-    ports: ["127.0.0.1:${WEB_PUERTO:-8081}:8080"]
+    # En producción mantenga WEB_HOST=127.0.0.1 detrás de un proxy HTTPS.
+    # Para una prueba controlada en la LAN, use WEB_HOST=0.0.0.0.
+    ports: ["${WEB_HOST:-127.0.0.1}:${WEB_PUERTO:-8081}:8080"]
     mem_limit: ${WEB_MEMORIA_LIMITE:-64m}
     mem_reservation: ${WEB_MEMORIA_RESERVA:-32m}
     read_only: true

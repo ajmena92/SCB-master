@@ -34,6 +34,20 @@ const COLORS = [
   "hsl(var(--chart-4))",
 ];
 
+function resumirGruposParaGrafico(grupos, limite, etiquetaResto) {
+  if (grupos.length <= limite) return grupos;
+
+  const visibles = grupos.slice(0, limite - 1);
+  const resto = grupos.slice(limite - 1);
+  return [
+    ...visibles,
+    {
+      nombre: etiquetaResto,
+      total: resto.reduce((acumulado, grupo) => acumulado + grupo.total, 0),
+    },
+  ];
+}
+
 export default function DashboardTab() {
   const [fecha, setFecha] = useState(fechaLocalActual);
   const [busqueda, setBusqueda] = useState("");
@@ -66,7 +80,16 @@ export default function DashboardTab() {
   const rutas = data?.porRuta || [];
   const estadosComedor = data?.porEstadoComedor || [];
   const alertas = data?.alertas || [];
+  const secciones = data?.porSeccion || [];
+  const casosAnaliticos = data?.casosAnaliticos || [];
   const esProfesor = tipoPersona === "profesor";
+  const tendencia = data?.tendenciaVeinteDias || data?.ultimosCincoDias || [];
+  const hayRegistrosHistoricos = tendencia.some((dia) => dia.presentes > 0);
+  const beneficiariosConIngreso = estadosComedor.find(
+    (grupo) => grupo.nombre === "Beneficiarios",
+  )?.presentes ?? 0;
+  const rutasParaGrafico = resumirGruposParaGrafico(rutas, 10, "Otras rutas");
+  const seccionesParaGrafico = resumirGruposParaGrafico(secciones, 10, "Otras secciones");
   const vistaDocenteSinContrato = esProfesor && data?.tipoPersona !== "profesor";
 
   return (
@@ -74,10 +97,10 @@ export default function DashboardTab() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h2 className="font-display text-2xl font-bold tracking-tight">
-            Dashboard de asistencia
+            Operación del comedor
           </h2>
           <p className="text-sm text-muted-foreground">
-            Operación del comedor, asistencia y padrón estudiantil.
+            Padrón activo, registros de ingreso y seguimiento de beneficios.
           </p>
         </div>
         <div className="flex items-end gap-2">
@@ -156,15 +179,15 @@ export default function DashboardTab() {
         <>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <MetricCard
-              label={esProfesor ? "Profesores habilitados" : "Asistencia"}
+              label={esProfesor ? "Profesores habilitados" : "Ingresos registrados"}
               value={`${asistencia?.porcentaje ?? 0}%`}
-              detail={`${asistencia?.presentes ?? 0} de ${asistencia?.total ?? 0} ${esProfesor ? "profesores" : "estudiantes"}`}
+              detail={`${asistencia?.presentes ?? 0} de ${asistencia?.total ?? 0} ${esProfesor ? "profesores" : "estudiantes activos"}`}
               icon={Activity}
             />
             <MetricCard
               label={esProfesor ? "Sin ingreso" : "Sin registro"}
               value={asistencia?.sinRegistro ?? 0}
-              detail={`${asistencia?.ausentes ?? 0} ausencias registradas`}
+              detail={esProfesor ? "Sin ingreso registrado" : "Sin registro de ingreso al comedor"}
               icon={Users}
             />
             <MetricCard
@@ -176,12 +199,17 @@ export default function DashboardTab() {
               icon={GraduationCap}
             />
             <MetricCard
-              label="Consumo comedor"
-              value={data?.consumoComedor ?? 0}
-              detail={`Fecha ${fecha}`}
+              label={esProfesor ? "Consumo comedor" : "Cobertura de beneficiarios"}
+              value={esProfesor ? data?.consumoComedor ?? 0 : `${beneficiariosConIngreso} de ${data?.beneficiariosComedor ?? 0}`}
+              detail={esProfesor ? `Fecha ${fecha}` : "Beneficiarios con ingreso registrado hoy"}
               icon={Coffee}
             />
           </div>
+          {!esProfesor && (
+            <p className="rounded-lg border border-primary/15 bg-primary/5 px-3 py-2 text-xs text-muted-foreground">
+              Padrón activo 2026: <strong className="text-foreground">{asistencia?.total ?? 0} estudiantes REGULAR</strong> · datos al {fecha}.
+            </p>
+          )}
           {alertas.some((alerta) => alerta.cantidad > 0) && (
             <section
               aria-labelledby="dashboard-alertas"
@@ -227,57 +255,75 @@ export default function DashboardTab() {
           <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
             <div className="rounded-xl border bg-card p-4">
               <h3 className="mb-4 font-display text-sm font-bold uppercase tracking-wide">
-                Semana laboral
+                Últimos 5 días hábiles
               </h3>
-              <ResponsiveContainer width="100%" height={250}>
-                <LineChart data={data?.semana || []} margin={{ left: 0, right: 12 }}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="dia" tick={{ fontSize: 11 }} />
-                  <YAxis allowDecimals={false} />
-                  <Tooltip />
-                  <Line
-                    type="monotone"
-                    dataKey="presentes"
-                    name="Presentes"
-                    stroke={COLORS[1]}
-                    strokeWidth={3}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="ausentes"
-                    name="Ausentes"
-                    stroke={COLORS[3]}
-                    strokeWidth={2}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+              <p className="-mt-2 mb-4 text-xs text-muted-foreground">Ingresos registrados y estudiantes sin registro de ingreso al comedor.</p>
+              {!hayRegistrosHistoricos ? (
+                <p className="flex h-28 items-center justify-center text-center text-sm text-muted-foreground">Aún no hay registros de ingreso al comedor en este período.</p>
+              ) : (
+                <ResponsiveContainer width="100%" height={250}>
+                  <LineChart data={data?.semana || []} margin={{ left: 0, right: 12 }}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="dia" tick={{ fontSize: 11 }} />
+                    <YAxis allowDecimals={false} />
+                    <Tooltip />
+                    <Line type="monotone" dataKey="presentes" name="Ingresos" stroke={COLORS[1]} strokeWidth={3} />
+                    <Line type="monotone" dataKey="ausentes" name="Sin registro" stroke={COLORS[3]} strokeWidth={2} />
+                  </LineChart>
+                </ResponsiveContainer>
+              )}
             </div>
             <div className="rounded-xl border bg-card p-4">
               <h3 className="mb-4 font-display text-sm font-bold uppercase tracking-wide">
-                Últimos cinco días laborales
+                Tendencia de 20 días lectivos
               </h3>
-              <ResponsiveContainer width="100%" height={250}>
-                <LineChart data={data?.ultimosCincoDias || []} margin={{ left: 0, right: 12 }}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="dia" tick={{ fontSize: 11 }} />
-                  <YAxis allowDecimals={false} />
-                  <Tooltip />
-                  <Line
-                    type="monotone"
-                    dataKey="porcentaje"
-                    name="Asistencia %"
-                    stroke={COLORS[0]}
-                    strokeWidth={3}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+              <p className="-mt-2 mb-4 text-xs text-muted-foreground">Porcentaje del padrón activo con ingreso registrado cada día hábil.</p>
+              {!hayRegistrosHistoricos ? (
+                <p className="flex h-28 items-center justify-center text-center text-sm text-muted-foreground">La tendencia aparecerá cuando existan registros de ingreso.</p>
+              ) : (
+                <ResponsiveContainer width="100%" height={250}>
+                  <LineChart data={tendencia} margin={{ left: 0, right: 12 }}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="dia" tick={{ fontSize: 11 }} />
+                    <YAxis allowDecimals={false} unit="%" />
+                    <Tooltip />
+                    <Line type="monotone" dataKey="porcentaje" name="Ingreso registrado" stroke={COLORS[0]} strokeWidth={3} />
+                  </LineChart>
+                </ResponsiveContainer>
+              )}
             </div>
           </div>
           <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
-            <GroupChart title="Por estado de comedor: población" data={estadosComedor} />
-            <GroupChart title="Por ruta: población" data={rutas} />
-            <GroupChart title="Por estado: asistencia y comedor" data={estadosComedor} stacked />
+            <GroupChart title="Beneficio de comedor" description="Distribución del padrón activo entre beneficiarios y no beneficiarios." data={estadosComedor} />
+            <GroupChart title="Rutas de transporte" description="Las 9 rutas principales y el resto agrupado. Mide asignación activa, no viajes realizados." data={rutasParaGrafico} />
+            <GroupChart title="Secciones" description="Las 9 secciones con mayor población y el resto agrupado." data={seccionesParaGrafico} />
           </div>
+          <section className="overflow-hidden rounded-xl border bg-card" aria-labelledby="casos-analiticos">
+            <div className="border-b p-4">
+              <h3 id="casos-analiticos" className="font-display font-bold">Casos para revisión</h3>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Señales históricas de apoyo; no modifican beneficios automáticamente.
+              </p>
+            </div>
+            {casosAnaliticos.length === 0 ? (
+              <p className="p-6 text-sm text-muted-foreground">Sin casos con historial suficiente para revisar. Las señales se habilitan después de al menos tres días de operación con registros.</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader><TableRow><TableHead>Estudiante</TableHead><TableHead>Sección</TableHead><TableHead>Señal</TableHead><TableHead>Asistencia</TableHead><TableHead>Consumos</TableHead></TableRow></TableHeader>
+                  <TableBody>{casosAnaliticos.map((caso) => (
+                    <TableRow key={`${caso.idPersona}-${caso.senal}`}>
+                      <TableCell className="font-medium">{caso.nombreCompleto}</TableCell>
+                      <TableCell>{caso.seccion}</TableCell>
+                      <TableCell>{caso.senal}</TableCell>
+                      <TableCell>{caso.porcentajeAsistencia}%</TableCell>
+                      <TableCell>{caso.consumosComedor}</TableCell>
+                    </TableRow>
+                  ))}</TableBody>
+                </Table>
+              </div>
+            )}
+          </section>
         </>
       )}
 

@@ -1,1 +1,2 @@
+-r requirements-produccion.txt
 pandas>=2.2,<3

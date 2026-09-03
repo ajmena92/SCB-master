@@ -19,7 +19,7 @@ from aplicacion.modelos.maestros import CredencialPortal, CuentaAdministrativa, 
 from aplicacion.modelos.operacion import CuentaTiquete
 from aplicacion.permisos import CLAVES_PERMISOS
 from aplicacion.repositorios_administracion import RepositorioAdministracion
-from aplicacion.seguridad import generar_codigo, hash_secreto, verificar_secreto
+from aplicacion.seguridad import hash_secreto, verificar_secreto
 
 
 def _secreto_temporal(longitud: int = 18) -> str:
@@ -60,7 +60,6 @@ class ServicioAdministracion:
             "persona": (
                 {
                     "id": persona.id,
-                    "codigo": persona.codigo,
                     "cedula": persona.cedula,
                     "nombres": persona.nombres,
                 }
@@ -91,7 +90,7 @@ class ServicioAdministracion:
 
     def profesores_disponibles(self) -> list[dict]:
         return [
-            {"id": p.id, "codigo": p.codigo, "cedula": p.cedula, "nombres": p.nombres}
+            {"id": p.id, "cedula": p.cedula, "nombres": p.nombres}
             for p in self.repo.profesores_disponibles()
         ]
 
@@ -109,7 +108,6 @@ class ServicioAdministracion:
             raise HTTPException(409, "La cedula ya esta registrada")
         pin = _pin_temporal()
         persona = Persona(
-            codigo=generar_codigo(self.repo.codigo_existe, "profesor"),
             cedula=cedula,
             nombres=datos.nombres.strip(),
             tipo="profesor",
@@ -176,9 +174,10 @@ class ServicioAdministracion:
             raise HTTPException(409, "Debe existir al menos un administrador activo")
         if cuenta.rol == "administrador" and nuevo_rol == "operador" and datos.permisos is None:
             raise HTTPException(422, "Debe indicar los permisos al cambiar a operador")
-        if datos.persona_id is not None:
-            if not cuenta.vinculacion_pendiente:
-                raise HTTPException(409, "El profesor vinculado no se puede cambiar")
+        if datos.persona_id is not None and datos.persona_id != cuenta.persona_id:
+            # La cuenta conserva su usuario, rol y permisos; solo se reasigna a
+            # otro profesor activo que aún no tenga una cuenta administrativa.
+            # Las sesiones previas se revocan al final de la actualización.
             cuenta.persona_id = self._profesor_existente(datos.persona_id).id
             cuenta.vinculacion_pendiente = False
         if datos.usuario is not None:

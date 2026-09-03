@@ -5,6 +5,7 @@ archivo="${POSTGRES_PASSWORD_FILE:-/run/secrets/postgres_app_password}"
 password="$(tr -d '\r\n' < "$archivo")"
 export DATABASE_URL="postgresql+psycopg://${POSTGRES_USER}:${password}@${POSTGRES_HOST}:${POSTGRES_PORT:-5432}/${POSTGRES_DB}"
 unset password
-exec uvicorn aplicacion.entrada:crear_aplicacion --factory --host 0.0.0.0 --port 8000 \
+exec setpriv --reuid=10001 --regid=10001 --init-groups \
+    uvicorn aplicacion.entrada:crear_aplicacion --factory --host 0.0.0.0 --port 8000 \
     --workers "${UVICORN_WORKERS:-2}" --proxy-headers \
     --forwarded-allow-ips="${FORWARDED_ALLOW_IPS:-127.0.0.1}"

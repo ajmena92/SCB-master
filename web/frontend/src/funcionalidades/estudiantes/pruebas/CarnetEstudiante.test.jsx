@@ -30,7 +30,6 @@ describe("carnet del estudiante", () => {
         <VistaCarnetEstudiante
           datosCarnet={{
             idEstudiante: 8,
-            carne: "2026-008",
             nombre: "Ana",
             primerApellido: "Solís",
             segundoApellido: "Rojas",
@@ -39,7 +38,7 @@ describe("carnet del estudiante", () => {
             rutaDescripcion: "Ruta Central",
             idEstadoComedor: 1,
             beneficioComedor: "Beneficiario",
-            barcode: "2026-008",
+            codigoQr: "SCBQR1.gAAAAABpQRCZxN32A47WJznSEQs30Y0qFcAh0igG73znwW1a2B8gB6Xt20RLwG25yY7zeBB-LmSXOT8TOHzPrjN7xxu5KfdGQ==",
             tieneFoto: false,
             anio: 2026,
           }}
@@ -54,8 +53,9 @@ describe("carnet del estudiante", () => {
     expect(container.textContent).toContain("Ruta Central");
     expect(container.querySelector('img[alt="Escudo del CTP Platanares"]')).not.toBeNull();
     expect(container.querySelector("a[download]")).toBeNull();
-    expect(container.querySelector('svg[aria-label="Código de barras 2026-008"]')).not.toBeNull();
-    expect(container.textContent).not.toContain("Código: 2026-008");
+    expect(container.querySelector('svg[aria-label="Código QR del carnet"]')).not.toBeNull();
+    expect(container.querySelector('button[aria-label="Ampliar QR del carnet"]')).not.toBeNull();
+    expect(container.textContent).not.toContain("121560069");
     await act(async () => root.unmount());
   });
 
@@ -73,7 +73,7 @@ describe("carnet del estudiante", () => {
             rutaDescripcion: "Ruta que no corresponde",
             idEstadoComedor: 2,
             beneficioComedor: "No beneficiario",
-            barcode: "PROF-8",
+            codigoQr: "SCBQR1.gAAAAABpQRCZxN32A47WJznSEQs30Y0qFcAh0igG73znwW1a2B8gB6Xt20RLwG25yY7zeBB-LmSXOT8TOHzPrjN7xxu5KfdGQ==",
           }}
         />,
       ),
@@ -82,7 +82,7 @@ describe("carnet del estudiante", () => {
     expect(container.textContent).not.toContain("Ruta asignada");
     expect(container.textContent).not.toContain("Ruta que no corresponde");
     expect(container.textContent).not.toContain("Beca que no corresponde");
-    expect(container.querySelector('svg[aria-label="Código de barras PROF-8"]')).not.toBeNull();
+    expect(container.querySelector('svg[aria-label="Código QR del carnet"]')).not.toBeNull();
     await act(async () => root.unmount());
   });
 });

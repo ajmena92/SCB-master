@@ -38,9 +38,6 @@ class RepositorioAdministracion:
             select(CuentaAdministrativa).where(func.lower(CuentaAdministrativa.usuario) == usuario)
         )
 
-    def codigo_existe(self, codigo: str) -> bool:
-        return self.sesion.scalar(select(Persona.id).where(Persona.codigo == codigo)) is not None
-
     def persona(self, persona_id: int) -> Persona | None:
         return self.sesion.get(Persona, persona_id)
 

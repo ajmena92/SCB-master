@@ -4,14 +4,14 @@ from sqlalchemy.orm import Session
 from aplicacion.modelos.maestros import CuentaAdministrativa, Persona
 from aplicacion.seguridad import hash_secreto
 
+from .conftest import crear_persona
+
 
 def test_cuenta_operador_exige_cambio_y_revoca_permiso_inmediatamente(entorno):
     cliente, motor, h = entorno
-    profesor = cliente.post(
-        "/api/v1/personas",
-        headers=h["admin"],
-        json={"cedula": "777", "nombres": "Docente Operador", "tipo": "profesor"},
-    ).json()
+    profesor = crear_persona(
+        cliente, h["admin"], tipo="profesor", cedula="777", nombres="Docente Operador"
+    )
     creada = cliente.post(
         "/api/v1/administracion/cuentas",
         headers=h["admin"],
@@ -52,6 +52,7 @@ def test_cuenta_operador_exige_cambio_y_revoca_permiso_inmediatamente(entorno):
     assert cambio.status_code == 200
     assert cliente.get("/api/v1/sesion", headers=cabecera).status_code == 401
 
+
     acceso = cliente.post(
         "/api/v1/autenticacion/administracion",
         json={"usuario": "nuevo.operador", "contrasena": "Otra-clave-segura-2026"},
@@ -69,6 +70,45 @@ def test_cuenta_operador_exige_cambio_y_revoca_permiso_inmediatamente(entorno):
         json={"permisos": []},
     )
     assert actualizada.status_code == 200, actualizada.text
+    assert cliente.get("/api/v1/sesion", headers=cabecera).status_code == 401
+
+
+def test_permite_cambiar_el_profesor_vinculado_y_revoca_sus_sesiones(entorno):
+    cliente, _, h = entorno
+    profesor_origen = crear_persona(
+        cliente, h["admin"], tipo="profesor", cedula="771", nombres="Docente Origen"
+    )
+    profesor_destino = crear_persona(
+        cliente, h["admin"], tipo="profesor", cedula="772", nombres="Docente Destino"
+    )
+    creada = cliente.post(
+        "/api/v1/administracion/cuentas",
+        headers=h["admin"],
+        json={
+            "personaId": profesor_origen["id"],
+            "usuario": "cuenta.reasignable",
+            "rol": "operador",
+            "permisos": ["dashboard.leer"],
+        },
+    )
+    assert creada.status_code == 201, creada.text
+    cuenta_id = creada.json()["cuenta"]["id"]
+    acceso = cliente.post(
+        "/api/v1/autenticacion/administracion",
+        json={
+            "usuario": "cuenta.reasignable",
+            "contrasena": creada.json()["credencialesTemporales"]["contrasena"],
+        },
+    )
+    cabecera = {"Authorization": f"Bearer {acceso.json()['token']}"}
+
+    actualizada = cliente.put(
+        f"/api/v1/administracion/cuentas/{cuenta_id}",
+        headers=h["admin"],
+        json={"personaId": profesor_destino["id"]},
+    )
+    assert actualizada.status_code == 200, actualizada.text
+    assert actualizada.json()["persona"]["id"] == profesor_destino["id"]
     assert cliente.get("/api/v1/sesion", headers=cabecera).status_code == 401
 
 
@@ -91,11 +131,9 @@ def test_protege_cuenta_propia_y_ultimo_administrador(entorno):
 
 def test_vinculacion_inicial_es_unica_y_rechaza_portal(entorno):
     cliente, motor, h = entorno
-    profesor_portal = cliente.post(
-        "/api/v1/personas",
-        headers=h["admin"],
-        json={"cedula": "778", "nombres": "Docente Portal", "tipo": "profesor"},
-    ).json()
+    profesor_portal = crear_persona(
+        cliente, h["admin"], tipo="profesor", cedula="778", nombres="Docente Portal"
+    )
     portal = cliente.post(
         "/api/v1/autenticacion/portal",
         json={"cedula": "778", "pin": profesor_portal["pinTemporal"]},
@@ -119,7 +157,7 @@ def test_vinculacion_inicial_es_unica_y_rechaza_portal(entorno):
             vinculacion_pendiente=True,
         )
         profesor = Persona(
-            codigo="P-00000003",
+                codigo="P-00000005",
             cedula="779",
             nombres="Docente Vinculacion",
             tipo="profesor",
@@ -167,11 +205,9 @@ def test_vinculacion_inicial_es_unica_y_rechaza_portal(entorno):
 
 def test_valida_profesor_permisos_y_usuario_sin_distinguir_mayusculas(entorno):
     cliente, motor, h = entorno
-    estudiante = cliente.post(
-        "/api/v1/personas",
-        headers=h["admin"],
-        json={"cedula": "780", "nombres": "Persona Estudiante", "tipo": "estudiante"},
-    ).json()
+    estudiante = crear_persona(
+        cliente, h["admin"], cedula="780", nombres="Persona Estudiante"
+    )
     invalida = cliente.post(
         "/api/v1/administracion/cuentas",
         headers=h["admin"],
@@ -184,11 +220,9 @@ def test_valida_profesor_permisos_y_usuario_sin_distinguir_mayusculas(entorno):
     )
     assert invalida.status_code == 422
 
-    profesor = cliente.post(
-        "/api/v1/personas",
-        headers=h["admin"],
-        json={"cedula": "781", "nombres": "Profesor Disponible", "tipo": "profesor"},
-    ).json()
+    profesor = crear_persona(
+        cliente, h["admin"], tipo="profesor", cedula="781", nombres="Profesor Disponible"
+    )
     desconocido = cliente.post(
         "/api/v1/administracion/cuentas",
         headers=h["admin"],
@@ -237,7 +271,7 @@ def test_valida_profesor_permisos_y_usuario_sin_distinguir_mayusculas(entorno):
 
     with Session(motor) as sesion:
         disponible = Persona(
-            codigo="P-00000004",
+            codigo="P-00000006",
             cedula="783",
             nombres="Profesor Inactivo",
             tipo="profesor",

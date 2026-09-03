@@ -10,6 +10,7 @@ import {
 } from "@/config/adminNavigation";
 import AdminSidebar from "@/compartido/componentes/AdminSidebar";
 import AdminBottomNav from "@/compartido/componentes/AdminBottomNav";
+import { SelectorTema } from "@/compartido/componentes/SelectorTema";
 
 export default function AdminPanel() {
   const { session, logout } = useAutenticacion();
@@ -17,6 +18,7 @@ export default function AdminPanel() {
   const location = useLocation();
   const activeModule = ADMIN_NAVIGATION.find((item) => item.path === location.pathname);
   const activeGroup = obtenerGrupoAdministrativoActivo(location.pathname);
+  const esExpediente = location.pathname.startsWith("/admin/panel/estudiantes/expediente/");
 
   return (
     <div className="min-h-[100dvh] bg-background text-foreground">
@@ -40,7 +42,7 @@ export default function AdminPanel() {
               <ShieldCheck className="h-5 w-5" />
             </span>
             <span className="min-w-0">
-              <span className="block truncate font-display text-sm font-black tracking-tight sm:text-base">
+              <span className="block truncate font-heading text-sm font-bold tracking-tight sm:text-base">
                 Comedor SCSC
               </span>
               <span className="hidden text-xs font-medium text-muted-foreground sm:block">
@@ -49,6 +51,7 @@ export default function AdminPanel() {
             </span>
           </button>
           <div className="flex items-center gap-3">
+            <SelectorTema />
             <div className="text-right hidden sm:block">
               <p className="text-sm font-semibold leading-tight">
                 {session?.nombres || session?.usuario}
@@ -77,19 +80,19 @@ export default function AdminPanel() {
           id="admin-content"
           className="min-w-0 flex-1 overflow-x-hidden px-4 py-6 pb-28 sm:px-6 lg:px-8 lg:py-8 lg:pb-8 xl:px-10"
         >
-          <div className="mb-8 flex min-w-0 items-end justify-between gap-4 border-b border-border/80 pb-5">
+          {!esExpediente && <div className="mb-8 flex min-w-0 items-end justify-between gap-4 border-b border-border/80 pb-5">
             <div className="min-w-0">
               <p className="text-xs font-semibold capitalize tracking-wide text-muted-foreground">
                 {activeGroup || "Administración"}
               </p>
-              <h1 className="mt-1 truncate font-display text-2xl font-black tracking-tight text-foreground">
+              <h1 className="mt-1 truncate font-heading text-2xl font-bold tracking-tight text-foreground">
                 {activeModule?.label || "Panel administrativo"}
               </h1>
             </div>
             <span className="hidden shrink-0 rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-semibold text-muted-foreground sm:inline-flex">
               Vista web
             </span>
-          </div>
+          </div>}
           <Outlet />
         </main>
       </div>

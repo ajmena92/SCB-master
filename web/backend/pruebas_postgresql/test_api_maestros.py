@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from aplicacion.modelos.maestros import SesionAcceso
 from aplicacion.seguridad import token_hash
 
-from .conftest import preparar_estudiante
+from .conftest import crear_persona, preparar_estudiante
 
 
 def test_rutas_publicas_y_rbac(entorno):
@@ -41,12 +41,7 @@ def test_resumen_personas_es_global_y_requiere_permiso_administrar(entorno):
     respuesta = cliente.get("/api/v1/personas/resumen", headers=h["admin"])
 
     assert respuesta.status_code == 200
-    assert respuesta.json() == {
-        "total": 5,
-        "estudiantesActivos": 1,
-        "profesoresActivos": 3,
-        "inactivos": 1,
-    }
+    assert respuesta.json() == {"estudiantesActivos": 0, "estudiantesInactivos": 0}
     assert cliente.get("/api/v1/personas/resumen", headers=h["operador"]).status_code == 403
 
 
@@ -133,7 +128,7 @@ def test_expediente_busqueda_estados_y_reinicio_de_pin(entorno):
     ).status_code == 401
     assert cliente.post(
         "/api/v1/autenticacion/portal",
-        json={"cedula": "701-A", "pin": reinicio.json()["pinTemporal"]},
+        json={"cedula": "701", "pin": reinicio.json()["pinTemporal"]},
     ).json()["cambioObligatorio"] is True
     assert cliente.post(
             "/api/v1/personas/pines/seccion",
@@ -143,12 +138,14 @@ def test_expediente_busqueda_estados_y_reinicio_de_pin(entorno):
     assert cliente.post(
         f"/api/v1/personas/{persona['id']}/desactivar", headers=h["admin"]
     ).status_code == 200
-    assert not cliente.get(
+    activos = cliente.get(
         "/api/v1/personas", headers=h["admin"], params={"estado": "activos"}
     ).json()["elementos"]
-    assert cliente.get(
+    assert all(fila["id"] != persona["id"] for fila in activos)
+    inactivos = cliente.get(
         "/api/v1/personas", headers=h["admin"], params={"estado": "inactivos"}
-    ).json()["elementos"][0]["id"] == persona["id"]
+    ).json()["elementos"]
+    assert any(fila["id"] == persona["id"] for fila in inactivos)
 
 
 def test_beneficios_atomicos_exigen_matricula_vigente_y_ruta_operativa(entorno):
@@ -195,11 +192,10 @@ def test_beneficios_atomicos_exigen_matricula_vigente_y_ruta_operativa(entorno):
 
 def test_cambio_pin_revoca_sesion_y_desactiva_cambio_obligatorio(entorno):
     cliente, motor, h = entorno
-    persona = cliente.post(
-        "/api/v1/personas",
-        headers=h["admin"],
-        json={"cedula": "77", "nombres": "Pin Temporal", "tipo": "estudiante"},
-    ).json()
+    persona = crear_persona(
+        cliente, h["admin"], cedula="77", nombres="Pin Temporal",
+        cambio_pin_obligatorio=True,
+    )
     acceso = cliente.post(
         "/api/v1/autenticacion/portal",
         json={
@@ -264,7 +260,6 @@ def test_alta_manual_se_rechaza_aunque_los_datos_sean_validos(entorno):
             "cedula": "78",
             "nombres": "Alta segura",
             "tipo": "profesor",
-            "pin": "111111",
         },
     )
     assert respuesta.status_code == 409

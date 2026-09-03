@@ -2,9 +2,9 @@
 
 ## Alcance
 
-El portal construye el carnet dentro de la vista **Mi carnet digital** como una tarjeta HTML con fotografía, nombre, sección, ruta y código de barras Code 128 en SVG. El código de barras usa el identificador web con prefijo `E-` para estudiantes y `P-` para profesores. No se muestra el código numérico sensible y no existen descargas PNG ni PDF.
+El portal construye el carnet dentro de la vista **Mi carnet digital** como una tarjeta HTML con fotografía, nombre, sección, ruta y QR cifrado en SVG. El QR no contiene la cédula ni un identificador legible; la API lo resuelve antes de aplicar las reglas de comedor. No existen descargas PNG ni PDF.
 
-El estudiante puede consultar su carnet únicamente en línea desde **Mi carnet digital**. El profesor muestra nombre, etiqueta de profesor, colegio, logo y código de barras, sin ruta ni estado de beca.
+El estudiante puede consultar su carnet únicamente en línea desde **Mi carnet digital**. El profesor muestra nombre, etiqueta de profesor, colegio, logo y QR cifrado, sin ruta ni estado de beca.
 
 ## Kiosco de comedor
 
@@ -53,8 +53,8 @@ Las miniaturas administrativas se solicitan mediante `?size=thumb` y se entregan
 
 ## Validación operativa
 
-- Escanear un carnet PNG desde el lector local y confirmar que se recibe la cédula esperada.
-- Confirmar que el prefijo configurado en `ControlCarnet` se conserva.
+- Escanear un carnet desde el lector QR local y confirmar que se acepta el token cifrado sin exponer la cédula.
+- Confirmar que `CARNET_QR_CLAVE` está definida exclusivamente en el entorno de la API.
 - Probar un estudiante con beca en un día autorizado por `DiasBeca`.
 - Probar un estudiante sin fotografía: debe aparecer como carnet provisional.
 - Reemplazar una fotografía desde Administración y confirmar que la vista previa cambia.

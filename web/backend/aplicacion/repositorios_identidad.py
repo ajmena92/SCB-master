@@ -48,9 +48,6 @@ class RepositorioIdentidad:
     def cuenta(self, cuenta_id: int) -> CuentaAdministrativa | None:
         return self.sesion.get(CuentaAdministrativa, cuenta_id)
 
-    def codigo_existe(self, codigo: str) -> bool:
-        return self.sesion.scalar(select(Persona.id).where(Persona.codigo == codigo)) is not None
-
     def guardar_sesion(self, acceso: SesionAcceso) -> None:
         self.sesion.add(acceso)
         self.sesion.flush()

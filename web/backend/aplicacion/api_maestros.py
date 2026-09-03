@@ -45,6 +45,15 @@ def crear_router(obtener_servicio, exigir_permiso, exigir_alguno) -> APIRouter:
         return servicio.resumen_personas()
 
     @router.get(
+        "/personas/referencias/{referencia_publica}",
+        dependencies=[Depends(exigir_permiso("personas.administrar"))],
+    )
+    async def obtener_persona_referencia_publica(
+        referencia_publica: str, servicio=Depends(obtener_servicio)
+    ):
+        return servicio.obtener_persona_referencia_publica(referencia_publica)
+
+    @router.get(
         "/personas/{persona_id}",
         dependencies=[Depends(exigir_permiso("personas.administrar"))],
     )
@@ -91,6 +100,13 @@ def crear_router(obtener_servicio, exigir_permiso, exigir_alguno) -> APIRouter:
     )
     async def secciones_anio(anio_id: int, servicio=Depends(obtener_servicio)):
         return servicio.listar_secciones_anio(anio_id)
+
+    @router.get(
+        "/anios-lectivos/{anio_id}/secciones/{seccion}/resumen-pines",
+        dependencies=[Depends(exigir_permiso("personas.administrar"))],
+    )
+    async def resumen_pines_seccion(anio_id: int, seccion: str, servicio=Depends(obtener_servicio)):
+        return servicio.resumen_pines_seccion(anio_id, seccion)
 
     @router.post(
         "/anios-lectivos",

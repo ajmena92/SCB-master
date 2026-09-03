@@ -48,7 +48,7 @@ def crear_aplicacion(
         return ServicioCatalogos(RepositorioCatalogos(sesion))
 
     async def obtener_operacion(sesion=__import__("fastapi").Depends(obtener_sesion)):
-        return ServicioOperacion(RepositorioOperacion(sesion))
+        return ServicioOperacion(RepositorioOperacion(sesion), configuracion.carnet_qr_clave)
 
     async def obtener_importacion(sesion=__import__("fastapi").Depends(obtener_sesion)):
         return ServicioImportacion(RepositorioImportacion(sesion))
@@ -57,7 +57,7 @@ def crear_aplicacion(
         return ServicioReportes(RepositorioReportes(sesion))
 
     async def obtener_portal(sesion=__import__("fastapi").Depends(obtener_sesion)):
-        return ServicioPortal(RepositorioPortal(sesion))
+        return ServicioPortal(RepositorioPortal(sesion), configuracion.carnet_qr_clave)
 
     async def obtener_administracion(sesion=__import__("fastapi").Depends(obtener_sesion)):
         return ServicioAdministracion(RepositorioAdministracion(sesion))

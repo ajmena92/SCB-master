@@ -55,6 +55,8 @@ export const plataformaApi = {
     } = {}) => listar<Persona>("/v1/personas", parametros),
     obtener: async (id: number) =>
       normalizarObjeto<Persona>((await api.get(`/v1/personas/${id}`)).data),
+    obtenerPorReferencia: async (referenciaPublica: string) =>
+      normalizarObjeto<Persona>((await api.get(`/v1/personas/referencias/${encodeURIComponent(referenciaPublica)}`)).data),
     resumen: async () => normalizarObjeto<ResumenPersonas>((await api.get("/v1/personas/resumen")).data),
     crear: async (datos: Omit<Persona, "id" | "codigo">) =>
       (
@@ -92,6 +94,10 @@ export const plataformaApi = {
       api.post<AnioLectivo>("/v1/anios-lectivos", datos),
     activar: (id: number) => api.post<AnioLectivo>(`/v1/anios-lectivos/${id}/activar`),
     secciones: (id: number) => listar<string>(`/v1/anios-lectivos/${id}/secciones`),
+    resumenPinesSeccion: async (anioId: number, seccion: string) =>
+      normalizarObjeto<{ estudiantesActivos: number }>(
+        (await api.get(`/v1/anios-lectivos/${anioId}/secciones/${encodeURIComponent(seccion)}/resumen-pines`)).data,
+      ),
   },
   matriculas: {
     listar: async (anioLectivoId?: number) => {
@@ -177,6 +183,15 @@ export const plataformaApi = {
     },
   },
   tiquetes: {
+    buscarPersonas: async (buscar: string) =>
+      normalizarObjeto<Array<Persona & { becado: boolean; saldoTiquetes: number }>>(
+        (await api.get("/v1/tiquetes/personas", { params: { buscar } })).data,
+      ),
+    fotoPersona: async (personaId: number) =>
+      (await api.get(`/v1/tiquetes/personas/${personaId}/foto`, {
+        responseType: "blob",
+        omitirManejoFalloAutenticacion: true,
+      })).data as Blob,
     tarifas: async () => {
       const pagina = await listar<
         Tarifa & { monto?: number; fechaInicio?: string; fechaFin?: string | null }
@@ -198,15 +213,28 @@ export const plataformaApi = {
         fechaInicio: datos.vigenteDesde,
         fechaFin: datos.vigenteHasta,
       }),
-    vender: (datos: { codigo: string; cantidad: number; medioPago: string }) =>
+    vender: (datos: { cedula: string; cantidad: number; medioPago: string }) =>
       api.post("/v1/tiquetes/ventas", datos),
+    horariosReserva: async () => normalizarObjeto<Array<{ turno: string; horaLimite: string }>>((await api.get("/v1/parametros-operativos/horarios-reserva")).data),
+    actualizarHorarioReserva: (datos: { turno: string; horaLimite: string }) =>
+      api.put(`/v1/parametros-operativos/horarios-reserva/${encodeURIComponent(datos.turno)}`, datos),
+    institucion: async () => normalizarObjeto<{ nombreColegio: string; subtituloReportes: string }>((await api.get("/v1/parametros-operativos/institucion")).data),
+    actualizarInstitucion: (datos: { nombreColegio: string; subtituloReportes: string }) =>
+      api.put("/v1/parametros-operativos/institucion", datos),
   },
   comedor: {
     reservar: (fecha: string) => api.post("/v1/comedor/reservas", { fecha }),
-    cancelarReserva: (id: number) => api.delete(`/v1/comedor/reservas/${id}`),
+    cancelarReserva: (fecha: string) => api.delete("/v1/comedor/reservas", { data: { fecha } }),
+    fotoPersona: async (personaId: number) =>
+      (
+        await api.get(`/v1/comedor/personas/${personaId}/foto`, {
+          responseType: "blob",
+          omitirManejoFalloAutenticacion: true,
+        })
+      ).data as Blob,
     registrarIngreso: async (codigo: string): Promise<ResultadoOperacion> => {
       const { data } = await api.post("/v1/comedor/operacion", {
-        codigo,
+        cedula: codigo,
         fecha: new Date().toISOString().slice(0, 10),
       });
       return normalizarObjeto<ResultadoOperacion>(data);
@@ -234,7 +262,7 @@ export const plataformaApi = {
       observacion: string,
     ) =>
       api.post("/v1/comedor/autorizaciones", {
-        codigo,
+        cedula: codigo,
         fecha: new Date().toISOString().slice(0, 10),
         decision,
         motivo: observacion,
