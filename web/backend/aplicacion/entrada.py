@@ -42,7 +42,13 @@ def crear_aplicacion(
     obtener_sesion = dependencia_sesion(crear_fabrica_sesiones(motor))
 
     async def obtener_identidad(sesion=__import__("fastapi").Depends(obtener_sesion)):
-        return ServicioIdentidad(RepositorioIdentidad(sesion))
+        return ServicioIdentidad(
+            RepositorioIdentidad(sesion),
+            student_max_login_attempts=configuracion.student_max_login_attempts,
+            student_lock_minutes=configuracion.student_lock_minutes,
+            admin_max_login_attempts=configuracion.admin_max_login_attempts,
+            admin_lock_minutes=configuracion.admin_lock_minutes,
+        )
 
     async def obtener_catalogos(sesion=__import__("fastapi").Depends(obtener_sesion)):
         return ServicioCatalogos(RepositorioCatalogos(sesion))

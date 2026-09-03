@@ -143,6 +143,7 @@ export const plataformaApi = {
         total: number;
         altas: number;
         cambios: number;
+        desactivaciones?: number;
         errores: Array<{ fila: number; error: string }>;
         datos: { anio: number; filas: unknown[] };
       }>("/v1/importaciones/previsualizar", cuerpo);
@@ -151,7 +152,7 @@ export const plataformaApi = {
         filas: data.total,
         altas: data.altas,
         cambios: data.cambios,
-        desactivaciones: data.desactivaciones,
+        desactivaciones: data.desactivaciones ?? 0,
         errores: data.errores.length,
         detalle: data.errores.map((error) => ({
           fila: error.fila,
@@ -164,9 +165,16 @@ export const plataformaApi = {
       const { data } = await api.post("/v1/importaciones/confirmar", JSON.parse(token));
       const normalizados = normalizarObjeto<{
         credenciales?: CredencialTemporal[];
+        codigo?: string;
         [campo: string]: unknown;
       }>(data);
-      return { ...normalizados, credenciales: normalizados.credenciales ?? [] };
+      const credenciales = (normalizados.credenciales ?? []).map((credencial) => {
+        const legado = credencial as CredencialTemporal & { codigo?: string };
+        const resto = { ...legado };
+        delete resto.codigo;
+        return { ...resto, cedula: legado.cedula ?? legado.codigo ?? "" };
+      });
+      return { ...normalizados, credenciales, };
     },
   },
   menu: {

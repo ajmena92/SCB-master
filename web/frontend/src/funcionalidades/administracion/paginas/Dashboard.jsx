@@ -224,7 +224,7 @@ export default function DashboardTab() {
                   .map((alerta) => (
                     <div key={alerta.tipo} className="rounded-lg bg-white/70 p-3 text-sm">
                       <p className="font-semibold">{alerta.titulo}</p>
-                      <p className="mt-1 text-2xl font-black tabular-nums">{alerta.cantidad}</p>
+                      <p className="mt-1 text-2xl font-bold tabular-nums">{alerta.cantidad}</p>
                     </div>
                   ))}
               </div>

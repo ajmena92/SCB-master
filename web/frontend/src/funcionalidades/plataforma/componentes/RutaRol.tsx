@@ -24,7 +24,7 @@ export default function RutaRol({
     if (destino && destino !== location.pathname) return <Navigate to={destino} replace />;
     return (
       <section className="mx-auto max-w-lg rounded-2xl border border-dashed p-8 text-center">
-        <h2 className="font-display text-xl font-black">Sin módulos asignados</h2>
+        <h2 className="font-display text-xl font-bold">Sin módulos asignados</h2>
         <p className="mt-2 text-sm text-muted-foreground">
           Tu cuenta no tiene permiso para abrir esta sección. Solicitá el acceso a un administrador.
         </p>

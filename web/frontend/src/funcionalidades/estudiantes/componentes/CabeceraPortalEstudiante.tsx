@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { KeyRound, LogOut, UtensilsCrossed } from "lucide-react";
+import { SelectorTema } from "@/compartido/componentes/SelectorTema";
 
 export function CabeceraPortalEstudiante({ alCerrarSesion }: { alCerrarSesion: () => void }) {
   const navegar = useNavigate();
@@ -10,9 +11,10 @@ export function CabeceraPortalEstudiante({ alCerrarSesion }: { alCerrarSesion: (
       <div className="mx-auto flex h-16 max-w-2xl items-center justify-between px-5">
         <div className="flex items-center gap-2 text-secondary">
           <UtensilsCrossed className="h-6 w-6" />
-          <span className="font-display font-black tracking-tight">Comedor SCSC</span>
+          <span className="font-heading font-bold tracking-tight">Comedor SCSC</span>
         </div>
         <div className="flex items-center gap-1">
+          <SelectorTema />
           <Button
             variant="ghost"
             size="sm"

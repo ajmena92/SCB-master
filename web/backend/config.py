@@ -19,6 +19,16 @@ def _origen_https(valor: str) -> str:
     return origen
 
 
+def _entero_en_rango(nombre: str, minimo: int, maximo: int) -> int:
+    try:
+        valor = int(os.getenv(nombre, "").strip())
+    except ValueError as exc:
+        raise RuntimeError(f"{nombre} debe ser un entero") from exc
+    if not minimo <= valor <= maximo:
+        raise RuntimeError(f"{nombre} debe estar entre {minimo} y {maximo}")
+    return valor
+
+
 @dataclass(frozen=True)
 class Settings:
     database_url: str
@@ -26,6 +36,10 @@ class Settings:
     cookie_secure: bool
     app_timezone: str = "America/Costa_Rica"
     carnet_qr_clave: str = ""
+    student_max_login_attempts: int = 8
+    student_lock_minutes: int = 5
+    admin_max_login_attempts: int = 5
+    admin_lock_minutes: int = 15
 
     @classmethod
     def from_environment(cls) -> "Settings":
@@ -45,4 +59,8 @@ class Settings:
             _origen_https(origen),
             seguro == "true",
             carnet_qr_clave=os.getenv("CARNET_QR_CLAVE", "").strip(),
+            student_max_login_attempts=_entero_en_rango("STUDENT_MAX_LOGIN_ATTEMPTS", 3, 20),
+            student_lock_minutes=_entero_en_rango("STUDENT_LOCK_MINUTES", 1, 120),
+            admin_max_login_attempts=_entero_en_rango("ADMIN_MAX_LOGIN_ATTEMPTS", 3, 20),
+            admin_lock_minutes=_entero_en_rango("ADMIN_LOCK_MINUTES", 1, 120),
         )

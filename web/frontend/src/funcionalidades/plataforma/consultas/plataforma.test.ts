@@ -50,6 +50,7 @@ describe("plataformaApi", () => {
 
     const persona = await plataformaApi.personas.crear({
       cedula: "1-1111-1111",
+      referenciaPublica: "persona-ana-mora",
       nombres: "Ana",
       apellidos: "Mora",
       tipo: "estudiante",
@@ -128,26 +129,26 @@ describe("plataformaApi", () => {
     );
 
     expect(resultado.credenciales).toEqual([
-      { codigo: "E-00000018", nombre: "Ana", pinTemporal: "654321" },
+      { cedula: "E-00000018", nombre: "Ana", pinTemporal: "654321" },
     ]);
   });
 
-  it("usa código institucional en ventas y escaneos de comedor", async () => {
+  it("usa la cédula en ventas y escaneos de comedor", async () => {
     vi.mocked(api.post).mockResolvedValue({ data: {} });
     await plataformaApi.tiquetes.vender({
-      codigo: "E-00000018",
+      cedula: "E-00000018",
       cantidad: 2,
       medioPago: "efectivo",
     });
     await plataformaApi.comedor.registrarIngreso("E-00000018");
 
     expect(api.post).toHaveBeenNthCalledWith(1, "/v1/tiquetes/ventas", {
-      codigo: "E-00000018",
+      cedula: "E-00000018",
       cantidad: 2,
       medioPago: "efectivo",
     });
     expect(api.post).toHaveBeenNthCalledWith(2, "/v1/comedor/operacion", {
-      codigo: "E-00000018",
+      cedula: "E-00000018",
       fecha: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
     });
   });

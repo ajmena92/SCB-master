@@ -132,7 +132,7 @@ export default function UsuariosAdministrativos() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-sm font-semibold text-primary">Acceso administrativo</p>
-          <h2 id="usuarios-titulo" className="font-display text-2xl font-black tracking-tight">
+          <h2 id="usuarios-titulo" className="font-display text-2xl font-bold tracking-tight">
             Usuarios y permisos
           </h2>
           <p className="mt-2 max-w-2xl text-sm text-muted-foreground">

@@ -29,7 +29,7 @@ describe("ProveedorAutenticacion", () => {
     contenedor = document.createElement("div");
     document.body.appendChild(contenedor);
     raiz = createRoot(contenedor);
-    vi.clearAllMocks();
+    vi.resetAllMocks();
     sessionStorage.clear();
   });
 
@@ -39,6 +39,7 @@ describe("ProveedorAutenticacion", () => {
   });
 
   it("conserva el rol y los permisos explícitos de la sesión canónica", async () => {
+    guardarTokenSesion("token-prueba");
     api.get.mockResolvedValueOnce({
       status: 200,
       data: {
@@ -75,6 +76,7 @@ describe("ProveedorAutenticacion", () => {
   });
 
   it("no concede un rol ni permisos cuando la sesión no los declara", async () => {
+    guardarTokenSesion("token-prueba");
     api.get.mockResolvedValueOnce({
       status: 200,
       data: {
@@ -121,7 +123,8 @@ describe("ProveedorAutenticacion", () => {
   });
 
   it("conserva la obligación de cambiar PIN al restaurar la sesión", async () => {
-    api.get.mockResolvedValueOnce({
+    guardarTokenSesion("token-prueba");
+    api.get.mockResolvedValue({
       status: 200,
       data: {
         tipo: "portal",
@@ -137,6 +140,9 @@ describe("ProveedorAutenticacion", () => {
           <Consumidor />
         </ProveedorAutenticacion>,
       );
+    });
+    await act(async () => {
+      await new Promise((resolver) => setTimeout(resolver, 100));
     });
 
     expect(contenedor.querySelector('[data-testid="debe-cambiar-pin"]')?.textContent).toBe("true");

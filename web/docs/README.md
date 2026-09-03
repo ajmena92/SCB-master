@@ -6,8 +6,6 @@
 
 - [Plan de migración total a la plataforma web](PLAN_MIGRACION_TOTAL_WEB.md) — control oficial de la estandarización, modularización, migración única y retiro de WinForms.
 - [Plan de cierre de la plataforma web](PLAN_CIERRE_PLATAFORMA_WEB.md) — alcance web-only, inventario de dominios, criterios de 100 % y puertas de calidad; la migración WinForms queda pospuesta.
-- [Plan de implementación del menú administrativo](PLAN_IMPLEMENTACION_MENU_ADMIN.md) — fases, responsables, criterios de aceptación, riesgos y registro de evidencias.
-- [Matriz de migración del menú administrativo](MATRIZ_MIGRACION_MENU_ADMIN.md) — inventario escritorio→web, rutas, grupos, estados, permisos y vacíos de la Fase 0.
 
 ### Arquitectura y convenciones
 

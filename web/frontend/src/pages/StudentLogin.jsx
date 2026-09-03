@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { AlertTriangle, Loader2, UtensilsCrossed, ShieldCheck } from "lucide-react";
+import { SelectorTema } from "@/compartido/componentes/SelectorTema";
 
 export default function StudentLogin() {
   const pinInputRef = useRef(null);
@@ -34,10 +35,10 @@ export default function StudentLogin() {
         <div className="relative z-10 flex flex-col justify-between h-full p-12 text-white">
           <div className="flex items-center gap-3">
             <UtensilsCrossed className="h-8 w-8" />
-            <span className="font-display font-black text-xl tracking-tight">Comedor SCSC</span>
+            <span className="font-display font-bold text-xl tracking-tight">Comedor SCSC</span>
           </div>
           <div>
-            <h1 className="font-display text-4xl sm:text-5xl font-black tracking-tighter leading-none">
+            <h1 className="font-display text-4xl sm:text-5xl font-bold tracking-tighter leading-none">
               Reservá tu almuerzo antes del cierre.
             </h1>
             <p className="mt-4 text-base text-white/80 max-w-md">
@@ -48,13 +49,14 @@ export default function StudentLogin() {
         </div>
       </div>
 
-      <div className="flex items-center justify-center p-6 sm:p-12">
+      <div className="relative flex items-center justify-center p-6 sm:p-12">
+        <div className="absolute right-4 top-4"><SelectorTema /></div>
         <div className="w-full max-w-sm animate-fade-up">
           <div className="lg:hidden flex items-center gap-2 mb-8 text-secondary">
             <UtensilsCrossed className="h-7 w-7" />
-            <span className="font-display font-black text-lg">Comedor SCSC</span>
+            <span className="font-heading font-bold text-lg">Comedor SCSC</span>
           </div>
-          <p className="text-xs uppercase tracking-[0.2em] font-bold text-primary mb-2">
+          <p className="mb-2 font-body text-xs font-medium uppercase tracking-[0.2em] text-primary">
             Acceso de estudiantes y profesores
           </p>
           <h2 className="font-display text-3xl font-bold tracking-tight mb-8">
@@ -124,7 +126,7 @@ export default function StudentLogin() {
               type="submit"
               data-testid="student-login-submit"
               disabled={cargando}
-              className="w-full h-12 rounded-full text-base font-bold transition-transform hover:-translate-y-0.5"
+              className="h-12 w-full rounded-full text-base font-semibold transition-transform hover:-translate-y-0.5"
             >
               {cargando ? <Loader2 className="h-5 w-5 animate-spin" /> : "Ingresar"}
             </Button>

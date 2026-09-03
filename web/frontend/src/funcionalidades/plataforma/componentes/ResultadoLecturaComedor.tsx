@@ -86,7 +86,7 @@ export function ResultadoLecturaComedor({
           <Badge variant="secondary" className="mb-3 font-bold uppercase tracking-[0.14em]">
             {visual.etiqueta}
           </Badge>
-          <h3 className="font-display text-3xl font-black tracking-tight sm:text-4xl">
+          <h3 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">
             {resultado?.persona?.nombres ?? visual.titulo}
           </h3>
           <p className="mt-2 text-base font-semibold sm:text-lg">

@@ -75,10 +75,10 @@ export function TarjetaCarnet({
               className="h-12 w-12 rounded-full bg-white/90 object-contain p-1"
             />
             <div>
-              <p className="text-[0.6rem] font-black uppercase tracking-[0.14em] opacity-80">
+              <p className="text-[0.6rem] font-bold uppercase tracking-[0.14em] opacity-80">
                 {NOMBRE_COLEGIO}
               </p>
-              <h3 className="mt-1 font-display text-xl font-black tracking-tight">Mi carnet</h3>
+              <h3 className="mt-1 font-display text-xl font-bold tracking-tight">Mi carnet</h3>
             </div>
           </div>
           <IdCard className="h-8 w-8 shrink-0 opacity-90" aria-hidden="true" />
@@ -92,7 +92,7 @@ export function TarjetaCarnet({
                 className="h-full w-full object-cover object-top"
               />
             ) : (
-              <div className="flex h-full items-center justify-center text-center text-[0.6rem] font-black uppercase leading-tight opacity-80">
+              <div className="flex h-full items-center justify-center text-center text-[0.6rem] font-bold uppercase leading-tight opacity-80">
                 Foto
                 <br />
                 pendiente
@@ -100,10 +100,10 @@ export function TarjetaCarnet({
             )}
           </div>
           <div className="min-w-0 pb-1">
-            <p className="text-[0.62rem] font-black uppercase tracking-[0.18em] opacity-70">
+            <p className="text-[0.62rem] font-bold uppercase tracking-[0.18em] opacity-70">
               {tipoPersona === "profesor" ? "Profesor" : "Estudiante"}
             </p>
-            <p className="mt-1 line-clamp-3 font-display text-lg font-black leading-tight">
+            <p className="mt-1 line-clamp-3 font-display text-lg font-bold leading-tight">
               {nombre || "Sin nombre"}
             </p>
           </div>
@@ -113,14 +113,14 @@ export function TarjetaCarnet({
         <div className="grid grid-cols-2 gap-4 text-sm">
           {tipoPersona === "profesor" ? (
             <div className="col-span-2">
-              <p className="text-[0.62rem] font-black uppercase tracking-wider text-muted-foreground">
+              <p className="text-[0.62rem] font-bold uppercase tracking-wider text-muted-foreground">
                 Colegio
               </p>
               <p className="mt-1 font-bold">{datosCarnet.colegio || NOMBRE_COLEGIO}</p>
             </div>
           ) : (
             <div>
-              <p className="text-[0.62rem] font-black uppercase tracking-wider text-muted-foreground">
+              <p className="text-[0.62rem] font-bold uppercase tracking-wider text-muted-foreground">
                 Año
               </p>
               <p className="mt-1 font-bold">{obtenerAnioCarnet(datosCarnet)}</p>
@@ -128,7 +128,7 @@ export function TarjetaCarnet({
           )}
           {tipoPersona === "estudiante" && (
             <div>
-              <p className="text-[0.62rem] font-black uppercase tracking-wider text-muted-foreground">
+              <p className="text-[0.62rem] font-bold uppercase tracking-wider text-muted-foreground">
                 Sección
               </p>
               <p className="mt-1 font-bold">{datosCarnet.seccion || "Sin sección"}</p>
@@ -136,7 +136,7 @@ export function TarjetaCarnet({
           )}
           {tipoPersona === "estudiante" && (
             <div>
-              <p className="text-[0.62rem] font-black uppercase tracking-wider text-muted-foreground">
+              <p className="text-[0.62rem] font-bold uppercase tracking-wider text-muted-foreground">
                 Ruta asignada
               </p>
               <p className="mt-1 font-bold">{datosCarnet.rutaDescripcion || "Sin ruta"}</p>
@@ -154,7 +154,7 @@ export function TarjetaCarnet({
           <span className="absolute right-3 top-3 grid h-10 w-10 place-items-center rounded-full bg-background/90 text-primary shadow-sm transition-transform duration-200 group-hover:scale-105" aria-hidden="true">
             <Expand className="h-4 w-4" />
           </span>
-          <span className="mb-3 flex items-center gap-2 text-left text-[0.65rem] font-black uppercase tracking-[0.16em] text-primary">
+          <span className="mb-3 flex items-center gap-2 text-left text-[0.65rem] font-bold uppercase tracking-[0.16em] text-primary">
             <ScanLine className="h-4 w-4" aria-hidden="true" /> Listo para escanear
           </span>
           <span className="block rounded-xl bg-background p-3 shadow-sm">
@@ -174,7 +174,7 @@ export function TarjetaCarnet({
       <Dialog open={qrAbierto} onOpenChange={setQrAbierto}>
         <DialogContent className="max-w-md p-5 sm:p-7">
           <DialogHeader>
-            <DialogTitle className="font-display text-xl font-black">QR del carnet</DialogTitle>
+            <DialogTitle className="font-display text-xl font-bold">QR del carnet</DialogTitle>
             <DialogDescription>
               Presentalo completo y con buen brillo ante el lector del comedor.
             </DialogDescription>

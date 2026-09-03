@@ -2,7 +2,7 @@
 
 import sqlalchemy as sa
 
-from alembic import op
+from alembic import context, op
 
 revision = "0002_sesion_cambio_obligatorio"
 down_revision = "0001_postgresql_inicial"
@@ -15,7 +15,9 @@ def _columnas() -> set[str]:
 
 
 def upgrade() -> None:
-    if "cambio_obligatorio" not in _columnas():
+    # La secuencia canónica parte de una base vacía: en modo --sql no existe
+    # conexión para inspeccionar, por lo que el DDL se emite directamente.
+    if context.is_offline_mode() or "cambio_obligatorio" not in _columnas():
         op.add_column(
             "sesion_acceso",
             sa.Column(
@@ -29,5 +31,5 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    if "cambio_obligatorio" in _columnas():
+    if context.is_offline_mode() or "cambio_obligatorio" in _columnas():
         op.drop_column("sesion_acceso", "cambio_obligatorio")

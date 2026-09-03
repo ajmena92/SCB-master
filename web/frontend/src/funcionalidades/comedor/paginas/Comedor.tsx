@@ -80,7 +80,7 @@ export default function Comedor() {
             <UtensilsCrossed />
           </span>
           <div>
-            <h2 className="font-display text-xl font-black sm:text-2xl">Ingreso al comedor</h2>
+            <h2 className="font-display text-xl font-bold sm:text-2xl">Ingreso al comedor</h2>
             <p className="text-sm text-slate-400">Lectura operativa de carnets</p>
           </div>
         </div>
@@ -119,7 +119,7 @@ export default function Comedor() {
             <p className="text-xs font-bold uppercase tracking-widest text-slate-400">
               Ingresos de la sesión
             </p>
-            <p className="mt-2 text-5xl font-black tabular-nums text-emerald-300">
+            <p className="mt-2 text-5xl font-bold tabular-nums text-emerald-300">
               {totalIngresos}
             </p>
           </div>
@@ -164,7 +164,7 @@ export default function Comedor() {
           <div className="mx-auto w-full max-w-4xl rounded-[2rem] border border-white/10 bg-white/[0.06] p-5 shadow-2xl sm:p-10">
             <div className="mb-8 text-center">
               <ScanLine className="mx-auto h-12 w-12 text-emerald-300" />
-              <h3 className="mt-4 text-2xl font-black sm:text-4xl">Esperando lectura de carnet</h3>
+              <h3 className="mt-4 text-2xl font-bold sm:text-4xl">Esperando lectura de carnet</h3>
               <p className="mt-2 text-slate-400">
                 Coloque el código frente al lector; la API valida la hora, el estado y el tiquete.
               </p>

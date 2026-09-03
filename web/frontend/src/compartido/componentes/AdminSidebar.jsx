@@ -21,7 +21,7 @@ export default function AdminSidebar() {
           className={`mb-5 flex items-center ${compacto ? "justify-center" : "justify-between px-2"}`}
         >
           {!compacto && (
-            <p className="text-xs font-semibold tracking-wide text-secondary-foreground/60">
+            <p className="font-body text-xs font-medium tracking-wide text-secondary-foreground/60">
               Navegación
             </p>
           )}
@@ -41,7 +41,7 @@ export default function AdminSidebar() {
             return (
               <section key={group.id} aria-label={group.label}>
                 {!compacto && (
-                  <h2 className="px-3 pb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-secondary-foreground/55">
+                  <h2 className="px-3 pb-2 font-body text-[11px] font-medium uppercase tracking-[0.12em] text-secondary-foreground/55">
                     {group.label}
                   </h2>
                 )}
@@ -55,7 +55,7 @@ export default function AdminSidebar() {
                         data-testid={`admin-sidebar-${item.id}`}
                         title={compacto ? item.label : undefined}
                         className={({ isActive }) =>
-                          `group relative flex min-h-12 items-center gap-3 rounded-xl px-3 text-sm font-semibold transition-[background-color,color,transform] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${isActive ? "bg-secondary-foreground/15 text-secondary-foreground shadow-[inset_0_0_0_1px_rgb(255_255_255_/_0.08)] before:absolute before:-left-4 before:h-7 before:w-1 before:rounded-r-full before:bg-primary" : "text-secondary-foreground/75 hover:translate-x-0.5 hover:bg-secondary-foreground/10 hover:text-secondary-foreground"}`
+                          `group relative flex min-h-12 items-center gap-3 rounded-xl px-3 font-body text-sm font-medium transition-[background-color,color,transform] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${isActive ? "bg-secondary-foreground/15 text-secondary-foreground shadow-[inset_0_0_0_1px_rgb(255_255_255_/_0.08)] before:absolute before:-left-4 before:h-7 before:w-1 before:rounded-r-full before:bg-primary" : "text-secondary-foreground/75 hover:translate-x-0.5 hover:bg-secondary-foreground/10 hover:text-secondary-foreground"}`
                         }
                       >
                         {({ isActive }) => (
