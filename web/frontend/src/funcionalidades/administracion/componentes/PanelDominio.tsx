@@ -31,7 +31,7 @@ export default function PanelDominio({ definicion }: { definicion: DefinicionDom
     <section className="space-y-6" aria-labelledby={`${definicion.clave}-titulo`}>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h2 id={`${definicion.clave}-titulo`} className="font-display text-2xl font-black">
+          <h2 id={`${definicion.clave}-titulo`} className="font-display text-2xl font-bold">
             {definicion.titulo}
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">{definicion.descripcion}</p>

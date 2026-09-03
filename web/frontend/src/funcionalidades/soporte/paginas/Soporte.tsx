@@ -6,7 +6,7 @@ export default function Soporte() {
   const { asunto, detalle, enviando, setAsunto, setDetalle, enviar } = useSolicitudSoporte();
   return (
     <section className="max-w-2xl space-y-6">
-      <h2 className="font-display text-2xl font-black">Ayuda y soporte</h2>
+      <h2 className="font-display text-2xl font-bold">Ayuda y soporte</h2>
       <p className="text-muted-foreground">Envíe una solicitud al equipo de soporte.</p>
       <Input
         aria-label="Asunto"

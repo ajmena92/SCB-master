@@ -20,22 +20,22 @@ export default function PortalPersona() {
   });
   const usuario = session && typeof session.usuario === "object" ? session.usuario : undefined;
   return (
-    <main className="portal-shell">
-      <header>
+    <main className="mx-auto grid max-w-3xl gap-6 px-4 py-6 sm:px-6 sm:py-8">
+      <header className="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <span className="eyebrow">Portal personal</span>
-          <h1>Hola, {String(usuario?.nombres || usuario?.Nombre || "bienvenido")}</h1>
+          <span className="font-body text-xs font-medium uppercase tracking-[0.16em] text-primary">Portal personal</span>
+          <h1 className="mt-1 font-heading text-2xl font-bold tracking-tight text-foreground">Hola, {String(usuario?.nombres || usuario?.Nombre || "bienvenido")}</h1>
         </div>
         <button className="button secondary" onClick={logout}>
           Cerrar sesión
         </button>
       </header>
-      <section className="menu-today">
-        <span className="eyebrow">Menú de hoy</span>
-        <h2>{menu.data?.nombre ?? "Menú pendiente de publicación"}</h2>
-        <ul>
+      <section className="rounded-xl border border-border bg-card p-5 shadow-sm sm:p-6">
+        <span className="font-body text-xs font-medium uppercase tracking-[0.16em] text-primary">Menú de hoy</span>
+        <h2 className="mt-2 font-heading text-xl font-bold text-foreground">{menu.data?.nombre ?? "Menú pendiente de publicación"}</h2>
+        <ul className="mt-4 grid gap-2 text-base text-muted-foreground">
           {menu.data?.componentes?.map((c) => (
-            <li key={c}>{c}</li>
+            <li className="rounded-lg bg-muted px-3 py-2" key={c}>{c}</li>
           ))}
         </ul>
       </section>
@@ -50,13 +50,13 @@ export default function PortalPersona() {
         </Aviso>
       )}
       <button
-        className="button primary jumbo"
+        className="button primary jumbo w-full sm:w-auto"
         disabled={reservar.isPending || !menu.data}
         onClick={() => reservar.mutate()}
       >
         Reservar almuerzo de hoy
       </button>
-      <p className="portal-help">
+      <p className="text-sm leading-6 text-muted-foreground">
         Si no puede reservar antes del cierre, deberá solicitar autorización al final de la fila.
       </p>
     </main>

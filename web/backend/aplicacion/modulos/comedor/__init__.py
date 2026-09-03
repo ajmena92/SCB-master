@@ -1,1 +1,0 @@
-"""Operación del comedor escolar."""

@@ -22,10 +22,10 @@ export function ExcepcionSinReserva({ codigo, alDecidir, pendiente, error }: Pro
     <AlertDialog open>
       <AlertDialogContent className="border-amber-300 bg-amber-50 text-amber-950 sm:max-w-md">
         <AlertDialogHeader>
-          <p className="text-xs font-black uppercase tracking-[0.16em] text-amber-800">
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-amber-800">
             Decisión de operador
           </p>
-          <AlertDialogTitle className="font-display text-2xl font-black text-amber-950">
+          <AlertDialogTitle className="font-display text-2xl font-bold text-amber-950">
             Estudiante sin reserva
           </AlertDialogTitle>
           <AlertDialogDescription className="leading-6 text-amber-950/80">

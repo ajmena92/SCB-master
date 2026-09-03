@@ -129,6 +129,22 @@ class SesionAcceso(BaseDeclarativa):
     persona_id: Mapped[int | None] = mapped_column(
         ForeignKey("persona.id", ondelete="CASCADE"), nullable=True, index=True
     )
+
+
+class IntentoAutenticacion(BaseDeclarativa):
+    """Contador de fallos por identidad, compartido entre workers PostgreSQL."""
+
+    __tablename__ = "intento_autenticacion"
+    identificador_hash: Mapped[str] = mapped_column(String(64), primary_key=True)
+    intentos_fallidos: Mapped[int] = mapped_column(Integer, default=0)
+    bloqueado_hasta: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    actualizado_en: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
+    )
+    __table_args__ = (
+        CheckConstraint("intentos_fallidos >= 0", name="intentos_fallidos_no_negativos"),
+        Index("ix_intento_autenticacion_bloqueado_hasta", "bloqueado_hasta"),
+    )
     cuenta_id: Mapped[int | None] = mapped_column(
         ForeignKey("cuenta_administrativa.id", ondelete="CASCADE"), nullable=True, index=True
     )

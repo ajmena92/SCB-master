@@ -55,7 +55,7 @@ export default function CambioContrasenaAdministrativa() {
         <p className="mt-5 text-xs font-bold uppercase tracking-[0.16em] text-primary">
           Seguridad de la cuenta
         </p>
-        <h1 id="cambio-contrasena-titulo" className="mt-1 font-display text-2xl font-black">
+        <h1 id="cambio-contrasena-titulo" className="mt-1 font-display text-2xl font-bold">
           Creá tu contraseña definitiva
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">

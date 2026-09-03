@@ -15,16 +15,37 @@ from aplicacion.seguridad import hash_secreto, nueva_sesion, token_hash, verific
 
 
 class ServicioIdentidad:
-    def __init__(self, repositorio: RepositorioIdentidad):
+    def __init__(
+        self,
+        repositorio: RepositorioIdentidad,
+        *,
+        student_max_login_attempts: int = 8,
+        student_lock_minutes: int = 5,
+        admin_max_login_attempts: int = 5,
+        admin_lock_minutes: int = 15,
+    ):
         self.repo = repositorio
+        self.student_max_login_attempts = student_max_login_attempts
+        self.student_lock_minutes = student_lock_minutes
+        self.admin_max_login_attempts = admin_max_login_attempts
+        self.admin_lock_minutes = admin_lock_minutes
 
     def autenticar_portal(self, datos: PortalEntrada) -> SesionSalida:
+        identificador = datos.cedula.strip()
+        self.repo.verificar_bloqueo("portal", identificador)
         persona = self.repo.persona_por_cedula(datos.cedula.strip())
         if persona is None:
+            self.repo.registrar_fallo(
+                "portal", identificador, self.student_max_login_attempts, self.student_lock_minutes
+            )
             raise HTTPException(401, "Cedula o PIN incorrecto")
         credencial = self.repo.credencial(persona.id)
         if credencial is None or not verificar_secreto(credencial.pin_hash, datos.pin):
+            self.repo.registrar_fallo(
+                "portal", identificador, self.student_max_login_attempts, self.student_lock_minutes
+            )
             raise HTTPException(401, "Cedula o PIN incorrecto")
+        self.repo.registrar_exito("portal", identificador)
         token, acceso = nueva_sesion(
             tipo="portal",
             persona_id=persona.id,
@@ -40,9 +61,18 @@ class ServicioIdentidad:
         )
 
     def autenticar_administracion(self, datos: AdministracionEntrada) -> SesionSalida:
-        cuenta = self.repo.cuenta_por_usuario(datos.usuario.strip().lower())
+        identificador = datos.usuario.strip().lower()
+        self.repo.verificar_bloqueo("administracion", identificador)
+        cuenta = self.repo.cuenta_por_usuario(identificador)
         if cuenta is None or not verificar_secreto(cuenta.contrasena_hash, datos.contrasena):
+            self.repo.registrar_fallo(
+                "administracion",
+                identificador,
+                self.admin_max_login_attempts,
+                self.admin_lock_minutes,
+            )
             raise HTTPException(401, "Usuario o contrasena incorrectos")
+        self.repo.registrar_exito("administracion", identificador)
         if cuenta.rol == "operador" and cuenta.vinculacion_pendiente:
             raise HTTPException(403, "La cuenta requiere vinculacion por un administrador")
         persona = self.repo.persona(cuenta.persona_id) if cuenta.persona_id else None

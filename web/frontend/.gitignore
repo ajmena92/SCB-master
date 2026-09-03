@@ -7,6 +7,12 @@
 
 # testing
 /coverage
+/blob-report/
+
+# local tooling caches
+/.vite/
+/.eslintcache
+/.playwright/
 
 # production
 /build

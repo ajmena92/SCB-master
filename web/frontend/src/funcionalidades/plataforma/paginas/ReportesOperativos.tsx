@@ -49,7 +49,7 @@ export default function ReportesOperativos() {
         }
       />
       {consulta.error && <Aviso tipo="error">{errMsg(consulta.error)}</Aviso>}
-      <form className="filters" onSubmit={consultar}>
+      <form className="grid grid-cols-1 items-end gap-4 rounded-xl border border-border bg-card p-5 sm:grid-cols-2 lg:grid-cols-4" onSubmit={consultar}>
         <Campo etiqueta="Reporte">
           <select value={tipo} onChange={(e) => setTipo(e.target.value as typeof tipo)}>
             <option value="comedor">Comedor</option>

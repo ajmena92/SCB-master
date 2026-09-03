@@ -19,7 +19,7 @@ export function TiquetesPanel() {
   return (
     <section className="space-y-6" aria-labelledby="tiquetes-title">
       <div>
-        <h1 id="tiquetes-title" className="font-display text-2xl font-black">
+        <h1 id="tiquetes-title" className="font-display text-2xl font-bold">
           Compras y saldo de tiquetes
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
@@ -42,7 +42,7 @@ export function TiquetesPanel() {
       {saldo && (
         <div className="rounded-xl border bg-primary/5 p-4" role="status">
           <p className="text-sm text-muted-foreground">Saldo disponible</p>
-          <p className="mt-1 font-display text-3xl font-black">{saldo.saldo}</p>
+          <p className="mt-1 font-display text-3xl font-bold">{saldo.saldo}</p>
           <p className="text-xs text-muted-foreground">
             Cuenta #{saldo.idCuenta} · {saldo.disponibles} disponibles
           </p>

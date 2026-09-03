@@ -1,1 +1,0 @@
-"""Dominio canónico de asistencia."""

@@ -16,7 +16,7 @@ function descargarCredenciales(credenciales: CredencialTemporal[]) {
   const contenido = [
     ["Código", "Nombre", "PIN temporal"].map(escapar).join(","),
     ...credenciales.map((fila) =>
-      [fila.codigo, fila.nombre, fila.pinTemporal].map(escapar).join(","),
+      [fila.cedula, fila.nombre, fila.pinTemporal].map(escapar).join(","),
     ),
   ].join("\n");
   const url = URL.createObjectURL(

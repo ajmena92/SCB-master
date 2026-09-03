@@ -1,5 +1,9 @@
 """Persistencia de identidad sin reglas de negocio."""
 
+from datetime import datetime, timedelta, timezone
+import hashlib
+
+from fastapi import HTTPException
 from sqlalchemy import delete, func, select
 from sqlalchemy.orm import Session
 
@@ -9,6 +13,7 @@ from aplicacion.modelos.maestros import (
     CuentaPermiso,
     Persona,
     SesionAcceso,
+    IntentoAutenticacion,
 )
 
 
@@ -66,3 +71,45 @@ class RepositorioIdentidad:
 
     def revocar_sesiones_cuenta(self, cuenta_id: int) -> None:
         self.sesion.execute(delete(SesionAcceso).where(SesionAcceso.cuenta_id == cuenta_id))
+
+    @staticmethod
+    def _hash_identificador(ambito: str, identificador: str) -> str:
+        valor = f"{ambito}:{identificador.strip().lower()}"
+        return hashlib.sha256(valor.encode("utf-8")).hexdigest()
+
+    def verificar_bloqueo(self, ambito: str, identificador: str) -> None:
+        registro = self.sesion.get(
+            IntentoAutenticacion, self._hash_identificador(ambito, identificador)
+        )
+        if registro and registro.bloqueado_hasta and registro.bloqueado_hasta > datetime.now(timezone.utc):
+            raise HTTPException(429, "Demasiados intentos. Intente nuevamente más tarde")
+
+    def registrar_fallo(
+        self, ambito: str, identificador: str, maximo: int, minutos_bloqueo: int
+    ) -> None:
+        clave = self._hash_identificador(ambito, identificador)
+        registro = self.sesion.scalar(
+            select(IntentoAutenticacion)
+            .where(IntentoAutenticacion.identificador_hash == clave)
+            .with_for_update()
+        )
+        ahora = datetime.now(timezone.utc)
+        if registro is None:
+            registro = IntentoAutenticacion(identificador_hash=clave)
+            self.sesion.add(registro)
+        registro.intentos_fallidos += 1
+        registro.actualizado_en = ahora
+        if registro.intentos_fallidos >= maximo:
+            registro.bloqueado_hasta = ahora + timedelta(minutes=minutos_bloqueo)
+        # El endpoint devuelve 401, por lo que la dependencia de sesión revierte
+        # la unidad de trabajo normal. Este único registro debe sobrevivir al
+        # rechazo para que el límite también funcione entre requests y workers.
+        self.sesion.commit()
+
+    def registrar_exito(self, ambito: str, identificador: str) -> None:
+        self.sesion.execute(
+            delete(IntentoAutenticacion).where(
+                IntentoAutenticacion.identificador_hash
+                == self._hash_identificador(ambito, identificador)
+            )
+        )

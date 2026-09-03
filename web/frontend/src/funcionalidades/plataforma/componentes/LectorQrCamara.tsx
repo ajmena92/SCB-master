@@ -49,17 +49,18 @@ export function LectorQrCamara({
     let detener: (() => void) | undefined;
     const video = videoRef.current;
     if (!video) return undefined;
+    const videoElement: HTMLVideoElement = video;
 
     async function iniciarConDetectorNativo(Detector: ConstructorDetectorQr) {
       const flujo = await navigator.mediaDevices.getUserMedia(restriccionesParaCamara(camaraId));
-      video.srcObject = flujo;
-      await video.play();
+      videoElement.srcObject = flujo;
+      await videoElement.play();
       const detector = new Detector({ formats: ["qr_code"] });
       let temporizador: number | undefined;
       const leer = async () => {
         if (!activo) return;
         try {
-          const [resultado] = await detector.detect(video);
+          const [resultado] = await detector.detect(videoElement);
           if (resultado?.rawValue) alDetectar(resultado.rawValue);
         } catch {
           // Un cuadro borroso no es una falla de la cámara; se intenta en el siguiente ciclo.
@@ -78,7 +79,7 @@ export function LectorQrCamara({
         delayBetweenScanAttempts: 80,
         delayBetweenScanSuccess: 250,
       });
-      const controles = await lector.decodeFromConstraints(restriccionesParaCamara(camaraId), video, (resultado) => {
+      const controles = await lector.decodeFromConstraints(restriccionesParaCamara(camaraId), videoElement, (resultado) => {
         if (resultado) alDetectar(resultado.getText());
       });
       detener = () => controles.stop();

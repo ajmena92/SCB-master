@@ -1,1 +1,0 @@
-"""Dominio autónomo de estudiantes."""

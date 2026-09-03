@@ -153,18 +153,18 @@ export default function PersonasMatriculas() {
       />
       {error && <Aviso tipo="error">{errMsg(error)}</Aviso>}
       {mensaje && <Aviso tipo="exito">{mensaje}</Aviso>}
-      {resumen.data && <div className="person-metrics" aria-label="Resumen del curso lectivo vigente">
-        <span><strong>{resumen.data.estudiantesActivos}</strong> Estudiantes activos</span>
-        <span><strong>{resumen.data.estudiantesInactivos}</strong> Estudiantes inactivos</span>
+      {resumen.data && <div className="mb-4 flex flex-wrap gap-2" aria-label="Resumen del curso lectivo vigente">
+        <span className="inline-flex items-baseline gap-2 rounded-lg bg-muted px-3 py-2 text-sm text-muted-foreground"><strong className="text-lg font-semibold leading-none text-foreground">{resumen.data.estudiantesActivos}</strong> Estudiantes activos</span>
+        <span className="inline-flex items-baseline gap-2 rounded-lg bg-muted px-3 py-2 text-sm text-muted-foreground"><strong className="text-lg font-semibold leading-none text-foreground">{resumen.data.estudiantesInactivos}</strong> Estudiantes inactivos</span>
       </div>}
-      <form className="filters person-filters" role="search" onSubmit={(evento) => evento.preventDefault()}>
+      <form className="mb-6 grid grid-cols-1 items-end gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(18rem,31rem)_repeat(2,minmax(10.5rem,14rem))_auto]" role="search" onSubmit={(evento) => evento.preventDefault()}>
             <Campo etiqueta="Buscar">
-              <span className="search-input"><MagnifyingGlass aria-hidden="true" size={18} /><input className="person-search-control" value={buscar} onChange={(e) => { setBuscar(e.target.value); setPagina(1); }} placeholder="Cédula o nombre" /></span>
+              <span className="flex min-h-11 items-center gap-2 rounded-lg border border-input bg-card px-3 text-muted-foreground focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20"><MagnifyingGlass aria-hidden="true" size={18} /><input className="min-h-0 w-full border-0 bg-transparent px-1 shadow-none outline-none focus:ring-0" value={buscar} onChange={(e) => { setBuscar(e.target.value); setPagina(1); }} placeholder="Cédula o nombre" /></span>
             </Campo>
             <Campo etiqueta="Estado"><select value={estado} onChange={(e) => { setEstado(e.target.value as EstadoFiltro); setPagina(1); }}><option value="activos">Activos</option><option value="inactivos">Inactivos</option><option value="todos">Todos</option></select></Campo>
             <Campo etiqueta="Tipo"><select value={tipo} onChange={(e) => { setTipo(e.target.value as "" | "estudiante" | "profesor"); setPagina(1); }}><option value="">Todos</option><option value="estudiante">Estudiantes</option><option value="profesor">Profesores</option></select></Campo>
-            <button className="button warning pin-operations-trigger" type="button" onClick={() => setOperacionesPinAbiertas(true)}><Key aria-hidden="true" size={18} /> Operaciones PIN</button>
-            {filtrosActivos && <button className="button link clear-filters" type="button" onClick={limpiarFiltros}><X aria-hidden="true" size={16} /> Limpiar filtros</button>}
+            <button className="button warning pin-operations-trigger self-end whitespace-nowrap" type="button" onClick={() => setOperacionesPinAbiertas(true)}><Key aria-hidden="true" size={18} /> Operaciones PIN</button>
+            {filtrosActivos && <button className="button link clear-filters self-end" type="button" onClick={limpiarFiltros}><X aria-hidden="true" size={16} /> Limpiar filtros</button>}
       </form>
       <Dialog open={operacionesPinAbiertas} onOpenChange={setOperacionesPinAbiertas}>
         <DialogContent className="pin-operations-dialog sm:max-w-xl">

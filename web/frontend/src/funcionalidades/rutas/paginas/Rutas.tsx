@@ -212,7 +212,7 @@ export default function RutasTab() {
                 <span>
                   {ruta.estudiantesAsignados} estudiante{ruta.estudiantesAsignados === 1 ? "" : "s"}
                 </span>
-                <span className="hidden items-center gap-1 sm:inline-flex"><i className="h-3 w-3 rounded-full border" style={{ backgroundColor: ruta.colorCarnetHex }} />Color TE-01</span>
+                <span className="hidden items-center gap-1 sm:inline-flex"><i className="h-3 w-3 rounded-full border" style={{ backgroundColor: ruta.colorCarnetHex ?? undefined }} />Color TE-01</span>
                 <div className="flex gap-2">
                   <Button
                     ref={undefined}

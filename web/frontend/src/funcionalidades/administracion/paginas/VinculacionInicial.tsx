@@ -54,7 +54,7 @@ export default function VinculacionInicial() {
           <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-800">
             <Check className="h-6 w-6" />
           </span>
-          <h1 className="mt-5 font-display text-2xl font-black">Cuenta vinculada</h1>
+          <h1 className="mt-5 font-display text-2xl font-bold">Cuenta vinculada</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             Tu cuenta administrativa ya pertenece a un profesor registrado.
           </p>
@@ -63,7 +63,7 @@ export default function VinculacionInicial() {
               <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
                 PIN temporal del portal docente
               </p>
-              <p className="mt-2 font-mono text-2xl font-black tracking-[0.2em]">{pinTemporal}</p>
+              <p className="mt-2 font-mono text-2xl font-bold tracking-[0.2em]">{pinTemporal}</p>
               <p className="mt-2 text-xs text-muted-foreground">
                 Guardalo ahora: se muestra una sola vez.
               </p>
@@ -105,7 +105,7 @@ export default function VinculacionInicial() {
         <p className="mt-5 text-xs font-bold uppercase tracking-[0.16em] text-primary">
           Configuración inicial
         </p>
-        <h1 id="vinculacion-titulo" className="mt-1 font-display text-2xl font-black">
+        <h1 id="vinculacion-titulo" className="mt-1 font-display text-2xl font-bold">
           Vinculá la cuenta con un profesor
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">

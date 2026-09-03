@@ -15,7 +15,7 @@
 | Convención           | Español por defecto; ASCII en identificadores técnicos                                                                      |
 | Última actualización | 2026-08-26                                                                                                                  |
 
-Este es el control de la migración arquitectónica total. El [plan del menú administrativo](PLAN_IMPLEMENTACION_MENU_ADMIN.md) conserva el historial y control de ese subsistema.
+Este es el control de la migración arquitectónica total.
 
 ## Estado de fases
 
