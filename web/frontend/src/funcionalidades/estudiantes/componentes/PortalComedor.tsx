@@ -1,5 +1,4 @@
-import { AlertTriangle } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
+import { EstadoPanel } from "@/compartido/componentes/Estados";
 import { NavegacionEstudiante } from "@/funcionalidades/estudiantes/componentes/NavegacionEstudiante";
 import { CabeceraPortalEstudiante } from "@/funcionalidades/estudiantes/componentes/CabeceraPortalEstudiante";
 import { VistaCarnetEstudiante } from "@/funcionalidades/estudiantes/componentes/VistaCarnetEstudiante";
@@ -69,19 +68,10 @@ export function PortalComedor({
         </div>
 
         {cargando && (
-          <div className="space-y-4">
-            <Skeleton className="h-40 w-full rounded-2xl" />
-            <Skeleton className="h-28 w-full rounded-2xl" />
-          </div>
+          <EstadoPanel variante="carga">Cargando tu información…</EstadoPanel>
         )}
         {!cargando && error && (
-          <div
-            data-testid="student-error"
-            className="flex items-center gap-3 rounded-2xl border border-destructive/30 bg-destructive/10 p-6"
-          >
-            <AlertTriangle className="h-6 w-6 shrink-0 text-destructive" />
-            <p className="text-sm font-medium text-destructive">{error}</p>
-          </div>
+          <div data-testid="student-error"><EstadoPanel variante="error">{error}</EstadoPanel></div>
         )}
         {!cargando && !error && vistaActiva === "carnet" && (
           <VistaCarnetEstudiante sesion={sesion} carnet={carnet} tipoPersona={tipoPersona} />

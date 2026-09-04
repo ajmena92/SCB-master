@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { errMsg } from "@/compartido/consultas/errores_api";
+import { EstadoPanel } from "@/compartido/componentes/Estados";
 import { usuariosAdministrativosApi } from "../consultas/usuarios";
 import type { AutenticacionPlataforma } from "@/funcionalidades/plataforma/seguridad";
 
@@ -149,10 +150,10 @@ export default function VinculacionInicial() {
                 ))}
               </select>
               {profesores.isLoading && (
-                <p className="text-xs text-muted-foreground">Cargando profesores…</p>
+                <EstadoPanel variante="carga">Cargando profesores…</EstadoPanel>
               )}
               {profesores.error && (
-                <p className="text-sm text-destructive">{errMsg(profesores.error)}</p>
+                <EstadoPanel variante="error">{errMsg(profesores.error)}</EstadoPanel>
               )}
             </div>
           ) : (

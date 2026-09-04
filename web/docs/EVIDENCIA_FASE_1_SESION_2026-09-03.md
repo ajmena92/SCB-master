@@ -10,8 +10,10 @@ contrato cookie+CSRF**. La decisión se sustenta en las 12 pruebas ASGI, la
 regeneración y verificación del contrato TypeScript desde OpenAPI, y la
 validación estática de Compose descritas abajo.
 
-No se declara cierre operativo. Permanecen abiertos el provisionamiento físico
-de `CARNET_QR_CLAVE_FILE` y `CSRF_SECRET_FILE` con permisos mínimos, el diseño y
+No se declara cierre operativo de producción. El provisionamiento local de
+`CARNET_QR_CLAVE_FILE` y `CSRF_SECRET_FILE` ya fue validado fuera del volumen
+Windows, con directorio `700` y archivos `600`; queda pendiente repetirlo en
+staging/producción. También permanecen abiertos el diseño y
 DDL aprobados de vencimiento por inactividad en Fase 5, y la decisión sobre
 `pyodbc` para las pruebas de migración SQL Server. `pyodbc` queda clasificado
 como dependencia de esa suite histórica/de migración, fuera del contrato web de
@@ -108,10 +110,13 @@ resultado anterior no se usa para ratificar el typecheck de cierre.
 
 ## Bloqueos y riesgos abiertos
 
-1. El archivo físico para `CARNET_QR_CLAVE_FILE` no se creó: mover el valor
-   existente desde `.env` exige una acción operativa autorizada que no lea ni
-   copie su contenido al repositorio. También debe provisionarse
-   `CSRF_SECRET_FILE` con permisos mínimos.
+1. El 2026-09-03 se provisionaron localmente `carnet_qr_clave` y `csrf_secret`
+   en `/home/dev/.local/share/scb/secrets`, con directorio `700` y archivos
+   `600`; la copia insegura del montaje `/mnt/c` fue eliminada. Se añadió
+   `CSRF_ANONYMOUS_TTL_SECONDS=600`, se reconstruyó solo `api` y el proxy del
+   host devolvió `204` con cookie CSRF. Los valores no se imprimieron ni
+   versionaron. La validación de permisos de producción debe repetirse en el
+   almacenamiento definitivo, pero ya no quedan duplicados en `/mnt/c`.
 2. El modelo `sesion_acceso` ahora sí aplica vencimiento absoluto configurable,
    pero no persiste última actividad. **No se afirma que exista vencimiento por
    inactividad**: requiere una migración DDL aprobada, fuera de este corte.
@@ -122,7 +127,8 @@ resultado anterior no se usa para ratificar el typecheck de cierre.
 
 ## Siguiente control
 
-Provisionar secretos en staging, aprobar el diseño/migración de inactividad,
-y resolver la dependencia de migración SQL Server para recuperar la puerta
-backend completa. El contrato HTTP de cookie, CSRF, Origin, CORS, renovación,
-logout y rechazo ya quedó verificado de manera ASGI.
+Validar el almacenamiento seguro de secretos en staging, aprobar el
+diseño/migración de inactividad y resolver la dependencia de migración SQL
+Server para recuperar la puerta backend completa. El contrato HTTP de cookie,
+CSRF, Origin, CORS, renovación, logout y rechazo ya quedó verificado de manera
+ASGI y mediante el proxy local.

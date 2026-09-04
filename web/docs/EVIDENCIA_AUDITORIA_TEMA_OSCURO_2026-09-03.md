@@ -19,6 +19,21 @@ Herramienta: Chromium local (Playwright) y axe-core 4.x
   capturas de Dashboard, Personas, Tiquetes, Rutas, Parámetros, Menú y Reportes;
   ninguna presentó desbordamiento horizontal. axe-core no detectó contraste en
   seis de siete pantallas; Tiquetes conservó un único nodo para revisión.
+- La comparación claro/oscuro de Tiquetes en móvil (390 px), tableta (768 px) y
+  escritorio (1440 px) no presentó desbordamiento horizontal en ningún tema.
+  Las capturas están en `output/playwright/tiquetes-{mobile,tablet,desktop}-{light,dark}.png`.
+- Tras recuperar los secretos, CSRF responde `204` y los logins administrativo y
+  estudiantil reales responden `200`. El Dashboard real devuelve 663 estudiantes,
+  550 beneficiarios y desglose por rutas. El portal devuelve menú, carné y foto;
+  el 2026-09-03 el período está cerrado y el límite es 14:40.
+- Los estados compartidos de carga, vacío, error y éxito quedaron centralizados
+  en `ElementosComunes.tsx` mediante `EstadoPanel`; Reportes, Rutas, Usuarios y
+  tablas reutilizan ahora la misma semántica, roles ARIA y tokens de color.
+- Chromium verificó la navegación por teclado del portal: tema, cédula, PIN,
+  ingreso y enlace administrativo reciben foco en orden; no hay overflow móvil.
+- Con cookies de sesión reales adaptadas al entorno local, axe-core no encontró
+  violaciones en Dashboard ni Personas en tema oscuro. El Dashboard real entregó
+  datos de 663 estudiantes y 550 beneficiarios para sus gráficas.
 
 ## Hallazgos y límites de la pasada
 
@@ -28,14 +43,14 @@ Herramienta: Chromium local (Playwright) y axe-core 4.x
 - La navegación autenticada completa no pudo terminar dentro del tiempo límite
   del navegador en todas las pantallas; no se declara cierre WCAG global con una
   ejecución parcial.
-- En la última comprobación, la sesión administrativa real respondió `401`.
-  No se modificaron credenciales ni registros para forzar la validación.
+- Chromium local no puede enviar cookies `Secure` desde `http://127.0.0.1`; la
+  navegación visual autenticada debe ejecutarse bajo el dominio HTTPS autorizado.
 - La impresión de PIN y tiquetes ya existe, pero su validación requiere reiniciar
   PIN o registrar una venta. No se ejecutaron esas mutaciones sobre datos reales.
   La impresión de carné y reportes quedó disponible sin mutación y se incorporó
   una acción visible de impresión/PDF en ambos componentes.
-- El portal del estudiante requiere una sesión de estudiante independiente; no
-  se inventó una cuenta ni se alteró el padrón para probarlo.
+- La sesión estudiantil real ya fue verificada por API; falta repetir la captura
+  visual bajo el dominio HTTPS autorizado.
 
 ## Cambios funcionales derivados de la auditoría
 
@@ -46,10 +61,10 @@ Herramienta: Chromium local (Playwright) y axe-core 4.x
 
 ## Pendientes explícitos
 
-1. Ejecutar axe-core por pantalla con una sesión estable y registrar el artefacto
-   completo de cada pantalla.
-2. Validar gráficas con datos reales visibles y conservar capturas claro/oscuro.
+1. Ejecutar axe-core por pantalla bajo el dominio HTTPS autorizado y conservar
+   los artefactos completos.
+2. Capturar gráficas reales en Chromium; el endpoint ya devuelve datos reales.
 3. Ejecutar impresión real de PIN y tiquetes con registros de prueba autorizados.
 4. Completar estados de error, carga y deshabilitado con datos reales.
-5. Repetir la comparación claro/oscuro en móvil, tableta y escritorio.
-6. Crear sesión de estudiante controlada para revisar el portal en ambos temas.
+5. Repetir comparación claro/oscuro para el resto de módulos bajo HTTPS.
+6. Capturar el portal estudiantil real en ambos temas bajo HTTPS.

@@ -1,5 +1,5 @@
 import { useCalendario } from "@/funcionalidades/administracion/hooks/useCalendario";
-import { Skeleton } from "@/components/ui/skeleton";
+import { EstadoPanel } from "@/compartido/componentes/Estados";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ChevronLeft, ChevronRight, Replace as ReplaceIcon, CalendarRange } from "lucide-react";
@@ -48,7 +48,7 @@ export default function CalendarioTab() {
       </div>
 
       {loading ? (
-        <Skeleton className="h-96 w-full rounded-lg" />
+        <EstadoPanel variante="carga">Cargando calendario…</EstadoPanel>
       ) : (
         <div className="overflow-x-auto">
           <div className="min-w-[900px]">

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { IdCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+import { EstadoPanel } from "@/compartido/componentes/Estados";
 import { TarjetaCarnet } from "./TarjetaCarnet";
 import type { DatosCarnet } from "./accionesCarnet";
 
@@ -65,25 +65,14 @@ export function VistaCarnetEstudiante({
         {fotoDisponible === false && <Badge variant="secondary">Carnet provisional</Badge>}
       </div>
       {estaCargando && !datos && (
-        <div className="space-y-3">
-          <Skeleton className="mx-auto h-[31rem] w-full max-w-[23rem] rounded-[1.75rem]" />
-          <p className="text-center text-sm font-medium text-muted-foreground">
-            Generando tu carnet digital…
-          </p>
-        </div>
+        <EstadoPanel variante="carga">Generando tu carné digital…</EstadoPanel>
       )}
       {mensajeError && (
-        <div
-          role="alert"
-          className="space-y-3 rounded-xl bg-destructive/10 p-4 text-sm font-medium text-destructive"
-        >
-          <p>{mensajeError}</p>
-          {reintentar && (
+        <EstadoPanel variante="error" accion={reintentar && (
             <Button type="button" variant="outline" size="sm" onClick={reintentar}>
               Reintentar
             </Button>
-          )}
-        </div>
+          )}>{mensajeError}</EstadoPanel>
       )}
       {!estaCargando && !mensajeError && (datos || id) && (
         <TarjetaCarnet

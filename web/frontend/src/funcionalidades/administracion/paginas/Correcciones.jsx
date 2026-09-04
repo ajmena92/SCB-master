@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
+import { EstadoPanel } from "@/compartido/componentes/Estados";
 import { Wrench, Loader2, ShieldAlert } from "lucide-react";
 
 export default function CorreccionesTab() {
@@ -51,7 +51,7 @@ export default function CorreccionesTab() {
       </div>
 
       {loading ? (
-        <Skeleton className="h-64 w-full rounded-lg" />
+        <EstadoPanel variante="carga">Cargando estudiantes…</EstadoPanel>
       ) : (
         <div className="bg-card border rounded-lg p-6 space-y-5">
           <div>

@@ -3,7 +3,7 @@ import { useDashboard } from "@/funcionalidades/administracion/hooks/useDashboar
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
+import { EstadoPanel } from "@/compartido/componentes/Estados";
 import {
   Table,
   TableBody,
@@ -152,17 +152,11 @@ export default function DashboardTab() {
       </div>
 
       {loading ? (
-        <Skeleton className="h-64 w-full rounded-xl" />
+        <EstadoPanel variante="carga">Cargando el dashboard…</EstadoPanel>
       ) : error ? (
-        <div
-          role="alert"
-          className="rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive"
-        >
+        <EstadoPanel variante="error" accion={<Button variant="link" className="h-auto p-0 text-destructive" onClick={() => refetch()}>Reintentar</Button>}>
           {mensajeError}{" "}
-          <Button variant="link" className="h-auto p-0 text-destructive" onClick={() => refetch()}>
-            Reintentar
-          </Button>
-        </div>
+        </EstadoPanel>
       ) : vistaDocenteSinContrato ? (
         <div
           role="status"

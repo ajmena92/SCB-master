@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { AlertCircle, RefreshCw, Search } from "lucide-react";
+import { RefreshCw, Search } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
 import { errMsg } from "@/compartido/consultas/errores_api";
+import { EstadoPanel } from "@/compartido/componentes/Estados";
 import type { DefinicionDominio, Registro } from "../consultas/dominios";
 
 const mostrar = (valor: unknown): string => {
@@ -51,21 +51,14 @@ export default function PanelDominio({ definicion }: { definicion: DefinicionDom
         </div>
       </div>
       {consulta.isPending && (
-        <div aria-label={`Cargando ${definicion.titulo}`}>
-          <Skeleton className="h-64 w-full rounded-2xl" />
-        </div>
+        <EstadoPanel variante="carga">Cargando {definicion.titulo.toLocaleLowerCase()}…</EstadoPanel>
       )}
       {consulta.isError && (
-        <div role="alert" className="rounded-2xl border border-destructive/30 bg-card p-6">
-          <div className="flex items-center gap-3">
-            <AlertCircle className="h-5 w-5 text-destructive" />
-            <p className="text-sm">{errMsg(consulta.error)}</p>
-            <Button variant="outline" size="sm" onClick={() => consulta.refetch()}>
-              <RefreshCw className="mr-2 h-4 w-4" />
-              Reintentar
-            </Button>
-          </div>
-        </div>
+        <EstadoPanel variante="error" titulo="No se pudo cargar la información" accion={
+          <Button variant="outline" size="sm" onClick={() => consulta.refetch()}>
+            <RefreshCw className="mr-2 h-4 w-4" /> Reintentar
+          </Button>
+        }>{errMsg(consulta.error)}</EstadoPanel>
       )}
       {consulta.isSuccess && (
         <div className="overflow-x-auto rounded-2xl border bg-card">

@@ -2,6 +2,7 @@ import { FormEvent, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { errMsg } from "@/compartido/consultas/errores_api";
+import { EstadoPanel } from "@/compartido/componentes/Estados";
 import {
   crearRol,
   crearUsuario,
@@ -114,7 +115,7 @@ export function AdministracionPage() {
       <section aria-labelledby="usuarios-titulo">
         <h2 id="usuarios-titulo">Usuarios</h2>
         {cargando ? (
-          <p>Cargando…</p>
+          <EstadoPanel variante="carga">Cargando usuarios…</EstadoPanel>
         ) : (
           <ul>
             {usuarios.map((u) => (

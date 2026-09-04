@@ -5,8 +5,8 @@ import { useAutenticacion } from "@/aplicacion/estado/ContextoAutenticacion";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
 import { errMsg } from "@/compartido/consultas/errores_api";
+import { EstadoPanel } from "@/compartido/componentes/Estados";
 import type {
   CredencialesParaMostrar,
   CuentaAdministrativa,
@@ -172,23 +172,18 @@ export default function UsuariosAdministrativos() {
       </div>
 
       {cuentas.isLoading ? (
-        <div className="space-y-3" role="status" aria-label="Cargando cuentas">
-          <Skeleton className="h-16 w-full" />
-          <Skeleton className="h-16 w-full" />
-          <Skeleton className="h-16 w-full" />
-        </div>
+        <EstadoPanel variante="carga" titulo="Cargando cuentas…">
+          Estamos consultando los usuarios administrativos.
+        </EstadoPanel>
       ) : filtradas.length === 0 ? (
-        <div className="rounded-2xl border border-dashed p-8 text-center">
+        <EstadoPanel variante="vacio" titulo={buscar ? "No hay coincidencias" : "Todavía no hay cuentas"}>
           <UserCog className="mx-auto h-8 w-8 text-muted-foreground" aria-hidden="true" />
-          <p className="mt-3 font-bold">
-            {buscar ? "No hay coincidencias" : "Todavía no hay cuentas"}
-          </p>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <span className="mt-1 block text-sm text-muted-foreground">
             {buscar
               ? "Probá con otro nombre, cédula o usuario."
               : "Creá la primera cuenta vinculada a un profesor."}
-          </p>
-        </div>
+          </span>
+        </EstadoPanel>
       ) : (
         <ListaCuentasAdministrativas
           cuentas={filtradas}

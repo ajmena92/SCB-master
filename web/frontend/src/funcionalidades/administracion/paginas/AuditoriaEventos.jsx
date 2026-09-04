@@ -7,7 +7,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+import { EstadoPanel } from "@/compartido/componentes/Estados";
 import { useAuditoria } from "@/funcionalidades/administracion/hooks/useAuditoria";
 
 const COLOR = {
@@ -49,7 +49,7 @@ export default function AuditoriaTab() {
         </p>
       </div>
       {loading ? (
-        <Skeleton className="h-64 w-full rounded-lg" />
+        <EstadoPanel variante="carga">Cargando auditoría…</EstadoPanel>
       ) : (
         <div className="bg-card border rounded-lg overflow-x-auto">
           <Table data-testid="auditoria-table">
@@ -65,8 +65,8 @@ export default function AuditoriaTab() {
             <TableBody>
               {rows.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
-                    Sin eventos
+                    <TableCell colSpan={5} className="py-8 text-center text-sm text-muted-foreground" role="status">
+                    No hay eventos para mostrar.
                   </TableCell>
                 </TableRow>
               ) : (

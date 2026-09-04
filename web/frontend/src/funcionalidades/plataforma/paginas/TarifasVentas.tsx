@@ -3,64 +3,22 @@ import {
   CashRegister,
   CheckCircle,
   CircleNotch,
-  Minus,
-  Plus,
-  Printer,
-  Scan,
   Ticket,
-  UserCircle,
   WarningCircle,
 } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import type { Persona } from "@/compartido/contratos/plataforma";
 import { plataformaApi } from "../consultas/plataforma";
-import { Aviso, Campo } from "../componentes/ElementosComunes";
+import { Aviso } from "../componentes/ElementosComunes";
 import { errMsg } from "@/compartido/consultas/errores_api";
 import { useAutenticacion } from "@/aplicacion/estado/ContextoAutenticacion";
 import { esAdministrador, type AutenticacionPlataforma } from "../seguridad";
 import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-
-type PersonaVenta = Persona & { becado: boolean; saldoTiquetes: number };
-const moneda = new Intl.NumberFormat("es-CR", {
-  style: "currency",
-  currency: "CRC",
-  maximumFractionDigits: 0,
-});
-const escaparHtml = (valor: string) =>
-  valor.replace(
-    /[&<>"']/g,
-    (caracter) =>
-      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" })[caracter] ??
-      caracter,
-  );
-
-function imprimirComprobante(datos: {
-  persona: PersonaVenta;
-  cantidad: number;
-  total: number;
-  medioPago: string;
-  saldoFinal: number;
-}) {
-  const ventana = window.open("", "_blank");
-  if (!ventana) return;
-  const fecha = new Intl.DateTimeFormat("es-CR", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(new Date());
-  ventana.document.write(
-    `<!doctype html><html lang="es"><head><title>Comprobante de venta</title><style>body{font-family:Karla,system-ui,sans-serif;color:rgb(24 32 82);margin:28px;max-width:680px}header{padding-bottom:14px;border-bottom:2px solid rgb(116 123 255)}h1,p{margin:0}h1{font-family:Chivo,system-ui,sans-serif;font-size:22px;font-weight:700}p{margin-top:4px;color:rgb(107 114 168)}dl{display:grid;grid-template-columns:1fr auto;gap:10px;margin:24px 0}dt{color:rgb(107 114 168)}dd{margin:0;font-weight:600;text-align:right}.total{padding:16px;background:rgb(238 240 255);border:1px solid rgb(221 225 255);border-radius:8px;font-size:20px}.total dd{color:rgb(116 123 255);font-size:24px}footer{margin-top:24px;padding-top:12px;border-top:1px solid rgb(221 225 255);font-size:12px}@media print{body{margin:14mm}}</style></head><body><header><p>CTP Platanares · Comedor</p><h1>Comprobante de venta de tiquetes</h1><p>${escaparHtml(fecha)}</p></header><dl><dt>Persona</dt><dd>${escaparHtml(datos.persona.nombres)}</dd><dt>Cédula</dt><dd>${escaparHtml(datos.persona.cedula ?? "")}</dd><dt>Tiquetes vendidos</dt><dd>${datos.cantidad}</dd><dt>Total de tiquetes</dt><dd>${datos.saldoFinal}</dd><dt>Medio de pago</dt><dd>${escaparHtml(datos.medioPago)}</dd><div class="total"><dt>Total cobrado</dt><dd>${moneda.format(datos.total)}</dd></div></dl><footer>Venta registrada correctamente. Conserve este comprobante para control administrativo.</footer></body></html>`,
-  );
-  ventana.document.close();
-  window.setTimeout(() => ventana.print(), 100);
-}
+  ComprobanteVentaTiquetes,
+  type ComprobanteVenta,
+} from "../componentes/ComprobanteVentaTiquetes";
+import { ContenidoVentaTiquetes } from "../componentes/ContenidoVentaTiquetes";
+import { monedaColones, type PersonaVenta } from "../componentes/venta_tiquetes";
 
 export default function TarifasVentas() {
   const { session } = useAutenticacion() as unknown as AutenticacionPlataforma;
@@ -74,13 +32,7 @@ export default function TarifasVentas() {
   const [medioPago, setMedioPago] = useState("efectivo");
   const [mensaje, setMensaje] = useState("");
   const [fotoUrl, setFotoUrl] = useState<string>();
-  const [comprobante, setComprobante] = useState<{
-    persona: PersonaVenta;
-    cantidad: number;
-    total: number;
-    medioPago: string;
-    saldoFinal: number;
-  }>();
+  const [comprobante, setComprobante] = useState<ComprobanteVenta>();
   const tarifas = useQuery({ queryKey: ["tarifas"], queryFn: plataformaApi.tiquetes.tarifas });
   const resultados = useQuery({
     queryKey: ["tiquetes", "personas", buscarAplicado],
@@ -91,7 +43,7 @@ export default function TarifasVentas() {
     mutationFn: plataformaApi.tiquetes.vender,
     onSuccess: (_, datos) => {
       setMensaje(
-        `Venta exitosa: ${datos.cantidad} tiquete${datos.cantidad === 1 ? "" : "s"} vendido${datos.cantidad === 1 ? "" : "s"} por ${moneda.format(total)}.`,
+        `Venta exitosa: ${datos.cantidad} tiquete${datos.cantidad === 1 ? "" : "s"} vendido${datos.cantidad === 1 ? "" : "s"} por ${monedaColones.format(total)}.`,
       );
       if (persona)
         setComprobante({
@@ -156,71 +108,10 @@ export default function TarifasVentas() {
   }
   return (
     <section className="grid max-w-6xl gap-4">
-      <AlertDialog
-        open={Boolean(comprobante)}
-        onOpenChange={(abierto) => !abierto && setComprobante(undefined)}
-      >
-        <AlertDialogContent className="max-h-[calc(100dvh-1rem)] max-w-md overflow-y-auto">
-          <AlertDialogHeader>
-            <AlertDialogTitle>Venta registrada correctamente</AlertDialogTitle>
-            <AlertDialogDescription>
-              El saldo de tiquetes se actualizó. Entregue o guarde el comprobante antes de la
-              siguiente venta.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          {comprobante && (
-            <article
-              className="overflow-hidden rounded-xl border border-dashed border-primary/40 bg-background"
-              aria-label="Detalle de la venta"
-            >
-              <header className="flex items-center gap-3 bg-primary px-4 py-3 text-primary-foreground">
-                <Ticket aria-hidden="true" size={24} />
-                <div>
-                  <span className="block text-xs tracking-wider">COMPROBANTE DE VENTA</span>
-                  <strong className="font-heading text-sm">CTP Platanares · Comedor</strong>
-                </div>
-              </header>
-              <div className="grid gap-1 border-b border-dashed border-border p-4">
-                <span className="text-xs text-muted-foreground">Persona</span>
-                <strong>{comprobante.persona.nombres}</strong>
-                <small className="text-muted-foreground">{comprobante.persona.cedula}</small>
-              </div>
-              <dl className="grid gap-2 p-4">
-                {[
-                  ["Tiquetes vendidos", comprobante.cantidad],
-                  ["Saldo final", `${comprobante.saldoFinal} tiquetes`],
-                  ["Medio de pago", comprobante.medioPago],
-                ].map(([etiqueta, valor]) => (
-                  <div className="flex justify-between gap-4" key={String(etiqueta)}>
-                    <dt className="text-muted-foreground">{etiqueta}</dt>
-                    <dd className="m-0 font-semibold capitalize">{valor}</dd>
-                  </div>
-                ))}
-              </dl>
-              <footer className="flex items-baseline justify-between gap-4 border-t border-dashed border-border bg-muted p-4 text-primary">
-                <span>Total cobrado</span>
-                <strong className="text-xl">{moneda.format(comprobante.total)}</strong>
-              </footer>
-            </article>
-          )}
-          <AlertDialogFooter className="flex-col gap-2 sm:flex-row sm:justify-end">
-            <button
-              className="button secondary w-full sm:w-auto"
-              type="button"
-              onClick={() => setComprobante(undefined)}
-            >
-              Nueva venta
-            </button>
-            <button
-              className="button primary w-full sm:w-auto"
-              type="button"
-              onClick={() => comprobante && imprimirComprobante(comprobante)}
-            >
-              <Printer aria-hidden="true" size={18} /> Imprimir / guardar PDF
-            </button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ComprobanteVentaTiquetes
+        comprobante={comprobante}
+        alCerrar={() => setComprobante(undefined)}
+      />
       {error && <Aviso tipo="error">{errMsg(error)}</Aviso>}
       {mensaje && <Aviso tipo="exito">{mensaje}</Aviso>}
       {!tarifas.isLoading && sinTarifaParaPersona && (
@@ -258,7 +149,9 @@ export default function TarifasVentas() {
               <CashRegister size={25} weight="duotone" />
             </div>
             <div>
-              <p className="text-primary-foreground/80 text-xs uppercase tracking-wide">Punto de venta</p>
+              <p className="text-primary-foreground/80 text-xs uppercase tracking-wide">
+                Punto de venta
+              </p>
               <h2 className="font-heading text-lg font-semibold">Venta de tiquetes</h2>
             </div>
           </div>
@@ -307,173 +200,38 @@ export default function TarifasVentas() {
             Confirmar
           </li>
         </ol>
-        <div className="grid gap-5 p-4 sm:grid-cols-[minmax(0,1.35fr)_minmax(16rem,.8fr)] sm:p-6">
-          <div className="grid content-start gap-4">
-            <label className="grid gap-2">
-              <span className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
-                <Scan size={20} aria-hidden="true" /> Cédula o nombre
-              </span>
-              <input
-                ref={cedulaRef}
-                value={buscar}
-                onChange={(evento) => {
-                  setBuscar(evento.target.value);
-                  setPersona(undefined);
-                }}
-                placeholder="Digite cédula o nombre"
-                autoFocus
-              />
-            </label>
-            {resultados.isFetching && (
-              <span className="text-sm text-muted-foreground">
-                <CircleNotch className="animate-spin" size={16} aria-hidden="true" /> Buscando
-                personas…
-              </span>
-            )}
-            {!persona &&
-              buscarAplicado.length >= 3 &&
-              !resultados.isFetching &&
-              resultados.data?.length === 0 && (
-                <p className="m-0 rounded-lg border border-border bg-muted p-3 text-sm text-muted-foreground">
-                  No se encontró una persona con esos datos.
-                </p>
-              )}
-            {!persona && resultados.data?.length ? (
-              <div
-                className="grid max-h-52 overflow-auto rounded-lg border border-border"
-                aria-label="Resultados de búsqueda"
-              >
-                {resultados.data.map((item) => (
-                  <button
-                    className="grid gap-1 border-b border-border p-3 text-left last:border-0 hover:bg-muted"
-                    type="button"
-                    key={item.id}
-                    onClick={() => {
-                      setPersona(item);
-                      setBuscar(item.cedula ?? item.nombres);
-                    }}
-                  >
-                    <span className="font-semibold">{item.nombres}</span>
-                    <small className="text-muted-foreground">
-                      {item.cedula} · {item.tipo}
-                    </small>
-                  </button>
-                ))}
-              </div>
-            ) : null}
-            {persona && (
-              <div className="grid grid-cols-[3.75rem_minmax(0,1fr)_auto] items-center gap-3 rounded-lg border border-primary/20 bg-primary/5 p-3">
-                <div className="grid size-14 place-items-center overflow-hidden rounded-lg bg-card text-primary">
-                  {fotoUrl ? (
-                    <img
-                      className="size-full object-cover object-top"
-                      src={fotoUrl}
-                      alt={`Fotografía de ${persona.nombres}`}
-                    />
-                  ) : (
-                    <UserCircle aria-hidden="true" size={54} />
-                  )}
-                </div>
-                <div className="grid min-w-0 gap-1">
-                  <span className="text-xs font-semibold uppercase tracking-wide text-primary">
-                    {persona.tipo === "estudiante" ? "Estudiante" : "Profesor"}
-                  </span>
-                  <strong className="truncate">{persona.nombres}</strong>
-                  <span className="text-sm text-muted-foreground">{persona.cedula}</span>
-                  <span className="text-sm text-muted-foreground">
-                    Saldo actual <b className="text-foreground">{persona.saldoTiquetes} tiquetes</b>
-                  </span>
-                  {persona.becado && (
-                    <em className="flex items-center gap-1 text-sm not-italic text-warning">
-                      <WarningCircle size={17} weight="fill" aria-hidden="true" /> Beneficiario de
-                      comedor: no puede comprar tiquetes.
-                    </em>
-                  )}
-                </div>
-                <button
-                  type="button"
-                  className="self-start text-sm font-semibold text-primary hover:underline"
-                  onClick={() => {
-                    setPersona(undefined);
-                    setBuscar("");
-                    cedulaRef.current?.focus();
-                  }}
-                >
-                  Cambiar
-                </button>
-              </div>
-            )}
-          </div>
-          <div className="grid content-start gap-4">
-            <div>
-              <span className="text-sm font-semibold text-muted-foreground">
-                ¿Cuántos tiquetes compra?
-              </span>
-              <div className="mt-2 flex w-fit overflow-hidden rounded-lg border border-border">
-                <button
-                  className="grid size-11 place-items-center bg-muted text-primary hover:bg-primary/10"
-                  type="button"
-                  onClick={() => setCantidad((actual) => Math.max(1, actual - 1))}
-                  aria-label="Restar un tiquete"
-                >
-                  <Minus size={18} />
-                </button>
-                <input
-                  className="!h-11 !w-14 rounded-none border-0 border-x border-border p-0 text-center font-semibold shadow-none focus:ring-0"
-                  aria-label="Cantidad de tiquetes"
-                  type="number"
-                  min="1"
-                  max="100"
-                  value={cantidad}
-                  onChange={(evento) =>
-                    setCantidad(Math.min(100, Math.max(1, Number(evento.target.value) || 1)))
-                  }
-                />
-                <button
-                  className="grid size-11 place-items-center bg-muted text-primary hover:bg-primary/10"
-                  type="button"
-                  onClick={() => setCantidad((actual) => Math.min(100, actual + 1))}
-                  aria-label="Sumar un tiquete"
-                >
-                  <Plus size={18} />
-                </button>
-              </div>
-              <small className="mt-1 block text-xs text-muted-foreground">
-                Máximo 100 tiquetes por venta.
-              </small>
-            </div>
-            <div className="grid gap-1 rounded-lg border border-border bg-muted/40 p-4">
-              <span className="text-sm text-muted-foreground">Precio por tiquete</span>
-              <strong>
-                {!persona
-                  ? "Seleccione una persona"
-                  : tarifa
-                    ? moneda.format(tarifa.montoColones)
-                    : "Sin tarifa vigente"}
-              </strong>
-              <span className="mt-2 text-sm text-muted-foreground">Total a cobrar</span>
-              <b className="text-2xl font-semibold text-primary">
-                {tarifa ? moneda.format(total) : "—"}
-              </b>
-            </div>
-            <Campo etiqueta="Medio de pago">
-              <select
-                value={medioPago}
-                onChange={(evento) => setMedioPago(evento.target.value)}
-                disabled={!persona}
-              >
-                <option value="efectivo">Efectivo</option>
-                <option value="sinpe">SINPE</option>
-                <option value="otro">Otro</option>
-              </select>
-            </Campo>
-          </div>
-        </div>
+        <ContenidoVentaTiquetes
+          entradaRef={cedulaRef}
+          buscar={buscar}
+          busquedaAplicada={buscarAplicado}
+          resultados={resultados.data}
+          buscando={resultados.isFetching}
+          persona={persona}
+          fotoUrl={fotoUrl}
+          tarifa={tarifa}
+          cantidad={cantidad}
+          medioPago={medioPago}
+          alCambiarBuscar={(valor) => {
+            setBuscar(valor);
+            setPersona(undefined);
+          }}
+          alSeleccionarPersona={(item: PersonaVenta) => {
+            setPersona(item);
+            setBuscar(item.cedula ?? item.nombres);
+          }}
+          alLimpiarPersona={() => {
+            setPersona(undefined);
+            setBuscar("");
+            cedulaRef.current?.focus();
+          }}
+          alCambiarCantidad={setCantidad}
+          alCambiarMedioPago={setMedioPago}
+        />
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border bg-muted/30 px-4 py-4 sm:px-6">
           <span className="flex items-center gap-2 text-sm text-muted-foreground">
             <Ticket size={20} aria-hidden="true" />{" "}
             {persona
-              ? `${cantidad} tiquete${cantidad === 1 ? "" : "s"} · ${tarifa ? moneda.format(total) : "Sin tarifa"}`
+              ? `${cantidad} tiquete${cantidad === 1 ? "" : "s"} · ${tarifa ? monedaColones.format(total) : "Sin tarifa"}`
               : "Seleccione una persona para continuar"}
           </span>
           <div className="flex flex-wrap items-center gap-3 max-sm:w-full">

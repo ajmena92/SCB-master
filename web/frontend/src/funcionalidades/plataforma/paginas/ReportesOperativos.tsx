@@ -2,7 +2,7 @@ import { useState, type FormEvent } from "react";
 import { Printer } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { plataformaApi } from "../consultas/plataforma";
-import { Aviso, Campo, EncabezadoPagina, Tabla } from "../componentes/ElementosComunes";
+import { Aviso, Campo, EncabezadoPagina, EstadoPanel, Tabla } from "../componentes/ElementosComunes";
 import { errMsg } from "@/compartido/consultas/errores_api";
 import type { ReporteFila } from "@/compartido/contratos/plataforma";
 
@@ -91,11 +91,15 @@ export default function ReportesOperativos() {
         </Campo>
         <button className="button primary">Consultar</button>
       </form>
-      <Tabla
-        columnas={columnas}
-        filas={filas.map((f) => columnas.map((c) => String(f[c] ?? "")))}
-        vacio={consulta.isPending ? "Consultando…" : "Defina un rango para consultar."}
-      />
+      {consulta.isPending ? (
+        <EstadoPanel variante="carga">Consultando el reporte…</EstadoPanel>
+      ) : (
+        <Tabla
+          columnas={columnas}
+          filas={filas.map((f) => columnas.map((c) => String(f[c] ?? "")))}
+          vacio="Defina un rango para consultar."
+        />
+      )}
     </section>
   );
 }

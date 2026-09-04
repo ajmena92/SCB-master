@@ -1,4 +1,7 @@
 import type { ReactNode } from "react";
+import { EstadoPanel, EstadoCarga, EstadoVacio } from "@/compartido/componentes/Estados";
+
+export { EstadoPanel, EstadoCarga, EstadoVacio } from "@/compartido/componentes/Estados";
 
 export function EncabezadoPagina({
   titulo,
@@ -33,33 +36,12 @@ export function Aviso({
 }) {
   return (
     <div
-      className={`rounded-xl border px-4 py-3 text-sm leading-6 ${tipo === "error" ? "border-destructive/35 bg-destructive/10 text-foreground" : tipo === "exito" ? "border-success/35 bg-success/15 text-foreground" : "border-primary/25 bg-primary/10 text-foreground"}`}
+      className={`rounded-xl border px-4 py-3 text-sm leading-6 ${tipo === "error" ? "border-destructive/35 bg-destructive/10 text-foreground" : tipo === "exito" ? "border-success/35 bg-success/10 text-foreground" : "border-primary/25 bg-primary/10 text-foreground"}`}
       role={tipo === "error" ? "alert" : "status"}
+      aria-live={tipo === "error" ? "assertive" : "polite"}
     >
       {children}
     </div>
-  );
-}
-
-export function EstadoCarga() {
-  return (
-    <p
-      className="rounded-xl border border-dashed border-border bg-card px-6 py-8 text-center text-sm text-muted-foreground"
-      role="status"
-    >
-      Cargando información…
-    </p>
-  );
-}
-
-export function EstadoVacio({ children }: { children: ReactNode }) {
-  return (
-    <p
-      className="rounded-xl border border-dashed border-border bg-card px-6 py-8 text-center text-sm text-muted-foreground"
-      role="status"
-    >
-      {children}
-    </p>
   );
 }
 
@@ -74,9 +56,7 @@ export function Tabla({
 }) {
   if (!filas.length)
     return (
-      <p className="rounded-xl border border-dashed border-border bg-card px-6 py-8 text-center text-sm text-muted-foreground">
-        {vacio}
-      </p>
+      <EstadoVacio>{vacio}</EstadoVacio>
     );
   return (
     <div className="overflow-x-auto rounded-xl border border-border bg-card">

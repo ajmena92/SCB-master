@@ -17,7 +17,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Skeleton } from "@/components/ui/skeleton";
+import { EstadoPanel } from "@/compartido/componentes/Estados";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Trash2, Loader2, Replace } from "lucide-react";
 
@@ -56,12 +56,10 @@ export default function SustitucionesTab() {
       </div>
 
       {loading ? (
-        <Skeleton className="h-40 w-full rounded-lg" />
+        <EstadoPanel variante="carga">Cargando sustituciones…</EstadoPanel>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {subs.length === 0 && (
-            <p className="text-sm text-muted-foreground">No hay sustituciones registradas.</p>
-          )}
+          {subs.length === 0 && <EstadoPanel variante="vacio">No hay sustituciones registradas.</EstadoPanel>}
           {subs.map((s) => (
             <div
               key={s.IdMenuSustitucion}

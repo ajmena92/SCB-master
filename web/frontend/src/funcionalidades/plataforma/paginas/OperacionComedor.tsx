@@ -1,15 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  ChevronDown,
-  Expand,
-  History,
-  LogOut,
-  ScanBarcode,
-  Volume2,
-  VolumeX,
-  X,
-} from "lucide-react";
+import { ChevronDown, ScanBarcode, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { plataformaApi } from "../consultas/plataforma";
 import { errMsg } from "@/compartido/consultas/errores_api";
@@ -19,31 +10,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { ResultadoOperacion } from "@/compartido/contratos/plataforma";
 import { ExcepcionSinReserva } from "../componentes/ExcepcionSinReserva";
+import { ControlesEstacionComedor } from "../componentes/ControlesEstacionComedor";
 import { LectorQrCamara } from "../componentes/LectorQrCamara";
 import { ResultadoLecturaComedor } from "../componentes/ResultadoLecturaComedor";
+import { emitirTonoEstacionComedor } from "../componentes/sonido_estacion_comedor";
 
 type EstadoCamara = "iniciando" | "activo" | "error";
-
-function emitirTono(tipo: "aceptado" | "rechazado") {
-  const AudioContexto =
-    window.AudioContext ??
-    (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-  if (!AudioContexto) return;
-  const contexto = new AudioContexto();
-  const oscilador = contexto.createOscillator();
-  const ganancia = contexto.createGain();
-  oscilador.type = "sine";
-  oscilador.frequency.value = tipo === "aceptado" ? 880 : 220;
-  ganancia.gain.setValueAtTime(0.07, contexto.currentTime);
-  ganancia.gain.exponentialRampToValueAtTime(
-    0.001,
-    contexto.currentTime + (tipo === "aceptado" ? 0.12 : 0.22),
-  );
-  oscilador.connect(ganancia).connect(contexto.destination);
-  oscilador.start();
-  oscilador.stop(contexto.currentTime + (tipo === "aceptado" ? 0.12 : 0.22));
-  window.setTimeout(() => void contexto.close(), 300);
-}
 
 export default function OperacionComedor() {
   const fecha = fechaLocalActual();
@@ -70,7 +42,7 @@ export default function OperacionComedor() {
     onSuccess: (respuesta) => {
       setResultado(respuesta);
       setCodigoExcepcion("");
-      if (!silenciado) emitirTono("aceptado");
+      if (!silenciado) emitirTonoEstacionComedor("aceptado");
     },
     onError: (error: { response?: { data?: ResultadoOperacion } }) => {
       const respuesta = error.response?.data ?? {
@@ -78,7 +50,7 @@ export default function OperacionComedor() {
         mensaje: errMsg(error),
       };
       setResultado(respuesta);
-      if (!silenciado) emitirTono("rechazado");
+      if (!silenciado) emitirTonoEstacionComedor("rechazado");
       if (respuesta.resultado === "sin_reserva" && respuesta.persona?.cedula)
         setCodigoExcepcion(respuesta.persona.cedula);
     },
@@ -176,53 +148,18 @@ export default function OperacionComedor() {
       className="flex min-h-[100dvh] flex-col bg-slate-950 text-slate-50"
       data-testid="estacion-comedor"
     >
-      <header className="flex min-h-14 items-center justify-between gap-3 border-b border-white/10 px-3 sm:px-5">
-        <div className="flex min-w-0 items-center gap-3">
-          <span
-            className={`h-2.5 w-2.5 rounded-full ${estadoCamara === "activo" ? "bg-emerald-400" : estadoCamara === "error" ? "bg-rose-400" : "bg-amber-300"}`}
-          />
-          <p className="truncate text-sm font-bold tracking-wide">Estación de comedor</p>
-          <span className="hidden text-xs text-slate-400 sm:inline">{fecha}</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <button
-            type="button"
-            onClick={alternarSonido}
-            className="grid h-11 w-11 place-items-center rounded-xl text-slate-300 hover:bg-white/10"
-            aria-label={silenciado ? "Activar sonido" : "Silenciar sonido"}
-          >
-            {silenciado ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
-          </button>
-          <button
-            type="button"
-            onClick={() => setMostrarHistorial((actual) => !actual)}
-            className="hidden min-h-11 items-center gap-2 rounded-xl px-3 text-sm font-bold text-slate-300 hover:bg-white/10 sm:inline-flex"
-            aria-expanded={mostrarHistorial}
-          >
-            <History className="h-4 w-4" /> Historial{" "}
-            <kbd className="text-xs text-slate-500">F4</kbd>
-          </button>
-          <button
-            type="button"
-            onClick={() => void alternarPantallaCompleta()}
-            className="grid h-11 w-11 place-items-center rounded-xl text-slate-300 hover:bg-white/10"
-            aria-label="Alternar pantalla completa"
-          >
-            <Expand className="h-5 w-5" />
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              if (window.confirm("¿Salir de la estación de comedor?"))
-                navegar("/admin/panel/inicio");
-            }}
-            className="grid h-11 w-11 place-items-center rounded-xl text-slate-300 hover:bg-white/10"
-            aria-label="Salir de estación"
-          >
-            <LogOut className="h-5 w-5" />
-          </button>
-        </div>
-      </header>
+      <ControlesEstacionComedor
+        fecha={fecha}
+        estadoCamara={estadoCamara}
+        silenciado={silenciado}
+        mostrarHistorial={mostrarHistorial}
+        alAlternarSonido={alternarSonido}
+        alAlternarHistorial={() => setMostrarHistorial((actual) => !actual)}
+        alAlternarPantallaCompleta={() => void alternarPantallaCompleta()}
+        alSalir={() => {
+          if (window.confirm("¿Salir de la estación de comedor?")) navegar("/admin/panel/inicio");
+        }}
+      />
       <main className="relative mx-auto flex w-full max-w-[110rem] flex-1 flex-col justify-center gap-4 px-3 py-4 sm:px-6 sm:py-6">
         <div className="relative mx-auto w-full max-w-6xl overflow-hidden rounded-[2rem] border border-white/10 bg-slate-900 shadow-[0_26px_80px_rgb(0_0_0_/_0.35)]">
           <LectorQrCamara

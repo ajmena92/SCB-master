@@ -1,23 +1,48 @@
 import type { ReactNode } from "react";
 
-export function EstadoError({ children }: { children: ReactNode }) {
+export function EstadoPanel({
+  variante,
+  titulo,
+  children,
+  accion,
+}: {
+  variante: "carga" | "vacio" | "error" | "exito";
+  titulo?: string;
+  children?: ReactNode;
+  accion?: ReactNode;
+}) {
+  const estilos = {
+    carga: "border-border bg-card text-muted-foreground",
+    vacio: "border-border bg-card text-muted-foreground",
+    error: "border-destructive/35 bg-destructive/10 text-foreground",
+    exito: "border-success/35 bg-success/10 text-foreground",
+  }[variante];
   return (
-    <p
-      className="rounded-xl border border-destructive/35 bg-destructive/10 px-4 py-3 text-sm leading-6 text-foreground"
-      role="alert"
+    <div
+      className={`rounded-xl border px-4 py-4 text-sm leading-6 ${estilos}`}
+      role={variante === "error" ? "alert" : "status"}
+      aria-live={variante === "error" ? "assertive" : "polite"}
+      aria-busy={variante === "carga"}
     >
-      {children}
-    </p>
+      {titulo && <p className="font-semibold text-foreground">{titulo}</p>}
+      {children && <div className={titulo ? "mt-1" : undefined}>{children}</div>}
+      {accion && <div className="mt-3">{accion}</div>}
+    </div>
   );
 }
 
+export function EstadoCarga({ children = "Cargando información…" }: { children?: ReactNode }) {
+  return <EstadoPanel variante="carga">{children}</EstadoPanel>;
+}
+
+export function EstadoVacio({ children }: { children: ReactNode }) {
+  return <EstadoPanel variante="vacio">{children}</EstadoPanel>;
+}
+
+export function EstadoError({ children }: { children: ReactNode }) {
+  return <EstadoPanel variante="error">{children}</EstadoPanel>;
+}
+
 export function EstadoExito({ children }: { children: ReactNode }) {
-  return (
-    <p
-      className="rounded-xl border border-success/35 bg-success/10 px-4 py-3 text-sm leading-6 text-foreground"
-      role="status"
-    >
-      {children}
-    </p>
-  );
+  return <EstadoPanel variante="exito">{children}</EstadoPanel>;
 }

@@ -2,7 +2,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Skeleton } from "@/components/ui/skeleton";
+import { EstadoPanel } from "@/compartido/componentes/Estados";
 import { Badge } from "@/components/ui/badge";
 import { useParametros } from "@/funcionalidades/administracion/hooks/useParametros";
 import { CheckCircle2, Loader2, Settings2 } from "lucide-react";
@@ -52,7 +52,7 @@ export default function ParametrosTab() {
       )}
 
       {loading ? (
-        <Skeleton className="h-64 w-full rounded-lg" data-testid="parametros-loading" />
+        <EstadoPanel variante="carga">Cargando parámetros…</EstadoPanel>
       ) : (
         <div className="space-y-5">
           <div className="rounded-lg border bg-card p-5">
@@ -82,12 +82,9 @@ export default function ParametrosTab() {
               </p>
             </div>
             {parametros.horarios.length === 0 ? (
-              <Alert>
-                <AlertTitle>Sin horarios</AlertTitle>
-                <AlertDescription>
-                  No hay horarios disponibles para consultar o configurar.
-                </AlertDescription>
-              </Alert>
+              <EstadoPanel variante="vacio" titulo="Sin horarios">
+                No hay horarios disponibles para consultar o configurar.
+              </EstadoPanel>
             ) : (
               parametros.horarios.map((horario) => (
                 <div

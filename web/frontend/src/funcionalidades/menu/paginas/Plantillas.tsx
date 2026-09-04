@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "@/compartido/consultas/cliente_http";
 import { errMsg } from "@/compartido/consultas/errores_api";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import {
   Select,
@@ -13,7 +12,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { AlertCircle, Layers3, Plus, Pencil, RefreshCw } from "lucide-react";
+import { Layers3, Plus, Pencil, RefreshCw } from "lucide-react";
+import { EstadoPanel } from "@/compartido/componentes/Estados";
 import { prepararComponente, prepararComponentes } from "@/funcionalidades/menu/componentesMenu";
 import type { ComponenteMenu } from "@/funcionalidades/menu/componentesMenu";
 import { DIAS_MENU, EditorPlantilla } from "@/funcionalidades/menu/EditorPlantilla";
@@ -196,30 +196,10 @@ export default function Plantillas() {
       </div>
 
       {loading ? (
-        <div
-          className="grid grid-cols-1 gap-4 min-[1100px]:grid-cols-2 min-[1680px]:grid-cols-3"
-          aria-label="Cargando plantillas"
-        >
-          {[0, 1, 2, 3].map((item) => (
-            <Skeleton key={item} className="h-52 w-full rounded-2xl" />
-          ))}
-        </div>
+        <EstadoPanel variante="carga">Cargando plantillas…</EstadoPanel>
       ) : error ? (
-        <div
-          className="rounded-2xl border border-destructive/30 bg-card p-6"
-          role="alert"
-          data-testid="plantillas-error"
-        >
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex min-w-0 items-start gap-3">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-destructive/10 text-destructive">
-                <AlertCircle className="h-5 w-5" />
-              </span>
-              <div className="min-w-0">
-                <h3 className="font-display font-bold">No pudimos cargar las plantillas</h3>
-                <p className="mt-1 break-words text-sm text-muted-foreground">{errMsg(error)}</p>
-              </div>
-            </div>
+        <div data-testid="plantillas-error">
+          <EstadoPanel variante="error" titulo="No pudimos cargar las plantillas" accion={
             <Button
               variant="outline"
               className="w-full shrink-0 sm:w-auto"
@@ -228,7 +208,7 @@ export default function Plantillas() {
             >
               <RefreshCw className="h-4 w-4" /> Reintentar
             </Button>
-          </div>
+          }>{errMsg(error)}</EstadoPanel>
         </div>
       ) : (
         <div className="space-y-5">
