@@ -17,17 +17,17 @@ from aplicacion.modelos.maestros import (
     Ruta,
     SesionAcceso,
 )
-from aplicacion.modelos.operacion import CuentaTiquete
 from aplicacion.modelos.menu import (
     CalendarioMenu,
-    ConfiguracionCicloMenu,
     ComponenteMenu,
     ComponentePublicado,
     ComponenteSustitucionMenu,
+    ConfiguracionCicloMenu,
     PlantillaMenu,
     PublicacionMenu,
     SustitucionMenu,
 )
+from aplicacion.modelos.operacion import CuentaTiquete
 from aplicacion.repositorios import desactivar_anios
 
 
@@ -126,9 +126,9 @@ class RepositorioCatalogos:
             "becado": bool(matricula and matricula.becado),
             "beneficioComedor": "Beneficiario" if matricula and matricula.becado else "No beneficiario",
             "estadoMatricula": matricula.estado if matricula else None,
-            "rutaId": ruta.id if ruta_valida else None,
-            "descripcionRuta": ruta.descripcion if ruta_valida else None,
-            "beneficioTransporte": f"Beneficiario – {ruta.descripcion}" if ruta_valida else "No beneficiario",
+            "rutaId": ruta.id if ruta is not None and ruta_valida else None,
+            "descripcionRuta": ruta.descripcion if ruta is not None and ruta_valida else None,
+            "beneficioTransporte": f"Beneficiario – {ruta.descripcion}" if ruta is not None and ruta_valida else "No beneficiario",
             "saldoTiquetes": cuenta.saldo if cuenta else 0,
         }
 

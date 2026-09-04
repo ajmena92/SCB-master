@@ -27,7 +27,11 @@ const SEMANAS_MENU = [1, 2, 3, 4, 5] as const;
 
 function fechaCostaRica(): { fecha: string; diaSemana: number } {
   const partes = new Intl.DateTimeFormat("en-US", {
-    timeZone: "America/Costa_Rica", year: "numeric", month: "2-digit", day: "2-digit", weekday: "short",
+    timeZone: "America/Costa_Rica",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    weekday: "short",
   }).formatToParts(new Date());
   const valor = (tipo: string) => partes.find((parte) => parte.type === tipo)?.value ?? "";
   const semana = partes.find((parte) => parte.type === "weekday")?.value;
@@ -65,10 +69,17 @@ export default function Plantillas() {
     queryKey: ["admin", "menu", "plantillas"],
     staleTime: 60_000,
     queryFn: async () => {
-      const { data } = await api.get<Array<{
-        id: number; semana: number; dia: number; titulo: string; observaciones?: string | null;
-        activo: boolean; componentes: Array<{ nombre: string; tipo: string; orden: number }>;
-      }>>("/v1/menu/plantillas");
+      const { data } = await api.get<
+        Array<{
+          id: number;
+          semana: number;
+          dia: number;
+          titulo: string;
+          observaciones?: string | null;
+          activo: boolean;
+          componentes: Array<{ nombre: string; tipo: string; orden: number }>;
+        }>
+      >("/v1/menu/plantillas");
       return data.map((p) => ({
         id: p.id,
         SemanaMes: p.semana,
@@ -77,7 +88,9 @@ export default function Plantillas() {
         Observaciones: p.observaciones ?? "",
         Activo: p.activo,
         Componentes: p.componentes.map((c) => ({
-          Nombre: c.nombre, TipoComponente: c.tipo, Orden: c.orden,
+          Nombre: c.nombre,
+          TipoComponente: c.tipo,
+          Orden: c.orden,
         })),
       }));
     },
@@ -140,7 +153,9 @@ export default function Plantillas() {
         observaciones: form.Observaciones || null,
         activo: form.Activo,
         componentes: form.Componentes.filter((c) => c.Nombre.trim()).map((c, indice) => ({
-          nombre: c.Nombre.trim(), tipo: c.TipoComponente, orden: indice + 1,
+          nombre: c.Nombre.trim(),
+          tipo: c.TipoComponente,
+          orden: indice + 1,
         })),
       };
       if (!payload.componentes.length) {
@@ -166,7 +181,9 @@ export default function Plantillas() {
             Plantillas de menú
           </h2>
           <p className="mt-1 max-w-[65ch] text-sm leading-relaxed text-muted-foreground">
-            Organizá las semanas de cada mes, de lunes a viernes. Algunos meses tienen cuatro semanas operativas y otros cinco; las sustituciones y cierres se consultan en el calendario.
+            Organizá las semanas de cada mes, de lunes a viernes. Algunos meses tienen cuatro
+            semanas operativas y otros cinco; las sustituciones y cierres se consultan en el
+            calendario.
           </p>
         </div>
         <Button

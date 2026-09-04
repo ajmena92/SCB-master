@@ -1,11 +1,9 @@
 import { createContext, use, useEffect, useState, useCallback } from "react";
 import { api } from "@/compartido/consultas/cliente_http";
-import { borrarTokenSesion, obtenerTokenSesion } from "@/compartido/consultas/token_sesion";
 
 const ContextoAutenticacionContext = createContext(null);
 
 async function obtenerSesion() {
-  if (!obtenerTokenSesion()) return { session: false, debeCambiarPin: false };
   const { data, status } = await api.get("/v1/sesion", {
     omitirManejoFalloAutenticacion: true,
   });
@@ -85,7 +83,6 @@ export function ProveedorAutenticacion({ children }) {
 
   useEffect(() => {
     const onUnauthenticated = () => {
-      borrarTokenSesion();
       setSession(false);
       setDebeCambiarPin(false);
     };
@@ -100,7 +97,6 @@ export function ProveedorAutenticacion({ children }) {
       // Aunque el servidor no responda, el navegador no debe conservar una
       // credencial que la persona decidió cerrar.
     } finally {
-      borrarTokenSesion();
       setSession(false);
       setDebeCambiarPin(false);
     }
@@ -116,7 +112,6 @@ export function ProveedorAutenticacion({ children }) {
         loadMe,
         logout,
         limpiarSesion: () => {
-          borrarTokenSesion();
           setSession(false);
           setDebeCambiarPin(false);
         },

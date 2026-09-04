@@ -1,8 +1,8 @@
 """Registra confirmaciones de comedor sin tiquete y crea el horario único."""
 
-from alembic import op
 import sqlalchemy as sa
 
+from alembic import op
 
 revision = "0016_confirmacion_sin_tiquete"
 down_revision = "0015_elimina_codigo_persona"

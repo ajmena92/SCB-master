@@ -7,6 +7,7 @@ from pathlib import Path
 RAIZ_REPOSITORIO = Path(__file__).resolve().parents[3]
 RUTA_FLUJO = RAIZ_REPOSITORIO / ".github" / "workflows" / "verificacion.yml"
 RUTA_DOCKER_API = RAIZ_REPOSITORIO / "web" / "ops" / "Dockerfile.api"
+RUTA_ENTRADA_API = RAIZ_REPOSITORIO / "web" / "ops" / "entrada_api_postgres.sh"
 RUTA_DOCKER_MIGRACION = RAIZ_REPOSITORIO / "web" / "ops" / "Dockerfile.migracion"
 RUTA_COMPOSE_PRODUCCION = RAIZ_REPOSITORIO / "web" / "ops" / "compose.production.yml"
 RUTA_MEDICION_MEMORIA = RAIZ_REPOSITORIO / "web" / "scripts" / "medir_memoria_operativa.sh"
@@ -48,9 +49,10 @@ def test_flujo_ci_usa_versiones_de_runtime_declaradas_por_el_proyecto() -> None:
 def test_imagen_api_usa_la_entrada_modular_y_healthcheck_canonicos() -> None:
     contenido = RUTA_DOCKER_API.read_text(encoding="utf-8")
 
-    assert "uvicorn aplicacion.entrada:crear_aplicacion --factory" in contenido
-    assert "uvicorn server:app" not in contenido
-    assert "/api/ready" in contenido
+    entrada = RUTA_ENTRADA_API.read_text(encoding="utf-8")
+    assert 'ENTRYPOINT ["/usr/local/bin/entrada_api_postgres.sh"]' in contenido
+    assert "uvicorn aplicacion.entrada:crear_aplicacion --factory" in entrada
+    assert "uvicorn server:app" not in entrada
 
 
 def test_imagen_api_no_contiene_dependencias_ni_fuentes_de_pruebas() -> None:
@@ -84,7 +86,7 @@ def test_migracion_y_puerta_de_memoria_tienen_entradas_separadas() -> None:
     assert "MIGRACION_MANUAL_DBA:-" in entrada
     assert '!= "confirmada"' in entrada
     assert "dockerfile: ops/Dockerfile.migracion" in compose
-    assert "profiles:\n      - migracion" in compose
+    assert "profiles: [migracion]" in compose
     assert 'restart: "no"' in compose
     assert 'source "$directorio_script/medir_memoria_docker.sh"' in medicion
     assert "docker stats --no-stream" in soporte_medicion
@@ -100,13 +102,9 @@ def test_migracion_y_puerta_de_memoria_tienen_entradas_separadas() -> None:
 
 def test_cargas_http_tienen_limite_en_proxy_y_lectura_acotada() -> None:
     nginx = RUTA_NGINX.read_text(encoding="utf-8")
-    fotos = (
-        RAIZ_REPOSITORIO / "web" / "backend" / "aplicacion" / "modulos" / "estudiantes" / "fotos.py"
-    ).read_text(encoding="utf-8")
-    importaciones = (
-        RAIZ_REPOSITORIO / "web" / "backend" / "aplicacion" / "modulos" / "importaciones" / "api.py"
-    ).read_text(encoding="utf-8")
+    fotos = (RAIZ_REPOSITORIO / "web" / "backend" / "aplicacion" / "api_fotos.py").read_text(encoding="utf-8")
+    importaciones = (RAIZ_REPOSITORIO / "web" / "backend" / "aplicacion" / "api_importaciones.py").read_text(encoding="utf-8")
 
     assert "client_max_body_size 12m;" in nginx
-    assert "await archivo.read()" not in fotos
+    assert "await archivo.read(MAXIMO_FOTO_BYTES + 1)" in fotos
     assert "await archivo.read()" not in importaciones

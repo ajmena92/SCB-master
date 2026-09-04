@@ -1,36 +1,27 @@
 /** Generado por web/scripts/generar_cliente_openapi.py; no editar manualmente. */
 
-export interface PermisoSalida {
-  activo?: boolean;
-  clave: string;
-  descripcion?: string | null;
+export interface CuentaAdministrativaActualizacion {
+  activo?: boolean | null;
+  permisos?: Array<string> | null;
+  personaId?: number | null;
+  rol?: "administrador" | "operador" | null;
+  usuario?: string | null;
 }
 
-export interface RolEntrada {
-  descripcion?: string | null;
-  nombre: string;
+export interface CuentaAdministrativaEntrada {
   permisos?: Array<string>;
+  personaId?: number | null;
+  profesorNuevo?: ProfesorNuevoAdministrativo | null;
+  rol: "administrador" | "operador";
+  usuario: string;
 }
 
-export interface RolSalida {
-  descripcion?: string | null;
-  idRol: number;
-  nombre: string;
-  permisos?: Array<string>;
+export interface ProfesorNuevoAdministrativo {
+  cedula: string;
+  nombres: string;
 }
 
-export interface UsuarioEntrada {
-  activo?: boolean;
-  contrasena?: string | null;
-  nombreUsuario: string;
-  permisos?: Array<string>;
-  roles?: Array<string>;
-}
-
-export interface UsuarioSalida {
-  activo: boolean;
-  idUsuario: number;
-  nombreUsuario: string;
-  permisos?: Array<string>;
-  roles?: Array<string>;
+export interface VinculacionCuentaEntrada {
+  personaId?: number | null;
+  profesorNuevo?: ProfesorNuevoAdministrativo | null;
 }

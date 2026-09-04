@@ -46,7 +46,9 @@ export default function AdminShell() {
   }, [esEstacionComedor]);
 
   return (
-    <div className={`admin-app${esEstacionComedor ? " admin-app--comedor" : ""}${navegacionColapsada ? " admin-app--nav-colapsada" : ""}`}>
+    <div
+      className={`admin-app${esEstacionComedor ? " admin-app--comedor" : ""}${navegacionColapsada ? " admin-app--nav-colapsada" : ""}`}
+    >
       <header className="topbar">
         <div className="brand">
           <ShieldCheck aria-hidden="true" />
@@ -75,7 +77,10 @@ export default function AdminShell() {
           </button>
         </div>
       </header>
-      <aside className={`admin-nav${navegacionColapsada ? " admin-nav--colapsada" : ""}`} aria-label="Navegación administrativa">
+      <aside
+        className={`admin-nav${navegacionColapsada ? " admin-nav--colapsada" : ""}`}
+        aria-label="Navegación administrativa"
+      >
         {visibles.map(({ ruta, titulo: texto, icono: Icono }) => (
           <NavLink key={ruta} to={ruta} className={({ isActive }) => (isActive ? "active" : "")}>
             <Icono aria-hidden="true" />
@@ -83,7 +88,10 @@ export default function AdminShell() {
           </NavLink>
         ))}
       </aside>
-      <main className={`admin-main${esEstacionComedor ? " admin-main--comedor" : ""}`} id="contenido">
+      <main
+        className={`admin-main${esEstacionComedor ? " admin-main--comedor" : ""}`}
+        id="contenido"
+      >
         {!esEstacionComedor && <span className="mobile-title">{titulo}</span>}
         <Outlet />
       </main>

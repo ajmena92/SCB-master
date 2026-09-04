@@ -4,6 +4,7 @@ El modelo preserva el contrato previo: una fecha única y su estado habilitado.
 """
 
 import sqlalchemy as sa
+
 from alembic import op
 
 revision = "0009_calendario_menu"

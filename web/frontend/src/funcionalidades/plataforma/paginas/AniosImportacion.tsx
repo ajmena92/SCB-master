@@ -144,7 +144,10 @@ export default function AniosImportacion() {
             <Campo etiqueta="Archivo .xlsx">
               <input type="file" accept=".xlsx" onChange={(e) => setArchivo(e.target.files?.[0])} />
             </Campo>
-            <Aviso>El archivo debe contener cédula, nombres, tipo y, para estudiantes, sección. No incluya beca ni ruta.</Aviso>
+            <Aviso>
+              El archivo debe contener cédula, nombres, tipo y, para estudiantes, sección. No
+              incluya beca ni ruta.
+            </Aviso>
             <button
               className="button primary"
               disabled={!archivo || !anio || previsualizar.isPending}

@@ -53,12 +53,17 @@ describe("plantillas de menú", () => {
 
   it("mantiene contenidos largos dentro de la cuadrícula responsive", async () => {
     responderPlantillas([
-        {
-          id: 7, semana: 1, dia: 2,
-          titulo: "Pasta corta con vegetales, ensalada y carne de res en salsa de tomate",
-          activo: true,
-          componentes: [{ nombre: "Pasta", tipo: "Principal", orden: 1 }, { nombre: "Carne", tipo: "Principal", orden: 2 }],
-        },
+      {
+        id: 7,
+        semana: 1,
+        dia: 2,
+        titulo: "Pasta corta con vegetales, ensalada y carne de res en salsa de tomate",
+        activo: true,
+        componentes: [
+          { nombre: "Pasta", tipo: "Principal", orden: 1 },
+          { nombre: "Carne", tipo: "Principal", orden: 2 },
+        ],
+      },
     ]);
 
     const { container, root } = await renderTab();
@@ -86,14 +91,18 @@ describe("plantillas de menú", () => {
 
   it("muestra una previsualización breve de los componentes", async () => {
     responderPlantillas([
-        {
-          id: 8, semana: 1, dia: 1, titulo: "Arroz con pollo", activo: true,
-          componentes: [
-            { nombre: "Arroz", tipo: "Principal", orden: 1 },
-            { nombre: "Ensalada", tipo: "Acompañamiento", orden: 2 },
-            { nombre: "Fruta", tipo: "Postre", orden: 3 },
-          ],
-        },
+      {
+        id: 8,
+        semana: 1,
+        dia: 1,
+        titulo: "Arroz con pollo",
+        activo: true,
+        componentes: [
+          { nombre: "Arroz", tipo: "Principal", orden: 1 },
+          { nombre: "Ensalada", tipo: "Acompañamiento", orden: 2 },
+          { nombre: "Fruta", tipo: "Postre", orden: 3 },
+        ],
+      },
     ]);
 
     const { container, root } = await renderTab();
@@ -144,12 +153,22 @@ describe("plantillas de menú", () => {
 
   it("muestra una sola semana activa y cambia de semana sin otra consulta", async () => {
     responderPlantillas([
-        {
-          id: 1, semana: 1, dia: 1, titulo: "Lunes de la semana 1", activo: true, componentes: [],
-        },
-        {
-          id: 2, semana: 2, dia: 3, titulo: "Miércoles de la semana 2", activo: true, componentes: [],
-        },
+      {
+        id: 1,
+        semana: 1,
+        dia: 1,
+        titulo: "Lunes de la semana 1",
+        activo: true,
+        componentes: [],
+      },
+      {
+        id: 2,
+        semana: 2,
+        dia: 3,
+        titulo: "Miércoles de la semana 2",
+        activo: true,
+        componentes: [],
+      },
     ]);
 
     const { container, root } = await renderTab();

@@ -64,14 +64,20 @@ SheetContent.displayName = SheetPrimitive.Content.displayName;
 
 /** @param {import("react").ComponentPropsWithRef<"div">} props */
 const SheetHeader = ({ className, ...props }) => (
-  <div className={cn("flex flex-col space-y-2 border-b border-border pb-4 pr-10 text-left", className)} {...props} />
+  <div
+    className={cn("flex flex-col space-y-2 border-b border-border pb-4 pr-10 text-left", className)}
+    {...props}
+  />
 );
 SheetHeader.displayName = "SheetHeader";
 
 /** @param {import("react").ComponentPropsWithRef<"div">} props */
 const SheetFooter = ({ className, ...props }) => (
   <div
-    className={cn("flex flex-col-reverse gap-2 border-t border-border pt-4 sm:flex-row sm:justify-end", className)}
+    className={cn(
+      "flex flex-col-reverse gap-2 border-t border-border pt-4 sm:flex-row sm:justify-end",
+      className,
+    )}
     {...props}
   />
 );

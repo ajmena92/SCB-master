@@ -30,7 +30,7 @@ def test_importacion_previsualiza_confirma_y_es_idempotente(entorno):
     assert confirmacion.status_code == 200 and confirmacion.json()["repetida"] is False
     credenciales = confirmacion.json()["credenciales"]
     assert len(credenciales) == 1
-    assert set(credenciales[0]) == {"codigo", "nombre", "pinTemporal"}
+    assert set(credenciales[0]) == {"cedula", "nombre", "pinTemporal"}
     assert len(credenciales[0]["pinTemporal"]) == 6
     repetida = cliente.post(
         "/api/v1/importaciones/confirmar",
@@ -123,6 +123,23 @@ def test_importacion_xlsx_usa_multipart_y_solo_previsualiza(entorno):
     assert respuesta.status_code == 200, respuesta.text
     assert respuesta.json()["altas"] == 1
     assert respuesta.json()["datos"]["filas"][0]["nombres"] == "Desde Excel"
+
+
+def test_importacion_xlsx_rechaza_archivo_mayor_al_limite(entorno):
+    cliente, _, h = entorno
+    respuesta = cliente.post(
+        "/api/v1/importaciones/previsualizar",
+        headers=h["admin"],
+        data={"anio": "2026"},
+        files={
+            "archivo": (
+                "padron.xlsx",
+                b"x" * (12 * 1024 * 1024 + 1),
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            )
+        },
+    )
+    assert respuesta.status_code == 413
 
 
 def test_importacion_bloquea_duplicados_y_reportes_exportan_csv(entorno):

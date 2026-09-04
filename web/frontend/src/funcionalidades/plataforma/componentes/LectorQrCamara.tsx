@@ -1,12 +1,20 @@
 import { BrowserQRCodeReader } from "@zxing/browser";
-import { Camera, LoaderCircle, RefreshCw, ScanLine, SwitchCamera, TriangleAlert } from "lucide-react";
+import {
+  Camera,
+  LoaderCircle,
+  RefreshCw,
+  ScanLine,
+  SwitchCamera,
+  TriangleAlert,
+} from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 type DetectorQr = { detect: (fuente: ImageBitmapSource) => Promise<Array<{ rawValue?: string }>> };
 type ConstructorDetectorQr = new (opciones: { formats: string[] }) => DetectorQr;
 
 function detectorNativo(): ConstructorDetectorQr | undefined {
-  return (globalThis as typeof globalThis & { BarcodeDetector?: ConstructorDetectorQr }).BarcodeDetector;
+  return (globalThis as typeof globalThis & { BarcodeDetector?: ConstructorDetectorQr })
+    .BarcodeDetector;
 }
 
 const restriccionesVideo: MediaTrackConstraints = {
@@ -79,9 +87,13 @@ export function LectorQrCamara({
         delayBetweenScanAttempts: 80,
         delayBetweenScanSuccess: 250,
       });
-      const controles = await lector.decodeFromConstraints(restriccionesParaCamara(camaraId), videoElement, (resultado) => {
-        if (resultado) alDetectar(resultado.getText());
-      });
+      const controles = await lector.decodeFromConstraints(
+        restriccionesParaCamara(camaraId),
+        videoElement,
+        (resultado) => {
+          if (resultado) alDetectar(resultado.getText());
+        },
+      );
       detener = () => controles.stop();
     }
 
@@ -95,7 +107,8 @@ export function LectorQrCamara({
         if (Detector) await iniciarConDetectorNativo(Detector);
         else await iniciarConZxing();
         const dispositivos = await navigator.mediaDevices.enumerateDevices();
-        if (activo) setCamaras(dispositivos.filter((dispositivo) => dispositivo.kind === "videoinput"));
+        if (activo)
+          setCamaras(dispositivos.filter((dispositivo) => dispositivo.kind === "videoinput"));
         if (activo) cambiarEstado("activo");
       } catch (error) {
         if (!activo) return;
@@ -122,14 +135,29 @@ export function LectorQrCamara({
   }
 
   return (
-    <section className="relative isolate overflow-hidden rounded-[2rem] border bg-slate-950 shadow-[0_24px_70px_rgb(15_23_42_/_0.28)]" aria-label="Lector QR por cámara">
+    <section
+      className="relative isolate overflow-hidden rounded-[2rem] border bg-slate-950 shadow-[0_24px_70px_rgb(15_23_42_/_0.28)]"
+      aria-label="Lector QR por cámara"
+    >
       <video ref={videoRef} className="aspect-[4/3] w-full object-cover" muted playsInline />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_43%,rgb(2_6_23_/_0.68)_100%)]" />
       <div className="pointer-events-none absolute inset-y-[16%] left-[22%] right-[22%] rounded-[1.5rem] border-2 border-emerald-300/90 shadow-[0_0_0_999px_rgb(2_6_23_/_0.18)]" />
       <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-3 bg-slate-950/80 px-5 py-4 text-sm text-white backdrop-blur-sm">
         <span className="flex items-center gap-2 font-semibold">
-          {estado === "iniciando" ? <LoaderCircle className="h-4 w-4 animate-spin text-emerald-300" /> : estado === "error" ? <TriangleAlert className="h-4 w-4 text-amber-300" /> : <ScanLine className="h-4 w-4 text-emerald-300" />}
-          {estado === "iniciando" ? "Activando cámara…" : estado === "error" ? mensajeError : pausado ? "Validando lectura…" : "Apuntá el QR dentro del recuadro"}
+          {estado === "iniciando" ? (
+            <LoaderCircle className="h-4 w-4 animate-spin text-emerald-300" />
+          ) : estado === "error" ? (
+            <TriangleAlert className="h-4 w-4 text-amber-300" />
+          ) : (
+            <ScanLine className="h-4 w-4 text-emerald-300" />
+          )}
+          {estado === "iniciando"
+            ? "Activando cámara…"
+            : estado === "error"
+              ? mensajeError
+              : pausado
+                ? "Validando lectura…"
+                : "Apuntá el QR dentro del recuadro"}
         </span>
         <Camera className="h-5 w-5 shrink-0 text-emerald-300" aria-hidden="true" />
       </div>

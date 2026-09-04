@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useTiquetes } from "@/funcionalidades/comedor/hooks/useTiquetes";
+import { EstadoError, EstadoExito } from "@/compartido/componentes/Estados";
 
 export function TiquetesPanel() {
   const {
@@ -19,7 +20,10 @@ export function TiquetesPanel() {
   return (
     <section className="space-y-6" aria-labelledby="tiquetes-title">
       <div>
-        <h1 id="tiquetes-title" className="font-display text-2xl font-bold">
+        <h1
+          id="tiquetes-title"
+          className="font-display text-xl font-semibold tracking-tight sm:text-2xl"
+        >
           Compras y saldo de tiquetes
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
@@ -70,15 +74,11 @@ export function TiquetesPanel() {
           {cargando ? "Guardando…" : "Registrar compra"}
         </Button>
       </form>
-      {error && (
-        <p role="alert" className="text-sm text-destructive">
-          {error}
-        </p>
-      )}
+      {error && <EstadoError>{error}</EstadoError>}
       {movimiento && (
-        <p role="status" className="text-sm text-muted-foreground">
+        <EstadoExito>
           Compra registrada. Nuevo saldo: {String(movimiento.saldoNuevo ?? "actualizado")}
-        </p>
+        </EstadoExito>
       )}
       <p className="text-xs text-muted-foreground">
         La compra se aplica a cualquier persona habilitada del catálogo de comedor, incluido el

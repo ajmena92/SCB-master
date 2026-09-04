@@ -20,9 +20,11 @@ export default function AdminLogin() {
 
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-background p-4 sm:p-6">
-      <div className="absolute right-4 top-4"><SelectorTema /></div>
+      <div className="absolute right-4 top-4">
+        <SelectorTema />
+      </div>
       <div className="w-full max-w-sm animate-fade-up">
-        <div className="mb-8 flex items-center gap-3 text-secondary sm:mb-10">
+        <div className="mb-8 flex items-center gap-3 text-foreground sm:mb-10">
           <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
             <ShieldCheck className="h-6 w-6" />
           </span>
@@ -37,7 +39,7 @@ export default function AdminLogin() {
           <h1 className="font-display text-2xl font-bold tracking-tight mb-6">Iniciar sesión</h1>
           {parametros.get("contrasena") === "actualizada" && (
             <p
-              className="mb-5 rounded-xl bg-emerald-100 px-4 py-3 text-sm font-semibold text-emerald-900"
+              className="mb-5 rounded-xl border border-success/35 bg-success/10 px-4 py-3 text-sm font-semibold text-foreground"
               role="status"
             >
               Contraseña actualizada. Iniciá sesión con tu nueva contraseña.
@@ -53,6 +55,7 @@ export default function AdminLogin() {
                 onChange={(e) => cambiarNombreUsuario(e.target.value)}
                 className="h-11"
                 placeholder="usuario o correo"
+                autoComplete="username"
               />
             </div>
             <div className="space-y-2">
@@ -64,6 +67,7 @@ export default function AdminLogin() {
                 value={contrasena}
                 onChange={(e) => cambiarContrasena(e.target.value)}
                 className="h-11"
+                autoComplete="current-password"
               />
             </div>
             {error && (
@@ -83,7 +87,7 @@ export default function AdminLogin() {
         </div>
         <Link
           to="/"
-          className="mt-6 flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-secondary transition-colors"
+          className="mt-6 flex min-h-11 items-center justify-center gap-2 rounded-md px-3 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-secondary"
         >
           <ArrowLeft className="h-4 w-4" /> Volver al acceso estudiantil
         </Link>

@@ -75,7 +75,9 @@ services:
       POSTGRES_PASSWORD_FILE: /run/secrets/postgres_app_password
       CORS_ORIGIN: ${CORS_ORIGIN:?Defina CORS_ORIGIN}
       COOKIE_SECURE: ${COOKIE_SECURE:-true}
-      CARNET_QR_CLAVE: ${CARNET_QR_CLAVE:?Defina CARNET_QR_CLAVE}
+      CARNET_QR_CLAVE_FILE: /run/secrets/carnet_qr_clave
+      CSRF_SECRET_FILE: /run/secrets/csrf_secret
+      CSRF_ANONYMOUS_TTL_SECONDS: ${CSRF_ANONYMOUS_TTL_SECONDS:?Defina CSRF_ANONYMOUS_TTL_SECONDS}
       ENVIRONMENT: ${ENVIRONMENT:-production}
       APP_TZ: ${APP_TZ:-America/Costa_Rica}
       TRUSTED_PROXY_CIDRS: ${TRUSTED_PROXY_CIDRS:?Defina TRUSTED_PROXY_CIDRS}
@@ -87,7 +89,7 @@ services:
       ADMIN_MAX_LOGIN_ATTEMPTS: ${ADMIN_MAX_LOGIN_ATTEMPTS:-5}
       ADMIN_LOCK_MINUTES: ${ADMIN_LOCK_MINUTES:-15}
       UVICORN_WORKERS: ${UVICORN_WORKERS:-2}
-    secrets: [postgres_app_password]
+    secrets: [postgres_app_password, carnet_qr_clave, csrf_secret]
     depends_on:
       postgres:
         condition: service_healthy
@@ -100,9 +102,10 @@ services:
     tmpfs: [/tmp]
     security_opt: [no-new-privileges:true]
     cap_drop: [ALL]
-    # Needed only by the root entrypoint to switch permanently to appuser
-    # after reading the root-owned Docker secret.
-    cap_add: [SETUID, SETGID]
+    # The entrypoint reads the mounted secret before dropping to appuser.
+    # DAC_READ_SEARCH is limited to that bootstrap read; the API itself keeps
+    # all other capabilities disabled.
+    cap_add: [SETUID, SETGID, DAC_READ_SEARCH]
 
   respaldo:
     profiles: [respaldo]
@@ -243,3 +246,7 @@ secrets:
     file: ${SQL_SERVER_ORIGEN_FILE:-./secrets/sql_server_origen}
   codigo_migracion_semilla:
     file: ${CODIGO_MIGRACION_SEMILLA_FILE:-./secrets/codigo_migracion_semilla}
+  carnet_qr_clave:
+    file: ${CARNET_QR_CLAVE_FILE:-./secrets/carnet_qr_clave}
+  csrf_secret:
+    file: ${CSRF_SECRET_FILE:-./secrets/csrf_secret}

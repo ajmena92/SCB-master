@@ -41,7 +41,7 @@ export default function AdminSidebar() {
             return (
               <section key={group.id} aria-label={group.label}>
                 {!compacto && (
-                  <h2 className="px-3 pb-2 font-body text-[11px] font-medium uppercase tracking-[0.12em] text-secondary-foreground/55">
+                          <h2 className="px-3 pb-2 font-body text-[11px] font-medium uppercase tracking-[0.12em] text-secondary-foreground/75">
                     {group.label}
                   </h2>
                 )}

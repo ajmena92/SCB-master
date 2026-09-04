@@ -129,6 +129,19 @@ class SesionAcceso(BaseDeclarativa):
     persona_id: Mapped[int | None] = mapped_column(
         ForeignKey("persona.id", ondelete="CASCADE"), nullable=True, index=True
     )
+    cuenta_id: Mapped[int | None] = mapped_column(
+        ForeignKey("cuenta_administrativa.id", ondelete="CASCADE"), nullable=True, index=True
+    )
+    cambio_obligatorio: Mapped[bool] = mapped_column(Boolean, default=False)
+    expira_en: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    __table_args__ = (
+        CheckConstraint(
+            "(tipo = 'portal' AND persona_id IS NOT NULL AND cuenta_id IS NULL) OR "
+            "(tipo = 'administracion' AND cuenta_id IS NOT NULL AND persona_id IS NULL)",
+            name="propietario_sesion",
+        ),
+        Index("ix_sesion_acceso_expira_en", "expira_en"),
+    )
 
 
 class IntentoAutenticacion(BaseDeclarativa):
@@ -144,19 +157,6 @@ class IntentoAutenticacion(BaseDeclarativa):
     __table_args__ = (
         CheckConstraint("intentos_fallidos >= 0", name="intentos_fallidos_no_negativos"),
         Index("ix_intento_autenticacion_bloqueado_hasta", "bloqueado_hasta"),
-    )
-    cuenta_id: Mapped[int | None] = mapped_column(
-        ForeignKey("cuenta_administrativa.id", ondelete="CASCADE"), nullable=True, index=True
-    )
-    cambio_obligatorio: Mapped[bool] = mapped_column(Boolean, default=False)
-    expira_en: Mapped[datetime] = mapped_column(DateTime(timezone=True))
-    __table_args__ = (
-        CheckConstraint(
-            "(tipo = 'portal' AND persona_id IS NOT NULL AND cuenta_id IS NULL) OR "
-            "(tipo = 'administracion' AND cuenta_id IS NOT NULL AND persona_id IS NULL)",
-            name="propietario_sesion",
-        ),
-        Index("ix_sesion_acceso_expira_en", "expira_en"),
     )
 
 

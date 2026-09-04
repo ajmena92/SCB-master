@@ -5,7 +5,6 @@ Revision ID: 0015_elimina_codigo_persona
 
 from alembic import op
 
-
 revision = "0015_elimina_codigo_persona"
 down_revision = "0014_indicadores_comedor"
 branch_labels = None

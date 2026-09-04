@@ -10,10 +10,14 @@ export function EncabezadoPagina({
   accion?: ReactNode;
 }) {
   return (
-    <header className="mb-8 flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-end sm:justify-between">
+    <header className="mb-6 flex flex-col gap-3 border-b border-border pb-4 sm:flex-row sm:items-end sm:justify-between">
       <div>
-        <h1 className="font-heading text-2xl font-bold tracking-tight text-foreground sm:text-3xl">{titulo}</h1>
-        <p className="mt-2 max-w-[70ch] text-base leading-relaxed text-muted-foreground">{descripcion}</p>
+        <h1 className="font-heading text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
+          {titulo}
+        </h1>
+        <p className="mt-1.5 max-w-[70ch] text-sm leading-6 text-muted-foreground sm:text-base">
+          {descripcion}
+        </p>
       </div>
       {accion}
     </header>
@@ -39,8 +43,22 @@ export function Aviso({
 
 export function EstadoCarga() {
   return (
-    <p className="rounded-xl border border-dashed border-border bg-card px-6 py-8 text-center text-sm text-muted-foreground" role="status">
+    <p
+      className="rounded-xl border border-dashed border-border bg-card px-6 py-8 text-center text-sm text-muted-foreground"
+      role="status"
+    >
       Cargando información…
+    </p>
+  );
+}
+
+export function EstadoVacio({ children }: { children: ReactNode }) {
+  return (
+    <p
+      className="rounded-xl border border-dashed border-border bg-card px-6 py-8 text-center text-sm text-muted-foreground"
+      role="status"
+    >
+      {children}
     </p>
   );
 }
@@ -54,14 +72,21 @@ export function Tabla({
   filas: ReactNode[][];
   vacio?: string;
 }) {
-  if (!filas.length) return <p className="rounded-xl border border-dashed border-border bg-card px-6 py-8 text-center text-sm text-muted-foreground">{vacio}</p>;
+  if (!filas.length)
+    return (
+      <p className="rounded-xl border border-dashed border-border bg-card px-6 py-8 text-center text-sm text-muted-foreground">
+        {vacio}
+      </p>
+    );
   return (
     <div className="overflow-x-auto rounded-xl border border-border bg-card">
       <table className="w-full min-w-max border-collapse text-sm">
         <thead className="bg-muted text-left text-xs font-medium uppercase tracking-wide text-muted-foreground">
           <tr>
             {columnas.map((columna) => (
-              <th key={columna} className="px-4 py-3">{columna}</th>
+              <th key={columna} className="px-4 py-3">
+                {columna}
+              </th>
             ))}
           </tr>
         </thead>
@@ -69,7 +94,9 @@ export function Tabla({
           {filas.map((fila) => (
             <tr key={JSON.stringify(fila)}>
               {fila.map((celda, indice) => (
-                <td key={columnas[indice]} className="px-4 py-3 align-top">{celda}</td>
+                <td key={columnas[indice]} className="px-4 py-3 align-top">
+                  {celda}
+                </td>
               ))}
             </tr>
           ))}

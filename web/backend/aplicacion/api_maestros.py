@@ -1,21 +1,22 @@
 """Adaptador HTTP de datos maestros."""
 
-from fastapi import APIRouter, Depends, Query
 from typing import Literal
+
+from fastapi import APIRouter, Depends, Query
 
 from aplicacion.esquemas import (
     AnioEntrada,
-    CicloMenuEntrada,
     AsignacionRutaEntrada,
-    MatriculaEntrada,
+    CambioRutaMatriculaEntrada,
+    CicloMenuEntrada,
+    GeneracionPinesSeccionEntrada,
     MatriculaBeneficioEntrada,
     MatriculaBeneficiosEntrada,
-    PersonaEntrada,
+    MatriculaEntrada,
     PersonaActualizacionEntrada,
+    PersonaEntrada,
     PersonaSalida,
     ResumenPersonasSalida,
-    CambioRutaMatriculaEntrada,
-    GeneracionPinesSeccionEntrada,
     RutaEntrada,
 )
 from aplicacion.paleta_rutas import opciones

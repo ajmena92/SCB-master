@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from aplicacion.modelos.maestros import HorarioReserva, Matricula
 from aplicacion.modelos.operacion import CuentaTiquete, MovimientoTiquete
 
-from .conftest import crear_persona, preparar_estudiante
+from .conftest import autenticar_portal, crear_persona, preparar_estudiante
 
 
 def _vender(cliente, h, cedula, cantidad=2):
@@ -25,26 +25,19 @@ def test_reserva_inmoviliza_cancelar_libera_e_ingreso_consume(entorno):
     cliente, motor, h = entorno
     persona, _, _ = preparar_estudiante(cliente, h["admin"])
     _vender(cliente, h, persona["codigo"])
-    token = cliente.post(
-        "/api/v1/autenticacion/portal",
-        json={
-            "cedula": persona["cedula"],
-            "pin": "123456",
-        },
-    ).json()["token"]
-    hp = {"Authorization": f"Bearer {token}"}
-    cliente.post(
+    portal = autenticar_portal(cliente.app, persona["cedula"])
+    portal.post(
         "/api/v1/comedor/reservas",
-        headers=hp,
+        headers=portal.csrf(),
         json={"fecha": "2026-09-01"},
     ).json()
     with Session(motor) as sesion:
         cuenta = sesion.get(CuentaTiquete, persona["id"])
         assert (cuenta.saldo, cuenta.reservados) == (1, 1)
     assert (
-        cliente.delete(
+        portal.delete(
             "/api/v1/comedor/reservas",
-            headers=hp,
+            headers=portal.csrf(),
             json={"fecha": "2026-09-01"},
         ).status_code
         == 204
@@ -52,9 +45,9 @@ def test_reserva_inmoviliza_cancelar_libera_e_ingreso_consume(entorno):
     with Session(motor) as sesion:
         cuenta = sesion.get(CuentaTiquete, persona["id"])
         assert (cuenta.saldo, cuenta.reservados) == (2, 0)
-    cliente.post(
+    portal.post(
         "/api/v1/comedor/reservas",
-        headers=hp,
+        headers=portal.csrf(),
         json={"fecha": "2026-09-02"},
     ).json()
     ingreso = cliente.post(
@@ -132,18 +125,14 @@ def test_confirmacion_sin_tiquetes_se_muestra_en_portal_y_no_autoriza_ingreso(en
     with Session(motor) as sesion:
         sesion.add(HorarioReserva(turno="general", hora_limite="23:59"))
         sesion.commit()
-    token = cliente.post(
-        "/api/v1/autenticacion/portal",
-        json={"cedula": persona["cedula"], "pin": "123456"},
-    ).json()["token"]
-    portal = {"Authorization": f"Bearer {token}"}
+    portal = autenticar_portal(cliente.app, persona["cedula"])
     fecha = date.today().isoformat()
 
-    reserva = cliente.post("/api/v1/comedor/reservas", headers=portal, json={"fecha": fecha})
+    reserva = portal.post("/api/v1/comedor/reservas", headers=portal.csrf(), json={"fecha": fecha})
     assert reserva.status_code == 201, reserva.text
     assert reserva.json()["sin_tiquete"] is True
 
-    estado = cliente.get("/api/v1/portal/estado", headers=portal, params={"fecha": fecha})
+    estado = portal.get("/api/v1/portal/estado", params={"fecha": fecha})
     assert estado.status_code == 200, estado.text
     assert estado.json()["estado"]["horaLimite"] == "23:59"
     assert estado.json()["estado"]["sinTiquete"] is True
@@ -176,18 +165,11 @@ def test_beca_es_anual_y_no_consume_saldo(entorno):
     with Session(motor) as sesion:
         sesion.query(Matricula).filter_by(persona_id=persona["id"]).one().becado = True
         sesion.commit()
-    token = cliente.post(
-        "/api/v1/autenticacion/portal",
-        json={
-            "cedula": persona["cedula"],
-            "pin": "123456",
-        },
-    ).json()["token"]
-    hp = {"Authorization": f"Bearer {token}"}
+    portal = autenticar_portal(cliente.app, persona["cedula"])
     assert (
-        cliente.post(
+        portal.post(
             "/api/v1/comedor/reservas",
-            headers=hp,
+            headers=portal.csrf(),
             json={"fecha": "2026-09-04"},
         ).status_code
         == 201

@@ -1,31 +1,35 @@
 /** Generado por web/scripts/generar_cliente_openapi.py; no editar manualmente. */
 
-export interface AccesoEstudiante {
-  carne: string;
-  pin: string;
+export interface AdministracionEntrada {
+  contrasena: string;
+  usuario: string;
 }
 
-export interface AutenticacionSalida {
-  csrfToken: string;
-  expiraEn: string;
-  idUsuario: number;
-  nombreUsuario: string;
-  permisos: Array<string>;
+export interface CambioContrasenaAdministrativaEntrada {
+  contrasenaActual: string;
+  contrasenaNueva: string;
 }
 
-export interface CambioPinEstudiante {
+export interface CambioPinEntrada {
   pinActual: string;
   pinNuevo: string;
 }
 
-export interface CredencialesEntrada {
-  contrasena: string;
-  nombreUsuario: string;
+export interface PortalEntrada {
+  cedula: string;
+  pin: string;
 }
 
-export interface SesionActualSalida {
+export interface SesionSalida {
+  cambioContrasenaObligatorio?: boolean;
+  cambioObligatorio?: boolean;
+  cuentaId?: number | null;
   expiraEn: string;
-  idUsuario: number;
-  tipo?: string;
-  usuario?: Record<string, unknown>;
+  nombres?: string | null;
+  permisos?: Array<string>;
+  personaId?: number | null;
+  rol?: string | null;
+  tipo: string;
+  usuario?: string | null;
+  vinculacionPendiente?: boolean;
 }

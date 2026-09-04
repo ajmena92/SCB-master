@@ -35,7 +35,9 @@ const Rutas = lazy(() => import("@/funcionalidades/rutas/paginas/Rutas"));
 const PlantillasMenu = lazy(() => import("@/funcionalidades/menu/paginas/Plantillas"));
 const CalendarioMenu = lazy(() => import("@/funcionalidades/menu/paginas/CalendarioMenu"));
 const TarifasVentas = lazy(() => import("@/funcionalidades/plataforma/paginas/TarifasVentas"));
-const ParametrosOperativos = lazy(() => import("@/funcionalidades/plataforma/paginas/ParametrosOperativos"));
+const ParametrosOperativos = lazy(
+  () => import("@/funcionalidades/plataforma/paginas/ParametrosOperativos"),
+);
 const OperacionComedor = lazy(
   () => import("@/funcionalidades/plataforma/paginas/OperacionComedor"),
 );
@@ -168,21 +170,21 @@ export default function App() {
                 }
               />
               <Route
-              path="rutas"
-              element={
+                path="rutas"
+                element={
                   <RutaRol permisos={["rutas.administrar"]}>
                     <Rutas />
                   </RutaRol>
                 }
               />
               <Route
-              path="menu"
+                path="menu"
                 element={
                   <RutaRol permisos={["menu.administrar"]}>
                     <PlantillasMenu />
                   </RutaRol>
-              }
-            />
+                }
+              />
               <Route
                 path="calendario-menu"
                 element={
@@ -199,7 +201,14 @@ export default function App() {
                   </RutaRol>
                 }
               />
-              <Route path="parametros" element={<RutaRol permisos={["tarifas.administrar"]}><ParametrosOperativos /></RutaRol>} />
+              <Route
+                path="parametros"
+                element={
+                  <RutaRol permisos={["tarifas.administrar"]}>
+                    <ParametrosOperativos />
+                  </RutaRol>
+                }
+              />
               <Route
                 path="comedor"
                 element={

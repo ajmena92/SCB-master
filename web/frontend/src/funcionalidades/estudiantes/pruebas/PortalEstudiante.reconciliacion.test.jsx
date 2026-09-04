@@ -182,8 +182,8 @@ describe("Portal del estudiante", () => {
       await Promise.resolve();
     });
 
-    expect(container.querySelector('[data-testid="confirmacion-sin-tiquete"]')?.textContent).toContain(
-      "No tenés tiquetes disponibles",
-    );
+    expect(
+      container.querySelector('[data-testid="confirmacion-sin-tiquete"]')?.textContent,
+    ).toContain("No tenés tiquetes disponibles");
   });
 });

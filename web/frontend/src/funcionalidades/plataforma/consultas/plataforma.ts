@@ -2,7 +2,6 @@ import type {
   AnioLectivo,
   CredencialTemporal,
   Matricula,
-  Pagina,
   Persona,
   PlantillaMenu,
   PersonaCreada,
@@ -15,27 +14,7 @@ import type {
   Tarifa,
 } from "@/compartido/contratos/plataforma";
 import { api } from "@/compartido/consultas/cliente_http";
-
-function normalizarPagina<T>(datos: Pagina<T> | T[]): Pagina<T> {
-  return Array.isArray(datos) ? { elementos: datos, total: datos.length } : datos;
-}
-
-function camel(nombre: string): string {
-  return nombre.replace(/_([a-z])/g, (_, letra: string) => letra.toUpperCase());
-}
-
-function normalizarObjeto<T>(valor: unknown): T {
-  if (Array.isArray(valor)) return valor.map((elemento) => normalizarObjeto(elemento)) as T;
-  if (valor && typeof valor === "object") {
-    return Object.fromEntries(
-      Object.entries(valor).map(([clave, contenido]) => [
-        camel(clave),
-        normalizarObjeto(contenido),
-      ]),
-    ) as T;
-  }
-  return valor as T;
-}
+import { normalizarObjeto, normalizarPagina } from "./normalizacion";
 
 async function listar<T>(ruta: string, parametros?: Record<string, unknown>): Promise<Pagina<T>> {
   const { data } = await api.get<Pagina<T> | T[]>(ruta, { params: parametros });
@@ -44,20 +23,25 @@ async function listar<T>(ruta: string, parametros?: Record<string, unknown>): Pr
 
 export const plataformaApi = {
   personas: {
-    listar: (parametros: {
-      buscar?: string;
-      estado?: "activos" | "inactivos" | "todos";
-      tipo?: "estudiante" | "profesor";
-      pagina?: number;
-      tamano?: number;
-      ordenar_por?: "nombres" | "cedula" | "tipo" | "estado";
-      direccion?: "asc" | "desc";
-    } = {}) => listar<Persona>("/v1/personas", parametros),
+    listar: (
+      parametros: {
+        buscar?: string;
+        estado?: "activos" | "inactivos" | "todos";
+        tipo?: "estudiante" | "profesor";
+        pagina?: number;
+        tamano?: number;
+        ordenar_por?: "nombres" | "cedula" | "tipo" | "estado";
+        direccion?: "asc" | "desc";
+      } = {},
+    ) => listar<Persona>("/v1/personas", parametros),
     obtener: async (id: number) =>
       normalizarObjeto<Persona>((await api.get(`/v1/personas/${id}`)).data),
     obtenerPorReferencia: async (referenciaPublica: string) =>
-      normalizarObjeto<Persona>((await api.get(`/v1/personas/referencias/${encodeURIComponent(referenciaPublica)}`)).data),
-    resumen: async () => normalizarObjeto<ResumenPersonas>((await api.get("/v1/personas/resumen")).data),
+      normalizarObjeto<Persona>(
+        (await api.get(`/v1/personas/referencias/${encodeURIComponent(referenciaPublica)}`)).data,
+      ),
+    resumen: async () =>
+      normalizarObjeto<ResumenPersonas>((await api.get("/v1/personas/resumen")).data),
     crear: async (datos: Omit<Persona, "id" | "codigo">) =>
       (
         await api.post<PersonaCreada>("/v1/personas", {
@@ -71,15 +55,21 @@ export const plataformaApi = {
       normalizarObjeto<Persona>((await api.put(`/v1/personas/${id}`, datos)).data),
     desactivar: (id: number) => api.post(`/v1/personas/${id}/desactivar`),
     reiniciarPin: async (id: number) =>
-      normalizarObjeto<CredencialTemporal>((await api.post(`/v1/personas/${id}/reiniciar-pin`)).data),
+      normalizarObjeto<CredencialTemporal>(
+        (await api.post(`/v1/personas/${id}/reiniciar-pin`)).data,
+      ),
     reiniciarPinesSeccion: async (datos: { anioLectivoId: number; seccion: string }) =>
-      normalizarObjeto<CredencialTemporal[]>((await api.post("/v1/personas/pines/seccion", datos)).data),
+      normalizarObjeto<CredencialTemporal[]>(
+        (await api.post("/v1/personas/pines/seccion", datos)).data,
+      ),
     foto: {
       obtener: async (id: number) =>
-        (await api.get(`/v1/personas/${id}/foto`, {
-          responseType: "blob",
-          omitirManejoFalloAutenticacion: true,
-        })).data as Blob,
+        (
+          await api.get(`/v1/personas/${id}/foto`, {
+            responseType: "blob",
+            omitirManejoFalloAutenticacion: true,
+          })
+        ).data as Blob,
       cargar: (id: number, archivo: File) => {
         const datos = new FormData();
         datos.append("archivo", archivo);
@@ -96,7 +86,11 @@ export const plataformaApi = {
     secciones: (id: number) => listar<string>(`/v1/anios-lectivos/${id}/secciones`),
     resumenPinesSeccion: async (anioId: number, seccion: string) =>
       normalizarObjeto<{ estudiantesActivos: number }>(
-        (await api.get(`/v1/anios-lectivos/${anioId}/secciones/${encodeURIComponent(seccion)}/resumen-pines`)).data,
+        (
+          await api.get(
+            `/v1/anios-lectivos/${anioId}/secciones/${encodeURIComponent(seccion)}/resumen-pines`,
+          )
+        ).data,
       ),
   },
   matriculas: {
@@ -126,12 +120,13 @@ export const plataformaApi = {
       ),
   },
   rutas: {
-    listar: () => listar<{
-      idRuta: number;
-      codigo: string;
-      descripcion: string;
-      activo: boolean;
-    }>("/v1/rutas"),
+    listar: () =>
+      listar<{
+        idRuta: number;
+        codigo: string;
+        descripcion: string;
+        activo: boolean;
+      }>("/v1/rutas"),
   },
   importaciones: {
     previsualizar: async (archivo: File, anio: number) => {
@@ -174,7 +169,7 @@ export const plataformaApi = {
         delete resto.codigo;
         return { ...resto, cedula: legado.cedula ?? legado.codigo ?? "" };
       });
-      return { ...normalizados, credenciales, };
+      return { ...normalizados, credenciales };
     },
   },
   menu: {
@@ -196,10 +191,12 @@ export const plataformaApi = {
         (await api.get("/v1/tiquetes/personas", { params: { buscar } })).data,
       ),
     fotoPersona: async (personaId: number) =>
-      (await api.get(`/v1/tiquetes/personas/${personaId}/foto`, {
-        responseType: "blob",
-        omitirManejoFalloAutenticacion: true,
-      })).data as Blob,
+      (
+        await api.get(`/v1/tiquetes/personas/${personaId}/foto`, {
+          responseType: "blob",
+          omitirManejoFalloAutenticacion: true,
+        })
+      ).data as Blob,
     tarifas: async () => {
       const pagina = await listar<
         Tarifa & { monto?: number; fechaInicio?: string; fechaFin?: string | null }
@@ -223,10 +220,19 @@ export const plataformaApi = {
       }),
     vender: (datos: { cedula: string; cantidad: number; medioPago: string }) =>
       api.post("/v1/tiquetes/ventas", datos),
-    horariosReserva: async () => normalizarObjeto<Array<{ turno: string; horaLimite: string }>>((await api.get("/v1/parametros-operativos/horarios-reserva")).data),
+    horariosReserva: async () =>
+      normalizarObjeto<Array<{ turno: string; horaLimite: string }>>(
+        (await api.get("/v1/parametros-operativos/horarios-reserva")).data,
+      ),
     actualizarHorarioReserva: (datos: { turno: string; horaLimite: string }) =>
-      api.put(`/v1/parametros-operativos/horarios-reserva/${encodeURIComponent(datos.turno)}`, datos),
-    institucion: async () => normalizarObjeto<{ nombreColegio: string; subtituloReportes: string }>((await api.get("/v1/parametros-operativos/institucion")).data),
+      api.put(
+        `/v1/parametros-operativos/horarios-reserva/${encodeURIComponent(datos.turno)}`,
+        datos,
+      ),
+    institucion: async () =>
+      normalizarObjeto<{ nombreColegio: string; subtituloReportes: string }>(
+        (await api.get("/v1/parametros-operativos/institucion")).data,
+      ),
     actualizarInstitucion: (datos: { nombreColegio: string; subtituloReportes: string }) =>
       api.put("/v1/parametros-operativos/institucion", datos),
   },

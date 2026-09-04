@@ -1,6 +1,7 @@
 """Consultas de solo lectura para la experiencia web del portal."""
 
 from datetime import date
+from typing import Sequence
 
 from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
@@ -64,12 +65,12 @@ class RepositorioPortal:
             select(SustitucionMenu).where(SustitucionMenu.fecha == fecha)
         )
         if sustitucion:
-            componentes = self.sesion.scalars(
+            componentes_sustitucion: Sequence[ComponenteSustitucionMenu] = self.sesion.scalars(
                 select(ComponenteSustitucionMenu)
                 .where(ComponenteSustitucionMenu.sustitucion_id == sustitucion.id)
                 .order_by(ComponenteSustitucionMenu.orden)
             ).all()
-            return sustitucion, componentes, "sustitucion"
+            return sustitucion, componentes_sustitucion, "sustitucion"
         semana = (fecha.day - 1) // 7 + 1
         plantilla = self.sesion.scalar(
             select(PlantillaMenu).where(
@@ -80,12 +81,12 @@ class RepositorioPortal:
         )
         if not plantilla:
             return None, [], "sin_menu"
-        componentes = self.sesion.scalars(
+        componentes_plantilla: Sequence[ComponenteMenu] = self.sesion.scalars(
             select(ComponenteMenu)
             .where(ComponenteMenu.plantilla_id == plantilla.id)
             .order_by(ComponenteMenu.orden)
         ).all()
-        return plantilla, componentes, "plantilla"
+        return plantilla, componentes_plantilla, "plantilla"
 
     def reserva_fecha(self, persona_id: int, fecha: date):
         return self.sesion.scalar(

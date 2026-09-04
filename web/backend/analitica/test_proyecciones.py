@@ -1,9 +1,8 @@
 import pytest
 
-
 pd = pytest.importorskip("pandas")
 
-from analitica.proyecciones import proyectar_asistencia
+from analitica.proyecciones import proyectar_asistencia  # noqa: E402
 
 
 def test_detecta_becado_sin_asistencia_y_comprador_de_tiquetes() -> None:

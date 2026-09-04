@@ -28,6 +28,7 @@ from config import Settings
 class ClienteASGI:
     def __init__(self, app):
         self.app = app
+        self.cookies: dict[str, str] = {}
 
     def request(self, metodo, ruta, **opciones):
         async def ejecutar():
@@ -35,7 +36,12 @@ class ClienteASGI:
             async with httpx.AsyncClient(
                 transport=transporte, base_url="http://pruebas"
             ) as cliente:
-                return await cliente.request(metodo, ruta, **opciones)
+                cabeceras = dict(opciones.pop("headers", {}))
+                if self.cookies:
+                    cabeceras.setdefault("Cookie", "; ".join(f"{k}={v}" for k, v in self.cookies.items()))
+                respuesta = await cliente.request(metodo, ruta, headers=cabeceras, **opciones)
+                self.cookies.update(respuesta.cookies)
+                return respuesta
 
         return asyncio.run(ejecutar())
 
@@ -50,6 +56,41 @@ class ClienteASGI:
 
     def delete(self, ruta, **opciones):
         return self.request("DELETE", ruta, **opciones)
+
+    def patch(self, ruta, **opciones):
+        return self.request("PATCH", ruta, **opciones)
+
+    def csrf(self) -> dict[str, str]:
+        respuesta = self.get("/api/v1/autenticacion/csrf")
+        return {"Origin": "http://localhost:5173", "X-CSRF-Token": respuesta.cookies.get("csrf_token") or self.cookies["csrf_token"]}
+
+    def cabecera_autenticada(self) -> dict[str, str]:
+        """Expone solo las cookies de esta identidad aislada para una solicitud."""
+        cabecera = self.csrf()
+        cabecera["Cookie"] = "; ".join(f"{nombre}={valor}" for nombre, valor in self.cookies.items())
+        return cabecera
+
+
+def autenticar_administracion(app, usuario: str, contrasena: str) -> ClienteASGI:
+    cliente = ClienteASGI(app)
+    respuesta = cliente.post(
+        "/api/v1/autenticacion/administracion",
+        json={"usuario": usuario, "contrasena": contrasena},
+        headers=cliente.csrf(),
+    )
+    assert respuesta.status_code == 200, respuesta.text
+    return cliente
+
+
+def autenticar_portal(app, cedula: str, pin: str = "123456") -> ClienteASGI:
+    cliente = ClienteASGI(app)
+    respuesta = cliente.post(
+        "/api/v1/autenticacion/portal",
+        json={"cedula": cedula, "pin": pin},
+        headers=cliente.csrf(),
+    )
+    assert respuesta.status_code == 200, respuesta.text
+    return cliente
 
 
 @pytest.fixture
@@ -119,30 +160,26 @@ def entorno():
         sesion.commit()
     app = crear_aplicacion(
         motor=motor,
-        configuracion=Settings("postgresql+psycopg://no-usada", "http://localhost:5173", False),
+        configuracion=Settings(
+            database_url="postgresql+psycopg://no-usada",
+            cors_origin="http://localhost:5173",
+            cookie_secure=False,
+            csrf_secret="csrf-pruebas",
+            carnet_qr_clave="MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=",
+        ),
     )
     cliente = ClienteASGI(app)
     cliente.motor = motor
-    admin = cliente.post(
-        "/api/v1/autenticacion/administracion",
-        json={
-            "usuario": "admin",
-            "contrasena": "Clave-segura-2026",
-        },
-    ).json()["token"]
-    operador = cliente.post(
-        "/api/v1/autenticacion/administracion",
-        json={
-            "usuario": "operador",
-            "contrasena": "Clave-operador-2026",
-        },
-    ).json()["token"]
+    admin = autenticar_administracion(app, "admin", "Clave-segura-2026")
+    operador = autenticar_administracion(app, "operador", "Clave-operador-2026")
     yield (
         cliente,
         motor,
         {
-            "admin": {"Authorization": f"Bearer {admin}"},
-            "operador": {"Authorization": f"Bearer {operador}"},
+            "admin": admin.cabecera_autenticada(),
+            "operador": operador.cabecera_autenticada(),
+            "admin_cliente": admin,
+            "operador_cliente": operador,
         },
     )
 

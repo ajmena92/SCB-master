@@ -3,7 +3,6 @@ import { createRoot } from "react-dom/client";
 import { vi } from "vitest";
 
 import { api } from "@/compartido/consultas/cliente_http";
-import { guardarTokenSesion } from "@/compartido/consultas/token_sesion";
 import { ProveedorAutenticacion, useAutenticacion } from "../estado/ContextoAutenticacion";
 
 vi.mock("@/compartido/consultas/cliente_http", () => ({
@@ -39,7 +38,6 @@ describe("ProveedorAutenticacion", () => {
   });
 
   it("conserva el rol y los permisos explícitos de la sesión canónica", async () => {
-    guardarTokenSesion("token-prueba");
     api.get.mockResolvedValueOnce({
       status: 200,
       data: {
@@ -76,7 +74,6 @@ describe("ProveedorAutenticacion", () => {
   });
 
   it("no concede un rol ni permisos cuando la sesión no los declara", async () => {
-    guardarTokenSesion("token-prueba");
     api.get.mockResolvedValueOnce({
       status: 200,
       data: {
@@ -123,7 +120,6 @@ describe("ProveedorAutenticacion", () => {
   });
 
   it("conserva la obligación de cambiar PIN al restaurar la sesión", async () => {
-    guardarTokenSesion("token-prueba");
     api.get.mockResolvedValue({
       status: 200,
       data: {
@@ -154,7 +150,6 @@ describe("ProveedorAutenticacion", () => {
       data: { tipo: "portal", rol: "estudiante", codigo: "E-00000018" },
     });
     api.post.mockRejectedValueOnce(new Error("sin conexión"));
-    guardarTokenSesion("token-activo");
     let autenticacion;
 
     await act(async () => {
@@ -169,7 +164,6 @@ describe("ProveedorAutenticacion", () => {
     });
 
     expect(api.post).toHaveBeenCalledWith("/v1/autenticacion/logout");
-    expect(sessionStorage.getItem("scb_token_sesion")).toBeNull();
     expect(autenticacion.session).toBe(false);
   });
 });

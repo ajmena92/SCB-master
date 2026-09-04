@@ -2,11 +2,16 @@
 
 from datetime import date
 
-from sqlalchemy import and_, func, or_, select, update
+from sqlalchemy import func, or_, select, update
 from sqlalchemy.orm import Session
 
 from aplicacion.modelos.maestros import AnioLectivo, AsignacionRuta, Matricula, Persona, Ruta
-from aplicacion.modelos.operacion import IndicadorAnaliticoComedor, IngresoComedor, MarcaTransporte, VentaTiquete
+from aplicacion.modelos.operacion import (
+    IndicadorAnaliticoComedor,
+    IngresoComedor,
+    MarcaTransporte,
+    VentaTiquete,
+)
 
 
 def desactivar_anios(sesion: Session) -> None:

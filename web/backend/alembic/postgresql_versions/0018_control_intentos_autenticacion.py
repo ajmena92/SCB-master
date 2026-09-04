@@ -4,6 +4,7 @@ Revision ID: 0018_control_intentos_autenticacion
 """
 
 import sqlalchemy as sa
+
 from alembic import op
 
 revision = "0018_control_intentos_autenticacion"
@@ -13,6 +14,16 @@ depends_on = None
 
 
 def upgrade() -> None:
+    # Las primeras instalaciones crearon alembic_version.version_num como
+    # varchar(32); las revisiones canónicas actuales pueden superar ese límite.
+    # Se amplía antes de registrar esta revisión, dentro de la misma transacción.
+    op.alter_column(
+        "alembic_version",
+        "version_num",
+        existing_type=sa.String(length=32),
+        type_=sa.String(length=64),
+        existing_nullable=False,
+    )
     op.create_table(
         "intento_autenticacion",
         sa.Column("identificador_hash", sa.String(64), primary_key=True),

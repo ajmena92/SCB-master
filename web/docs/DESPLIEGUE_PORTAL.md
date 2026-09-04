@@ -12,10 +12,17 @@ ejecuta DDL al arrancar y su cuenta PostgreSQL no tiene permisos para hacerlo.
 Las migraciones se ejecutan con la imagen aislada `migracion`. El proxy publica
 la comprobación canónica `GET /health`, que reenvía a `GET /api/v1/salud`.
 
-Los secretos se suministran mediante `web/ops/.env` y archivos de Docker
+Los secretos se suministran mediante referencias en `web/ops/.env` y archivos de Docker
 secrets, nunca en imágenes, commits, logs ni parámetros visibles. En producción
 `COOKIE_SECURE=true`, `CORS_ORIGIN` es un único origen HTTPS y las redes de
 proxy se declaran explícitamente, sin comodines.
+
+`CARNET_QR_CLAVE_FILE` y `CSRF_SECRET_FILE` deben referir archivos de secreto
+con permisos mínimos. La clave QR no se rota como parte de esta migración: su
+rotación exige la ventana operativa y la reemisión de carnets aprobadas.
+`CSRF_ANONYMOUS_TTL_SECONDS` es obligatoria y debe estar entre 60 y 3600; el
+valor recomendado es 600. No contiene un secreto y controla únicamente la
+vida de la cookie CSRF previa al inicio de sesión.
 
 ## Preparación
 

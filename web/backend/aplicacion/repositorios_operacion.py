@@ -8,11 +8,11 @@ from sqlalchemy.orm import Session
 from aplicacion.modelos.maestros import (
     AnioLectivo,
     AsignacionRuta,
+    ConfiguracionInstitucional,
+    FotografiaPersona,
     HorarioReserva,
     Matricula,
     Persona,
-    FotografiaPersona,
-    ConfiguracionInstitucional,
 )
 from aplicacion.modelos.operacion import (
     AutorizacionComedor,

@@ -33,7 +33,7 @@ const EMPTY: FormularioRuta = {
   codigo: "",
   descripcion: "",
   activo: true,
-  colorHex: "#EF4444",
+  colorHex: "",
 };
 
 export {
@@ -63,12 +63,12 @@ export default function RutasTab() {
       : data.rows;
   }, [data.rows, query]);
   const abrirNueva = () => {
-    setForm({ ...EMPTY, colorHex: data.palette[0]?.hex || "#EF4444" });
+    setForm({ ...EMPTY, colorHex: data.palette[0]?.hex ?? "" });
     setError("");
     setDrawerOpen(true);
   };
   const abrirEdicion = (ruta: Ruta) => {
-    setForm({ ...ruta, colorHex: ruta.colorCarnetHex || "#CBD5E1" });
+    setForm({ ...ruta, colorHex: ruta.colorCarnetHex ?? "" });
     setError("");
     setDrawerOpen(true);
   };
@@ -107,7 +107,7 @@ export default function RutasTab() {
       await actualizarRuta(rutaPorConfirmar.idRuta, {
         codigo: rutaPorConfirmar.codigo,
         descripcion: rutaPorConfirmar.descripcion,
-        colorHex: rutaPorConfirmar.colorCarnetHex || "#CBD5E1",
+        colorHex: rutaPorConfirmar.colorCarnetHex ?? "",
         activo: false,
       });
       toast.success("Ruta desactivada");
@@ -123,13 +123,17 @@ export default function RutasTab() {
     <section className="space-y-6" aria-labelledby="rutas-title">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-xs uppercase tracking-[0.16em] font-semibold text-primary">Catálogo operativo</p>
-          <h2 id="rutas-title" className="font-display text-xl font-semibold tracking-tight">Rutas de transporte</h2>
+          <p className="text-xs uppercase tracking-[0.16em] font-semibold text-primary">
+            Catálogo operativo
+          </p>
+          <h2 id="rutas-title" className="font-display text-xl font-semibold tracking-tight">
+            Rutas de transporte
+          </h2>
           <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
             Administrá la nomenclatura MEP, la descripción y el color usado en el carné digital.
           </p>
         </div>
-        <Button onClick={abrirNueva} data-testid="ruta-nueva">
+        <Button className="w-full sm:w-auto" onClick={abrirNueva} data-testid="ruta-nueva">
           <Plus className="mr-2 h-4 w-4" /> Nueva ruta
         </Button>
       </div>
@@ -157,9 +161,20 @@ export default function RutasTab() {
           {visible.length} rutas
         </span>
       </div>
-      <aside className="flex flex-wrap items-center gap-2 rounded-xl border border-blue-100 bg-blue-50/60 px-4 py-3 text-xs text-slate-600" aria-label="Guía de colores TE-01">
-        <strong className="mr-1 text-slate-800">Guía TE-01</strong>
-        {data.palette.map((color) => <span key={color.clave} className="inline-flex items-center gap-1.5"><i className="h-3.5 w-3.5 rounded-full border border-slate-300" style={{ backgroundColor: color.hex }} />{color.nombre}</span>)}
+      <aside
+        className="flex flex-wrap items-center gap-2 rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 text-xs text-muted-foreground"
+        aria-label="Guía de colores TE-01"
+      >
+        <strong className="mr-1 text-foreground">Guía TE-01</strong>
+        {data.palette.map((color) => (
+          <span key={color.clave} className="inline-flex items-center gap-1.5">
+            <i
+              className="h-3.5 w-3.5 rounded-full border border-border"
+              style={{ backgroundColor: color.hex }}
+            />
+            {color.nombre}
+          </span>
+        ))}
       </aside>
       {loading ? (
         <Skeleton className="h-64 w-full rounded-2xl" data-testid="rutas-loading" />
@@ -187,50 +202,61 @@ export default function RutasTab() {
                   <span
                     className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2"
                     style={{
-                      backgroundColor: ruta.colorCarnetHex || "#CBD5E1",
+                      backgroundColor: ruta.colorCarnetHex || "rgb(var(--border))",
                       borderColor:
                         ruta.colorCarnetHex === "#FFFFFF"
-                          ? "#CBD5E1"
-                          : ruta.colorCarnetHex || "#CBD5E1",
+                          ? "rgb(var(--border))"
+                          : ruta.colorCarnetHex || "rgb(var(--border))",
                     }}
                     aria-label={`Color de la ruta ${ruta.codigo}`}
                   >
-                    <IconoRuta className="h-4 w-4 text-slate-900" />
+                    <IconoRuta className="h-4 w-4 text-foreground" />
                   </span>
                   <div className="min-w-0">
-                    <p className="text-xs font-semibold tracking-wide text-primary">Ruta {ruta.codigo}</p>
+                    <p className="text-xs font-semibold tracking-wide text-primary">
+                      Ruta {ruta.codigo}
+                    </p>
                     <p className="text-sm font-medium leading-relaxed text-foreground">
                       {ruta.descripcion}
                     </p>
                   </div>
                 </div>
-                <Badge className="text-[11px] font-medium" variant={ruta.activo ? "secondary" : "outline"}>
+                <Badge
+                  className="text-[11px] font-medium"
+                  variant={ruta.activo ? "secondary" : "outline"}
+                >
                   {ruta.activo ? "Activa" : "Inactiva"}
                 </Badge>
               </div>
-              <div className="mt-4 flex items-center justify-between border-t pt-3 text-xs text-muted-foreground">
+              <div className="mt-4 flex flex-col gap-3 border-t pt-3 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
                 <span>
                   {ruta.estudiantesAsignados} estudiante{ruta.estudiantesAsignados === 1 ? "" : "s"}
                 </span>
-                <span className="hidden items-center gap-1 sm:inline-flex"><i className="h-3 w-3 rounded-full border" style={{ backgroundColor: ruta.colorCarnetHex ?? undefined }} />Color TE-01</span>
-                <div className="flex gap-2">
+                <span className="hidden items-center gap-1 sm:inline-flex">
+                  <i
+                    className="h-3 w-3 rounded-full border"
+                    style={{ backgroundColor: ruta.colorCarnetHex ?? undefined }}
+                  />
+                  Color TE-01
+                </span>
+                <div className="flex w-full gap-2 sm:w-auto">
                   <Button
                     ref={undefined}
-                    className=""
+                    className="min-h-11 flex-1 sm:flex-none"
                     variant="ghost"
                     size="sm"
                     onClick={() => abrirEdicion(ruta)}
                     disabled={ruta.codigo === "0"}
                     data-testid={`ruta-editar-${ruta.idRuta}`}
                   >
-                  <Pencil className="mr-1 h-3.5 w-3.5" /> Editar ruta
+                    <Pencil className="mr-1 h-3.5 w-3.5" /> Editar ruta
                   </Button>
                   {ruta.activo && ruta.codigo !== "0" && (
                     <Button
                       ref={undefined}
                       variant="ghost"
                       size="sm"
-                      className="text-destructive hover:text-destructive"
+                      className="min-h-11 flex-1 text-destructive hover:text-destructive sm:flex-none"
                       onClick={() => setRutaPorConfirmar(ruta)}
                       data-testid={`ruta-desactivar-${ruta.idRuta}`}
                     >

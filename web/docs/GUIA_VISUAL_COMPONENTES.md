@@ -30,3 +30,19 @@ Los botones con icono deben conservar una etiqueta de texto; el icono es de apoy
 - Verde (`--positive`): confirmación de éxito, nunca como color genérico de acciones administrativas.
 
 No se agregan verdes, violetas o tipografías nuevas como estilo local de una pantalla. Las excepciones deben incorporarse a esta guía y reutilizarse en componentes compartidos.
+
+## Excepción operativa: lector de comedor
+
+La estación de lectura (`/admin/panel/comedor`) usa una superficie carbón de alto
+contraste (`slate-950`/negro) y texto claro para facilitar la lectura a distancia
+en una fila de atención. Esta no es una segunda temática de la plataforma: es una
+superficie técnica aislada. Sus indicadores verde, ámbar y rojo comunican estado
+de conexión, espera y rechazo, respectivamente. Cualquier componente nuevo fuera
+de esta estación debe usar los tokens `background`, `card`, `foreground`,
+`muted-foreground`, `primary`, `warning`, `destructive` y `success`.
+
+## Impresión y PDF
+
+Los reportes generados desde la interfaz fuerzan una composición clara para
+impresión, independientemente del tema seleccionado. No deben consumir los
+colores de superficie oscura ni depender del modo oscuro del navegador.

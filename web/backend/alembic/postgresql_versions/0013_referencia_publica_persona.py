@@ -4,6 +4,7 @@ Revision ID: 0013_referencia_publica_persona
 """
 
 import sqlalchemy as sa
+
 from alembic import op
 
 revision = "0013_referencia_publica_persona"

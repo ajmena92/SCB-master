@@ -5,7 +5,6 @@ import { toast } from "sonner";
 import { useAutenticacion } from "@/aplicacion/estado/ContextoAutenticacion";
 import { api } from "@/compartido/consultas/cliente_http";
 import { errMsg } from "@/compartido/consultas/errores_api";
-import { borrarTokenSesion } from "@/compartido/consultas/token_sesion";
 
 export function useCambioPin() {
   const navigate = useNavigate();
@@ -34,10 +33,8 @@ export function useCambioPin() {
           pinActual: formulario.actual,
           pinNuevo: formulario.nuevo,
         });
-        // El backend revoca todas las sesiones al cambiar el PIN. No se debe
-        // conservar un token ya inválido ni abrir el portal como si siguiera
-        // autenticado.
-        borrarTokenSesion();
+        // El backend revoca todas las sesiones al cambiar el PIN. El estado de
+        // interfaz se limpia; la cookie HttpOnly deja de ser válida en servidor.
         setSession(false);
         setDebeCambiarPin(false);
         toast.success("PIN actualizado. Ingresá nuevamente con tu nuevo PIN.");

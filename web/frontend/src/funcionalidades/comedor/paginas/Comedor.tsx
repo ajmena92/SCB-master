@@ -119,9 +119,7 @@ export default function Comedor() {
             <p className="text-xs font-bold uppercase tracking-widest text-slate-400">
               Ingresos de la sesión
             </p>
-            <p className="mt-2 text-5xl font-bold tabular-nums text-emerald-300">
-              {totalIngresos}
-            </p>
+            <p className="mt-2 text-5xl font-bold tabular-nums text-emerald-300">{totalIngresos}</p>
           </div>
           <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-5">
             <p className="text-xs font-bold uppercase tracking-widest text-slate-400">

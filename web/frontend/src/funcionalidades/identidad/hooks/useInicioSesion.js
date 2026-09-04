@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import { useAutenticacion } from "@/aplicacion/estado/ContextoAutenticacion";
 import { api } from "@/compartido/consultas/cliente_http";
 import { errMsg } from "@/compartido/consultas/errores_api";
-import { guardarTokenSesion } from "@/compartido/consultas/token_sesion";
 
 export function clasificarErrorAutenticacion(error) {
   const estado = error?.response?.status;
@@ -33,12 +32,11 @@ export function useInicioSesionAdministrativo() {
       evento.preventDefault();
       setEstado({ cargando: true, error: "", tipoError: "credenciales" });
       try {
-        const { data } = await api.post(
+        await api.post(
           "/v1/autenticacion/administracion",
           { usuario: formulario.nombreUsuario, contrasena: formulario.contrasena },
-          { omitirManejoFalloAutenticacion: true, omitirCsrf: true },
+          { omitirManejoFalloAutenticacion: true },
         );
-        guardarTokenSesion(data.token);
         const autenticacion = await loadMe();
         if (!autenticacion.session) throw new Error("No se pudo restaurar la sesión.");
         navegar("/", { replace: true });
@@ -87,9 +85,8 @@ export function useInicioSesionEstudiantil() {
         const { data } = await api.post(
           "/v1/autenticacion/portal",
           { cedula: formulario.cedula.trim(), pin: formulario.pin },
-          { omitirManejoFalloAutenticacion: true, omitirCsrf: true },
+          { omitirManejoFalloAutenticacion: true },
         );
-        guardarTokenSesion(data.token);
         await loadMe();
         const cambioObligatorio = Boolean(data.cambioObligatorio);
         setDebeCambiarPin(cambioObligatorio);

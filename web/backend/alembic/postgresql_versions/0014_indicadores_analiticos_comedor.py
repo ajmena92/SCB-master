@@ -1,6 +1,7 @@
 """Persistencia de indicadores diarios calculados con pandas."""
 
 import sqlalchemy as sa
+
 from alembic import op
 
 revision = "0014_indicadores_comedor"

@@ -6,7 +6,6 @@ import sys
 from datetime import date
 from pathlib import Path
 
-
 RUTA = Path(__file__).parents[2] / "scripts" / "sincronizar_estudiantes_2026.py"
 ESPECIFICACION = importlib.util.spec_from_file_location("sincronizador_2026", RUTA)
 assert ESPECIFICACION and ESPECIFICACION.loader

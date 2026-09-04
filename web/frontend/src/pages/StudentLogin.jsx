@@ -26,7 +26,7 @@ export default function StudentLogin() {
   }, [error]);
 
   return (
-    <div className="min-h-screen grid lg:grid-cols-2 bg-background">
+    <main className="min-h-screen grid lg:grid-cols-2 bg-background">
       <div
         className="relative hidden lg:block overflow-hidden bg-cover bg-center"
         style={{ backgroundImage: "url('/images/student-login-background.avif')" }}
@@ -50,18 +50,20 @@ export default function StudentLogin() {
       </div>
 
       <div className="relative flex items-center justify-center p-6 sm:p-12">
-        <div className="absolute right-4 top-4"><SelectorTema /></div>
+        <div className="absolute right-4 top-4">
+          <SelectorTema />
+        </div>
         <div className="w-full max-w-sm animate-fade-up">
-          <div className="lg:hidden flex items-center gap-2 mb-8 text-secondary">
+          <div className="lg:hidden flex items-center gap-2 mb-8 text-foreground">
             <UtensilsCrossed className="h-7 w-7" />
             <span className="font-heading font-bold text-lg">Comedor SCSC</span>
           </div>
           <p className="mb-2 font-body text-xs font-medium uppercase tracking-[0.2em] text-primary">
             Acceso de estudiantes y profesores
           </p>
-          <h2 className="font-display text-3xl font-bold tracking-tight mb-8">
+          <h1 className="font-display text-3xl font-bold tracking-tight mb-8">
             Ingresá a tu portal
-          </h2>
+          </h1>
 
           <form onSubmit={enviar} className="space-y-6">
             <div className="space-y-2">
@@ -77,9 +79,10 @@ export default function StudentLogin() {
               />
             </div>
             <div className="space-y-2">
-              <Label>PIN de 6 dígitos</Label>
+              <Label htmlFor="student-pin">PIN de 6 dígitos</Label>
               <InputOTP
                 ref={pinInputRef}
+                id="student-pin"
                 maxLength={6}
                 value={pin}
                 onChange={cambiarPin}
@@ -104,7 +107,7 @@ export default function StudentLogin() {
                 aria-live="assertive"
                 className={`flex items-start gap-3 rounded-xl border px-4 py-3 text-sm font-semibold shadow-sm ${
                   errorKind === "servidor" || errorKind === "conexion"
-                    ? "border-amber-500/40 bg-amber-50 text-amber-950"
+                    ? "border-warning/40 bg-warning/10 text-foreground"
                     : "border-destructive/40 bg-destructive/10 text-destructive"
                 }`}
               >
@@ -135,12 +138,12 @@ export default function StudentLogin() {
           <Link
             to="/admin"
             data-testid="go-admin-link"
-            className="mt-8 flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-secondary transition-colors"
+            className="mt-8 flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
           >
             <ShieldCheck className="h-4 w-4" /> Acceso administrativo
           </Link>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

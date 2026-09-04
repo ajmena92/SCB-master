@@ -37,13 +37,19 @@ const AlertDialogContent = ({ ref = undefined, className = "", ...props }) => (
 AlertDialogContent.displayName = AlertDialogPrimitive.Content.displayName;
 
 const AlertDialogHeader = ({ className = "", ...props }) => (
-  <div className={cn("flex flex-col space-y-2 border-b border-border pb-4 text-left", className)} {...props} />
+  <div
+    className={cn("flex flex-col space-y-2 border-b border-border pb-4 text-left", className)}
+    {...props}
+  />
 );
 AlertDialogHeader.displayName = "AlertDialogHeader";
 
 const AlertDialogFooter = ({ className = "", ...props }) => (
   <div
-    className={cn("dialogo-pie flex flex-col-reverse gap-2 border-t border-border pt-4 sm:flex-row sm:justify-end", className)}
+    className={cn(
+      "dialogo-pie flex flex-col-reverse gap-2 border-t border-border pt-4 sm:flex-row sm:justify-end",
+      className,
+    )}
     {...props}
   />
 );

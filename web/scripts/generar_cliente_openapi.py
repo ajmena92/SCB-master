@@ -38,8 +38,21 @@ DOMINIOS = (
 )
 
 ESQUEMAS_POR_DOMINIO = {
-    "identidad": {"AccesoEstudiante", "AutenticacionSalida", "CambioPinEstudiante", "CredencialesEntrada", "SesionActualSalida"},
-    "estudiantes": {"Body_cargar_api_v1_estudiantes__id_estudiante__foto_post", "CambioRuta", "CambioEstadoComedor", "EstudianteEntrada", "EstudianteSalida", "GeneracionPinesSeccion", "PaginaEstudiantes", "PerfilEstudianteSalida", "PinGenerado"},
+    "identidad": {
+        "AccesoEstudiante", "AdministracionEntrada", "AutenticacionSalida",
+        "CambioContrasenaAdministrativaEntrada", "CambioPinEntrada", "CambioPinEstudiante",
+        "CredencialesEntrada", "PortalEntrada", "SesionActualSalida", "SesionSalida",
+    },
+    "estudiantes": {
+        "AnioEntrada", "AsignacionRutaEntrada",
+        "Body_cargar_api_v1_estudiantes__id_estudiante__foto_post",
+        "Body_cargar_foto_api_v1_personas__persona_id__foto_post", "CambioRuta",
+        "CambioRutaMatriculaEntrada", "CambioEstadoComedor", "EstudianteEntrada",
+        "EstudianteSalida", "GeneracionPinesSeccion", "GeneracionPinesSeccionEntrada",
+        "MatriculaBeneficioEntrada", "MatriculaBeneficiosEntrada", "MatriculaEntrada",
+        "PaginaEstudiantes", "PerfilEstudianteSalida", "PersonaActualizacionEntrada",
+        "PersonaEntrada", "PersonaSalida", "PinGenerado", "ResumenPersonasSalida",
+    },
     "transporte": {"RutaEntrada", "RutaSalida"},
     "asistencia": {"CorreccionEntrada", "MarcaEntrada", "MarcaSalida"},
     "cuentas": {"MovimientoEntrada", "MovimientoSalida", "SaldoSalida"},
@@ -48,24 +61,28 @@ ESQUEMAS_POR_DOMINIO = {
         "MetricaAsistencia", "GrupoDashboard", "TendenciaDia", "RutaDashboard", "AlertaDashboard",
         "RegistroNominal", "NominalPaginado", "DashboardSalida",
     },
-    "importaciones": {"Body_ejecutar_api_v1_importaciones_lotes_post", "Body_previsualizar_api_v1_importaciones_previsualizaciones_post", "ErrorFila", "LoteSalida", "Previsualizacion"},
+    "importaciones": {"Body_ejecutar_api_v1_importaciones_lotes_post", "Body_previsualizar_api_v1_importaciones_previsualizaciones_post", "ConfirmacionImportacion", "ErrorFila", "FilaImportacion", "LoteSalida", "Previsualizacion"},
     "auditoria": {"EventoSalida"},
     "menu": {
         "ComponenteMenu",
+        "ComponenteMenuEntrada",
+        "CalendarioMenuEntrada",
+        "CicloMenuEntrada",
         "PlantillaMenuEntrada",
+        "PlantillaEntrada",
         "PlantillaMenuSalida",
         "SustitucionMenuEntrada",
         "SustitucionMenuSalida",
     },
     "comedor": {
-        "CuentaTiquetesSalida", "IngresoEntrada", "IngresoSalida", "MovimientoTiquetesSalida", "PersonaComedorSalida",
+        "AutorizacionEntrada", "CancelacionReservaEntrada", "CuentaTiquetesSalida", "HorarioReservaEntrada", "IngresoEntrada", "IngresoSalida", "MovimientoTiquetesSalida", "PersonaComedorSalida",
         "EstadoPortalProfesorSalida", "ProfesorComedorEntrada", "ProfesorPortalSalida",
-        "ReservaEntrada", "ReservaSalida", "TiquetesEntrada",
+        "ReservaEntrada", "ReservaSalida", "TarifaEntrada", "TiquetesEntrada", "VentaEntrada",
         "ConfiguracionOperacionSalida", "EstadoOperacionSalida", "HorarioOperacionSalida",
     },
     "soporte": {"SolicitudEntrada", "SolicitudSalida"},
-    "administracion": {"PermisoSalida", "RolEntrada", "RolSalida", "UsuarioEntrada", "UsuarioSalida"},
-    "parametros": {"DiaCalendario", "HorarioEntrada", "HorarioSalida", "ParametrosEntrada", "ParametrosSalida"},
+    "administracion": {"CuentaAdministrativaActualizacion", "CuentaAdministrativaEntrada", "PermisoSalida", "ProfesorNuevoAdministrativo", "RolEntrada", "RolSalida", "UsuarioEntrada", "UsuarioSalida", "VinculacionCuentaEntrada"},
+    "parametros": {"ConfiguracionInstitucionalEntrada", "DiaCalendario", "HorarioEntrada", "HorarioSalida", "ParametrosEntrada", "ParametrosSalida"},
     "salud": {"EstadoSalud"},
     "comunes": {"HTTPValidationError", "ValidationError"},
 }
@@ -324,11 +341,19 @@ def main() -> int:
     parser.add_argument("--verificar", action="store_true", help="falla si la salida no está actualizada")
     args = parser.parse_args()
     sys.path.insert(0, str(BACKEND))
-    from aplicacion.entrada import DependenciasAplicacion, crear_aplicacion
-    from aplicacion.nucleo.base_datos import FabricaConexionSql
+    from aplicacion.entrada import crear_aplicacion
+    from aplicacion.nucleo.postgresql import crear_motor
+    from config import Settings
 
     aplicacion = crear_aplicacion(
-        DependenciasAplicacion(cast(FabricaConexionSql, object()), cookies_seguras=False)
+        motor=crear_motor("sqlite://"),
+        configuracion=Settings(
+            database_url="postgresql+psycopg://contrato:no-usada@localhost/scb",
+            cors_origin="http://localhost:5173",
+            cookie_secure=False,
+            csrf_secret="csrf-contrato",
+            carnet_qr_clave="MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=",
+        ),
     )
     salidas = _generar(aplicacion.openapi())
     obsoletas = _salidas_generadas_obsoletas(set(salidas))

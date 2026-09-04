@@ -1,16 +1,13 @@
 import axios from "axios";
 import { agregarCsrf } from "./csrf";
 import { manejarSesionExpirada } from "./manejo_sesion";
-import { obtenerTokenSesion } from "./token_sesion";
+import { API } from "./configuracion_api";
 
-const urlConfigurada = import.meta.env.VITE_API_BASE_URL || "/api";
-if (!urlConfigurada.startsWith("/"))
-  throw new Error("VITE_API_BASE_URL debe ser una ruta relativa, por ejemplo /api.");
-export const API = urlConfigurada.replace(/\/$/, "");
+export { API } from "./configuracion_api";
 
 declare module "axios" {
   interface AxiosRequestConfig {
-    skipCsrf?: boolean;
+    omitirCsrf?: boolean;
     omitirManejoFalloAutenticacion?: boolean;
   }
 }
@@ -21,8 +18,6 @@ export const api = axios.create({
   headers: { Accept: "application/json" },
 });
 api.interceptors.request.use((configuracion) => {
-  const token = obtenerTokenSesion();
-  if (token) configuracion.headers.set("Authorization", `Bearer ${token}`);
   return agregarCsrf(configuracion);
 });
 api.interceptors.response.use((response) => response, manejarSesionExpirada);

@@ -38,7 +38,8 @@ describe("carnet del estudiante", () => {
             rutaDescripcion: "Ruta Central",
             idEstadoComedor: 1,
             beneficioComedor: "Beneficiario",
-            codigoQr: "SCBQR1.gAAAAABpQRCZxN32A47WJznSEQs30Y0qFcAh0igG73znwW1a2B8gB6Xt20RLwG25yY7zeBB-LmSXOT8TOHzPrjN7xxu5KfdGQ==",
+            codigoQr:
+              "SCBQR1.gAAAAABpQRCZxN32A47WJznSEQs30Y0qFcAh0igG73znwW1a2B8gB6Xt20RLwG25yY7zeBB-LmSXOT8TOHzPrjN7xxu5KfdGQ==",
             tieneFoto: false,
             anio: 2026,
           }}
@@ -73,7 +74,8 @@ describe("carnet del estudiante", () => {
             rutaDescripcion: "Ruta que no corresponde",
             idEstadoComedor: 2,
             beneficioComedor: "No beneficiario",
-            codigoQr: "SCBQR1.gAAAAABpQRCZxN32A47WJznSEQs30Y0qFcAh0igG73znwW1a2B8gB6Xt20RLwG25yY7zeBB-LmSXOT8TOHzPrjN7xxu5KfdGQ==",
+            codigoQr:
+              "SCBQR1.gAAAAABpQRCZxN32A47WJznSEQs30Y0qFcAh0igG73znwW1a2B8gB6Xt20RLwG25yY7zeBB-LmSXOT8TOHzPrjN7xxu5KfdGQ==",
           }}
         />,
       ),

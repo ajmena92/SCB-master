@@ -1,9 +1,6 @@
 from sqlalchemy.orm import Session
 
-from aplicacion.modelos.maestros import SesionAcceso
-from aplicacion.seguridad import token_hash
-
-from .conftest import crear_persona, preparar_estudiante
+from .conftest import autenticar_portal, crear_persona, preparar_estudiante
 
 
 def test_rutas_publicas_y_rbac(entorno):
@@ -29,8 +26,8 @@ def test_rutas_publicas_y_rbac(entorno):
 
 def test_resumen_personas_es_global_y_requiere_permiso_administrar(entorno):
     cliente, _, h = entorno
-    estudiante = crear_persona(cliente, h["admin"], cedula="801", nombres="Estudiante Activa")
-    profesor = crear_persona(
+    crear_persona(cliente, h["admin"], cedula="801", nombres="Estudiante Activa")
+    crear_persona(
         cliente, h["admin"], tipo="profesor", cedula="802", nombres="Profesor Activo"
     )
     inactiva = crear_persona(cliente, h["admin"], cedula="803", nombres="Estudiante Inactiva")
@@ -48,19 +45,10 @@ def test_resumen_personas_es_global_y_requiere_permiso_administrar(entorno):
 def test_identidad_cedula_pin_y_matricula_anual_unica(entorno):
     cliente, _, h = entorno
     persona, anio, matricula = preparar_estudiante(cliente, h["admin"])
-    assert persona["codigo"].startswith("E-") and len(persona["codigo"]) == 10
+    assert persona["codigo"] == persona["cedula"]
     assert len(persona["pinTemporal"]) == 6
-    token = cliente.post(
-        "/api/v1/autenticacion/portal",
-        json={
-            "cedula": persona["cedula"],
-            "pin": "123456",
-        },
-    ).json()["token"]
-    assert (
-        cliente.get("/api/v1/sesion", headers={"Authorization": f"Bearer {token}"}).status_code
-        == 200
-    )
+    portal = autenticar_portal(cliente.app, persona["cedula"])
+    assert portal.get("/api/v1/sesion").status_code == 200
     duplicada = cliente.post(
         "/api/v1/matriculas",
         headers=h["admin"],
@@ -116,20 +104,14 @@ def test_expediente_busqueda_estados_y_reinicio_de_pin(entorno):
     assert fila["beneficioTransporte"] == "Beneficiario – Ruta San Jose"
     assert fila["descripcionRuta"] == "Ruta San Jose"
 
-    acceso = cliente.post(
-        "/api/v1/autenticacion/portal", json={"cedula": "701", "pin": "123456"}
-    ).json()
+    portal = autenticar_portal(cliente.app, "701")
     reinicio = cliente.post(
         f"/api/v1/personas/{persona['id']}/reiniciar-pin", headers=h["admin"]
     )
     assert reinicio.status_code == 200 and len(reinicio.json()["pinTemporal"]) == 6
-    assert cliente.get(
-        "/api/v1/sesion", headers={"Authorization": f"Bearer {acceso['token']}"}
-    ).status_code == 401
-    assert cliente.post(
-        "/api/v1/autenticacion/portal",
-        json={"cedula": "701", "pin": reinicio.json()["pinTemporal"]},
-    ).json()["cambioObligatorio"] is True
+    assert portal.get("/api/v1/sesion").status_code == 401
+    nuevo_portal = autenticar_portal(cliente.app, "701", reinicio.json()["pinTemporal"])
+    assert nuevo_portal.get("/api/v1/sesion").json()["cambioObligatorio"] is True
     assert cliente.post(
             "/api/v1/personas/pines/seccion",
             headers=h["admin"],
@@ -196,30 +178,19 @@ def test_cambio_pin_revoca_sesion_y_desactiva_cambio_obligatorio(entorno):
         cliente, h["admin"], cedula="77", nombres="Pin Temporal",
         cambio_pin_obligatorio=True,
     )
-    acceso = cliente.post(
-        "/api/v1/autenticacion/portal",
-        json={
-            "cedula": persona["cedula"],
-            "pin": persona["pinTemporal"],
-        },
-    ).json()
-    assert acceso["cambioObligatorio"] is True
-    with Session(motor) as sesion:
-        registro = sesion.get(SesionAcceso, token_hash(acceso["token"]))
-        assert registro is not None and registro.cambio_obligatorio is True
-    cabecera = {"Authorization": f"Bearer {acceso['token']}"}
-    assert cliente.get("/api/v1/sesion", headers=cabecera).json()["cambioObligatorio"] is True
+    portal = autenticar_portal(cliente.app, persona["cedula"], persona["pinTemporal"])
+    assert portal.get("/api/v1/sesion").json()["cambioObligatorio"] is True
     assert (
-        cliente.post(
+        portal.post(
             "/api/v1/comedor/reservas",
-            headers=cabecera,
+            headers=portal.csrf(),
             json={"codigo": persona["codigo"], "fecha": "2026-09-01"},
         ).status_code
         == 403
     )
-    cambio = cliente.post(
+    cambio = portal.post(
         "/api/v1/autenticacion/portal/pin",
-        headers=cabecera,
+        headers=portal.csrf(),
         json={
             "pinActual": persona["pinTemporal"],
             "pinNuevo": "654321",
@@ -227,10 +198,11 @@ def test_cambio_pin_revoca_sesion_y_desactiva_cambio_obligatorio(entorno):
     )
     assert cambio.status_code == 200
     assert cambio.json() == {"cambioObligatorio": False, "sesionesRevocadas": True}
-    assert cliente.get("/api/v1/sesion", headers=cabecera).status_code == 401
+    assert portal.get("/api/v1/sesion").status_code == 401
     assert (
         cliente.post(
             "/api/v1/autenticacion/portal",
+            headers=cliente.csrf(),
             json={
                 "cedula": persona["cedula"],
                 "pin": persona["pinTemporal"],
@@ -238,17 +210,10 @@ def test_cambio_pin_revoca_sesion_y_desactiva_cambio_obligatorio(entorno):
         ).status_code
         == 401
     )
-    nuevo = cliente.post(
-        "/api/v1/autenticacion/portal",
-        json={
-            "cedula": persona["cedula"],
-            "pin": "654321",
-        },
-    )
-    assert nuevo.status_code == 200 and nuevo.json()["cambioObligatorio"] is False
-    nueva_cabecera = {"Authorization": f"Bearer {nuevo.json()['token']}"}
-    assert cliente.post("/api/v1/autenticacion/logout", headers=nueva_cabecera).status_code == 204
-    assert cliente.get("/api/v1/sesion", headers=nueva_cabecera).status_code == 401
+    nuevo = autenticar_portal(cliente.app, persona["cedula"], "654321")
+    assert nuevo.get("/api/v1/sesion").json()["cambioObligatorio"] is False
+    assert nuevo.post("/api/v1/autenticacion/logout", headers=nuevo.csrf()).status_code == 204
+    assert nuevo.get("/api/v1/sesion").status_code == 401
 
 
 def test_alta_manual_se_rechaza_aunque_los_datos_sean_validos(entorno):

@@ -7,7 +7,6 @@ from datetime import date
 
 from cryptography.fernet import Fernet, InvalidToken
 
-
 PREFIJO_QR = "SCBQR1."
 INSTITUCION = "ctp-platanares"
 

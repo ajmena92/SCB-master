@@ -1,7 +1,7 @@
 """Persistencia de identidad sin reglas de negocio."""
 
-from datetime import datetime, timedelta, timezone
 import hashlib
+from datetime import datetime, timedelta, timezone
 
 from fastapi import HTTPException
 from sqlalchemy import delete, func, select
@@ -11,9 +11,9 @@ from aplicacion.modelos.maestros import (
     CredencialPortal,
     CuentaAdministrativa,
     CuentaPermiso,
+    IntentoAutenticacion,
     Persona,
     SesionAcceso,
-    IntentoAutenticacion,
 )
 
 
@@ -81,7 +81,10 @@ class RepositorioIdentidad:
         registro = self.sesion.get(
             IntentoAutenticacion, self._hash_identificador(ambito, identificador)
         )
-        if registro and registro.bloqueado_hasta and registro.bloqueado_hasta > datetime.now(timezone.utc):
+        bloqueado_hasta = registro.bloqueado_hasta if registro else None
+        if bloqueado_hasta and bloqueado_hasta.tzinfo is None:
+            bloqueado_hasta = bloqueado_hasta.replace(tzinfo=timezone.utc)
+        if bloqueado_hasta and bloqueado_hasta > datetime.now(timezone.utc):
             raise HTTPException(429, "Demasiados intentos. Intente nuevamente más tarde")
 
     def registrar_fallo(
@@ -95,7 +98,7 @@ class RepositorioIdentidad:
         )
         ahora = datetime.now(timezone.utc)
         if registro is None:
-            registro = IntentoAutenticacion(identificador_hash=clave)
+            registro = IntentoAutenticacion(identificador_hash=clave, intentos_fallidos=0)
             self.sesion.add(registro)
         registro.intentos_fallidos += 1
         registro.actualizado_en = ahora

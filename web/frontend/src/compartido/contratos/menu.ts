@@ -1,41 +1,33 @@
 /** Generado por web/scripts/generar_cliente_openapi.py; no editar manualmente. */
 
-export interface ComponenteMenu {
+export interface CalendarioMenuEntrada {
+  fecha: string;
+  habilitado: boolean;
+  motivo?: string | null;
+}
+
+export interface CicloMenuEntrada {
+  inicioCicloMenu: string;
+}
+
+export interface ComponenteMenuEntrada {
   nombre: string;
-  orden?: number;
+  orden: number;
   tipo?: string;
 }
 
-export interface PlantillaMenuEntrada {
+export interface PlantillaEntrada {
   activo?: boolean;
-  componentes?: Array<ComponenteMenu>;
+  componentes: Array<ComponenteMenuEntrada>;
   dia: number;
-  observaciones?: string | null;
-  semana: number;
-  titulo: string;
-}
-
-export interface PlantillaMenuSalida {
-  activo?: boolean;
-  componentes?: Array<ComponenteMenu>;
-  dia: number;
-  idPlantilla: number;
   observaciones?: string | null;
   semana: number;
   titulo: string;
 }
 
 export interface SustitucionMenuEntrada {
-  componentes?: Array<ComponenteMenu>;
+  componentes: Array<ComponenteMenuEntrada>;
   fecha: string;
-  observaciones?: string | null;
-  titulo: string;
-}
-
-export interface SustitucionMenuSalida {
-  componentes?: Array<ComponenteMenu>;
-  fecha: string;
-  idSustitucion: number;
   observaciones?: string | null;
   titulo: string;
 }

@@ -1,67 +1,69 @@
 /** Generado por web/scripts/generar_cliente_openapi.py; no editar manualmente. */
 
-export interface BodyCargarApiV1EstudiantesIdEstudianteFotoPost {
+export interface AnioEntrada {
+  anio: number;
+  vigente?: boolean;
+}
+
+export interface AsignacionRutaEntrada {
+  fechaFin?: string | null;
+  fechaInicio: string;
+  matriculaId: number;
+}
+
+export interface BodyCargarFotoApiV1PersonasPersonaIdFotoPost {
   archivo: string;
 }
 
-export interface CambioEstadoComedor {
-  idEstadoComedor: 1 | 2;
+export interface CambioRutaMatriculaEntrada {
+  rutaId?: number | null;
 }
 
-export interface CambioRuta {
-  idRuta?: number | null;
+export interface GeneracionPinesSeccionEntrada {
+  anioLectivoId: number;
+  seccion: string;
 }
 
-export interface EstudianteEntrada {
-  activo?: boolean;
-  carne: string;
+export interface MatriculaBeneficioEntrada {
+  becado?: boolean;
+}
+
+export interface MatriculaBeneficiosEntrada {
+  becado?: boolean;
+  rutaId?: number | null;
+}
+
+export interface MatriculaEntrada {
+  anioLectivoId: number;
+  becado?: boolean;
+  estado?: string;
+  personaId: number;
+  seccion: string;
+}
+
+export interface PersonaActualizacionEntrada {
   cedula?: string | null;
-  nombre: string;
-  primerApellido: string;
-  seccion?: string | null;
-  segundoApellido?: string | null;
+  nombres: string;
 }
 
-export interface EstudianteSalida {
+export interface PersonaEntrada {
+  activo?: boolean;
+  cedula?: string | null;
+  nombres: string;
+  tipo: "estudiante" | "profesor";
+}
+
+export interface PersonaSalida {
   activo: boolean;
-  beneficioComedor?: string;
-  beneficioTransporte?: string;
-  bloqueado?: boolean;
-  carne: string;
   cedula: string | null;
-  debeCambiarPin?: boolean;
-  idEstadoComedor?: 1 | 2;
-  idEstudiante: number;
-  idRuta?: number | null;
-  nombre: string;
-  primerApellido: string;
-  rutaCodigo?: string | null;
-  rutaDescripcion?: string | null;
-  seccion: string | null;
-  segundoApellido: string | null;
-  tieneBeneficioTransporte?: boolean;
-  tieneFoto?: boolean;
-  turno?: string | null;
+  id: number;
+  nombres: string;
+  pinTemporal?: string | null;
+  referenciaPublica: string;
+  tipo: string;
 }
 
-export interface GeneracionPinesSeccion {
-  seccion?: string | null;
-  turno?: string | null;
-}
-
-export interface PaginaEstudiantes {
-  elementos: Array<EstudianteSalida>;
-  pagina: number;
-  tamano: number;
-  total: number;
-}
-
-export interface PerfilEstudianteSalida {
-  estudiante: EstudianteSalida;
-  tieneFoto: boolean;
-}
-
-export interface PinGenerado {
-  idEstudiante: number;
-  pin: string;
+export interface ResumenPersonasSalida {
+  estudiantesActivos: number;
+  estudiantesInactivos: number;
 }

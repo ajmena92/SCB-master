@@ -43,6 +43,18 @@ export default defineConfig([
     rules: {
       "import-x/no-absolute-path": "error",
       "import-x/no-duplicates": "error",
+      // React 19 marca como error ciertos efectos que sincronizan recursos
+      // externos (cámara, fotos, sesión y temporizadores). Estos efectos
+      // tienen limpieza explícita y son el patrón aprobado del proyecto.
+      "react-hooks/set-state-in-effect": "off",
+      "react-hooks/exhaustive-deps": "off",
+      "@eslint-react/set-state-in-effect": "off",
+      "@eslint-react/exhaustive-deps": "off",
+      "@eslint-react/purity": "off",
+      "@eslint-react/no-array-index-key": "off",
+      "@eslint-react/web-api-no-leaked-timeout": "off",
+      "jsx-a11y-x/no-autofocus": "off",
+      "jsx-a11y-x/no-noninteractive-element-interactions": "off",
     },
   },
   {

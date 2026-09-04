@@ -12,7 +12,9 @@ describe("plataformaApi", () => {
   it("normaliza respuestas de lista y usa rutas versionadas", async () => {
     vi.mocked(api.get).mockResolvedValueOnce({ data: [{ id: 1, codigo: "E-1" }] });
     const resultado = await plataformaApi.personas.listar({ buscar: "Ana", estado: "activos" });
-    expect(api.get).toHaveBeenCalledWith("/v1/personas", { params: { buscar: "Ana", estado: "activos" } });
+    expect(api.get).toHaveBeenCalledWith("/v1/personas", {
+      params: { buscar: "Ana", estado: "activos" },
+    });
     expect(resultado).toEqual({ elementos: [{ id: 1, codigo: "E-1" }], total: 1 });
   });
 

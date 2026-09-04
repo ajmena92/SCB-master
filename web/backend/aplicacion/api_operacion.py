@@ -10,12 +10,12 @@ from fastapi import APIRouter, Depends, HTTPException, Response
 from aplicacion.esquemas import (
     AutorizacionEntrada,
     CancelacionReservaEntrada,
+    ConfiguracionInstitucionalEntrada,
+    HorarioReservaEntrada,
     IngresoEntrada,
     ReservaEntrada,
     TarifaEntrada,
     VentaEntrada,
-    HorarioReservaEntrada,
-    ConfiguracionInstitucionalEntrada,
 )
 
 

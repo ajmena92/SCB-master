@@ -2,7 +2,6 @@ from io import BytesIO
 from pathlib import Path
 
 from PIL import Image
-
 from scripts.import_student_photos import normalize_photo
 
 

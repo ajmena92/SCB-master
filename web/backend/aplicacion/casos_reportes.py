@@ -1,7 +1,7 @@
 """Casos de uso para reportes operativos y tablero PostgreSQL."""
 
 from collections import defaultdict
-from datetime import timedelta
+from datetime import date, timedelta
 
 
 class ServicioReportes:
@@ -20,7 +20,7 @@ class ServicioReportes:
     def dashboard(self, fecha, filtros):
         tipo = filtros.get("tipoPersona", "estudiante")
         filas = list(self.repo.personas_dashboard(fecha, tipo))
-        dias = []
+        dias: list[date] = []
         cursor = fecha
         while len(dias) < 20:
             if cursor.weekday() < 5:

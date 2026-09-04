@@ -1,15 +1,6 @@
 from datetime import date, time
 
-from .conftest import preparar_estudiante
-
-
-def _token_portal(cliente, cedula):
-    respuesta = cliente.post(
-        "/api/v1/autenticacion/portal",
-        json={"cedula": cedula, "pin": "123456"},
-    )
-    assert respuesta.status_code == 200, respuesta.text
-    return {"Authorization": f"Bearer {respuesta.json()['token']}"}
+from .conftest import autenticar_portal, preparar_estudiante
 
 
 def test_dashboard_usa_padron_anual_postgresql(entorno):
@@ -68,10 +59,10 @@ def test_portal_muestra_plantilla_semanal_y_carnet(entorno):
         },
     ).json()
     assert plantilla["id"] > 0
-    portal = _token_portal(cliente, persona["cedula"])
+    portal = autenticar_portal(cliente.app, persona["cedula"])
 
-    estado = cliente.get("/api/v1/portal/estado", headers=portal)
-    carnet = cliente.get("/api/v1/portal/carnet", headers=portal)
+    estado = portal.get("/api/v1/portal/estado")
+    carnet = portal.get("/api/v1/portal/carnet")
 
     assert estado.status_code == 200, estado.text
     estado_portal = estado.json()
@@ -91,7 +82,7 @@ def test_portal_muestra_plantilla_semanal_y_carnet(entorno):
     assert abs(estado_comedor["segundosParaCierre"] - esperados) <= 1
     assert estado_comedor["segundosParaApertura"] == 0
     assert carnet.status_code == 200, carnet.text
-    assert carnet.json()["barcode"] == persona["codigo"]
+    assert carnet.json()["codigoQr"].startswith("SCBQR1.")
     assert carnet.json()["seccion"] == "7-1"
     assert carnet.json()["rutaCodigo"] == "1115308"
     assert carnet.json()["rutaDescripcion"] == "SIERRA"
@@ -102,11 +93,11 @@ def test_portal_muestra_plantilla_semanal_y_carnet(entorno):
 def test_reserva_portal_no_requiere_repetir_codigo(entorno):
     cliente, _, auth = entorno
     persona, _, _ = preparar_estudiante(cliente, auth["admin"], "reserva-portal-1")
-    portal = _token_portal(cliente, persona["cedula"])
+    portal = autenticar_portal(cliente.app, persona["cedula"])
 
-    respuesta = cliente.post(
+    respuesta = portal.post(
         "/api/v1/comedor/reservas",
-        headers=portal,
+        headers=portal.csrf(),
         json={"fecha": date.today().isoformat()},
     )
 

@@ -4,7 +4,6 @@ import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 import { ProveedorAutenticacion } from "@/aplicacion/estado/ContextoAutenticacion";
 import { api } from "@/compartido/consultas/cliente_http";
-import { guardarTokenSesion } from "@/compartido/consultas/token_sesion";
 import { useCambioPin } from "./useCambioPin";
 
 vi.mock("@/compartido/consultas/cliente_http", () => ({ api: { post: vi.fn() } }));
@@ -47,7 +46,6 @@ describe("useCambioPin", () => {
 
   it("envía un PIN válido y mantiene el contrato de la API", async () => {
     api.post.mockResolvedValueOnce({ data: {} });
-    guardarTokenSesion("token-que-sera-revocado");
     let hook;
     const { contenedor, raiz } = preparar((valor) => (hook = valor));
     await act(async () => {
@@ -60,7 +58,6 @@ describe("useCambioPin", () => {
       pinActual: "111111",
       pinNuevo: "222222",
     });
-    expect(sessionStorage.getItem("scb_token_sesion")).toBeNull();
     await act(async () => raiz.unmount());
     contenedor.remove();
   });

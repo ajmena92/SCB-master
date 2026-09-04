@@ -1,8 +1,8 @@
 """Agrega identidad institucional editable para reportes."""
 
 import sqlalchemy as sa
-from alembic import op
 
+from alembic import op
 
 revision = "0017_configuracion_institucional"
 down_revision = "0016_confirmacion_sin_tiquete"

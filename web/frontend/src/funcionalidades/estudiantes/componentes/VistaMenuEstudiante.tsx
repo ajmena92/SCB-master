@@ -110,7 +110,10 @@ export function VistaMenuEstudiante({
           <CheckCircle2 className="mx-auto h-14 w-14 text-success" aria-hidden="true" />
           <h2 className="mt-3 font-display text-2xl font-bold">¡Almuerzo confirmado!</h2>
           {estado.sinTiquete && (
-            <p className="mt-3 text-sm font-semibold text-amber-800" data-testid="confirmacion-sin-tiquete">
+            <p
+              className="mt-3 text-sm font-semibold text-warning"
+              data-testid="confirmacion-sin-tiquete"
+            >
               No tenés tiquetes disponibles. Consultá al operador al ingresar al comedor.
             </p>
           )}

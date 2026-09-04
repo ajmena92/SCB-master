@@ -1,15 +1,15 @@
 """Dependencias de autenticacion y autorizacion para v1."""
 
-from fastapi import Depends, Header, HTTPException
+from fastapi import Cookie, Depends, HTTPException
 
 
 def crear_dependencias(obtener_servicio):
     async def actual(
-        authorization: str | None = Header(default=None), servicio=Depends(obtener_servicio)
+        scb_sesion: str | None = Cookie(default=None), servicio=Depends(obtener_servicio)
     ) -> dict:
-        if not authorization or not authorization.startswith("Bearer "):
+        if not scb_sesion:
             raise HTTPException(401, "Autenticacion requerida")
-        return servicio.identidad_por_token(authorization[7:])
+        return servicio.identidad_por_token(scb_sesion)
 
     async def administrativo(identidad: dict = Depends(actual)) -> dict:
         if identidad["tipo"] != "administracion":

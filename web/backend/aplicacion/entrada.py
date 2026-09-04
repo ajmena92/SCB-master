@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter, FastAPI
+from fastapi import APIRouter, FastAPI, Request
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.engine import Engine
 
@@ -32,6 +33,8 @@ from aplicacion.repositorios_operacion import RepositorioOperacion
 from aplicacion.repositorios_portal import RepositorioPortal
 from aplicacion.servicios import ServicioOperacion
 from config import Settings
+from aplicacion.api_autenticacion import NOMBRE_COOKIE_SESION, NOMBRE_COOKIE_CSRF
+from aplicacion.seguridad import csrf_valido
 
 
 def crear_aplicacion(
@@ -48,6 +51,8 @@ def crear_aplicacion(
             student_lock_minutes=configuracion.student_lock_minutes,
             admin_max_login_attempts=configuracion.admin_max_login_attempts,
             admin_lock_minutes=configuracion.admin_lock_minutes,
+            student_session_days=configuracion.student_session_days,
+            admin_session_minutes=configuracion.admin_session_minutes,
         )
 
     async def obtener_catalogos(sesion=__import__("fastapi").Depends(obtener_sesion)):
@@ -82,16 +87,33 @@ def crear_aplicacion(
         CORSMiddleware,
         allow_origins=[configuracion.cors_origin],
         allow_credentials=True,
-        allow_methods=["GET", "POST", "PUT", "DELETE"],
-        allow_headers=["Authorization", "Content-Type"],
+        allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
+        allow_headers=["Content-Type", "X-CSRF-Token"],
     )
     api = APIRouter(prefix="/api/v1")
+
+    @aplicacion.middleware("http")
+    async def proteger_mutaciones(request: Request, call_next):
+        if request.url.path.startswith("/api/v1") and request.method in {"POST", "PUT", "PATCH", "DELETE"}:
+            if request.headers.get("origin") != configuracion.cors_origin:
+                return JSONResponse(status_code=403, content={"detail": "Origin no autorizado"})
+            token = request.cookies.get(NOMBRE_COOKIE_SESION)
+            csrf = request.headers.get("X-CSRF-Token")
+            if not csrf_valido(csrf, token=token, secreto=configuracion.csrf_secret):
+                return JSONResponse(status_code=403, content={"detail": "CSRF invalido"})
+        return await call_next(request)
 
     @api.get("/salud")
     async def salud() -> dict[str, str]:
         return {"estado": "ok", "baseDatos": "postgresql"}
 
-    api.include_router(router_autenticacion(obtener_identidad, actual))
+    api.include_router(router_autenticacion(
+        obtener_identidad,
+        actual,
+        csrf_secret=configuracion.csrf_secret,
+        cookie_secure=configuracion.cookie_secure,
+        csrf_anonymous_ttl_seconds=configuracion.csrf_anonymous_ttl_seconds,
+    ))
     api.include_router(router_administracion(obtener_administracion, actual, administrador))
     api.include_router(router_maestros(obtener_catalogos, exigir_permiso, exigir_alguno))
     api.include_router(router_fotos(obtener_catalogos, exigir_permiso))

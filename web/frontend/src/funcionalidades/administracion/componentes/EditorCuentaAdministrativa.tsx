@@ -86,7 +86,12 @@ export default function EditorCuentaAdministrativa({
       });
       return;
     }
-    alGuardar({ usuario: usuario.trim(), rol, permisos: permisosCuenta, personaId: Number(personaId) });
+    alGuardar({
+      usuario: usuario.trim(),
+      rol,
+      permisos: permisosCuenta,
+      personaId: Number(personaId),
+    });
   }
 
   return (

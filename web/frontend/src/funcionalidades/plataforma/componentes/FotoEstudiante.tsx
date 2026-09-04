@@ -9,7 +9,13 @@ import {
 } from "@/components/ui/dialog";
 import { plataformaApi } from "../consultas/plataforma";
 
-export default function FotoEstudiante({ personaId, nombre }: { personaId: number; nombre: string }) {
+export default function FotoEstudiante({
+  personaId,
+  nombre,
+}: {
+  personaId: number;
+  nombre: string;
+}) {
   const [url, setUrl] = useState<string>();
   const [procesando, setProcesando] = useState(false);
   const [mensaje, setMensaje] = useState("Foto pendiente");
@@ -43,10 +49,11 @@ export default function FotoEstudiante({ personaId, nombre }: { personaId: numbe
 
   useEffect(() => {
     void cargar();
-    return () => setUrl((anterior) => {
-      if (anterior) URL.revokeObjectURL(anterior);
-      return undefined;
-    });
+    return () =>
+      setUrl((anterior) => {
+        if (anterior) URL.revokeObjectURL(anterior);
+        return undefined;
+      });
   }, [personaId]);
 
   useEffect(() => {
@@ -136,40 +143,92 @@ export default function FotoEstudiante({ personaId, nombre }: { personaId: numbe
     }
   }
 
-  return <>
-    <section className="student-photo" aria-label="Fotografía del estudiante">
-      <div className="student-photo-preview">
-        {url ? <img src={url} alt={`Fotografía de ${nombre}`} /> : <Camera aria-hidden="true" size={26} />}
-      </div>
-      <div className="student-photo-copy">
-        <p>Fotografía</p>
-        <span>{mensaje}. JPEG o PNG, máximo 5 MB.</span>
-        <div className="student-photo-actions">
-          <button className="button secondary" type="button" onClick={() => setCamaraAbierta(true)} disabled={procesando}>
-            <Camera aria-hidden="true" size={17} /> {url ? "Cambiar foto" : "Tomar foto"}
-          </button>
-          <label className="button secondary" aria-disabled={procesando}>
-            Subir archivo
-            <input type="file" accept="image/jpeg,image/png" onChange={seleccionar} disabled={procesando} />
-          </label>
-          {url && <button className="button link" type="button" onClick={eliminar} disabled={procesando}><Trash aria-hidden="true" size={17} /> Eliminar</button>}
+  return (
+    <>
+      <section className="student-photo" aria-label="Fotografía del estudiante">
+        <div className="student-photo-preview">
+          {url ? (
+            <img src={url} alt={`Fotografía de ${nombre}`} />
+          ) : (
+            <Camera aria-hidden="true" size={26} />
+          )}
         </div>
-      </div>
-    </section>
-    <Dialog open={camaraAbierta} onOpenChange={setCamaraAbierta}>
-      <DialogContent className="max-w-lg overflow-hidden p-0">
-        <DialogHeader className="px-5 pt-5 text-left">
-          <DialogTitle>Tomar fotografía</DialogTitle>
-          <DialogDescription>Centrá el rostro y tomá la foto para el carné.</DialogDescription>
-        </DialogHeader>
-        <div className="px-5 pb-5">
-          {errorCamara ? <p className="rounded-xl bg-destructive/10 p-4 text-sm text-destructive">{errorCamara}</p> : <video ref={videoRef} className="aspect-[4/3] w-full rounded-xl bg-muted object-cover" autoPlay muted playsInline />}
-          <div className="mt-4 flex justify-end gap-2">
-            <button className="button secondary" type="button" onClick={() => setCamaraAbierta(false)} disabled={procesando}>Cancelar</button>
-            <button className="button primary" type="button" onClick={() => void capturar()} disabled={procesando || Boolean(errorCamara)}><Camera aria-hidden="true" size={17} /> {procesando ? "Guardando…" : "Capturar y guardar"}</button>
+        <div className="student-photo-copy">
+          <p>Fotografía</p>
+          <span>{mensaje}. JPEG o PNG, máximo 5 MB.</span>
+          <div className="student-photo-actions">
+            <button
+              className="button secondary"
+              type="button"
+              onClick={() => setCamaraAbierta(true)}
+              disabled={procesando}
+            >
+              <Camera aria-hidden="true" size={17} /> {url ? "Cambiar foto" : "Tomar foto"}
+            </button>
+            <label className="button secondary" aria-disabled={procesando}>
+              Subir archivo
+              <input
+                type="file"
+                accept="image/jpeg,image/png"
+                onChange={seleccionar}
+                disabled={procesando}
+              />
+            </label>
+            {url && (
+              <button
+                className="button link"
+                type="button"
+                onClick={eliminar}
+                disabled={procesando}
+              >
+                <Trash aria-hidden="true" size={17} /> Eliminar
+              </button>
+            )}
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
-  </>;
+      </section>
+      <Dialog open={camaraAbierta} onOpenChange={setCamaraAbierta}>
+        <DialogContent className="max-w-lg overflow-hidden p-0">
+          <DialogHeader className="px-5 pt-5 text-left">
+            <DialogTitle>Tomar fotografía</DialogTitle>
+            <DialogDescription>Centrá el rostro y tomá la foto para el carné.</DialogDescription>
+          </DialogHeader>
+          <div className="px-5 pb-5">
+            {errorCamara ? (
+              <p className="rounded-xl bg-destructive/10 p-4 text-sm text-destructive">
+                {errorCamara}
+              </p>
+            ) : (
+              <video
+                ref={videoRef}
+                className="aspect-[4/3] w-full rounded-xl bg-muted object-cover"
+                autoPlay
+                muted
+                playsInline
+              />
+            )}
+            <div className="mt-4 flex justify-end gap-2">
+              <button
+                className="button secondary"
+                type="button"
+                onClick={() => setCamaraAbierta(false)}
+                disabled={procesando}
+              >
+                Cancelar
+              </button>
+              <button
+                className="button primary"
+                type="button"
+                onClick={() => void capturar()}
+                disabled={procesando || Boolean(errorCamara)}
+              >
+                <Camera aria-hidden="true" size={17} />{" "}
+                {procesando ? "Guardando…" : "Capturar y guardar"}
+              </button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
 }

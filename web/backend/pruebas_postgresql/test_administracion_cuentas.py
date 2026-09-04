@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from aplicacion.modelos.maestros import CuentaAdministrativa, Persona
 from aplicacion.seguridad import hash_secreto
 
-from .conftest import crear_persona
+from .conftest import autenticar_administracion, autenticar_portal, crear_persona
 
 
 def test_cuenta_operador_exige_cambio_y_revoca_permiso_inmediatamente(entorno):
@@ -28,38 +28,27 @@ def test_cuenta_operador_exige_cambio_y_revoca_permiso_inmediatamente(entorno):
     assert "contrasena" in datos["credencialesTemporales"]
     assert "pin" not in datos["credencialesTemporales"]
 
-    acceso = cliente.post(
-        "/api/v1/autenticacion/administracion",
-        json={
-            "usuario": "NUEVO.OPERADOR",
-            "contrasena": datos["credencialesTemporales"]["contrasena"],
-        },
-    ).json()
-    cabecera = {"Authorization": f"Bearer {acceso['token']}"}
-    assert acceso["cambioContrasenaObligatorio"] is True
+    cuenta = autenticar_administracion(cliente.app, "NUEVO.OPERADOR", datos["credencialesTemporales"]["contrasena"])
+    assert cuenta.get("/api/v1/sesion").json()["cambioContrasenaObligatorio"] is True
     assert (
-        cliente.get("/api/v1/reportes/dashboard?fecha=2026-08-31", headers=cabecera).status_code
+        cuenta.get("/api/v1/reportes/dashboard?fecha=2026-08-31").status_code
         == 403
     )
-    cambio = cliente.post(
+    cambio = cuenta.post(
         "/api/v1/autenticacion/administracion/contrasena",
-        headers=cabecera,
+        headers=cuenta.csrf(),
         json={
             "contrasenaActual": datos["credencialesTemporales"]["contrasena"],
             "contrasenaNueva": "Otra-clave-segura-2026",
         },
     )
     assert cambio.status_code == 200
-    assert cliente.get("/api/v1/sesion", headers=cabecera).status_code == 401
+    assert cuenta.get("/api/v1/sesion").status_code == 401
 
 
-    acceso = cliente.post(
-        "/api/v1/autenticacion/administracion",
-        json={"usuario": "nuevo.operador", "contrasena": "Otra-clave-segura-2026"},
-    ).json()
-    cabecera = {"Authorization": f"Bearer {acceso['token']}"}
+    cuenta = autenticar_administracion(cliente.app, "nuevo.operador", "Otra-clave-segura-2026")
     assert (
-        cliente.get("/api/v1/reportes/dashboard?fecha=2026-08-31", headers=cabecera).status_code
+        cuenta.get("/api/v1/reportes/dashboard?fecha=2026-08-31").status_code
         == 200
     )
 
@@ -70,7 +59,7 @@ def test_cuenta_operador_exige_cambio_y_revoca_permiso_inmediatamente(entorno):
         json={"permisos": []},
     )
     assert actualizada.status_code == 200, actualizada.text
-    assert cliente.get("/api/v1/sesion", headers=cabecera).status_code == 401
+    assert cuenta.get("/api/v1/sesion").status_code == 401
 
 
 def test_permite_cambiar_el_profesor_vinculado_y_revoca_sus_sesiones(entorno):
@@ -93,14 +82,9 @@ def test_permite_cambiar_el_profesor_vinculado_y_revoca_sus_sesiones(entorno):
     )
     assert creada.status_code == 201, creada.text
     cuenta_id = creada.json()["cuenta"]["id"]
-    acceso = cliente.post(
-        "/api/v1/autenticacion/administracion",
-        json={
-            "usuario": "cuenta.reasignable",
-            "contrasena": creada.json()["credencialesTemporales"]["contrasena"],
-        },
+    cuenta = autenticar_administracion(
+        cliente.app, "cuenta.reasignable", creada.json()["credencialesTemporales"]["contrasena"]
     )
-    cabecera = {"Authorization": f"Bearer {acceso.json()['token']}"}
 
     actualizada = cliente.put(
         f"/api/v1/administracion/cuentas/{cuenta_id}",
@@ -109,7 +93,7 @@ def test_permite_cambiar_el_profesor_vinculado_y_revoca_sus_sesiones(entorno):
     )
     assert actualizada.status_code == 200, actualizada.text
     assert actualizada.json()["persona"]["id"] == profesor_destino["id"]
-    assert cliente.get("/api/v1/sesion", headers=cabecera).status_code == 401
+    assert cuenta.get("/api/v1/sesion").status_code == 401
 
 
 def test_protege_cuenta_propia_y_ultimo_administrador(entorno):
@@ -134,14 +118,11 @@ def test_vinculacion_inicial_es_unica_y_rechaza_portal(entorno):
     profesor_portal = crear_persona(
         cliente, h["admin"], tipo="profesor", cedula="778", nombres="Docente Portal"
     )
-    portal = cliente.post(
-        "/api/v1/autenticacion/portal",
-        json={"cedula": "778", "pin": profesor_portal["pinTemporal"]},
-    ).json()
+    portal = autenticar_portal(cliente.app, "778", profesor_portal["pinTemporal"])
     assert (
-        cliente.post(
+        portal.post(
             "/api/v1/administracion/vinculacion-inicial",
-            headers={"Authorization": f"Bearer {portal['token']}"},
+            headers=portal.csrf(),
             json={"personaId": profesor_portal["id"]},
         ).status_code
         == 403
@@ -157,7 +138,6 @@ def test_vinculacion_inicial_es_unica_y_rechaza_portal(entorno):
             vinculacion_pendiente=True,
         )
         profesor = Persona(
-                codigo="P-00000005",
             cedula="779",
             nombres="Docente Vinculacion",
             tipo="profesor",
@@ -167,28 +147,24 @@ def test_vinculacion_inicial_es_unica_y_rechaza_portal(entorno):
         sesion.commit()
         profesor_id = profesor.id
 
-    acceso = cliente.post(
-        "/api/v1/autenticacion/administracion",
-        json={"usuario": "legado", "contrasena": "Clave-legada-segura-2026"},
-    ).json()
-    cabecera = {"Authorization": f"Bearer {acceso['token']}"}
+    cuenta = autenticar_administracion(cliente.app, "legado", "Clave-legada-segura-2026")
     assert (
-        cliente.get("/api/v1/administracion/profesores-disponibles", headers=cabecera).status_code
+        cuenta.get("/api/v1/administracion/profesores-disponibles").status_code
         == 200
     )
-    assert cliente.get("/api/v1/personas", headers=cabecera).status_code == 403
+    assert cuenta.get("/api/v1/personas").status_code == 403
     assert (
-        cliente.post(
+        cuenta.post(
             "/api/v1/administracion/vinculacion-inicial",
-            headers=cabecera,
+            headers=cuenta.csrf(),
             json={"personaId": profesor_id},
         ).status_code
         == 200
     )
     assert (
-        cliente.post(
+        cuenta.post(
             "/api/v1/administracion/vinculacion-inicial",
-            headers=cabecera,
+            headers=cuenta.csrf(),
             json={"personaId": profesor_id},
         ).status_code
         == 409
@@ -271,7 +247,6 @@ def test_valida_profesor_permisos_y_usuario_sin_distinguir_mayusculas(entorno):
 
     with Session(motor) as sesion:
         disponible = Persona(
-            codigo="P-00000006",
             cedula="783",
             nombres="Profesor Inactivo",
             tipo="profesor",
@@ -312,18 +287,14 @@ def test_profesor_nuevo_entrega_secretos_y_reset_revoca_sesiones(entorno):
     assert secretos["pin"] != secretos["contrasena"]
     cuenta_id = salida["cuenta"]["id"]
 
-    acceso = cliente.post(
-        "/api/v1/autenticacion/administracion",
-        json={"usuario": "profesor.nuevo", "contrasena": secretos["contrasena"]},
-    ).json()
-    cabecera = {"Authorization": f"Bearer {acceso['token']}"}
+    cuenta = autenticar_administracion(cliente.app, "profesor.nuevo", secretos["contrasena"])
     reset = cliente.post(
         f"/api/v1/administracion/cuentas/{cuenta_id}/restablecer-contrasena",
         headers=h["admin"],
     )
     assert reset.status_code == 200
     assert reset.json()["contrasenaTemporal"] != secretos["contrasena"]
-    assert cliente.get("/api/v1/sesion", headers=cabecera).status_code == 401
+    assert cuenta.get("/api/v1/sesion").status_code == 401
 
 
 def test_sesion_se_invalida_si_el_profesor_deja_de_ser_activo(entorno):

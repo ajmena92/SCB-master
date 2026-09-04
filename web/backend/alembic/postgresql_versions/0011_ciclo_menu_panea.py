@@ -1,6 +1,7 @@
 """Configura la fecha ancla institucional de la semana 1 del ciclo PANEA."""
 
 import sqlalchemy as sa
+
 from alembic import op
 
 revision = "0011_ciclo_menu_panea"

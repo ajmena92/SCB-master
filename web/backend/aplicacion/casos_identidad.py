@@ -1,5 +1,6 @@
 """Casos de uso de autenticacion y autorizacion."""
 
+import secrets
 from datetime import datetime, timezone
 
 from fastapi import HTTPException
@@ -23,14 +24,18 @@ class ServicioIdentidad:
         student_lock_minutes: int = 5,
         admin_max_login_attempts: int = 5,
         admin_lock_minutes: int = 15,
+        student_session_days: int = 365,
+        admin_session_minutes: int = 60,
     ):
         self.repo = repositorio
         self.student_max_login_attempts = student_max_login_attempts
         self.student_lock_minutes = student_lock_minutes
         self.admin_max_login_attempts = admin_max_login_attempts
         self.admin_lock_minutes = admin_lock_minutes
+        self.student_session_days = student_session_days
+        self.admin_session_minutes = admin_session_minutes
 
-    def autenticar_portal(self, datos: PortalEntrada) -> SesionSalida:
+    def autenticar_portal(self, datos: PortalEntrada) -> tuple[str, SesionSalida]:
         identificador = datos.cedula.strip()
         self.repo.verificar_bloqueo("portal", identificador)
         persona = self.repo.persona_por_cedula(datos.cedula.strip())
@@ -50,17 +55,18 @@ class ServicioIdentidad:
             tipo="portal",
             persona_id=persona.id,
             cambio_obligatorio=credencial.cambio_obligatorio,
+            student_session_days=self.student_session_days,
+            admin_session_minutes=self.admin_session_minutes,
         )
         self.repo.guardar_sesion(acceso)
-        return SesionSalida(
-            token=token,
+        return token, SesionSalida(
             tipo="portal",
             persona_id=persona.id,
             cambio_obligatorio=credencial.cambio_obligatorio,
             expira_en=acceso.expira_en,
         )
 
-    def autenticar_administracion(self, datos: AdministracionEntrada) -> SesionSalida:
+    def autenticar_administracion(self, datos: AdministracionEntrada) -> tuple[str, SesionSalida]:
         identificador = datos.usuario.strip().lower()
         self.repo.verificar_bloqueo("administracion", identificador)
         cuenta = self.repo.cuenta_por_usuario(identificador)
@@ -82,10 +88,14 @@ class ServicioIdentidad:
             raise HTTPException(401, "Profesor inactivo o invalido")
         if not cuenta.vinculacion_pendiente and persona is None:
             raise HTTPException(401, "Cuenta sin profesor")
-        token, acceso = nueva_sesion(tipo="administracion", cuenta_id=cuenta.id)
+        token, acceso = nueva_sesion(
+            tipo="administracion",
+            cuenta_id=cuenta.id,
+            student_session_days=self.student_session_days,
+            admin_session_minutes=self.admin_session_minutes,
+        )
         self.repo.guardar_sesion(acceso)
-        return SesionSalida(
-            token=token,
+        return token, SesionSalida(
             tipo="administracion",
             rol=cuenta.rol,
             persona_id=cuenta.persona_id,
@@ -162,3 +172,18 @@ class ServicioIdentidad:
 
     def cerrar_sesion(self, token: str) -> None:
         self.repo.revocar_sesion(token_hash(token))
+
+    def renovar_sesion(self, token: str) -> tuple[str, datetime]:
+        """Rota el identificador sin ampliar el vencimiento absoluto vigente."""
+        acceso = self.repo.sesion_acceso(token_hash(token))
+        if acceso is None or acceso.expira_en.replace(tzinfo=timezone.utc) <= datetime.now(timezone.utc):
+            raise HTTPException(401, "Sesion invalida o vencida")
+        nuevo_token = secrets.token_urlsafe(32)
+        acceso_nuevo = type(acceso)(
+            token_hash=token_hash(nuevo_token), tipo=acceso.tipo, persona_id=acceso.persona_id,
+            cuenta_id=acceso.cuenta_id, cambio_obligatorio=acceso.cambio_obligatorio,
+            expira_en=acceso.expira_en,
+        )
+        self.repo.revocar_sesion(token_hash(token))
+        self.repo.guardar_sesion(acceso_nuevo)
+        return nuevo_token, acceso.expira_en

@@ -4,7 +4,6 @@ from types import SimpleNamespace
 from aplicacion.codigo_qr_carnet import CodigoQrCarnet
 from aplicacion.servicios import ServicioOperacion
 
-
 CLAVE_PRUEBA = "MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY="
 
 

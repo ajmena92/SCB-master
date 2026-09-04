@@ -1,8 +1,8 @@
 from datetime import date
+
 import pytest
 
 from aplicacion.codigo_qr_carnet import CodigoQrCarnet, ErrorCodigoQrCarnet
-
 
 CLAVE_PRUEBA = "MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY="
 

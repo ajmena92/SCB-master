@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Expand, IdCard, ScanLine } from "lucide-react";
+import { Expand, IdCard, Printer, ScanLine } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
@@ -35,6 +35,20 @@ export function TarjetaCarnet({
   const colorRuta = obtenerColorRutaSeguro(datosCarnet.rutaColor);
   const nombre = obtenerNombreCompleto(datosCarnet);
   const fotoDisponible = tieneFoto ?? Boolean(datosCarnet.tieneFoto);
+
+  function imprimirCarnet() {
+    const ventana = window.open("", "_blank", "noopener,noreferrer");
+    if (!ventana) return;
+    const contenido = document.querySelector('[data-testid="html-student-card"]')?.outerHTML ?? "";
+    ventana.document.write(`<!doctype html><html><head><title>Carné ${nombre || "estudiante"}</title><style>
+      *{box-sizing:border-box}body{margin:0;padding:24px;background:#fff;font-family:Arial,sans-serif;color:#0f172a}
+      [data-testid="html-student-card"]{width:368px;margin:0 auto;box-shadow:none!important}
+      button{display:none!important}@media print{body{padding:0}}
+    </style></head><body>${contenido}</body></html>`);
+    ventana.document.close();
+    ventana.focus();
+    ventana.setTimeout(() => ventana.print(), 150);
+  }
 
   useEffect(() => {
     let url: string | undefined;
@@ -151,7 +165,10 @@ export function TarjetaCarnet({
           aria-haspopup="dialog"
           data-testid="student-card-qr"
         >
-          <span className="absolute right-3 top-3 grid h-10 w-10 place-items-center rounded-full bg-background/90 text-primary shadow-sm transition-transform duration-200 group-hover:scale-105" aria-hidden="true">
+          <span
+            className="absolute right-3 top-3 grid h-10 w-10 place-items-center rounded-full bg-background/90 text-primary shadow-sm transition-transform duration-200 group-hover:scale-105"
+            aria-hidden="true"
+          >
             <Expand className="h-4 w-4" />
           </span>
           <span className="mb-3 flex items-center gap-2 text-left text-[0.65rem] font-bold uppercase tracking-[0.16em] text-primary">
@@ -170,6 +187,9 @@ export function TarjetaCarnet({
         <p className="text-center text-xs font-semibold text-muted-foreground">
           Presentá este QR ante el lector del comedor.
         </p>
+        <button type="button" className="button secondary w-full" onClick={imprimirCarnet}>
+          <Printer className="mr-2 h-4 w-4" aria-hidden="true" /> Imprimir carné
+        </button>
       </div>
       <Dialog open={qrAbierto} onOpenChange={setQrAbierto}>
         <DialogContent className="max-w-md p-5 sm:p-7">

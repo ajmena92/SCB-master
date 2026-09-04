@@ -4,6 +4,7 @@ Revision ID: 0012_expediente_personas
 """
 
 import sqlalchemy as sa
+
 from alembic import op
 
 revision = "0012_expediente_personas"

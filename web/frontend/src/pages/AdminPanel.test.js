@@ -26,9 +26,7 @@ describe("navegación administrativa", () => {
   it("resuelve los tres grupos compactos desde sus rutas", () => {
     expect(obtenerGrupoAdministrativoActivo("/admin/panel/inicio")).toBe("principal");
     expect(obtenerGrupoAdministrativoActivo("/admin/panel/rutas")).toBe("administracion");
-    expect(obtenerGrupoAdministrativoActivo("/admin/panel/personas/detalle")).toBe(
-      "operacion",
-    );
+    expect(obtenerGrupoAdministrativoActivo("/admin/panel/personas/detalle")).toBe("operacion");
     expect(obtenerGrupoAdministrativoActivo("/unknown")).toBeNull();
   });
 

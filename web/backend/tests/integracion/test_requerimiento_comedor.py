@@ -10,16 +10,15 @@ from __future__ import annotations
 from datetime import date
 from pathlib import Path
 
+from aplicacion.modulos.comedor.api import crear_enrutador
 from aplicacion.modulos.comedor.esquemas import (
     EstadoComedor,
     IngresoEntrada,
     ReservaEntrada,
     TiquetesEntrada,
 )
-from aplicacion.modulos.comedor.api import crear_enrutador
-from aplicacion.modulos.reportes.dashboard import DashboardSalida, MetricaAsistencia
 from aplicacion.modulos.comedor.profesor_portal import crear_enrutador_profesores
-from aplicacion.modulos.comedor.errores import IngresoDuplicado
+from aplicacion.modulos.reportes.dashboard import DashboardSalida, MetricaAsistencia
 
 
 def test_contratos_de_comedor_validan_estado_tiquete_reserva_e_ingreso() -> None:

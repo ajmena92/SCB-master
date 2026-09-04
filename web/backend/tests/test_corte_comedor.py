@@ -2,6 +2,7 @@ from datetime import date, datetime, timezone
 
 import pytest
 
+from aplicacion.modulos.comedor.errores import IngresoDuplicado
 from aplicacion.modulos.comedor.esquemas import (
     MovimientoTiquetesSalida,
     PersonaComedorSalida,
@@ -9,7 +10,6 @@ from aplicacion.modulos.comedor.esquemas import (
     TiquetesEntrada,
 )
 from aplicacion.modulos.comedor.servicio import ServicioComedor
-from aplicacion.modulos.comedor.errores import IngresoDuplicado
 
 
 class RepositorioComedorFalso:

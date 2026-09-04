@@ -3,11 +3,12 @@
 from datetime import date, datetime, time
 from hashlib import sha256
 from time import perf_counter
+from zoneinfo import ZoneInfo
 
 from fastapi import HTTPException
 from sqlalchemy.exc import IntegrityError
 
-from aplicacion.codigo_qr_carnet import CodigoQrCarnet, ErrorCodigoQrCarnet, PREFIJO_QR
+from aplicacion.codigo_qr_carnet import PREFIJO_QR, CodigoQrCarnet, ErrorCodigoQrCarnet
 from aplicacion.modelos.operacion import (
     AutorizacionComedor,
     IngresoComedor,
@@ -16,6 +17,8 @@ from aplicacion.modelos.operacion import (
     Tarifa,
     VentaTiquete,
 )
+
+ZONA_INSTITUCIONAL = ZoneInfo("America/Costa_Rica")
 
 
 class ServicioOperacion:
@@ -156,10 +159,11 @@ class ServicioOperacion:
         # El comedor opera con una única hora límite institucional; no depende
         # de comparar horarios de estudiantes ni de la hora de transporte.
         horario = self.repo.horario("general")
+        ahora = datetime.now(ZONA_INSTITUCIONAL)
         if (
             horario
-            and datos.fecha == datetime.now().date()
-            and datetime.now().time() > time.fromisoformat(horario.hora_limite)
+            and datos.fecha == ahora.date()
+            and ahora.time() > time.fromisoformat(horario.hora_limite)
         ):
             raise HTTPException(409, "La hora limite de reserva ya paso")
         inmoviliza = not self._becado(persona, datos.fecha)

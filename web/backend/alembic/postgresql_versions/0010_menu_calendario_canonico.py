@@ -4,6 +4,7 @@ Revision ID: 0010_menu_calendario_canonico
 """
 
 import sqlalchemy as sa
+
 from alembic import op
 
 revision = "0010_menu_calendario_canonico"

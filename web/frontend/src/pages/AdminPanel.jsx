@@ -1,4 +1,5 @@
 import { useLocation, useNavigate, Outlet } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { useAutenticacion } from "@/aplicacion/estado/ContextoAutenticacion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -11,6 +12,8 @@ import {
 import AdminSidebar from "@/compartido/componentes/AdminSidebar";
 import AdminBottomNav from "@/compartido/componentes/AdminBottomNav";
 import { SelectorTema } from "@/compartido/componentes/SelectorTema";
+import { plataformaApi } from "@/funcionalidades/plataforma/consultas/plataforma";
+import { esAdministrador } from "@/funcionalidades/plataforma/seguridad";
 
 export default function AdminPanel() {
   const { session, logout } = useAutenticacion();
@@ -19,6 +22,14 @@ export default function AdminPanel() {
   const activeModule = ADMIN_NAVIGATION.find((item) => item.path === location.pathname);
   const activeGroup = obtenerGrupoAdministrativoActivo(location.pathname);
   const esExpediente = location.pathname.startsWith("/admin/panel/estudiantes/expediente/");
+  const institucion = useQuery({
+    queryKey: ["institucion"],
+    queryFn: plataformaApi.tiquetes.institucion,
+    enabled: esAdministrador(session),
+    staleTime: 5 * 60 * 1000,
+    retry: false,
+  });
+  const nombreColegio = institucion.data?.nombreColegio || "CTP Platanares";
 
   return (
     <div className="min-h-[100dvh] bg-background text-foreground">
@@ -28,7 +39,7 @@ export default function AdminPanel() {
       >
         Saltar al contenido
       </a>
-      <header className="sticky top-0 z-30 border-b border-border/80 bg-card/95 text-secondary backdrop-blur-xl">
+      <header className="sticky top-0 z-30 border-b border-border/80 bg-card/95 text-foreground backdrop-blur-xl">
         <div className="flex min-h-16 w-full items-center justify-between px-4 sm:px-6 lg:px-8">
           <button
             type="button"
@@ -56,7 +67,7 @@ export default function AdminPanel() {
               <p className="text-sm font-semibold leading-tight">
                 {session?.nombres || session?.usuario}
               </p>
-              <Badge className="bg-primary text-white text-[10px]" data-testid="admin-rol-badge">
+              <Badge className="bg-primary text-primary-foreground text-[10px]" data-testid="admin-rol-badge">
                 {session?.rol}
               </Badge>
             </div>
@@ -66,7 +77,7 @@ export default function AdminPanel() {
               data-testid="admin-logout"
               aria-label="Cerrar sesión"
               onClick={logout}
-              className="text-secondary hover:bg-primary/10 hover:text-secondary"
+              className="text-foreground hover:bg-primary/10 hover:text-primary"
             >
               <LogOut className="h-4 w-4" />
             </Button>
@@ -80,19 +91,24 @@ export default function AdminPanel() {
           id="admin-content"
           className="min-w-0 flex-1 overflow-x-hidden px-4 py-6 pb-28 sm:px-6 lg:px-8 lg:py-8 lg:pb-8 xl:px-10"
         >
-          {!esExpediente && <div className="mb-8 flex min-w-0 items-end justify-between gap-4 border-b border-border/80 pb-5">
-            <div className="min-w-0">
-              <p className="text-xs font-semibold capitalize tracking-wide text-muted-foreground">
-                {activeGroup || "Administración"}
-              </p>
-              <h1 className="mt-1 truncate font-heading text-2xl font-bold tracking-tight text-foreground">
-                {activeModule?.label || "Panel administrativo"}
-              </h1>
+          {!esExpediente && (
+            <div className="mb-8 flex min-w-0 items-end justify-between gap-4 border-b border-border/80 pb-5">
+              <div className="min-w-0">
+                <p className="text-xs font-semibold capitalize tracking-wide text-muted-foreground">
+                  {activeGroup || "Administración"}
+                </p>
+                <h1 className="mt-1 truncate font-heading text-2xl font-bold tracking-tight text-foreground">
+                  {activeModule?.label || "Panel administrativo"}
+                </h1>
+              </div>
+              <span
+                className="hidden max-w-[18rem] shrink-0 truncate rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-semibold text-muted-foreground sm:inline-flex"
+                title={nombreColegio}
+              >
+                {nombreColegio}
+              </span>
             </div>
-            <span className="hidden shrink-0 rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-semibold text-muted-foreground sm:inline-flex">
-              Vista web
-            </span>
-          </div>}
+          )}
           <Outlet />
         </main>
       </div>

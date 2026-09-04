@@ -34,7 +34,15 @@ actualiza el backend, se regenera el cliente y se ejecutan las comprobaciones de
 
 - Las rutas funcionales usan `/api/v1/`.
 - Las respuestas y solicitudes usan nombres `camelCase` definidos por los esquemas Pydantic.
-- Las mutaciones protegidas requieren sesión válida y CSRF.
+- La sesión viaja solo en la cookie host-only `scb_sesion` (`HttpOnly`, `Secure`,
+  `SameSite=Lax`, `Path=/api/v1`); login no devuelve un token.
+- El CSRF viaja en `csrf_token`, legible por la SPA y con `Path=/`; está firmado
+  y expira, pero no concede autenticación. La sesión y el CSRF se limpian en
+  logout y después de cambiar PIN o contraseña.
+- Las mutaciones requieren sesión válida, `Origin` aprobado y `X-CSRF-Token`.
+  Login usa un CSRF anónimo firmado; el resto usa uno vinculado a la sesión.
+- `GET /api/v1/autenticacion/csrf` inicia o renueva el CSRF; logout y
+  `POST /api/v1/autenticacion/renovar` también requieren CSRF y Origin.
 - Los errores públicos usan `detail` y estados HTTP apropiados, incluido `429` para bloqueo
   temporal de autenticación.
 - El frontend usa cookies de sesión y no almacena credenciales ni tokens de sesión en

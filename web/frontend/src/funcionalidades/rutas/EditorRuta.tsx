@@ -108,7 +108,7 @@ export function EditorRuta({
                     title={item.nombre}
                     aria-label={`Usar color ${item.nombre}`}
                     data-testid={`ruta-paleta-${item.clave}`}
-                    className="h-8 w-8 rounded-full border-2 border-slate-300"
+                    className="h-8 w-8 rounded-full border-2 border-border"
                     style={{ backgroundColor: item.hex }}
                     onClick={() => setForm((current) => ({ ...current, colorHex: item.hex }))}
                   />

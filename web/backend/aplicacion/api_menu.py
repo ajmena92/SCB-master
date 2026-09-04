@@ -1,6 +1,7 @@
 """Adaptador HTTP del menú y su calendario institucional."""
 
 from datetime import date
+
 from fastapi import APIRouter, Depends, HTTPException
 
 from aplicacion.esquemas import (

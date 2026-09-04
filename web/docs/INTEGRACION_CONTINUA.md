@@ -27,6 +27,39 @@ Las pruebas backend se ejecutan con `pytest-cov`, generan `coverage/coverage.jso
 80 % global. Los módulos críticos de identidad/seguridad, cuentas y asistencia exigen 90 %
 mediante `coverage report --include`.
 
+## Descubrimiento de pruebas backend
+
+Tanto al ejecutar desde `web/` como desde `web/backend/`, Pytest descubre únicamente las
+suites compatibles con la composición PostgreSQL activa:
+
+- `backend/pruebas_postgresql`: integración de API, persistencia y reglas actuales;
+- `backend/aplicacion/nucleo/pruebas`: utilidades transversales activas.
+- los siguientes contratos específicos de `backend/tests`, todos contra módulos, scripts o
+  herramientas vigentes:
+
+| Prueba | Clasificación | Motivo |
+| --- | --- | --- |
+| `test_codigo_qr_carnet.py` | Activa | Verifica emisión, integridad y vencimiento de `aplicacion.codigo_qr_carnet`. |
+| `test_operacion_comedor.py` | Activa | Comprueba la consulta de estado de `RepositorioOperacion`, que pertenece a la operación PostgreSQL vigente. |
+| `test_operacion_qr_carnet.py` | Activa | Verifica que `ServicioOperacion` resuelva el QR de carnet antes de buscar por cédula. |
+| `test_tiempo.py` | Activa | Cubre `aplicacion.nucleo.tiempo.fecha_local`, utilidad transversal vigente. |
+| `test_validar_alembic_docker.py` | Activa | Protege el script operativo vigente de validación de Alembic y sus resguardos de secretos. |
+| `test_generador_cliente_openapi.py` | Activa | Protege el generador vigente de contratos OpenAPI. Cualquier fallo suyo se registra como deuda funcional del generador o de su contrato, nunca como razón para excluir la prueba. |
+| `test_integracion_continua.py` | Activa | Valida la configuración de la puerta CI vigente. |
+| `test_verificar_arquitectura.py` | Activa | Valida el verificador arquitectónico vigente. |
+
+`backend/analitica` es una suite opcional: sus pruebas requieren `pandas`, que pertenece a
+`requirements-analitica.txt` y no al entorno de desarrollo de la API. Se ejecuta de forma
+explícita tras instalar ese conjunto, por ejemplo `pytest analitica -q`; no debe convertir la
+puerta estándar de backend en una instalación analítica.
+
+`backend/tests/` es una colección histórica mixta. Las ocho pruebas enumeradas se incluyen de
+forma explícita porque no dependen de la composición legacy. Las restantes permanecen fuera del
+descubrimiento automático únicamente cuando importan `aplicacion.modulos`,
+`DependenciasAplicacion`, `composicion`, el dialecto SQL Server o dependen de módulos o scripts
+retirados, ausentes de la aplicación PostgreSQL activa. No se eliminó, movió ni modificó ninguna
+prueba mediante esta clasificación.
+
 La imagen de API instala únicamente `requirements-produccion.txt`. Las migraciones se
 comprueban con `requirements-migracion.txt` dentro de `Dockerfile.migracion`; ninguna de
 las imágenes de ejecución instala las herramientas de prueba, Ruff o mypy.

@@ -15,7 +15,7 @@ function presentacion(resultado?: ResultadoOperacion) {
   }
   if (resultado.estado === "aceptada" && resultado.advertencia) {
     return {
-      clase: "border-amber-300 bg-amber-50 text-amber-950",
+      clase: "border-warning/40 bg-warning/10 text-foreground",
       etiqueta: "Acceso con advertencia",
       titulo: "Revisá la información",
       icono: AlertTriangle,
@@ -72,10 +72,16 @@ export function ResultadoLecturaComedor({
       aria-live="polite"
       className={`overflow-hidden rounded-2xl border transition-[opacity,transform,colors] duration-200 ${visual.clase} ${modoEstacion ? "bg-opacity-95 shadow-2xl backdrop-blur-sm" : ""}`}
     >
-      <div className={`grid gap-5 p-5 sm:grid-cols-[9rem_minmax(0,1fr)] sm:items-center sm:p-7 ${modoEstacion ? "min-h-44" : "min-h-60"}`}>
+      <div
+        className={`grid gap-5 p-5 sm:grid-cols-[9rem_minmax(0,1fr)] sm:items-center sm:p-7 ${modoEstacion ? "min-h-44" : "min-h-60"}`}
+      >
         <div className="flex aspect-square w-28 items-center justify-center self-center justify-self-center overflow-hidden rounded-2xl border border-current/15 bg-background/70 sm:w-36">
           {fotoUrl ? (
-            <img src={fotoUrl} alt={`Fotografía de ${resultado?.persona?.nombres ?? "la persona"}`} className="h-full w-full object-cover" />
+            <img
+              src={fotoUrl}
+              alt={`Fotografía de ${resultado?.persona?.nombres ?? "la persona"}`}
+              className="h-full w-full object-cover"
+            />
           ) : resultado?.persona ? (
             <UserRound className="h-16 w-16 opacity-60" aria-hidden="true" />
           ) : (

@@ -53,7 +53,10 @@ DialogContent.displayName = DialogPrimitive.Content.displayName;
 function DialogHeader({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn("flex flex-col space-y-1.5 border-b border-border pb-4 pr-10 text-left", className)}
+      className={cn(
+        "flex flex-col space-y-1.5 border-b border-border pb-4 pr-10 text-left",
+        className,
+      )}
       {...props}
     />
   );
@@ -63,7 +66,10 @@ DialogHeader.displayName = "DialogHeader";
 function DialogFooter({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn("dialogo-pie flex flex-col-reverse gap-2 border-t border-border pt-4 sm:flex-row sm:justify-end", className)}
+      className={cn(
+        "dialogo-pie flex flex-col-reverse gap-2 border-t border-border pt-4 sm:flex-row sm:justify-end",
+        className,
+      )}
       {...props}
     />
   );
