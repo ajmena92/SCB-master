@@ -8,6 +8,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { plataformaApi } from "../consultas/plataforma";
+import { ImagenConFallback } from "@/compartido/componentes/ImagenConFallback";
 
 export default function FotoEstudiante({
   personaId,
@@ -147,11 +148,12 @@ export default function FotoEstudiante({
     <>
       <section className="student-photo" aria-label="Fotografía del estudiante">
         <div className="student-photo-preview">
-          {url ? (
-            <img src={url} alt={`Fotografía de ${nombre}`} />
-          ) : (
-            <Camera aria-hidden="true" size={26} />
-          )}
+          <ImagenConFallback
+            src={url}
+            alt={`Fotografía de ${nombre}`}
+            className="h-full w-full object-cover object-top"
+            fallback={<Camera aria-hidden="true" size={26} />}
+          />
         </div>
         <div className="student-photo-copy">
           <p>Fotografía</p>

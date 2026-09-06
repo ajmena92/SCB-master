@@ -41,9 +41,20 @@ class CodigoQrCarnet:
             contenido = self._fernet.decrypt(token.removeprefix(PREFIJO_QR).encode("ascii"))
             datos = json.loads(contenido)
             vencimiento = date.fromisoformat(datos["e"])
-        except (InvalidToken, UnicodeError, ValueError, KeyError, TypeError, json.JSONDecodeError) as error:
+        except (
+            InvalidToken,
+            UnicodeError,
+            ValueError,
+            KeyError,
+            TypeError,
+            json.JSONDecodeError,
+        ) as error:
             raise ErrorCodigoQrCarnet("Código QR inválido") from error
-        if datos.get("v") != 1 or datos.get("i") != INSTITUCION or not isinstance(datos.get("p"), int):
+        if (
+            datos.get("v") != 1
+            or datos.get("i") != INSTITUCION
+            or not isinstance(datos.get("p"), int)
+        ):
             raise ErrorCodigoQrCarnet("Código QR inválido")
         if hoy > vencimiento:
             raise ErrorCodigoQrCarnet("Código QR vencido")

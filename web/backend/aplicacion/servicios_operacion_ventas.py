@@ -23,7 +23,12 @@ class ServicioOperacionVentas(ServicioOperacionBase):
             raise HTTPException(404, "Tarifa no encontrada")
         if self.repo.tarifa_solapada(datos, excluir_id=tarifa_id):
             raise HTTPException(409, "La vigencia de tarifa se superpone")
-        tarifa.tipo_persona, tarifa.monto, tarifa.fecha_inicio, tarifa.fecha_fin = datos.tipo_persona, datos.monto, datos.fecha_inicio, datos.fecha_fin
+        tarifa.tipo_persona, tarifa.monto, tarifa.fecha_inicio, tarifa.fecha_fin = (
+            datos.tipo_persona,
+            datos.monto,
+            datos.fecha_inicio,
+            datos.fecha_fin,
+        )
         self.repo.sesion.flush()
         return tarifa
 
@@ -37,7 +42,9 @@ class ServicioOperacionVentas(ServicioOperacionBase):
                 "nombres": persona.nombres,
                 "tipo": persona.tipo,
                 "becado": self._becado(persona, hoy),
-                "saldoTiquetes": (self.repo.cuenta(persona.id).saldo if self.repo.cuenta(persona.id) else 0),
+                "saldoTiquetes": (
+                    self.repo.cuenta(persona.id).saldo if self.repo.cuenta(persona.id) else 0
+                ),
             }
             for persona in personas
         ]
@@ -62,10 +69,14 @@ class ServicioOperacionVentas(ServicioOperacionBase):
         configuracion = self.repo.configuracion_institucional()
         if configuracion:
             return configuracion
-        return {"nombre_colegio": "Colegio Técnico Profesional de Platanares", "subtitulo_reportes": "Comedor estudiantil"}
+        return {
+            "nombre_colegio": "Colegio Técnico Profesional de Platanares",
+            "subtitulo_reportes": "Comedor estudiantil",
+        }
 
     def actualizar_configuracion_institucional(self, datos):
         return self.repo.guardar_configuracion_institucional(datos)
+
     def vender(self, datos, operador_id):
         persona = self._persona(cedula=datos.cedula)
         if self._becado(persona, date.today()):

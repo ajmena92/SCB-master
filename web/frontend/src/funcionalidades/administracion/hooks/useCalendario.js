@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { mensajeError } from "@/compartido/consultas/errores";
 import { consultarCalendario } from "@/funcionalidades/administracion/consultas/parametros";
-import { toast } from "sonner";
+import { notificar } from "@/compartido/notificaciones/notificaciones";
 
 export function useCalendario() {
   const [hoy] = useState(() => new Date());
@@ -13,7 +13,7 @@ export function useCalendario() {
     queryFn: () => consultarCalendario(anio, mes),
   });
   useEffect(() => {
-    if (consulta.error) toast.error(mensajeError(consulta.error));
+    if (consulta.error) notificar.error(mensajeError(consulta.error));
   }, [consulta.error]);
   function mover(delta) {
     let nuevoMes = mes + delta;

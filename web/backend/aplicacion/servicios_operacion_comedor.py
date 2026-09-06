@@ -7,7 +7,10 @@ from fastapi import HTTPException
 from sqlalchemy.exc import IntegrityError
 
 from aplicacion.modelos.operacion import (
-    AutorizacionComedor, IngresoComedor, MarcaTransporte, ReservaComedor,
+    AutorizacionComedor,
+    IngresoComedor,
+    MarcaTransporte,
+    ReservaComedor,
 )
 from aplicacion.servicios_operacion_base import ServicioOperacionBase
 
@@ -27,7 +30,8 @@ class ServicioOperacionComedor(ServicioOperacionBase):
         )
         if identidad["tipo"] == "portal" and identidad["persona"].cedula != persona.cedula:
             raise HTTPException(403, "No puede reservar para otra persona")
-        if self.repo.reserva_fecha(persona.id, datos.fecha):
+        reserva_existente = self.repo.reserva_fecha(persona.id, datos.fecha)
+        if reserva_existente and reserva_existente.estado == "reservada":
             raise HTTPException(409, "Ya existe una reserva")
         matricula = self._matricula(persona, datos.fecha)
         if persona.tipo == "estudiante" and not matricula:
@@ -54,6 +58,14 @@ class ServicioOperacionComedor(ServicioOperacionBase):
                 # verá el estado antes de decidir el ingreso físico.
                 inmoviliza = False
                 sin_tiquete = True
+        if reserva_existente:
+            # La unicidad persona/fecha impide insertar otra fila: se reactiva
+            # la reserva cancelada y se actualizan sus indicadores operativos.
+            reserva_existente.estado = "reservada"
+            reserva_existente.tiquete_inmovilizado = inmoviliza
+            reserva_existente.sin_tiquete = sin_tiquete
+            self.repo.guardar(reserva_existente)
+            return reserva_existente
         return self.repo.guardar(
             ReservaComedor(
                 persona_id=persona.id,
@@ -74,7 +86,9 @@ class ServicioOperacionComedor(ServicioOperacionBase):
             raise HTTPException(403, "No puede cancelar una reserva ajena")
         reserva = self.repo.reserva_fecha(persona.id, datos.fecha, True)
         if not reserva:
-            raise HTTPException(404, "Reserva no encontrada")
+            # DELETE es idempotente: la ausencia de reserva ya representa que
+            # la persona no asistirá en esa fecha.
+            return
         if reserva.tiquete_inmovilizado:
             cuenta = self._mover(reserva.persona_id, "liberacion", 1, str(reserva.id))
             cuenta.reservados -= 1
@@ -141,6 +155,7 @@ class ServicioOperacionComedor(ServicioOperacionBase):
                 operador_id=operador_id,
             )
         )
+
     def marcar_transporte(self, datos, operador_id):
         matricula = self._matricula(self._persona(cedula=datos.cedula), datos.fecha)
         if not matricula:

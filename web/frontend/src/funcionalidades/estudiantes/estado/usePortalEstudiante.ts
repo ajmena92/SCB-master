@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { notificar } from "@/compartido/notificaciones/notificaciones";
 import {
   cancelarComedorEstudiante,
   reservarComedorEstudiante,
@@ -20,8 +20,11 @@ export type {
   TipoPersonaComedor,
 } from "./tipos_portal";
 
-export function usePortalEstudiante(tipoPersona: TipoPersonaComedor = "estudiante"): EstadoPortal {
-  const [vistaActiva, setVistaActiva] = useState<"menu" | "carnet">("menu");
+export function usePortalEstudiante(
+  tipoPersona: TipoPersonaComedor = "estudiante",
+  vistaInicial: "menu" | "carnet" = "menu",
+): EstadoPortal {
+  const [vistaActiva, setVistaActiva] = useState<"menu" | "carnet">(vistaInicial);
   const [ejecutando, setEjecutando] = useState(false);
   const avisoMostradoRef = useRef(false);
   const tarjetaConfirmacionRef = useRef<HTMLElement | null>(null);
@@ -53,7 +56,7 @@ export function usePortalEstudiante(tipoPersona: TipoPersonaComedor = "estudiant
   useEffect(() => {
     if (cierreProximo && !asistenciaConfirmada && !cerrado && !avisoMostradoRef.current) {
       avisoMostradoRef.current = true;
-      toast.warning(
+      notificar.advertencia(
         `Faltan menos de ${minutosAviso} minutos para el cierre. ¡No olvidés confirmar tu asistencia!`,
       );
     }
@@ -73,18 +76,18 @@ export function usePortalEstudiante(tipoPersona: TipoPersonaComedor = "estudiant
       if (tipo === "confirm") {
         const reserva = await reservarComedorEstudiante(fecha);
         if ((reserva as typeof reserva & { sin_tiquete?: boolean }).sin_tiquete) {
-          toast.warning("Asistencia confirmada, pero no tenés tiquetes disponibles.");
+          notificar.advertencia("Asistencia confirmada, pero no tenés tiquetes disponibles.");
         } else {
-          toast.success("¡Asistencia confirmada!");
+          notificar.exito("¡Asistencia confirmada!");
         }
       } else {
         await cancelarComedorEstudiante(fecha);
-        toast.success("Registrado: no asistirás hoy");
+        notificar.exito("Registrado: no asistirás hoy");
       }
       if (tipo === "confirm") enfocarConfirmacionRef.current = true;
       await cargar();
     } catch (errorAsistencia) {
-      toast.error(errMsg(errorAsistencia));
+      notificar.error(errMsg(errorAsistencia));
     } finally {
       setEjecutando(false);
     }

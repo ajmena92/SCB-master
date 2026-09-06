@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Ban, CookingPot, Ellipsis, Replace } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { DIAS, type DiaCalendario } from "../calendario";
@@ -16,15 +17,17 @@ function CeldaCalendario({
   dia,
   hoy,
   onSeleccionar,
+  posicion,
 }: {
   dia: DiaCalendario;
   hoy: string;
   onSeleccionar: (dia: DiaCalendario) => void;
+  posicion: number;
 }) {
   const esHoy = dia.fecha === hoy;
   const estado = estadoDia(dia);
   return (
-    <article
+    <div
       role={dia.esLectivo ? "button" : undefined}
       tabIndex={dia.esLectivo ? 0 : undefined}
       onClick={() => dia.esLectivo && onSeleccionar(dia)}
@@ -37,6 +40,9 @@ function CeldaCalendario({
       className={`relative rounded-xl border px-3 py-3 sm:min-h-28 sm:p-3 ${dia.esLectivo ? "cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md hover:shadow-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary" : "border-dashed border-border/50 bg-muted/[0.07] sm:px-2"} ${esHoy ? "border-primary bg-primary/[0.06] ring-1 ring-primary" : ""} ${dia.origen === "cerrado" ? "border-destructive/30 bg-destructive/5" : ""} ${dia.origen === "sustitucion" ? "border-amber-500/60 bg-amber-500/10 hover:border-amber-500" : ""}`}
     >
       <div className="flex items-center justify-between gap-2">
+        <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground md:hidden">
+          {DIAS[posicion]}
+        </span>
         <strong
           className={`flex h-7 min-w-7 items-center text-sm font-bold tabular-nums ${esHoy ? "justify-center rounded-full bg-primary text-primary-foreground" : "text-foreground"}`}
         >
@@ -77,7 +83,7 @@ function CeldaCalendario({
           </p>
         </>
       )}
-    </article>
+    </div>
   );
 }
 export function GrillaCalendarioMenu({
@@ -85,10 +91,40 @@ export function GrillaCalendarioMenu({
   hoy,
   onSeleccionar,
 }: PropiedadesGrillaCalendarioMenu) {
+  const [semanaActiva, setSemanaActiva] = useState(0);
+  useEffect(() => {
+    setSemanaActiva((actual) => Math.min(actual, Math.max(semanas.length - 1, 0)));
+  }, [semanas.length]);
+
   return (
     <div className="rounded-2xl border bg-card p-2 shadow-sm shadow-primary/5 sm:p-4">
       <div className="space-y-3">
-        <div className="hidden grid-cols-[repeat(5,minmax(0,1fr))_minmax(4.5rem,.58fr)_minmax(4.5rem,.58fr)] gap-2 text-center sm:grid">
+        {semanas.length > 0 && (
+          <div className="flex items-center justify-between gap-3 rounded-xl border border-border bg-muted/40 p-2 md:hidden">
+            <button
+              type="button"
+              className="button secondary min-h-11 px-3"
+              aria-label="Semana anterior"
+              disabled={semanaActiva === 0}
+              onClick={() => setSemanaActiva((actual) => Math.max(actual - 1, 0))}
+            >
+              ←
+            </button>
+            <span className="text-sm font-semibold" aria-live="polite">
+              Semana {semanaActiva + 1} de {semanas.length}
+            </span>
+            <button
+              type="button"
+              className="button secondary min-h-11 px-3"
+              aria-label="Semana siguiente"
+              disabled={semanaActiva === semanas.length - 1}
+              onClick={() => setSemanaActiva((actual) => Math.min(actual + 1, semanas.length - 1))}
+            >
+              →
+            </button>
+          </div>
+        )}
+        <div className="hidden grid-cols-5 gap-2 text-center lg:grid">
           {DIAS.map((nombre, indice) => (
             <p
               key={nombre}
@@ -102,23 +138,26 @@ export function GrillaCalendarioMenu({
           <section
             key={indice}
             aria-label={`Semana calendario ${indice + 1}`}
-            className="grid grid-cols-1 gap-2 border-b border-border/60 pb-3 last:border-0 last:pb-0 sm:grid-cols-[repeat(5,minmax(0,1fr))_minmax(4.5rem,.58fr)_minmax(4.5rem,.58fr)] sm:gap-2 sm:border-0 sm:pb-0"
+            className={`${indice === semanaActiva ? "block" : "hidden"} border-b border-border/60 pb-3 last:border-0 last:pb-0 md:block md:border-0 md:pb-0`}
           >
-            <p className="px-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground sm:hidden">
+            <p className="mb-2 px-1 text-sm font-semibold text-foreground md:hidden">
               Semana del calendario {indice + 1}
             </p>
-            {semana.map((dia, posicion) =>
-              dia ? (
-                <CeldaCalendario
-                  key={dia.fecha}
-                  dia={dia}
-                  hoy={hoy}
-                  onSeleccionar={onSeleccionar}
-                />
-              ) : (
-                <div key={posicion} aria-hidden="true" className="hidden min-h-28 sm:block" />
-              ),
-            )}
+            <div className="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-5">
+              {semana.map((dia, posicion) =>
+                dia ? (
+                  <CeldaCalendario
+                    key={dia.fecha}
+                    dia={dia}
+                    hoy={hoy}
+                    onSeleccionar={onSeleccionar}
+                    posicion={posicion}
+                  />
+                ) : (
+                  <div key={posicion} aria-hidden="true" className="hidden min-h-28 lg:block" />
+                ),
+              )}
+            </div>
           </section>
         ))}
       </div>

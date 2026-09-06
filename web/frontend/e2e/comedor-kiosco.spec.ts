@@ -13,6 +13,10 @@ const sesionAdministrativa = {
 };
 
 test.beforeEach(async ({ page }) => {
+  await page.route("**/api/v1/autenticacion/csrf", (ruta) => ruta.fulfill({ status: 204 }));
+  await page.route("**/api/v1/parametros-operativos/institucion", (ruta) =>
+    ruta.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ nombreColegio: "CTP Platanares", subtituloReportes: "" }) }),
+  );
   await page.route("**/api/v1/sesion", (ruta) =>
     ruta.fulfill({
       status: 200,
@@ -39,7 +43,8 @@ test.beforeEach(async ({ page }) => {
 
 test("el kiosco independiente enfoca el lector y bloquea una lectura doble", async ({ page }) => {
   let solicitudes = 0;
-  await page.route("**/api/v1/comedor/operacion", async (ruta) => {
+  await page.route("**/api/v1/comedor/operacion**", async (ruta) => {
+    if (ruta.request().method() !== "POST") return ruta.fallback();
     solicitudes += 1;
     await new Promise((resolver) => setTimeout(resolver, 150));
     await ruta.fulfill({
@@ -55,8 +60,9 @@ test("el kiosco independiente enfoca el lector y bloquea una lectura doble", asy
 
   await page.setViewportSize({ width: 1366, height: 768 });
   await page.goto("/admin/panel/comedor");
-  const lector = page.getByLabel("Lector de carnet o código institucional");
-  await expect(page.getByRole("heading", { name: "Control de comedor" })).toBeVisible();
+  await page.getByRole("button", { name: /Respaldo F3/ }).click();
+  const lector = page.getByLabel("Lector USB o ingreso manual");
+  await expect(page.getByRole("heading", { name: "CTP Platanares" })).toBeVisible();
   await expect(lector).toBeFocused();
   await lector.fill("E-10");
   await lector.press("Enter");
@@ -70,7 +76,8 @@ test("el kiosco independiente enfoca el lector y bloquea una lectura doble", asy
 
 test("una resolución pequeña conserva la captura sin desborde", async ({ page }) => {
   let solicitudes = 0;
-  await page.route("**/api/v1/comedor/operacion", (ruta) => {
+  await page.route("**/api/v1/comedor/operacion**", (ruta) => {
+    if (ruta.request().method() !== "POST") return ruta.fallback();
     solicitudes += 1;
     return ruta.fulfill({
       status: 200,
@@ -80,7 +87,8 @@ test("una resolución pequeña conserva la captura sin desborde", async ({ page 
   });
   await page.setViewportSize({ width: 320, height: 720 });
   await page.goto("/admin/panel/comedor");
-  const lector = page.getByLabel("Lector de carnet o código institucional");
+  await page.getByRole("button", { name: /Respaldo F3/ }).click();
+  const lector = page.getByLabel("Lector USB o ingreso manual");
   await lector.fill("E-10");
   await lector.press("Enter");
   await expect(page.getByText("Ingreso registrado.")).toBeVisible();

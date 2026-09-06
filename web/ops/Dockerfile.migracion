@@ -19,9 +19,12 @@ COPY backend/alembic.ini ./alembic.ini
 COPY ops/entrada_migracion.sh /usr/local/bin/entrada_migracion.sh
 COPY ops/entrada_mantenimiento.sh /usr/local/bin/entrada_mantenimiento.sh
 RUN useradd --create-home --uid 10001 appuser \
-    && chmod 0550 /usr/local/bin/entrada_migracion.sh /usr/local/bin/entrada_mantenimiento.sh \
+    && chmod 0555 /usr/local/bin/entrada_migracion.sh /usr/local/bin/entrada_mantenimiento.sh \
     && chown -R appuser:appuser /app /usr/local/bin/entrada_migracion.sh /usr/local/bin/entrada_mantenimiento.sh
-USER appuser
+
+# El secreto Docker se monta como root:root (0600). El entrypoint lo lee solo
+# durante el bootstrap y luego ejecuta Alembic como appuser sin privilegios.
+USER root
 
 ENTRYPOINT ["/usr/local/bin/entrada_migracion.sh"]
 CMD ["current"]

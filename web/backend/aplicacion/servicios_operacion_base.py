@@ -9,7 +9,9 @@ class ServicioOperacionBase:
         self.personas = repositorio_personas
 
     def _persona(self, persona_id=None, cedula=None):
-        persona = self.personas.persona_cedula(cedula) if cedula else self.personas.persona(persona_id)
+        persona = (
+            self.personas.persona_cedula(cedula) if cedula else self.personas.persona(persona_id)
+        )
         if not persona:
             raise HTTPException(404, "Persona no encontrada")
         return persona

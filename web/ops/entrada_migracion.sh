@@ -12,4 +12,7 @@ password="$(tr -d '\r\n' < "$archivo")"
 export DATABASE_URL="postgresql+psycopg://${POSTGRES_USER}:${password}@${POSTGRES_HOST}:${POSTGRES_PORT:-5432}/${POSTGRES_DB}"
 unset password
 
+# El contenedor es efímero y conserva cap_drop/no-new-privileges; la conexión
+# usa el rol PostgreSQL de migración con mínimo privilegio. No se eleva ningún
+# permiso del host ni se reutiliza este proceso para ejecutar la API.
 exec python -m alembic -c alembic.ini "$@"

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { AlertTriangle, CheckCircle2, ScanBarcode, UserRound, XCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import type { ResultadoOperacion } from "@/compartido/contratos/plataforma";
+import { ImagenConFallback } from "@/compartido/componentes/ImagenConFallback";
 import { plataformaApi } from "../consultas/plataforma";
 
 function presentacion(resultado?: ResultadoOperacion) {
@@ -76,17 +77,18 @@ export function ResultadoLecturaComedor({
         className={`grid gap-5 p-5 sm:grid-cols-[9rem_minmax(0,1fr)] sm:items-center sm:p-7 ${modoEstacion ? "min-h-44" : "min-h-60"}`}
       >
         <div className="flex aspect-square w-28 items-center justify-center self-center justify-self-center overflow-hidden rounded-2xl border border-current/15 bg-background/70 sm:w-36">
-          {fotoUrl ? (
-            <img
-              src={fotoUrl}
-              alt={`Fotografía de ${resultado?.persona?.nombres ?? "la persona"}`}
-              className="h-full w-full object-cover"
-            />
-          ) : resultado?.persona ? (
-            <UserRound className="h-16 w-16 opacity-60" aria-hidden="true" />
-          ) : (
-            <Icono className="h-16 w-16 text-primary" aria-hidden="true" />
-          )}
+          <ImagenConFallback
+            src={fotoUrl}
+            alt={`Fotografía de ${resultado?.persona?.nombres ?? "la persona"}`}
+            className="h-full w-full object-cover"
+            fallback={
+              resultado?.persona ? (
+                <UserRound className="h-16 w-16 opacity-60" aria-hidden="true" />
+              ) : (
+                <Icono className="h-16 w-16 text-primary" aria-hidden="true" />
+              )
+            }
+          />
         </div>
         <div className="min-w-0 text-center sm:text-left">
           <Badge variant="secondary" className="mb-3 font-bold uppercase tracking-[0.14em]">

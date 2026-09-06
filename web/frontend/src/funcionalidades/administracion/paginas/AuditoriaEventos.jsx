@@ -51,47 +51,88 @@ export default function AuditoriaTab() {
       {loading ? (
         <EstadoPanel variante="carga">Cargando auditoría…</EstadoPanel>
       ) : (
-        <div className="bg-card border rounded-lg overflow-x-auto">
-          <Table data-testid="auditoria-table">
-            <TableHeader>
-              <TableRow>
-                <TableHead>Fecha/Hora</TableHead>
-                <TableHead>Evento</TableHead>
-                <TableHead>Estudiante</TableHead>
-                <TableHead>Detalle</TableHead>
-                <TableHead>IP</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {rows.length === 0 ? (
+        <div className="rounded-lg border bg-card">
+          <div
+            className="divide-y divide-border md:hidden"
+            role="list"
+            aria-label="Eventos de auditoría"
+          >
+            {rows.length === 0 ? (
+              <EstadoPanel variante="vacio">No hay eventos para mostrar.</EstadoPanel>
+            ) : (
+              rows.map((r) => (
+                <article key={r.IdAuditoria} className="space-y-3 p-4" role="listitem">
+                  <div className="flex items-start justify-between gap-3">
+                    <span className="text-sm text-foreground">{fmt(r.FechaEvento)}</span>
+                    <Badge className={COLOR[etiquetaEventoAuditoria(r.Evento)] || ""}>
+                      {etiquetaEventoAuditoria(r.Evento)}
+                    </Badge>
+                  </div>
+                  <div>
+                    <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                      Estudiante
+                    </span>
+                    <p className="mt-1 text-sm text-foreground">{r.NombreEstudiante || "—"}</p>
+                  </div>
+                  <div>
+                    <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                      Detalle
+                    </span>
+                    <p className="mt-1 break-words text-sm text-muted-foreground">
+                      {r.Detalle || "—"}
+                    </p>
+                  </div>
+                  <div className="text-xs text-muted-foreground">IP: {r.DireccionIp || "—"}</div>
+                </article>
+              ))
+            )}
+          </div>
+          <div className="hidden overflow-x-auto md:block">
+            <Table data-testid="auditoria-table">
+              <TableHeader>
                 <TableRow>
-                    <TableCell colSpan={5} className="py-8 text-center text-sm text-muted-foreground" role="status">
-                    No hay eventos para mostrar.
-                  </TableCell>
+                  <TableHead>Fecha/Hora</TableHead>
+                  <TableHead>Evento</TableHead>
+                  <TableHead>Estudiante</TableHead>
+                  <TableHead>Detalle</TableHead>
+                  <TableHead>IP</TableHead>
                 </TableRow>
-              ) : (
-                rows.map((r) => (
-                  <TableRow key={r.IdAuditoria} className="hover:bg-muted/40">
-                    <TableCell className="whitespace-nowrap text-sm">
-                      {fmt(r.FechaEvento)}
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={COLOR[etiquetaEventoAuditoria(r.Evento)] || ""}>
-                        {etiquetaEventoAuditoria(r.Evento)}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{r.NombreEstudiante || "—"}</TableCell>
-                    <TableCell className="text-sm text-muted-foreground max-w-xs truncate">
-                      {r.Detalle}
-                    </TableCell>
-                    <TableCell className="text-xs text-muted-foreground">
-                      {r.DireccionIp || "—"}
+              </TableHeader>
+              <TableBody>
+                {rows.length === 0 ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={5}
+                      className="py-8 text-center text-sm text-muted-foreground"
+                      role="status"
+                    >
+                      No hay eventos para mostrar.
                     </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+                ) : (
+                  rows.map((r) => (
+                    <TableRow key={r.IdAuditoria} className="hover:bg-muted/40">
+                      <TableCell className="whitespace-nowrap text-sm">
+                        {fmt(r.FechaEvento)}
+                      </TableCell>
+                      <TableCell>
+                        <Badge className={COLOR[etiquetaEventoAuditoria(r.Evento)] || ""}>
+                          {etiquetaEventoAuditoria(r.Evento)}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>{r.NombreEstudiante || "—"}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground max-w-xs truncate">
+                        {r.Detalle}
+                      </TableCell>
+                      <TableCell className="text-xs text-muted-foreground">
+                        {r.DireccionIp || "—"}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
         </div>
       )}
     </div>

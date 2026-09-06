@@ -27,7 +27,9 @@ def preparar_fotografia(contenido: bytes) -> bytes:
                 centering=(0.5, 0.5),
             )
             salida = BytesIO()
-            retrato.save(salida, format="JPEG", quality=CALIDAD_JPEG, optimize=True, progressive=True)
+            retrato.save(
+                salida, format="JPEG", quality=CALIDAD_JPEG, optimize=True, progressive=True
+            )
             return salida.getvalue()
     except (Image.DecompressionBombError, OSError, UnidentifiedImageError) as exc:
         raise FotografiaInvalida("El archivo no es una imagen válida") from exc

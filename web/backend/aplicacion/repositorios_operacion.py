@@ -36,11 +36,15 @@ class RepositorioOperacion:
     def tarifa_solapada(self, datos, excluir_id=None):
         return (
             self.sesion.scalar(
-                select(Tarifa.id).where(
+                select(Tarifa.id)
+                .where(
                     Tarifa.tipo_persona == datos.tipo_persona,
                     Tarifa.fecha_inicio <= (datos.fecha_fin or date.max),
                     or_(Tarifa.fecha_fin.is_(None), Tarifa.fecha_fin >= datos.fecha_inicio),
-                ).where(Tarifa.id != excluir_id) if excluir_id else select(Tarifa.id).where(
+                )
+                .where(Tarifa.id != excluir_id)
+                if excluir_id
+                else select(Tarifa.id).where(
                     Tarifa.tipo_persona == datos.tipo_persona,
                     Tarifa.fecha_inicio <= (datos.fecha_fin or date.max),
                     or_(Tarifa.fecha_fin.is_(None), Tarifa.fecha_fin >= datos.fecha_inicio),
@@ -68,9 +72,7 @@ class RepositorioOperacion:
 
     def persona_cedula(self, cedula):
         return self.sesion.scalar(
-            select(Persona).where(
-                Persona.cedula == cedula, Persona.activo.is_(True)
-            )
+            select(Persona).where(Persona.cedula == cedula, Persona.activo.is_(True))
         )
 
     def buscar_personas_venta(self, termino):
@@ -86,7 +88,9 @@ class RepositorioOperacion:
         ).all()
 
     def foto_persona(self, persona_id):
-        return self.sesion.scalar(select(FotografiaPersona).where(FotografiaPersona.persona_id == persona_id))
+        return self.sesion.scalar(
+            select(FotografiaPersona).where(FotografiaPersona.persona_id == persona_id)
+        )
 
     def listar_horarios_reserva(self):
         return self.sesion.scalars(select(HorarioReserva).order_by(HorarioReserva.turno)).all()

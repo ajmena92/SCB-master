@@ -25,8 +25,23 @@ export function obtenerColorRutaSeguro(valor?: unknown): string {
 }
 
 export function obtenerColorTextoRuta(color: string): string {
-  const rgb = (color.slice(1).match(/../g) || []).map((parte) => parseInt(parte, 16));
-  return (rgb[0] * 299 + rgb[1] * 587 + rgb[2] * 114) / 1000 > 160 ? "#252653" : "#FFFFFF";
+  const rgb = (color.slice(1).match(/../g) || []).map((parte) => parseInt(parte, 16) / 255);
+  const luminancia = rgb
+    .map((componente) =>
+      componente <= 0.03928 ? componente / 12.92 : ((componente + 0.055) / 1.055) ** 2.4,
+    )
+    .reduce(
+      (total, componente, indice) => total + componente * [0.2126, 0.7152, 0.0722][indice],
+      0,
+    );
+  const contraste = (texto: number) =>
+    (Math.max(luminancia, texto) + 0.05) / (Math.min(luminancia, texto) + 0.05);
+  const luminanciaTextoOscuro = 0.009;
+  const luminanciaTextoClaro = 1;
+
+  return contraste(luminanciaTextoOscuro) >= contraste(luminanciaTextoClaro)
+    ? "#111827"
+    : "#FFFFFF";
 }
 
 export function obtenerNombreCompleto(estudiante: DatosCarnet = {}): string {

@@ -11,6 +11,7 @@ import StudentLogin from "@/pages/StudentLogin";
 import ChangePin from "@/pages/ChangePin";
 import AdminPanel from "@/pages/AdminPanel";
 import RutaRol from "@/funcionalidades/plataforma/componentes/RutaRol";
+import { destinoSesion } from "@/aplicacion/estado/destinoSesion";
 
 const Dashboard = lazy(() => import("@/funcionalidades/administracion/paginas/Dashboard"));
 const UsuariosAdministrativos = lazy(
@@ -48,17 +49,38 @@ const PaginaPortalEstudiante = lazy(
   () => import("@/funcionalidades/estudiantes/paginas/PaginaPortalEstudiante"),
 );
 
+function CargadorAplicacion({ children = "Cargando módulo…", pantallaCompleta = false }) {
+  return (
+    <div
+      className={`flex ${pantallaCompleta ? "min-h-[100dvh]" : "min-h-[50vh]"} flex-col items-center justify-center gap-3 bg-background px-4 text-center text-sm text-muted-foreground`}
+      role="status"
+      aria-live="polite"
+      aria-busy="true"
+    >
+      <span
+        className="h-5 w-5 animate-spin rounded-full border-2 border-primary/25 border-t-primary"
+        aria-hidden="true"
+      />
+      <span>{children}</span>
+    </div>
+  );
+}
+
 function Inicio() {
   const { session, debeCambiarPin } = useAutenticacion();
-  if (session === null) return <div className="splash">Cargando plataforma…</div>;
+  if (session === null)
+    return <CargadorAplicacion pantallaCompleta> Cargando plataforma…</CargadorAplicacion>;
   if (!session) return <StudentLogin />;
-  if (session.tipo === "administracion") {
-    if (session.vinculacionPendiente) return <Navigate to="/admin/vinculacion-inicial" replace />;
-    if (session.cambioContrasenaObligatorio)
-      return <Navigate to="/admin/cambiar-contrasena" replace />;
-    return <Navigate to="/admin/panel" replace />;
-  }
-  return <Navigate to={debeCambiarPin ? "/cambiar-pin" : "/portal"} replace />;
+  return <Navigate to={destinoSesion(session, debeCambiarPin)} replace />;
+}
+
+function AccesoAdministrativo() {
+  const { session, debeCambiarPin } = useAutenticacion();
+  if (session === null)
+    return <CargadorAplicacion pantallaCompleta> Cargando plataforma…</CargadorAplicacion>;
+  const destino = destinoSesion(session, debeCambiarPin);
+  if (destino) return <Navigate to={destino} replace />;
+  return <AdminLogin />;
 }
 
 function PanelAdministrativoProtegido() {
@@ -94,10 +116,10 @@ export default function App() {
   return (
     <ProveedorAutenticacion>
       <BrowserRouter>
-        <Suspense fallback={<div className="splash">Cargando módulo…</div>}>
+        <Suspense fallback={<CargadorAplicacion />}>
           <Routes>
             <Route path="/" element={<Inicio />} />
-            <Route path="/admin" element={<AdminLogin />} />
+            <Route path="/admin" element={<AccesoAdministrativo />} />
             <Route
               path="/admin/vinculacion-inicial"
               element={
@@ -127,7 +149,11 @@ export default function App() {
               }
             />
             <Route path="/portal" element={<PortalProtegido />} />
+            <Route path="/portal/menu" element={<PortalProtegido />} />
+            <Route path="/portal/carnet" element={<PortalProtegido />} />
             <Route path="/comedor" element={<PortalProtegido />} />
+            <Route path="/comedor/menu" element={<PortalProtegido />} />
+            <Route path="/comedor/carnet" element={<PortalProtegido />} />
             <Route
               path="/admin/panel"
               element={
@@ -238,7 +264,7 @@ export default function App() {
           </Routes>
         </Suspense>
       </BrowserRouter>
-      <Toaster position="top-center" richColors />
+      <Toaster position="top-right" richColors={false} visibleToasts={4} />
     </ProveedorAutenticacion>
   );
 }

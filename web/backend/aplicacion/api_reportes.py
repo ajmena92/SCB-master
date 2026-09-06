@@ -23,7 +23,7 @@ def crear_router(obtener_servicio, exigir_permiso) -> APIRouter:
     router = APIRouter(prefix="/reportes")
 
     @router.get("/comedor", dependencies=[Depends(exigir_permiso("reportes.leer"))])
-    async def comedor(
+    def comedor(
         desde: date, hasta: date, formato: str = "json", servicio=Depends(obtener_servicio)
     ):
         registros = servicio.comedor(desde, hasta)
@@ -42,7 +42,7 @@ def crear_router(obtener_servicio, exigir_permiso) -> APIRouter:
         )
 
     @router.get("/transporte", dependencies=[Depends(exigir_permiso("reportes.leer"))])
-    async def transporte(
+    def transporte(
         desde: date, hasta: date, formato: str = "json", servicio=Depends(obtener_servicio)
     ):
         registros = servicio.transporte(desde, hasta)
@@ -55,9 +55,7 @@ def crear_router(obtener_servicio, exigir_permiso) -> APIRouter:
         )
 
     @router.get("/ventas", dependencies=[Depends(exigir_permiso("reportes.leer"))])
-    async def ventas(
-        desde: date, hasta: date, formato: str = "json", servicio=Depends(obtener_servicio)
-    ):
+    def ventas(desde: date, hasta: date, formato: str = "json", servicio=Depends(obtener_servicio)):
         registros = servicio.ventas(desde, hasta)
         return _respuesta(
             [
@@ -75,7 +73,7 @@ def crear_router(obtener_servicio, exigir_permiso) -> APIRouter:
         )
 
     @router.get("/dashboard", dependencies=[Depends(exigir_permiso("dashboard.leer"))])
-    async def dashboard(
+    def dashboard(
         fecha: date,
         tipo_persona: Annotated[str, Query(alias="tipoPersona")] = "estudiante",
         busqueda: str = "",

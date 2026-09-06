@@ -9,7 +9,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { plataformaApi } from "../consultas/plataforma";
-import { Aviso } from "../componentes/ElementosComunes";
+import { Aviso, EncabezadoPagina } from "../componentes/ElementosComunes";
 import { errMsg } from "@/compartido/consultas/errores_api";
 import { useAutenticacion } from "@/aplicacion/estado/ContextoAutenticacion";
 import { esAdministrador, type AutenticacionPlataforma } from "../seguridad";
@@ -111,6 +111,10 @@ export default function TarifasVentas() {
       <ComprobanteVentaTiquetes
         comprobante={comprobante}
         alCerrar={() => setComprobante(undefined)}
+      />
+      <EncabezadoPagina
+        titulo="Tiquetes y tarifas"
+        descripcion="Busque a la persona, revise su saldo y confirme la venta de tiquetes."
       />
       {error && <Aviso tipo="error">{errMsg(error)}</Aviso>}
       {mensaje && <Aviso tipo="exito">{mensaje}</Aviso>}

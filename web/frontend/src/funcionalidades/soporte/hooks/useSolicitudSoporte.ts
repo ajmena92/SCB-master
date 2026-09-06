@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { mensajeError } from "@/compartido/consultas/errores";
 import { enviarSolicitud } from "@/funcionalidades/soporte/consultas";
-import { toast } from "sonner";
+import { notificar } from "@/compartido/notificaciones/notificaciones";
 
 export function useSolicitudSoporte() {
   const [asunto, setAsunto] = useState("");
@@ -11,11 +11,11 @@ export function useSolicitudSoporte() {
     setEnviando(true);
     try {
       await enviarSolicitud(asunto, detalle);
-      toast.success("Solicitud enviada");
+      notificar.exito("Solicitud enviada");
       setAsunto("");
       setDetalle("");
     } catch (error) {
-      toast.error(mensajeError(error));
+      notificar.error(mensajeError(error));
     } finally {
       setEnviando(false);
     }

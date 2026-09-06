@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
-import { toast } from "sonner";
+import { notificar } from "@/compartido/notificaciones/notificaciones";
 import { errMsg } from "@/compartido/consultas/errores_api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,12 +23,12 @@ export function CapturaTransporte() {
     try {
       const mensaje = await registrarMarcaTransporteEtapaDos(codigo);
       setResultado(mensaje);
-      toast.success("Marca registrada");
+      notificar.exito("Marca registrada");
       formulario.reset();
     } catch (error) {
       const mensaje = errMsg(error);
       setResultado(mensaje);
-      toast.error(mensaje);
+      notificar.error(mensaje);
     } finally {
       setMarcando(false);
       formulario.querySelector<HTMLInputElement>("input[name='codigo']")?.focus();

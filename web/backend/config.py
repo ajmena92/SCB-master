@@ -3,21 +3,33 @@
 from __future__ import annotations
 
 import os
-from pathlib import Path
 from dataclasses import dataclass
+from pathlib import Path
 from urllib.parse import urlparse
 
 
 def _origen_https(valor: str) -> str:
     origen = valor.strip().rstrip("/")
     parsed = urlparse(origen)
-    if origen == "http://localhost:5173":
+    if origen in {
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:8081",
+        "http://127.0.0.1:8081",
+    }:
         return origen
     if parsed.scheme != "https" or not parsed.netloc or parsed.path not in ("", "/"):
         raise RuntimeError("CORS_ORIGIN debe ser un origen HTTPS unico")
-    if "," in origen:
-        raise RuntimeError("CORS_ORIGIN debe ser un origen HTTPS unico")
     return origen
+
+
+def _origenes(valor: str) -> tuple[str, ...]:
+    origenes = tuple(_origen_https(item) for item in valor.split(",") if item.strip())
+    if not origenes:
+        raise RuntimeError("CORS_ORIGIN debe definir al menos un origen")
+    if len(origenes) != len(set(origenes)):
+        raise RuntimeError("CORS_ORIGIN no debe repetir orígenes")
+    return origenes
 
 
 def _entero_en_rango(nombre: str, minimo: int, maximo: int) -> int:
@@ -51,6 +63,8 @@ class Settings:
     cors_origin: str
     cookie_secure: bool
     csrf_secret: str
+    cors_origins: tuple[str, ...] = ()
+    app_env: str = "production"
     app_timezone: str = "America/Costa_Rica"
     carnet_qr_clave: str = ""
     student_max_login_attempts: int = 8
@@ -74,15 +88,44 @@ class Settings:
         seguro = os.getenv("COOKIE_SECURE", "true").lower()
         if seguro not in {"true", "false"}:
             raise RuntimeError("COOKIE_SECURE debe ser true o false")
-        # Una cookie sin Secure solo es admisible para el origen local de desarrollo.
-        # Los orígenes HTTPS representan despliegues reales y no deben degradarlo.
-        if seguro == "false" and origen != "http://localhost:5173":
-            raise RuntimeError("COOKIE_SECURE solo puede ser false en localhost de desarrollo")
+        origenes = _origenes(origen)
+        app_env = os.getenv("APP_ENV", "").strip().lower()
+        if not app_env:
+            app_env = (
+                "development"
+                if all(
+                    item
+                    in {
+                        "http://localhost:5173",
+                        "http://127.0.0.1:5173",
+                        "http://localhost:8081",
+                        "http://127.0.0.1:8081",
+                    }
+                    for item in origenes
+                )
+                else "production"
+            )
+        if app_env not in {"development", "production", "test"}:
+            raise RuntimeError("APP_ENV debe ser development, production o test")
+        if app_env == "production" and any(item.startswith("http://") for item in origenes):
+            raise RuntimeError("Producción requiere orígenes HTTPS")
+        origenes_locales = {
+            "http://localhost:5173",
+            "http://127.0.0.1:5173",
+            "http://localhost:8081",
+            "http://127.0.0.1:8081",
+        }
+        if seguro == "false" and any(item not in origenes_locales for item in origenes):
+            raise RuntimeError(
+                "COOKIE_SECURE solo puede ser false en orígenes localhost de desarrollo"
+            )
         return cls(
-            database_url,
-            _origen_https(origen),
-            seguro == "true",
-            _secreto("CSRF_SECRET"),
+            database_url=database_url,
+            cors_origin=origenes[0],
+            cookie_secure=seguro == "true",
+            csrf_secret=_secreto("CSRF_SECRET"),
+            cors_origins=origenes,
+            app_env=app_env,
             carnet_qr_clave=_secreto("CARNET_QR_CLAVE"),
             student_max_login_attempts=_entero_en_rango("STUDENT_MAX_LOGIN_ATTEMPTS", 3, 20),
             student_lock_minutes=_entero_en_rango("STUDENT_LOCK_MINUTES", 1, 120),

@@ -1,4 +1,4 @@
-from datetime import date, time
+from datetime import date, time, timedelta
 
 from .conftest import autenticar_portal, preparar_estudiante
 
@@ -42,7 +42,9 @@ def test_portal_muestra_plantilla_semanal_y_carnet(entorno):
         },
     )
     assert asignacion.status_code == 201, asignacion.text
-    fecha = date.today()
+    # El catálogo semanal acepta lunes a viernes. La prueba debe ser válida
+    # también cuando se ejecuta en fin de semana.
+    fecha = date.today() - timedelta(days=date.today().weekday())
     semana_panea = (fecha.day - 1) // 7 + 1
     plantilla = cliente.post(
         "/api/v1/menu/plantillas",
@@ -61,8 +63,8 @@ def test_portal_muestra_plantilla_semanal_y_carnet(entorno):
     assert plantilla["id"] > 0
     portal = autenticar_portal(cliente.app, persona["cedula"])
 
-    estado = portal.get("/api/v1/portal/estado")
-    carnet = portal.get("/api/v1/portal/carnet")
+    estado = portal.get("/api/v1/portal/estado", params={"fecha": fecha.isoformat()})
+    carnet = portal.get("/api/v1/portal/carnet", params={"fecha": fecha.isoformat()})
 
     assert estado.status_code == 200, estado.text
     estado_portal = estado.json()
@@ -74,11 +76,15 @@ def test_portal_muestra_plantilla_semanal_y_carnet(entorno):
     ]
     hora_servidor = time.fromisoformat(estado_comedor["horaServidor"])
     hora_limite = time.fromisoformat(estado_comedor["horaLimite"])
-    esperados = max(0, int((
-        hora_limite.hour * 3600 + hora_limite.minute * 60 + hora_limite.second
-    ) - (
-        hora_servidor.hour * 3600 + hora_servidor.minute * 60 + hora_servidor.second
-    )))
+    esperados = max(
+        0,
+        int(
+            (hora_limite.hour * 3600 + hora_limite.minute * 60 + hora_limite.second)
+            - (hora_servidor.hour * 3600 + hora_servidor.minute * 60 + hora_servidor.second)
+        ),
+    )
+    if fecha != date.today():
+        esperados = 0
     assert abs(estado_comedor["segundosParaCierre"] - esperados) <= 1
     assert estado_comedor["segundosParaApertura"] == 0
     assert carnet.status_code == 200, carnet.text

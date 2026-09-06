@@ -4,7 +4,7 @@ import {
   buscarEstudiantes,
   guardarCorreccion,
 } from "@/funcionalidades/administracion/consultas/asistencia";
-import { toast } from "sonner";
+import { notificar } from "@/compartido/notificaciones/notificaciones";
 
 export function useCorrecciones() {
   const [estudiantes, setEstudiantes] = useState([]);
@@ -25,7 +25,7 @@ export function useCorrecciones() {
     try {
       setEstudiantes(await buscarEstudiantes(texto));
     } catch (error) {
-      toast.error(mensajeError(error));
+      notificar.error(mensajeError(error));
     } finally {
       setLoading(false);
     }
@@ -35,18 +35,18 @@ export function useCorrecciones() {
     return () => clearTimeout(timer);
   }, [buscar, cargar]);
   async function enviar() {
-    if (!idUsuario) return toast.error("Seleccioná un estudiante");
-    if (!motivo.trim()) return toast.error("El motivo es obligatorio");
+    if (!idUsuario) return notificar.error("Seleccioná un estudiante");
+    if (!motivo.trim()) return notificar.error("El motivo es obligatorio");
     setSaving(true);
     try {
       await guardarCorreccion(idUsuario, {
         estado: accion === "agregar" ? "presente" : "ausente",
         motivo,
       });
-      toast.success("Corrección aplicada y auditada");
+      notificar.exito("Corrección aplicada y auditada");
       setMotivo("");
     } catch (error) {
-      toast.error(mensajeError(error));
+      notificar.error(mensajeError(error));
     } finally {
       setSaving(false);
     }

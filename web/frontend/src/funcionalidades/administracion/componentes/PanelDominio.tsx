@@ -51,53 +51,87 @@ export default function PanelDominio({ definicion }: { definicion: DefinicionDom
         </div>
       </div>
       {consulta.isPending && (
-        <EstadoPanel variante="carga">Cargando {definicion.titulo.toLocaleLowerCase()}…</EstadoPanel>
+        <EstadoPanel variante="carga">
+          Cargando {definicion.titulo.toLocaleLowerCase()}…
+        </EstadoPanel>
       )}
       {consulta.isError && (
-        <EstadoPanel variante="error" titulo="No se pudo cargar la información" accion={
-          <Button variant="outline" size="sm" onClick={() => consulta.refetch()}>
-            <RefreshCw className="mr-2 h-4 w-4" /> Reintentar
-          </Button>
-        }>{errMsg(consulta.error)}</EstadoPanel>
+        <EstadoPanel
+          variante="error"
+          titulo="No se pudo cargar la información"
+          accion={
+            <Button variant="outline" size="sm" onClick={() => consulta.refetch()}>
+              <RefreshCw className="mr-2 h-4 w-4" /> Reintentar
+            </Button>
+          }
+        >
+          {errMsg(consulta.error)}
+        </EstadoPanel>
       )}
       {consulta.isSuccess && (
-        <div className="overflow-x-auto rounded-2xl border bg-card">
-          <table className="w-full text-sm">
-            <thead className="border-b bg-muted/40">
-              <tr>
-                {definicion.columnas.map((columna) => (
-                  <th key={columna} className="px-4 py-3 text-left font-semibold">
-                    {columna}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {filas.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={definicion.columnas.length}
-                    className="py-12 text-center text-muted-foreground"
-                  >
-                    No hay registros para mostrar.
-                  </td>
-                </tr>
-              ) : (
-                filas.map((fila, indice) => (
-                  <tr
-                    key={String(fila.id ?? fila.idEstudiante ?? fila.idEvento ?? indice)}
-                    className="border-b last:border-0 hover:bg-muted/30"
-                  >
-                    {definicion.columnas.map((columna) => (
-                      <td key={columna} className="max-w-xs truncate px-4 py-3">
+        <div className="rounded-2xl border bg-card">
+          <div
+            className="divide-y divide-border md:hidden"
+            role="list"
+            aria-label={`Registros de ${definicion.titulo}`}
+          >
+            {filas.length === 0 ? (
+              <EstadoPanel variante="vacio">No hay registros.</EstadoPanel>
+            ) : (
+              filas.map((fila, indice) => (
+                <article key={indice} className="space-y-3 p-4" role="listitem">
+                  {definicion.columnas.map((columna) => (
+                    <div key={columna}>
+                      <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                        {columna}
+                      </span>
+                      <p className="mt-1 break-words text-sm text-foreground">
                         {mostrar(fila[columna])}
-                      </td>
-                    ))}
+                      </p>
+                    </div>
+                  ))}
+                </article>
+              ))
+            )}
+          </div>
+          <div className="hidden overflow-x-auto md:block">
+            <table className="w-full text-sm">
+              <thead className="border-b bg-muted/40">
+                <tr>
+                  {definicion.columnas.map((columna) => (
+                    <th key={columna} className="px-4 py-3 text-left font-semibold">
+                      {columna}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {filas.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan={definicion.columnas.length}
+                      className="py-12 text-center text-muted-foreground"
+                    >
+                      No hay registros para mostrar.
+                    </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : (
+                  filas.map((fila, indice) => (
+                    <tr
+                      key={String(fila.id ?? fila.idEstudiante ?? fila.idEvento ?? indice)}
+                      className="border-b last:border-0 hover:bg-muted/30"
+                    >
+                      {definicion.columnas.map((columna) => (
+                        <td key={columna} className="max-w-xs truncate px-4 py-3">
+                          {mostrar(fila[columna])}
+                        </td>
+                      ))}
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </section>

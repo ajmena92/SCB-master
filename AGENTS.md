@@ -58,6 +58,17 @@ Antes de declarar una fase completada, ejecutar las comprobaciones proporcionale
 
 ## Estilo y calidad
 
+### Regla crítica de diseño frontend
+
+Todo módulo nuevo o cambio visual debe cumplir y actualizar
+`web/docs/ESTANDAR_MODULOS_FRONTEND.md` y, cuando corresponda,
+`web/docs/GUIA_VISUAL_COMPONENTES.md` en el mismo cambio. La revisión es
+obligatoria en Chromium para móvil, tableta y escritorio, incluyendo estados de
+carga/vacío/error/éxito y temas aplicables. No se aceptan notificaciones,
+tablas, colores o componentes visuales locales que evadan los componentes y
+tokens compartidos. La puerta `npm run verificar:diseno` debe pasar antes de
+integrar.
+
 - Frontend nuevo en TypeScript estricto; backend con tipos explícitos y esquemas Pydantic.
 - Mantener reglas de dominio dentro de su módulo y contratos públicos explícitos.
 - Evitar archivos mayores de 300 líneas; si un archivo los supera, dividirlo o documentar la excepción.

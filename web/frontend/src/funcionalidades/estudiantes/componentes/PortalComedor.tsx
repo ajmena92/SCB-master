@@ -14,12 +14,14 @@ export function PortalComedor({
   tipoPersona = "estudiante",
   alCerrarSesion,
   estadoPortal,
+  alCambiarVista,
 }: {
   nombre: string;
   sesion: { usuario?: Record<string, unknown> } | null;
   tipoPersona?: TipoPersonaComedor;
   alCerrarSesion: () => void;
   estadoPortal: EstadoPortal;
+  alCambiarVista: (vista: "menu" | "carnet") => void;
 }) {
   const {
     vistaActiva,
@@ -46,7 +48,7 @@ export function PortalComedor({
   return (
     <div className="min-h-screen bg-background">
       <CabeceraPortalEstudiante alCerrarSesion={alCerrarSesion} />
-      <main className="mx-auto max-w-2xl px-5 pb-32 pt-8 sm:pb-28">
+      <main className="mx-auto max-w-2xl px-5 pb-32 pt-8 sm:pb-28 lg:max-w-4xl">
         <div className="animate-fade-up">
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">
             Hola, {nombre.split(" ")[0]}
@@ -93,7 +95,13 @@ export function PortalComedor({
           />
         )}
       </main>
-      <NavegacionEstudiante vistaActiva={vistaActiva} alCambiar={setVistaActiva} />
+      <NavegacionEstudiante
+        vistaActiva={vistaActiva}
+        alCambiar={(vista) => {
+          setVistaActiva(vista);
+          alCambiarVista(vista);
+        }}
+      />
     </div>
   );
 }

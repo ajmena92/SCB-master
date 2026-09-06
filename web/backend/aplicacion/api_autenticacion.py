@@ -2,7 +2,7 @@
 
 from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, Depends, Request, Response
+from fastapi import APIRouter, Cookie, Depends, HTTPException, Request, Response
 
 from aplicacion.casos_identidad import ServicioIdentidad
 from aplicacion.esquemas import (
@@ -91,26 +91,31 @@ def crear_router(
 
         token = request.cookies.get(NOMBRE_COOKIE_SESION)
         ahora = datetime.now(timezone.utc)
-        valor = csrf_sesion(token, csrf_secret) if token else csrf_anonimo(
-            csrf_secret, ttl_seconds=csrf_anonymous_ttl_seconds, ahora=ahora
-        )
-        opciones_expiracion = (
-            {}
+        valor = (
+            csrf_sesion(token, csrf_secret)
             if token
-            else {
-                "max_age": csrf_anonymous_ttl_seconds,
-                "expires": ahora + timedelta(seconds=csrf_anonymous_ttl_seconds),
-            }
+            else csrf_anonimo(csrf_secret, ttl_seconds=csrf_anonymous_ttl_seconds, ahora=ahora)
         )
-        response.set_cookie(
-            NOMBRE_COOKIE_CSRF,
-            valor,
-            httponly=False,
-            secure=cookie_secure,
-            samesite="lax",
-            path="/",
-            **opciones_expiracion,
-        )
+        if token:
+            response.set_cookie(
+                NOMBRE_COOKIE_CSRF,
+                valor,
+                httponly=False,
+                secure=cookie_secure,
+                samesite="lax",
+                path="/",
+            )
+        else:
+            response.set_cookie(
+                NOMBRE_COOKIE_CSRF,
+                valor,
+                httponly=False,
+                secure=cookie_secure,
+                samesite="lax",
+                path="/",
+                max_age=csrf_anonymous_ttl_seconds,
+                expires=ahora + timedelta(seconds=csrf_anonymous_ttl_seconds),
+            )
 
     @router.post("/autenticacion/portal", response_model=SesionSalida, response_model_by_alias=True)
     async def portal(
@@ -120,6 +125,7 @@ def crear_router(
     ):
         token, salida = servicio.autenticar_portal(datos)
         from aplicacion.seguridad import csrf_sesion
+
         _emitir_cookies(
             response,
             token=token,
@@ -133,10 +139,13 @@ def crear_router(
         "/autenticacion/administracion", response_model=SesionSalida, response_model_by_alias=True
     )
     async def administracion(
-        datos: AdministracionEntrada, response: Response, servicio: ServicioIdentidad = Depends(obtener_servicio)
+        datos: AdministracionEntrada,
+        response: Response,
+        servicio: ServicioIdentidad = Depends(obtener_servicio),
     ):
         token, salida = servicio.autenticar_administracion(datos)
         from aplicacion.seguridad import csrf_sesion
+
         _emitir_cookies(
             response,
             token=token,
@@ -146,8 +155,19 @@ def crear_router(
         )
         return salida
 
-    @router.get("/sesion")
-    async def consultar(identidad: dict = Depends(actual)):
+    @router.get("/sesion", responses={204: {"description": "Sin sesión activa"}})
+    async def consultar(
+        request: Request,
+        scb_sesion: str | None = Cookie(default=None),
+        servicio: ServicioIdentidad = Depends(obtener_servicio),
+    ):
+        # El contrato vigente usa cookie HttpOnly. Rechazar explícitamente
+        # Bearer evita aceptar accidentalmente el mecanismo legado.
+        if request.headers.get("authorization"):
+            raise HTTPException(status_code=401, detail="Autenticación por Bearer no admitida")
+        if not scb_sesion:
+            return Response(status_code=204)
+        identidad = servicio.identidad_por_token(scb_sesion)
         if identidad["tipo"] == "portal":
             persona = identidad["persona"]
             return {
@@ -199,6 +219,7 @@ def crear_router(
         servicio: ServicioIdentidad = Depends(obtener_servicio),
     ):
         from aplicacion.seguridad import csrf_sesion
+
         token, expira_en = servicio.renovar_sesion(identidad["_token"])
         _emitir_cookies(
             response,

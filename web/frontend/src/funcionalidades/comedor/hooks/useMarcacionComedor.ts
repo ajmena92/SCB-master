@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { notificar } from "@/compartido/notificaciones/notificaciones";
 import { fechaLocalActual } from "@/compartido/utilidades/fecha";
 import type { ConfiguracionOperacionSalida, IngresoSalida } from "@/compartido/contratos/comedor";
 import {
@@ -56,7 +56,7 @@ export function useMarcacionComedor() {
   async function registrar() {
     if (registroEnCursoRef.current) return;
     if (!codigoBarras.trim()) {
-      toast.error("Lea o indique el código de barras");
+      notificar.error("Lea o indique el código de barras");
       return;
     }
     registroEnCursoRef.current = true;
@@ -64,10 +64,10 @@ export function useMarcacionComedor() {
     setErrorOperacion(null);
     try {
       const ingreso = await registrarMarcacionComedor({
-        codigoBarras,
+        cedula: codigoBarras,
         fecha,
       });
-      toast.success(
+      notificar.exito(
         ingreso.modalidad === "tiquete" ? "Tiquete consumido" : "Ingreso becado registrado",
       );
       setCodigoBarras("");
@@ -86,7 +86,7 @@ export function useMarcacionComedor() {
     } catch (error) {
       const estado = clasificarErrorOperacion(error);
       setErrorOperacion(estado);
-      toast.error(estado.mensaje);
+      notificar.error(estado.mensaje);
     } finally {
       registroEnCursoRef.current = false;
       setGuardando(false);

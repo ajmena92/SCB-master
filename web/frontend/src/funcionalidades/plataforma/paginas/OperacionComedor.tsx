@@ -32,6 +32,13 @@ export default function OperacionComedor() {
     () => localStorage.getItem("comedor-sonido") === "silenciado",
   );
   const [estadoCamara, setEstadoCamara] = useState<EstadoCamara>("iniciando");
+  const [pantallaCompleta, setPantallaCompleta] = useState(false);
+  const [ultimaLectura, setUltimaLectura] = useState("");
+  const institucion = useQuery({
+    queryKey: ["institucion"],
+    queryFn: plataformaApi.tiquetes.institucion,
+    staleTime: 5 * 60 * 1000,
+  });
   const estado = useQuery({
     queryKey: ["comedor", "operacion", fecha],
     queryFn: () => plataformaApi.comedor.estadoOperacion(fecha),
@@ -41,6 +48,8 @@ export default function OperacionComedor() {
     mutationFn: plataformaApi.comedor.registrarIngreso,
     onSuccess: (respuesta) => {
       setResultado(respuesta);
+      navigator.vibrate?.(80);
+      setUltimaLectura(new Intl.DateTimeFormat("es-CR", { timeStyle: "short" }).format(new Date()));
       setCodigoExcepcion("");
       if (!silenciado) emitirTonoEstacionComedor("aceptado");
     },
@@ -50,6 +59,8 @@ export default function OperacionComedor() {
         mensaje: errMsg(error),
       };
       setResultado(respuesta);
+      navigator.vibrate?.([120, 60, 120]);
+      setUltimaLectura(new Intl.DateTimeFormat("es-CR", { timeStyle: "short" }).format(new Date()));
       if (!silenciado) emitirTonoEstacionComedor("rechazado");
       if (respuesta.resultado === "sin_reserva" && respuesta.persona?.cedula)
         setCodigoExcepcion(respuesta.persona.cedula);
@@ -86,6 +97,11 @@ export default function OperacionComedor() {
     [ingreso.mutate],
   );
   useEffect(() => {
+    const actualizarPantalla = () => setPantallaCompleta(Boolean(document.fullscreenElement));
+    document.addEventListener("fullscreenchange", actualizarPantalla);
+    return () => document.removeEventListener("fullscreenchange", actualizarPantalla);
+  }, []);
+  useEffect(() => {
     if (!resultado || resultado.resultado === "sin_reserva") return undefined;
     const temporizador = window.setTimeout(() => {
       setResultado(undefined);
@@ -114,6 +130,18 @@ export default function OperacionComedor() {
     window.addEventListener("keydown", teclas);
     return () => window.removeEventListener("keydown", teclas);
   }, [navegar]);
+  useEffect(() => {
+    const soporte = navigator as Navigator & {
+      wakeLock?: { request: (tipo: "screen") => Promise<{ release: () => Promise<void> }> };
+    };
+    let bloqueo: { release: () => Promise<void> } | undefined;
+    void soporte.wakeLock?.request("screen").then((resultado) => {
+      bloqueo = resultado;
+    });
+    return () => {
+      void bloqueo?.release();
+    };
+  }, []);
   function registrar(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault();
     const formulario = evento.currentTarget;
@@ -149,8 +177,12 @@ export default function OperacionComedor() {
       data-testid="estacion-comedor"
     >
       <ControlesEstacionComedor
+        nombreColegio={institucion.data?.nombreColegio ?? "CTP Platanares"}
         fecha={fecha}
         estadoCamara={estadoCamara}
+        conectado={!estado.isError}
+        ultimaLectura={ultimaLectura}
+        compacto={pantallaCompleta}
         silenciado={silenciado}
         mostrarHistorial={mostrarHistorial}
         alAlternarSonido={alternarSonido}
@@ -160,7 +192,7 @@ export default function OperacionComedor() {
           if (window.confirm("¿Salir de la estación de comedor?")) navegar("/admin/panel/inicio");
         }}
       />
-      <main className="relative mx-auto flex w-full max-w-[110rem] flex-1 flex-col justify-center gap-4 px-3 py-4 sm:px-6 sm:py-6">
+      <div className="relative mx-auto flex w-full max-w-[110rem] flex-1 flex-col justify-center gap-4 px-3 py-4 sm:px-6 sm:py-6 landscape:justify-start">
         <div className="relative mx-auto w-full max-w-6xl overflow-hidden rounded-[2rem] border border-white/10 bg-slate-900 shadow-[0_26px_80px_rgb(0_0_0_/_0.35)]">
           <LectorQrCamara
             alDetectar={registrarCodigo}
@@ -183,7 +215,7 @@ export default function OperacionComedor() {
         )}
         {mostrarRespaldo && (
           <form
-            className="mx-auto flex w-full max-w-4xl flex-col gap-3 rounded-2xl border border-white/15 bg-slate-900 p-4 sm:flex-row"
+            className="sticky bottom-2 z-20 mx-auto flex w-full max-w-4xl flex-col gap-3 rounded-2xl border border-white/15 bg-slate-900 p-4 shadow-2xl sm:static sm:flex-row"
             onSubmit={registrar}
           >
             <label htmlFor="captura-comedor" className="sr-only">
@@ -198,7 +230,7 @@ export default function OperacionComedor() {
                 autoComplete="off"
                 required
                 placeholder="Lector USB o número de identificación"
-                className="h-12 border-white/15 bg-slate-950 pl-12 text-base text-white placeholder:text-slate-500"
+                className="h-12 border-white/15 bg-slate-950 pl-12 text-base text-white placeholder:text-slate-300"
               />
             </div>
             <Button
@@ -224,9 +256,9 @@ export default function OperacionComedor() {
               setMostrarRespaldo((actual) => !actual);
               window.setTimeout(() => entradaRef.current?.focus(), 0);
             }}
-            className="inline-flex min-h-11 items-center gap-2 rounded-xl px-3 hover:bg-white/10"
+            className="inline-flex min-h-11 items-center gap-2 rounded-xl px-3 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300"
           >
-            <ScanBarcode className="h-4 w-4" /> Respaldo <kbd className="text-slate-500">F3</kbd>
+            <ScanBarcode className="h-4 w-4" /> Respaldo <kbd className="text-slate-300">F3</kbd>
           </button>
           <p className="tabular-nums">
             {resumen?.ingresos ?? 0} / {resumen?.meta ?? 0} atendidos · {resumen?.duplicados ?? 0}{" "}
@@ -271,7 +303,7 @@ export default function OperacionComedor() {
             </div>
           </section>
         )}
-      </main>
+      </div>
     </section>
   );
 }

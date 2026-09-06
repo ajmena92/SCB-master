@@ -4,7 +4,7 @@ from fastapi import Cookie, Depends, HTTPException
 
 
 def crear_dependencias(obtener_servicio):
-    async def actual(
+    def actual(
         scb_sesion: str | None = Cookie(default=None), servicio=Depends(obtener_servicio)
     ) -> dict:
         if not scb_sesion:

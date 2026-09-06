@@ -37,6 +37,7 @@ export function ListadoRutas({ rutas, onEditar, onDesactivar }: PropiedadesLista
                       ? "rgb(var(--border))"
                       : ruta.colorCarnetHex || "rgb(var(--border))",
                 }}
+                role="img"
                 aria-label={`Color de la ruta ${ruta.codigo}`}
               >
                 <IconoRuta className="h-4 w-4 text-foreground" />

@@ -129,15 +129,16 @@ export default function UsuariosAdministrativos() {
         />
       )}
 
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div className="flex flex-col gap-4 border-b border-border pb-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-sm font-semibold text-primary">Acceso administrativo</p>
-          <h2 id="usuarios-titulo" className="font-display text-2xl font-bold tracking-tight">
+          <h1
+            id="usuarios-titulo"
+            className="font-heading text-2xl font-semibold tracking-tight text-foreground"
+          >
             Usuarios y permisos
-          </h2>
-          <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-            Cada cuenta pertenece a un profesor. Los operadores solo ven los módulos que les
-            asignés.
+          </h1>
+          <p className="mt-1.5 max-w-[70ch] text-sm leading-6 text-muted-foreground">
+            Cree cuentas, vincúlelas con un profesor y asigne sus permisos de acceso.
           </p>
         </div>
         <Button
@@ -176,7 +177,10 @@ export default function UsuariosAdministrativos() {
           Estamos consultando los usuarios administrativos.
         </EstadoPanel>
       ) : filtradas.length === 0 ? (
-        <EstadoPanel variante="vacio" titulo={buscar ? "No hay coincidencias" : "Todavía no hay cuentas"}>
+        <EstadoPanel
+          variante="vacio"
+          titulo={buscar ? "No hay coincidencias" : "Todavía no hay cuentas"}
+        >
           <UserCog className="mx-auto h-8 w-8 text-muted-foreground" aria-hidden="true" />
           <span className="mt-1 block text-sm text-muted-foreground">
             {buscar

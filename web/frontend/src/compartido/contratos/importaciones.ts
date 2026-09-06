@@ -12,3 +12,6 @@ export interface FilaImportacion {
   seccion?: string | null;
   tipo: "estudiante" | "profesor";
 }
+
+export type Previsualizacion = { totalFilas: number; valida: boolean; errores: Array<{ fila: number; mensaje: string }> };
+export type LoteSalida = { idLote: number; estado: string; totalFilas: number };

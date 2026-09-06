@@ -5,16 +5,17 @@
   :root {
     --background: 247 248 255;
     --foreground: 24 32 82;
+    --carnet-foreground: 17 24 39;
     --card: 255 255 255;
     --card-foreground: 24 32 82;
     --popover: 255 255 255;
     --popover-foreground: 24 32 82;
-    --primary: 116 123 255;
+    --primary: 67 74 165;
     --primary-foreground: 255 255 255;
     --secondary: 24 32 82;
     --secondary-foreground: 255 255 255;
     --muted: 238 240 255;
-    --muted-foreground: 107 114 168;
+    --muted-foreground: 74 82 130;
     --accent: 169 177 255;
     --accent-foreground: 24 32 82;
     --destructive: 255 107 122;
@@ -23,8 +24,8 @@
     --warning: 217 119 6;
     --border: 221 225 255;
     --input: 221 225 255;
-    --ring: 116 123 255;
-    --chart-1: 116 123 255;
+    --ring: 67 74 165;
+    --chart-1: 67 74 165;
     --chart-2: 24 32 82;
     --chart-3: 81 216 154;
     --chart-4: 169 177 255;
@@ -35,6 +36,7 @@
   .dark {
     --background: 15 23 42;
     --foreground: 241 245 249;
+    --carnet-foreground: 17 24 39;
     --card: 30 41 59;
     --card-foreground: 241 245 249;
     --popover: 30 41 59;

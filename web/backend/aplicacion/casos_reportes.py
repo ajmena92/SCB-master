@@ -130,7 +130,11 @@ class ServicioReportes:
             "candidato para revisión de beneficio": "Posibles candidatos a revisión de beneficio",
         }
         alertas = [
-            {"tipo": senal.replace(" ", "_"), "titulo": titulos_alertas.get(senal, senal), "cantidad": cantidad}
+            {
+                "tipo": senal.replace(" ", "_"),
+                "titulo": titulos_alertas.get(senal, senal),
+                "cantidad": cantidad,
+            }
             for senal, cantidad in self.repo.alertas_analiticas(fecha)
         ]
         casos_analiticos = [

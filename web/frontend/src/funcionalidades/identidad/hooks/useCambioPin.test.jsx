@@ -50,13 +50,13 @@ describe("useCambioPin", () => {
     const { contenedor, raiz } = preparar((valor) => (hook = valor));
     await act(async () => {
       hook.cambiarActual("111111");
-      hook.cambiarNuevo("222222");
-      hook.cambiarConfirmar("222222");
+      hook.cambiarNuevo("258369");
+      hook.cambiarConfirmar("258369");
     });
     await act(async () => hook.enviar({ preventDefault: vi.fn() }));
     expect(api.post).toHaveBeenCalledWith("/v1/autenticacion/portal/pin", {
       pinActual: "111111",
-      pinNuevo: "222222",
+      pinNuevo: "258369",
     });
     await act(async () => raiz.unmount());
     contenedor.remove();
@@ -68,8 +68,8 @@ describe("useCambioPin", () => {
     const { contenedor, raiz } = preparar((valor) => (hook = valor));
     await act(async () => {
       hook.cambiarActual("111111");
-      hook.cambiarNuevo("222222");
-      hook.cambiarConfirmar("222222");
+      hook.cambiarNuevo("258369");
+      hook.cambiarConfirmar("258369");
     });
     await act(async () => hook.enviar({ preventDefault: vi.fn() }));
     expect(hook.error).toBe("Error de PIN");

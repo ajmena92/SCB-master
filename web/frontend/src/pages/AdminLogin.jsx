@@ -87,7 +87,7 @@ export default function AdminLogin() {
         </div>
         <Link
           to="/"
-          className="mt-6 flex min-h-11 items-center justify-center gap-2 rounded-md px-3 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-secondary"
+          className="mt-6 flex min-h-11 items-center justify-center gap-2 rounded-md px-3 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4" /> Volver al acceso estudiantil
         </Link>

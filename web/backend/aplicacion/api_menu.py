@@ -42,7 +42,9 @@ def crear_router(obtener_servicio, exigir_permiso) -> APIRouter:
         return servicio.listar_calendario(desde, hasta)
 
     @router.put("/menu/calendario", dependencies=[Depends(exigir_permiso("menu.administrar"))])
-    async def actualizar_calendario(datos: CalendarioMenuEntrada, servicio=Depends(obtener_servicio)):
+    async def actualizar_calendario(
+        datos: CalendarioMenuEntrada, servicio=Depends(obtener_servicio)
+    ):
         return servicio.actualizar_calendario(datos)
 
     @router.put(

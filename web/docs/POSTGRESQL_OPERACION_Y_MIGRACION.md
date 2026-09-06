@@ -28,6 +28,24 @@ docker compose --env-file ops/.env -f ops/compose.production.yml up -d --build a
 La API no ejecuta DDL. Si el volumen ya existía antes de crear los roles, no se
 debe borrar: créelos manualmente o restaure en un volumen nuevo revisado.
 
+## Propiedad de objetos y rol migrador
+
+`scb_migrador` es el único rol autorizado para DDL de Alembic; `scb_api` no
+recibe permisos de creación ni alteración. Las tablas y secuencias del esquema
+`public` deben pertenecer a `scb_migrador`, mientras el rol de aplicación
+conserva únicamente los permisos DML necesarios. En una instalación existente,
+la corrección de propietarios se ejecuta una sola vez por un DBA, dentro de una
+ventana controlada, y se verifica con:
+
+```sql
+SELECT version_num FROM public.alembic_version;
+```
+
+No se debe conceder `SUPERUSER`, `CREATEROLE` ni `CREATEDB` al migrador. Toda
+ejecución posterior usa el contenedor de migración con confirmación manual DBA.
+`deploy all` exige `CONFIRMAR_MIGRACION_DBA=SI` y valida que `current` coincida
+con `heads`; sin esa variable termina antes de construir o reiniciar servicios.
+
 ## Respaldo y restauración
 
 El servicio conserva un `pg_dump` lógico, roles globales, un `pg_basebackup`

@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { IdCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { EstadoPanel } from "@/compartido/componentes/Estados";
@@ -47,23 +46,14 @@ export function VistaCarnetEstudiante({
 
   return (
     <section
-      className={`rounded-2xl border bg-card p-5 shadow-[0_8px_30px_rgb(70_73_180_/_0.12)] ${clase}`}
+      className={`rounded-2xl border bg-card p-4 shadow-[0_8px_30px_rgb(70_73_180_/_0.12)] sm:p-5 ${clase}`}
       data-testid="student-card-panel"
     >
-      <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
-        <div className="flex items-start gap-3">
-          <div className="rounded-xl bg-primary/10 p-3 text-primary">
-            <IdCard className="h-5 w-5" />
-          </div>
-          <div>
-            <h2 className="font-display text-xl font-bold">Mi carnet digital</h2>
-            <p className="text-sm text-muted-foreground">
-              Presentalo desde tu teléfono para leer el código en el comedor.
-            </p>
-          </div>
+      {fotoDisponible === false && (
+        <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+          <Badge variant="secondary">Carnet provisional</Badge>
         </div>
-        {fotoDisponible === false && <Badge variant="secondary">Carnet provisional</Badge>}
-      </div>
+      )}
       {estaCargando && !datos && (
         <EstadoPanel variante="carga">Generando tu carné digital…</EstadoPanel>
       )}

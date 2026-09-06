@@ -1,6 +1,16 @@
 import { Laptop, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+
 const OPCIONES = [
   { valor: "light", etiqueta: "Tema claro", Icono: Sun },
   { valor: "dark", etiqueta: "Tema oscuro", Icono: Moon },
@@ -13,29 +23,44 @@ export function SelectorTema() {
   const IconoActivo = opcionActiva.Icono;
 
   return (
-    <div
-      className="inline-flex items-center rounded-lg border border-border bg-card p-1"
-      role="group"
-      aria-label="Tema visual"
-    >
-      {OPCIONES.map(({ valor, etiqueta, Icono }) => {
-        const activo = opcionActiva.valor === valor;
-        return (
-          <button
-            key={valor}
-            type="button"
-            title={etiqueta}
-            aria-label={etiqueta}
-            aria-pressed={activo}
-            onClick={() => setTheme(valor)}
-            className={`flex h-11 w-11 items-center justify-center rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${activo ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"}`}
-          >
-            <Icono className="h-4 w-4" aria-hidden="true" />
-          </button>
-        );
-      })}
-      <span className="sr-only">Tema actual: {opcionActiva.etiqueta}</span>
-      <IconoActivo className="sr-only" aria-hidden="true" />
-    </div>
+    <TooltipProvider delayDuration={300}>
+      <Tooltip>
+        <DropdownMenu>
+          <TooltipTrigger asChild>
+            <DropdownMenuTrigger asChild>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                aria-label={`Tema visual: ${opcionActiva.etiqueta}`}
+              >
+                <IconoActivo className="h-4 w-4" aria-hidden="true" />
+              </Button>
+            </DropdownMenuTrigger>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">{`Tema visual: ${opcionActiva.etiqueta}`}</TooltipContent>
+          <DropdownMenuContent align="end" className="min-w-0">
+            <DropdownMenuRadioGroup
+              value={opcionActiva.valor}
+              onValueChange={setTheme}
+              aria-label="Seleccionar tema visual"
+              className="flex gap-1"
+            >
+              {OPCIONES.map(({ valor, etiqueta, Icono }) => (
+                <DropdownMenuRadioItem
+                  key={valor}
+                  value={valor}
+                  aria-label={etiqueta}
+                  title={etiqueta}
+                  className="h-11 w-11 justify-center p-0 [&>span]:left-1"
+                >
+                  <Icono aria-hidden="true" />
+                </DropdownMenuRadioItem>
+              ))}
+            </DropdownMenuRadioGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </Tooltip>
+    </TooltipProvider>
   );
 }

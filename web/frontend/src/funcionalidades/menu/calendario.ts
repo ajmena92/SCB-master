@@ -33,7 +33,8 @@ export const MESES = [
   "Noviembre",
   "Diciembre",
 ];
-export const DIAS = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
+/** Días operativos del comedor; sábado y domingo no tienen menú lectivo. */
+export const DIAS = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes"];
 
 function fechaIso(anio: number, mes: number, dia: number) {
   return `${anio}-${String(mes).padStart(2, "0")}-${String(dia).padStart(2, "0")}`;
@@ -56,12 +57,17 @@ export function fechaCostaRica(): string {
 }
 export function semanasCalendario(dias: DiaCalendario[]): Array<Array<DiaCalendario | null>> {
   if (!dias.length) return [];
-  const celdas: Array<DiaCalendario | null> = Array.from({ length: dias[0].dia - 1 }, () => null);
-  celdas.push(...dias);
-  while (celdas.length % 7) celdas.push(null);
-  return Array.from({ length: celdas.length / 7 }, (_, indice) =>
-    celdas.slice(indice * 7, indice * 7 + 7),
-  );
+  const semanas = new Map<string, Array<DiaCalendario | null>>();
+  for (const dia of dias) {
+    if (dia.dia > 5) continue;
+    const fecha = new Date(`${dia.fecha}T12:00:00`);
+    fecha.setDate(fecha.getDate() - (dia.dia - 1));
+    const clave = fecha.toISOString().slice(0, 10);
+    const semana = semanas.get(clave) ?? Array.from({ length: 5 }, () => null);
+    semana[dia.dia - 1] = dia;
+    semanas.set(clave, semana);
+  }
+  return [...semanas.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([, semana]) => semana);
 }
 export function fechaVisible(fecha: string): string {
   return new Intl.DateTimeFormat("es-CR", {

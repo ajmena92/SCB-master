@@ -26,15 +26,19 @@ def crear_router(obtener_servicio, exigir_permiso, exigir_alguno) -> APIRouter:
     router = APIRouter()
 
     @router.get("/personas", dependencies=[Depends(exigir_permiso("personas.administrar"))])
-    async def personas(
-        buscar: str = "", estado: Literal["activos", "inactivos", "todos"] = "activos",
+    def personas(
+        buscar: str = "",
+        estado: Literal["activos", "inactivos", "todos"] = "activos",
         tipo: Literal["estudiante", "profesor"] | None = None,
-        pagina: int = Query(1, ge=1), tamano: int = Query(50, ge=1, le=100),
+        pagina: int = Query(1, ge=1),
+        tamano: int = Query(50, ge=1, le=100),
         ordenar_por: Literal["nombres", "cedula", "tipo", "estado"] = "nombres",
         direccion: Literal["asc", "desc"] = "asc",
         servicio=Depends(obtener_servicio),
     ):
-        return servicio.listar_personas(buscar, estado, tipo, pagina, tamano, ordenar_por, direccion)
+        return servicio.listar_personas(
+            buscar, estado, tipo, pagina, tamano, ordenar_por, direccion
+        )
 
     @router.get(
         "/personas/resumen",
@@ -42,14 +46,14 @@ def crear_router(obtener_servicio, exigir_permiso, exigir_alguno) -> APIRouter:
         response_model_by_alias=True,
         dependencies=[Depends(exigir_permiso("personas.administrar"))],
     )
-    async def resumen_personas(servicio=Depends(obtener_servicio)):
+    def resumen_personas(servicio=Depends(obtener_servicio)):
         return servicio.resumen_personas()
 
     @router.get(
         "/personas/referencias/{referencia_publica}",
         dependencies=[Depends(exigir_permiso("personas.administrar"))],
     )
-    async def obtener_persona_referencia_publica(
+    def obtener_persona_referencia_publica(
         referencia_publica: str, servicio=Depends(obtener_servicio)
     ):
         return servicio.obtener_persona_referencia_publica(referencia_publica)
@@ -58,7 +62,7 @@ def crear_router(obtener_servicio, exigir_permiso, exigir_alguno) -> APIRouter:
         "/personas/{persona_id}",
         dependencies=[Depends(exigir_permiso("personas.administrar"))],
     )
-    async def obtener_persona(persona_id: int, servicio=Depends(obtener_servicio)):
+    def obtener_persona(persona_id: int, servicio=Depends(obtener_servicio)):
         return servicio.obtener_persona(persona_id)
 
     @router.post(
@@ -68,45 +72,77 @@ def crear_router(obtener_servicio, exigir_permiso, exigir_alguno) -> APIRouter:
         status_code=201,
         dependencies=[Depends(exigir_permiso("personas.administrar"))],
     )
-    async def crear_persona(datos: PersonaEntrada, servicio=Depends(obtener_servicio)):
+    def crear_persona(datos: PersonaEntrada, servicio=Depends(obtener_servicio)):
         return servicio.crear_persona(datos)
 
-    @router.post("/personas/pines/seccion", dependencies=[Depends(exigir_permiso("personas.administrar"))])
-    async def reiniciar_pines_seccion(datos: GeneracionPinesSeccionEntrada, usuario=Depends(exigir_permiso("personas.administrar")), servicio=Depends(obtener_servicio)):
+    @router.post(
+        "/personas/pines/seccion", dependencies=[Depends(exigir_permiso("personas.administrar"))]
+    )
+    def reiniciar_pines_seccion(
+        datos: GeneracionPinesSeccionEntrada,
+        usuario=Depends(exigir_permiso("personas.administrar")),
+        servicio=Depends(obtener_servicio),
+    ):
         return servicio.reiniciar_pines_seccion(datos, usuario["cuenta"].id)
 
-    @router.put("/personas/{persona_id}", response_model=PersonaSalida, response_model_by_alias=True,
-                dependencies=[Depends(exigir_permiso("personas.administrar"))])
-    async def actualizar_persona(persona_id: int, datos: PersonaActualizacionEntrada, servicio=Depends(obtener_servicio)):
+    @router.put(
+        "/personas/{persona_id}",
+        response_model=PersonaSalida,
+        response_model_by_alias=True,
+        dependencies=[Depends(exigir_permiso("personas.administrar"))],
+    )
+    def actualizar_persona(
+        persona_id: int, datos: PersonaActualizacionEntrada, servicio=Depends(obtener_servicio)
+    ):
         return servicio.actualizar_persona(persona_id, datos)
 
-    @router.post("/personas/{persona_id}/desactivar", dependencies=[Depends(exigir_permiso("personas.administrar"))])
-    async def desactivar_persona(persona_id: int, usuario=Depends(exigir_permiso("personas.administrar")), servicio=Depends(obtener_servicio)):
+    @router.post(
+        "/personas/{persona_id}/desactivar",
+        dependencies=[Depends(exigir_permiso("personas.administrar"))],
+    )
+    def desactivar_persona(
+        persona_id: int,
+        usuario=Depends(exigir_permiso("personas.administrar")),
+        servicio=Depends(obtener_servicio),
+    ):
         return servicio.desactivar_persona(persona_id, usuario["cuenta"].id)
 
-    @router.post("/personas/{persona_id}/reiniciar-pin", dependencies=[Depends(exigir_permiso("personas.administrar"))])
-    async def reiniciar_pin(persona_id: int, usuario=Depends(exigir_permiso("personas.administrar")), servicio=Depends(obtener_servicio)):
+    @router.post(
+        "/personas/{persona_id}/reiniciar-pin",
+        dependencies=[Depends(exigir_permiso("personas.administrar"))],
+    )
+    def reiniciar_pin(
+        persona_id: int,
+        usuario=Depends(exigir_permiso("personas.administrar")),
+        servicio=Depends(obtener_servicio),
+    ):
         return servicio.reiniciar_pin(persona_id, usuario["cuenta"].id)
 
     @router.get(
         "/anios-lectivos",
-        dependencies=[Depends(exigir_alguno("personas.administrar", "importaciones.administrar", "menu.administrar"))],
+        dependencies=[
+            Depends(
+                exigir_alguno(
+                    "personas.administrar", "importaciones.administrar", "menu.administrar"
+                )
+            )
+        ],
     )
-    async def anios(servicio=Depends(obtener_servicio)):
+    def anios(servicio=Depends(obtener_servicio)):
         return servicio.listar_anios()
 
     @router.get(
         "/anios-lectivos/{anio_id}/secciones",
         dependencies=[Depends(exigir_permiso("personas.administrar"))],
     )
-    async def secciones_anio(anio_id: int, servicio=Depends(obtener_servicio)):
+    def secciones_anio(anio_id: int, servicio=Depends(obtener_servicio)):
         return servicio.listar_secciones_anio(anio_id)
 
     @router.get(
         "/anios-lectivos/{anio_id}/secciones/{seccion}/resumen-pines",
         dependencies=[Depends(exigir_permiso("personas.administrar"))],
     )
-    async def resumen_pines_seccion(anio_id: int, seccion: str, servicio=Depends(obtener_servicio)):
+    def resumen_pines_seccion(anio_id: int, seccion: str, servicio=Depends(obtener_servicio)):
         return servicio.resumen_pines_seccion(anio_id, seccion)
 
     @router.post(
@@ -114,21 +150,21 @@ def crear_router(obtener_servicio, exigir_permiso, exigir_alguno) -> APIRouter:
         status_code=201,
         dependencies=[Depends(exigir_permiso("importaciones.administrar"))],
     )
-    async def crear_anio(datos: AnioEntrada, servicio=Depends(obtener_servicio)):
+    def crear_anio(datos: AnioEntrada, servicio=Depends(obtener_servicio)):
         return servicio.crear_anio(datos)
 
     @router.post(
         "/anios-lectivos/{anio_id}/activar",
         dependencies=[Depends(exigir_permiso("importaciones.administrar"))],
     )
-    async def activar(anio_id: int, servicio=Depends(obtener_servicio)):
+    def activar(anio_id: int, servicio=Depends(obtener_servicio)):
         return servicio.activar_anio(anio_id)
 
     @router.get(
         "/menu/ciclo",
         dependencies=[Depends(exigir_permiso("menu.administrar"))],
     )
-    async def ciclo_menu(servicio=Depends(obtener_servicio)):
+    def ciclo_menu(servicio=Depends(obtener_servicio)):
         configuracion = servicio.configuracion_ciclo_menu()
         return (
             {"inicioCicloMenu": configuracion.inicio_ciclo_menu}
@@ -140,7 +176,7 @@ def crear_router(obtener_servicio, exigir_permiso, exigir_alguno) -> APIRouter:
         "/menu/ciclo",
         dependencies=[Depends(exigir_permiso("menu.administrar"))],
     )
-    async def configurar_ciclo_menu(datos: CicloMenuEntrada, servicio=Depends(obtener_servicio)):
+    def configurar_ciclo_menu(datos: CicloMenuEntrada, servicio=Depends(obtener_servicio)):
         configuracion = servicio.configurar_ciclo_menu(datos)
         return {"inicioCicloMenu": configuracion.inicio_ciclo_menu}
 
@@ -148,7 +184,7 @@ def crear_router(obtener_servicio, exigir_permiso, exigir_alguno) -> APIRouter:
         "/matriculas",
         dependencies=[Depends(exigir_alguno("personas.administrar", "rutas.administrar"))],
     )
-    async def matriculas(anio_id: int | None = None, servicio=Depends(obtener_servicio)):
+    def matriculas(anio_id: int | None = None, servicio=Depends(obtener_servicio)):
         return servicio.listar_matriculas(anio_id)
 
     @router.post(
@@ -156,49 +192,61 @@ def crear_router(obtener_servicio, exigir_permiso, exigir_alguno) -> APIRouter:
         status_code=201,
         dependencies=[Depends(exigir_permiso("personas.administrar"))],
     )
-    async def crear_matricula(datos: MatriculaEntrada, servicio=Depends(obtener_servicio)):
+    def crear_matricula(datos: MatriculaEntrada, servicio=Depends(obtener_servicio)):
         return servicio.crear_matricula(datos)
 
     @router.put(
         "/matriculas/{matricula_id}/beneficios",
         dependencies=[Depends(exigir_permiso("personas.administrar"))],
     )
-    async def actualizar_beneficios(
+    def actualizar_beneficios(
         matricula_id: int,
         datos: MatriculaBeneficiosEntrada,
         servicio=Depends(obtener_servicio),
     ):
         return servicio.actualizar_beneficios_matricula(matricula_id, datos)
 
-    @router.put("/matriculas/{matricula_id}/beneficio-comedor", dependencies=[Depends(exigir_permiso("personas.administrar"))])
-    async def actualizar_beneficio_comedor(matricula_id: int, datos: MatriculaBeneficioEntrada, servicio=Depends(obtener_servicio)):
+    @router.put(
+        "/matriculas/{matricula_id}/beneficio-comedor",
+        dependencies=[Depends(exigir_permiso("personas.administrar"))],
+    )
+    def actualizar_beneficio_comedor(
+        matricula_id: int, datos: MatriculaBeneficioEntrada, servicio=Depends(obtener_servicio)
+    ):
         return servicio.actualizar_beneficios_matricula(
             matricula_id, MatriculaBeneficiosEntrada(becado=datos.becado)
         )
 
-    @router.put("/matriculas/{matricula_id}/ruta", dependencies=[Depends(exigir_permiso("personas.administrar"))])
-    async def cambiar_ruta_matricula(matricula_id: int, datos: CambioRutaMatriculaEntrada, servicio=Depends(obtener_servicio)):
+    @router.put(
+        "/matriculas/{matricula_id}/ruta",
+        dependencies=[Depends(exigir_permiso("personas.administrar"))],
+    )
+    def cambiar_ruta_matricula(
+        matricula_id: int, datos: CambioRutaMatriculaEntrada, servicio=Depends(obtener_servicio)
+    ):
         return servicio.cambiar_ruta_matricula(matricula_id, datos.ruta_id)
 
     @router.get(
         "/rutas",
-        dependencies=[Depends(exigir_alguno("personas.administrar", "transporte.operar", "rutas.administrar"))],
+        dependencies=[
+            Depends(exigir_alguno("personas.administrar", "transporte.operar", "rutas.administrar"))
+        ],
     )
-    async def rutas(servicio=Depends(obtener_servicio)):
+    def rutas(servicio=Depends(obtener_servicio)):
         return servicio.listar_rutas_activas()
 
     @router.get("/rutas/paleta", dependencies=[Depends(exigir_permiso("rutas.administrar"))])
-    async def paleta_rutas():
+    def paleta_rutas():
         return opciones()
 
     @router.post(
         "/rutas", status_code=201, dependencies=[Depends(exigir_permiso("rutas.administrar"))]
     )
-    async def crear_ruta(datos: RutaEntrada, servicio=Depends(obtener_servicio)):
+    def crear_ruta(datos: RutaEntrada, servicio=Depends(obtener_servicio)):
         return servicio.crear_ruta(datos)
 
     @router.put("/rutas/{ruta_id}", dependencies=[Depends(exigir_permiso("rutas.administrar"))])
-    async def actualizar_ruta(ruta_id: int, datos: RutaEntrada, servicio=Depends(obtener_servicio)):
+    def actualizar_ruta(ruta_id: int, datos: RutaEntrada, servicio=Depends(obtener_servicio)):
         return servicio.actualizar_ruta(ruta_id, datos)
 
     @router.post(
@@ -206,9 +254,7 @@ def crear_router(obtener_servicio, exigir_permiso, exigir_alguno) -> APIRouter:
         status_code=201,
         dependencies=[Depends(exigir_permiso("rutas.administrar"))],
     )
-    async def asignar(
-        ruta_id: int, datos: AsignacionRutaEntrada, servicio=Depends(obtener_servicio)
-    ):
+    def asignar(ruta_id: int, datos: AsignacionRutaEntrada, servicio=Depends(obtener_servicio)):
         return servicio.asignar_ruta(ruta_id, datos)
 
     return router

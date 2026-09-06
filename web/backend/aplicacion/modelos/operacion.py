@@ -230,7 +230,12 @@ class IndicadorAnaliticoComedor(BaseDeclarativa):
     )
     __table_args__ = (
         UniqueConstraint("persona_id", "fecha_corte"),
-        CheckConstraint("dias_observados >= 0 AND dias_presentes >= 0", name="conteos_indicador_no_negativos"),
-        CheckConstraint("porcentaje_asistencia >= 0 AND porcentaje_asistencia <= 100", name="porcentaje_indicador_valido"),
+        CheckConstraint(
+            "dias_observados >= 0 AND dias_presentes >= 0", name="conteos_indicador_no_negativos"
+        ),
+        CheckConstraint(
+            "porcentaje_asistencia >= 0 AND porcentaje_asistencia <= 100",
+            name="porcentaje_indicador_valido",
+        ),
         Index("ix_indicador_analitico_corte_senal", "fecha_corte", "senal"),
     )

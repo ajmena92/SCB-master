@@ -74,6 +74,7 @@ services:
       POSTGRES_USER: ${POSTGRES_APP_USER:-scb_api}
       POSTGRES_PASSWORD_FILE: /run/secrets/postgres_app_password
       CORS_ORIGIN: ${CORS_ORIGIN:?Defina CORS_ORIGIN}
+      APP_ENV: ${APP_ENV:-production}
       COOKIE_SECURE: ${COOKIE_SECURE:-true}
       CARNET_QR_CLAVE_FILE: /run/secrets/carnet_qr_clave
       CSRF_SECRET_FILE: /run/secrets/csrf_secret
@@ -94,7 +95,7 @@ services:
       postgres:
         condition: service_healthy
     restart: unless-stopped
-    networks: [privada, salida_web]
+    networks: [privada]
     expose: ["8000"]
     mem_limit: ${API_MEMORIA_LIMITE:-256m}
     mem_reservation: ${API_MEMORIA_RESERVA:-128m}
@@ -213,7 +214,7 @@ services:
       api:
         condition: service_healthy
     restart: unless-stopped
-    networks: [salida_web]
+    networks: [privada, salida_web]
     # En producción mantenga WEB_HOST=127.0.0.1 detrás de un proxy HTTPS.
     # Para una prueba controlada en la LAN, use WEB_HOST=0.0.0.0.
     ports: ["${WEB_HOST:-127.0.0.1}:${WEB_PUERTO:-8081}:8080"]

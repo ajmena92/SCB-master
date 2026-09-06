@@ -22,14 +22,15 @@ class ServicioImportacion:
         try:
             from openpyxl import load_workbook
 
-            hoja = load_workbook(io.BytesIO(contenido), read_only=True, data_only=True).active
-            filas = list(hoja.iter_rows(values_only=True))
-            encabezados = [str(v).strip().lower() if v else "" for v in filas[0]]
+            libro = load_workbook(io.BytesIO(contenido), read_only=True, data_only=True)
+            hoja = libro.active
+            filas = hoja.iter_rows(values_only=True)
+            encabezados = [str(v).strip().lower() if v else "" for v in next(filas, ())]
             requeridas = {"cedula", "nombres", "tipo"}
             if not requeridas <= set(encabezados):
                 raise ValueError("faltan columnas cedula, nombres o tipo")
             datos = []
-            for valores in filas[1:]:
+            for valores in filas:
                 fila = dict(zip(encabezados, valores))
                 if not any(v is not None for v in valores):
                     continue
@@ -45,6 +46,9 @@ class ServicioImportacion:
             return ImportacionEntrada(anio=anio, filas=datos)
         except Exception as exc:
             raise HTTPException(422, f"Excel invalido: {exc}") from exc
+        finally:
+            if "libro" in locals():
+                libro.close()
 
     def _huella(self, datos):
         return hashlib.sha256(
@@ -56,6 +60,7 @@ class ServicioImportacion:
         cedulas = set()
         altas = cambios = 0
         tipos = set()
+        existentes = self.repo.personas_por_cedulas({f.cedula for f in datos.filas if f.cedula})
         for indice, fila in enumerate(datos.filas, 1):
             if not fila.cedula:
                 errores.append({"fila": indice, "error": "cedula requerida"})
@@ -65,14 +70,16 @@ class ServicioImportacion:
                 continue
             cedulas.add(fila.cedula)
             tipos.add(fila.tipo)
-            existente = self.repo.persona_cedula(fila.cedula)
+            existente = existentes.get(fila.cedula)
             altas += existente is None
             cambios += existente is not None
             if existente and existente.tipo != fila.tipo:
-                errores.append({"fila": indice, "error": "el tipo no coincide con la persona existente"})
+                errores.append(
+                    {"fila": indice, "error": "el tipo no coincide con la persona existente"}
+                )
             if fila.tipo == "estudiante" and not fila.seccion:
                 errores.append({"fila": indice, "error": "seccion requerida"})
-        desactivaciones = len(self.repo.activas_ausentes_del_padron(tipos, cedulas))
+        desactivaciones = self.repo.contar_activas_ausentes(tipos, cedulas)
         return {
             "huella": self._huella(datos),
             "total": len(datos.filas),
@@ -99,8 +106,13 @@ class ServicioImportacion:
         tipos = {fila.tipo for fila in datos.filas}
         cedulas = {fila.cedula for fila in datos.filas if fila.cedula}
         ausentes = self.repo.activas_ausentes_del_padron(tipos, cedulas)
+        existentes = self.repo.personas_por_cedulas(cedulas)
+        matriculas = self.repo.matriculas_por_personas(
+            [p.id for p in existentes.values() if p.tipo == "estudiante"], anio.id
+        )
+        matriculas_actualizadas = []
         for fila in datos.filas:
-            persona = self.repo.persona_cedula(fila.cedula)
+            persona = existentes.get(fila.cedula)
             if not persona:
                 persona = Persona(
                     cedula=fila.cedula.strip(),
@@ -121,7 +133,7 @@ class ServicioImportacion:
                 persona.nombres, persona.activo = fila.nombres, True
             if fila.tipo != "estudiante":
                 continue
-            matricula = self.repo.matricula(persona.id, anio.id) or Matricula(
+            matricula = matriculas.get(persona.id) or Matricula(
                 persona_id=persona.id, anio_lectivo_id=anio.id
             )
             matricula.seccion, matricula.turno, matricula.estado = (
@@ -129,7 +141,9 @@ class ServicioImportacion:
                 "diurno",
                 "activo",
             )
-            self.repo.guardar(matricula)
+            matriculas_actualizadas.append(matricula)
+        if matriculas_actualizadas:
+            self.repo.guardar(*matriculas_actualizadas)
         self.repo.desactivar_personas(ausentes)
         lote = self.repo.guardar(
             LoteImportacion(huella=huella, estado="confirmado", resumen=json.dumps(resumen))

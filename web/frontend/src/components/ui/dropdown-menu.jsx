@@ -43,7 +43,7 @@ const DropdownMenuSubContent = ({ ref, className, ...props }) => (
 );
 DropdownMenuSubContent.displayName = DropdownMenuPrimitive.SubContent.displayName;
 
-const DropdownMenuContent = ({ ref, className, sideOffset = 4, ...props }) => (
+const DropdownMenuContent = ({ ref = undefined, className = "", sideOffset = 4, ...props }) => (
   <DropdownMenuPrimitive.Portal>
     <DropdownMenuPrimitive.Content
       ref={ref}
@@ -92,7 +92,7 @@ const DropdownMenuCheckboxItem = ({ ref, className, children, checked, ...props 
 );
 DropdownMenuCheckboxItem.displayName = DropdownMenuPrimitive.CheckboxItem.displayName;
 
-const DropdownMenuRadioItem = ({ ref, className, children, ...props }) => (
+const DropdownMenuRadioItem = ({ ref = undefined, className = "", children, ...props }) => (
   <DropdownMenuPrimitive.RadioItem
     ref={ref}
     className={cn(

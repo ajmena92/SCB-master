@@ -1,15 +1,14 @@
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useInicioSesionEstudiantil } from "@/funcionalidades/identidad/hooks/useInicioSesion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import CampoPin from "@/funcionalidades/identidad/componentes/CampoPin";
 import { AlertTriangle, Loader2, UtensilsCrossed, ShieldCheck } from "lucide-react";
 import { SelectorTema } from "@/compartido/componentes/SelectorTema";
 
 export default function StudentLogin() {
-  const pinInputRef = useRef(null);
   const {
     cedula,
     pin,
@@ -22,7 +21,7 @@ export default function StudentLogin() {
   } = useInicioSesionEstudiantil();
 
   useEffect(() => {
-    if (error) pinInputRef.current?.focus();
+    if (error) document.querySelector('[data-testid="student-pin-input"] input')?.focus();
   }, [error]);
 
   return (
@@ -58,7 +57,7 @@ export default function StudentLogin() {
             <UtensilsCrossed className="h-7 w-7" />
             <span className="font-heading font-bold text-lg">Comedor SCSC</span>
           </div>
-          <p className="mb-2 font-body text-xs font-medium uppercase tracking-[0.2em] text-primary">
+          <p className="mb-2 font-body text-xs font-medium uppercase tracking-[0.2em] text-foreground">
             Acceso de estudiantes y profesores
           </p>
           <h1 className="font-display text-3xl font-bold tracking-tight mb-8">
@@ -78,27 +77,12 @@ export default function StudentLogin() {
                 autoComplete="username"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="student-pin">PIN de 6 dígitos</Label>
-              <InputOTP
-                ref={pinInputRef}
-                id="student-pin"
-                maxLength={6}
-                value={pin}
-                onChange={cambiarPin}
-                data-testid="student-pin-input"
-              >
-                <InputOTPGroup className="w-full justify-between">
-                  {[0, 1, 2, 3, 4, 5].map((i) => (
-                    <InputOTPSlot
-                      key={i}
-                      index={i}
-                      className="h-12 w-12 text-lg rounded-xl border-input"
-                    />
-                  ))}
-                </InputOTPGroup>
-              </InputOTP>
-            </div>
+            <CampoPin
+              label="PIN de 6 dígitos"
+              value={pin}
+              onChange={cambiarPin}
+              testid="student-pin-input"
+            />
 
             {error && (
               <div

@@ -19,13 +19,27 @@ export function EstadoPanel({
   }[variante];
   return (
     <div
-      className={`rounded-xl border px-4 py-4 text-sm leading-6 ${estilos}`}
+      className={`rounded-xl border px-4 py-4 text-sm leading-6 ${
+        variante === "carga"
+          ? "flex min-h-[11rem] flex-col items-center justify-center gap-3 text-center"
+          : ""
+      } ${estilos}`}
       role={variante === "error" ? "alert" : "status"}
       aria-live={variante === "error" ? "assertive" : "polite"}
       aria-busy={variante === "carga"}
     >
+      {variante === "carga" && (
+        <span
+          className="h-5 w-5 animate-spin rounded-full border-2 border-primary/25 border-t-primary"
+          aria-hidden="true"
+        />
+      )}
       {titulo && <p className="font-semibold text-foreground">{titulo}</p>}
-      {children && <div className={titulo ? "mt-1" : undefined}>{children}</div>}
+      {children && (
+        <div className={variante === "carga" ? "text-sm text-muted-foreground" : titulo ? "mt-1" : undefined}>
+          {children}
+        </div>
+      )}
       {accion && <div className="mt-3">{accion}</div>}
     </div>
   );

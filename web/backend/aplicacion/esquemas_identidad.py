@@ -8,9 +8,24 @@ from pydantic import Field, field_validator, model_validator
 from aplicacion.esquemas_base import Contrato
 
 
+PIN_COMUNES = frozenset({"012345", "123456", "987654"})
+
+
+def pin_debil(valor: str) -> bool:
+    """Detecta PIN obvios que no deben usarse como credencial personal."""
+    return valor in PIN_COMUNES or len(set(valor)) == 1
+
+
 class CambioPinEntrada(Contrato):
     pin_actual: str = Field(pattern=r"^\d{6}$")
     pin_nuevo: str = Field(pattern=r"^\d{6}$")
+
+    @field_validator("pin_nuevo")
+    @classmethod
+    def validar_pin_seguro(cls, valor: str) -> str:
+        if pin_debil(valor):
+            raise ValueError("El PIN nuevo no puede ser obvio o repetitivo")
+        return valor
 
 
 class PortalEntrada(Contrato):

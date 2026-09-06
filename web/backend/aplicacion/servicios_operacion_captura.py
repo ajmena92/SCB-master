@@ -1,10 +1,10 @@
 """Casos de uso de captura y auditoría de ingresos."""
 
+from datetime import date
+from hashlib import sha256
 from time import perf_counter
 
 from fastapi import HTTPException
-from datetime import date
-from hashlib import sha256
 
 from aplicacion.codigo_qr_carnet import PREFIJO_QR, CodigoQrCarnet, ErrorCodigoQrCarnet
 

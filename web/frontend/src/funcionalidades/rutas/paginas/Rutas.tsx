@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Plus, Search } from "lucide-react";
-import { toast } from "sonner";
+import { notificar } from "@/compartido/notificaciones/notificaciones";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   AlertDialog,
@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { errMsg } from "@/compartido/consultas/errores_api";
 import { EstadoPanel } from "@/compartido/componentes/Estados";
+import { EncabezadoPagina } from "@/funcionalidades/plataforma/componentes/ElementosComunes";
 import { EditorRuta } from "../EditorRuta";
 import { ListadoRutas } from "../componentes/ListadoRutas";
 import { actualizarRuta, crearRuta, obtenerDatosRutas, validarRuta } from "../consultas/rutas";
@@ -81,7 +82,7 @@ export default function RutasTab() {
       };
       if (form.idRuta) await actualizarRuta(form.idRuta, datos);
       else await crearRuta(datos);
-      toast.success(form.idRuta ? "Ruta actualizada" : "Ruta creada");
+      notificar.exito(form.idRuta ? "Ruta actualizada" : "Ruta creada");
       setDrawerOpen(false);
       await refetch();
     } catch (e) {
@@ -101,7 +102,7 @@ export default function RutasTab() {
         colorHex: rutaPorConfirmar.colorCarnetHex ?? "",
         activo: false,
       });
-      toast.success("Ruta desactivada");
+      notificar.exito("Ruta desactivada");
       setRutaPorConfirmar(null);
       await refetch();
     } catch (e) {
@@ -112,22 +113,16 @@ export default function RutasTab() {
   };
   return (
     <section className="space-y-6" aria-labelledby="rutas-title">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="text-xs uppercase tracking-[0.16em] font-semibold text-primary">
-            Catálogo operativo
-          </p>
-          <h2 id="rutas-title" className="font-display text-xl font-semibold tracking-tight">
-            Rutas de transporte
-          </h2>
-          <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-            Administrá la nomenclatura MEP, la descripción y el color usado en el carné digital.
-          </p>
-        </div>
-        <Button className="w-full sm:w-auto" onClick={abrirNueva} data-testid="ruta-nueva">
-          <Plus className="mr-2 h-4 w-4" /> Nueva ruta
-        </Button>
-      </div>
+      <EncabezadoPagina
+        id="rutas-title"
+        titulo="Rutas de transporte"
+        descripcion="Administre la nomenclatura MEP, la descripción y el color del carné digital."
+        accion={
+          <Button className="w-full sm:w-auto" onClick={abrirNueva} data-testid="ruta-nueva">
+            <Plus className="mr-2 h-4 w-4" /> Nueva ruta
+          </Button>
+        }
+      />
       {(error || loadError) && !drawerOpen && (
         <Alert variant="destructive" data-testid="rutas-error">
           <AlertTitle>No se pudo completar la operación</AlertTitle>

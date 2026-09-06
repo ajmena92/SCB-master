@@ -1,9 +1,10 @@
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { errMsg } from "@/compartido/consultas/errores_api";
 import { EstadoPanel } from "@/compartido/componentes/Estados";
+import { EncabezadoPagina } from "@/funcionalidades/plataforma/componentes/ElementosComunes";
 import { DialogoDetalleMenu, DialogoSustitucionMenu } from "../componentes/DialogosCalendarioMenu";
 import { GrillaCalendarioMenu } from "../componentes/GrillaCalendarioMenu";
 import {
@@ -66,35 +67,35 @@ export default function CalendarioMenu() {
   const semanas = useMemo(() => semanasCalendario(calendario.data ?? []), [calendario.data]);
   return (
     <section className="space-y-6" aria-labelledby="calendario-menu-titulo">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h2
-            id="calendario-menu-titulo"
-            className="flex items-center gap-2 font-display text-2xl font-bold"
-          >
-            <CalendarDays className="h-6 w-6 text-primary" /> Calendario del menú
-          </h2>
-          <p className="mt-1 max-w-3xl text-sm leading-relaxed text-muted-foreground">
-            Consultá el servicio programado para cada fecha antes de la jornada. Seleccioná un día
-            lectivo para ver el detalle, registrar una sustitución o cerrar el servicio cuando
-            corresponda. Sábado y domingo se muestran solo como referencia.
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="icon" aria-label="Mes anterior" onClick={() => mover(-1)}>
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <strong className="w-40 text-center" aria-live="polite">
-            {MESES[mes - 1]} {anio}
-          </strong>
-          <Button variant="outline" size="icon" aria-label="Mes siguiente" onClick={() => mover(1)}>
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
-      {calendario.error && (
-        <EstadoPanel variante="error">{errMsg(calendario.error)}</EstadoPanel>
-      )}
+      <EncabezadoPagina
+        id="calendario-menu-titulo"
+        titulo="Calendario del menú"
+        descripcion="Consulte el servicio programado, revise cada día lectivo y registre sustituciones cuando corresponda."
+        accion={
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="icon"
+              aria-label="Mes anterior"
+              onClick={() => mover(-1)}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <strong className="w-40 text-center" aria-live="polite">
+              {MESES[mes - 1]} {anio}
+            </strong>
+            <Button
+              variant="outline"
+              size="icon"
+              aria-label="Mes siguiente"
+              onClick={() => mover(1)}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        }
+      />
+      {calendario.error && <EstadoPanel variante="error">{errMsg(calendario.error)}</EstadoPanel>}
       <div aria-busy={calendario.isPending}>
         <GrillaCalendarioMenu semanas={semanas} hoy={fechaCostaRica()} onSeleccionar={setDetalle} />
       </div>

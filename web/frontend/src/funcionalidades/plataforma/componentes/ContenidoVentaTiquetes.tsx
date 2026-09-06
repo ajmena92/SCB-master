@@ -1,6 +1,7 @@
 import { CircleNotch, Minus, Plus, Scan, UserCircle, WarningCircle } from "@phosphor-icons/react";
 import type { RefObject } from "react";
 import type { Tarifa } from "@/compartido/contratos/plataforma";
+import { ImagenConFallback } from "@/compartido/componentes/ImagenConFallback";
 import { Campo } from "./ElementosComunes";
 import { monedaColones, type PersonaVenta } from "./venta_tiquetes";
 
@@ -86,15 +87,12 @@ export function ContenidoVentaTiquetes({
         {persona && (
           <div className="grid grid-cols-[3.75rem_minmax(0,1fr)_auto] items-center gap-3 rounded-lg border border-primary/20 bg-primary/5 p-3">
             <div className="grid size-14 place-items-center overflow-hidden rounded-lg bg-card text-primary">
-              {fotoUrl ? (
-                <img
-                  className="size-full object-cover object-top"
-                  src={fotoUrl}
-                  alt={`Fotografía de ${persona.nombres}`}
-                />
-              ) : (
-                <UserCircle aria-hidden="true" size={54} />
-              )}
+              <ImagenConFallback
+                src={fotoUrl}
+                alt={`Fotografía de ${persona.nombres}`}
+                className="size-full object-cover object-top"
+                fallback={<UserCircle aria-hidden="true" size={54} />}
+              />
             </div>
             <div className="grid min-w-0 gap-1">
               <span className="text-xs font-semibold uppercase tracking-wide text-primary">

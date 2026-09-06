@@ -11,10 +11,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { toast } from "sonner";
+import { notificar } from "@/compartido/notificaciones/notificaciones";
 import { Layers3, Plus, Pencil, RefreshCw } from "lucide-react";
 import { EstadoPanel } from "@/compartido/componentes/Estados";
 import { prepararComponente, prepararComponentes } from "@/funcionalidades/menu/componentesMenu";
+import { EncabezadoPagina } from "@/funcionalidades/plataforma/componentes/ElementosComunes";
 import type { ComponenteMenu } from "@/funcionalidades/menu/componentesMenu";
 import { DIAS_MENU, EditorPlantilla } from "@/funcionalidades/menu/EditorPlantilla";
 import type { FormularioPlantilla } from "@/funcionalidades/menu/EditorPlantilla";
@@ -113,7 +114,7 @@ export default function Plantillas() {
   const plantillasSemanaActiva = plantillasPorSemana.get(semanaActiva) ?? [];
 
   useEffect(() => {
-    if (error) toast.error(errMsg(error));
+    if (error) notificar.error(errMsg(error));
   }, [error]);
 
   useEffect(() => {
@@ -141,7 +142,7 @@ export default function Plantillas() {
   const guardar = async () => {
     if (!form) return;
     if (!form.Titulo.trim()) {
-      toast.error("El título es obligatorio");
+      notificar.error("El título es obligatorio");
       return;
     }
     setSaving(true);
@@ -159,15 +160,15 @@ export default function Plantillas() {
         })),
       };
       if (!payload.componentes.length) {
-        toast.error("Agregá al menos un componente");
+        notificar.error("Agregá al menos un componente");
         return;
       }
       await api.put(`/v1/menu/plantillas/${payload.semana}/${payload.dia}`, payload);
-      toast.success("Plantilla semanal guardada.");
+      notificar.exito("Plantilla semanal guardada.");
       setOpen(false);
       await refetch();
     } catch (e) {
-      toast.error(errMsg(e));
+      notificar.error(errMsg(e));
     } finally {
       setSaving(false);
     }
@@ -175,45 +176,47 @@ export default function Plantillas() {
 
   return (
     <div className="min-w-0 space-y-8">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div className="min-w-0">
-          <h2 className="text-pretty font-display text-2xl font-[900] tracking-tight">
-            Plantillas de menú
-          </h2>
-          <p className="mt-1 max-w-[65ch] text-sm leading-relaxed text-muted-foreground">
-            Organizá las semanas de cada mes, de lunes a viernes. Algunos meses tienen cuatro
-            semanas operativas y otros cinco; las sustituciones y cierres se consultan en el
-            calendario.
-          </p>
-        </div>
-        <Button
-          className="w-full shrink-0 sm:w-auto"
-          data-testid="new-plantilla-btn"
-          onClick={() => abrir(null)}
-        >
-          <Plus className="h-4 w-4" /> Nueva plantilla
-        </Button>
-      </div>
+      <EncabezadoPagina
+        titulo="Plantillas de menú"
+        descripcion="Organice las semanas de cada mes, de lunes a viernes, y prepare el menú que se publicará en el calendario."
+        accion={
+          <Button
+            className="w-full shrink-0 sm:w-auto"
+            data-testid="new-plantilla-btn"
+            onClick={() => abrir(null)}
+          >
+            <Plus className="h-4 w-4" /> Nueva plantilla
+          </Button>
+        }
+      />
 
       {loading ? (
         <EstadoPanel variante="carga">Cargando plantillas…</EstadoPanel>
       ) : error ? (
         <div data-testid="plantillas-error">
-          <EstadoPanel variante="error" titulo="No pudimos cargar las plantillas" accion={
-            <Button
-              variant="outline"
-              className="w-full shrink-0 sm:w-auto"
-              data-testid="plantillas-retry"
-              onClick={() => refetch()}
-            >
-              <RefreshCw className="h-4 w-4" /> Reintentar
-            </Button>
-          }>{errMsg(error)}</EstadoPanel>
+          <EstadoPanel
+            variante="error"
+            titulo="No pudimos cargar las plantillas"
+            accion={
+              <Button
+                variant="outline"
+                className="w-full shrink-0 sm:w-auto"
+                data-testid="plantillas-retry"
+                onClick={() => refetch()}
+              >
+                <RefreshCw className="h-4 w-4" /> Reintentar
+              </Button>
+            }
+          >
+            {errMsg(error)}
+          </EstadoPanel>
         </div>
       ) : (
         <div className="space-y-5">
-          <nav
+          <div
             aria-label="Semanas del menú"
+            role="tablist"
+            aria-orientation="horizontal"
             className="hidden gap-1 overflow-x-auto rounded-xl border border-border bg-muted/40 p-1 md:flex"
           >
             {SEMANAS_MENU.map((semana) => {
@@ -234,7 +237,7 @@ export default function Plantillas() {
                 </button>
               );
             })}
-          </nav>
+          </div>
 
           <div className="rounded-xl border border-border bg-muted/40 p-3 md:hidden">
             <label

@@ -39,3 +39,9 @@ export interface VentaEntrada {
   cedula: string;
   medioPago?: string;
 }
+
+export type IngresoSalida = { idIngreso: number; nombreCompleto: string; horaMarca?: string; resultado?: string; modalidad?: string; advertencias?: string[] };
+export type ReservaSalida = Record<string, unknown>;
+export type CuentaTiquetesSalida = { idCuenta: number; saldo: number; disponibles: number; reservados?: number };
+export type TiquetesEntrada = { cantidad: number; concepto: string; claveIdempotencia: string };
+export type ConfiguracionOperacionSalida = { horarios: Array<Record<string, unknown>>; horaServidor?: string };

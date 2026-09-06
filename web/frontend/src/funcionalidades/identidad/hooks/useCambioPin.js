@@ -1,10 +1,13 @@
 import { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
+import { notificar } from "@/compartido/notificaciones/notificaciones";
 
 import { useAutenticacion } from "@/aplicacion/estado/ContextoAutenticacion";
 import { api } from "@/compartido/consultas/cliente_http";
 import { errMsg } from "@/compartido/consultas/errores_api";
+
+const PIN_COMUNES = new Set(["012345", "123456", "987654"]);
+const pinDebil = (pin) => PIN_COMUNES.has(pin) || (pin.length === 6 && new Set(pin).size === 1);
 
 export function useCambioPin() {
   const navigate = useNavigate();
@@ -23,6 +26,14 @@ export function useCambioPin() {
         setEstado({ cargando: false, error: "El nuevo PIN debe tener 6 dígitos" });
         return;
       }
+      if (pinDebil(formulario.nuevo)) {
+        setEstado({
+          cargando: false,
+          error:
+            "Elegí un PIN de 6 dígitos que no sea obvio ni repetitivo (por ejemplo, 123456 o 111111).",
+        });
+        return;
+      }
       if (formulario.nuevo !== formulario.confirmar) {
         setEstado({ cargando: false, error: "Los PIN nuevos no coinciden" });
         return;
@@ -37,7 +48,7 @@ export function useCambioPin() {
         // interfaz se limpia; la cookie HttpOnly deja de ser válida en servidor.
         setSession(false);
         setDebeCambiarPin(false);
-        toast.success("PIN actualizado. Ingresá nuevamente con tu nuevo PIN.");
+        notificar.exito("PIN actualizado. Ingresá nuevamente con tu nuevo PIN.");
         navigate("/", { replace: true });
       } catch (error) {
         setEstado({ cargando: false, error: errMsg(error) });

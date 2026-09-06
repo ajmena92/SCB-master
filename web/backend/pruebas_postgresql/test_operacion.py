@@ -85,6 +85,34 @@ def test_reserva_inmoviliza_cancelar_libera_e_ingreso_consume(entorno):
     assert estado["recientes"][0]["codigo"] == persona["codigo"]
 
 
+def test_cancelar_reserva_inexistente_es_idempotente(entorno):
+    cliente, _, h = entorno
+    persona, _, _ = preparar_estudiante(cliente, h["admin"])
+    portal = autenticar_portal(cliente.app, persona["cedula"])
+
+    respuesta = portal.delete(
+        "/api/v1/comedor/reservas",
+        headers=portal.csrf(),
+        json={"fecha": "2026-09-04"},
+    )
+
+    assert respuesta.status_code == 204
+
+
+def test_reserva_cancelada_puede_confirmarse_de_nuevo(entorno):
+    cliente, _, h = entorno
+    persona, _, _ = preparar_estudiante(cliente, h["admin"])
+    _vender(cliente, h, persona["cedula"], 2)
+    portal = autenticar_portal(cliente.app, persona["cedula"])
+    datos = {"fecha": "2026-09-04"}
+
+    assert portal.post("/api/v1/comedor/reservas", headers=portal.csrf(), json=datos).status_code == 201
+    assert portal.delete("/api/v1/comedor/reservas", headers=portal.csrf(), json=datos).status_code == 204
+    segunda = portal.post("/api/v1/comedor/reservas", headers=portal.csrf(), json=datos)
+
+    assert segunda.status_code == 201, segunda.text
+
+
 def test_estudiante_sin_reserva_exige_decision_y_profesor_no(entorno):
     cliente, _, h = entorno
     estudiante, _, _ = preparar_estudiante(cliente, h["admin"])

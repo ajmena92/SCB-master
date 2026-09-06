@@ -5,17 +5,33 @@ from datetime import date, timedelta
 from sqlalchemy import delete, func, or_, select
 
 from aplicacion.modelos.maestros import (
-    AnioLectivo, AsignacionRuta, CredencialPortal, CuentaAdministrativa,
-    EventoCredencialPortal, FotografiaPersona, Matricula, Persona, Ruta, SesionAcceso,
+    AnioLectivo,
+    AsignacionRuta,
+    CredencialPortal,
+    CuentaAdministrativa,
+    EventoCredencialPortal,
+    FotografiaPersona,
+    Matricula,
+    Persona,
+    SesionAcceso,
 )
-from aplicacion.modelos.operacion import CuentaTiquete
 from aplicacion.repositorios import desactivar_anios
+from aplicacion.repositorios_resumen_personas import cargar_relaciones_personas
 
 
 class RepositorioCatalogosPersonas:
+    def __init__(self, sesion):
+        self.sesion = sesion
+
     def listar_personas(
-        self, buscar="", estado="activos", tipo=None, pagina=1, tamano=50,
-        ordenar_por="nombres", direccion="asc",
+        self,
+        buscar="",
+        estado="activos",
+        tipo=None,
+        pagina=1,
+        tamano=50,
+        ordenar_por="nombres",
+        direccion="asc",
     ):
         consulta = select(Persona)
         if estado == "activos":
@@ -43,16 +59,23 @@ class RepositorioCatalogosPersonas:
             consulta.order_by(orden, Persona.id.asc()).offset((pagina - 1) * tamano).limit(tamano)
         ).all()
         anio = self.sesion.scalar(select(AnioLectivo).where(AnioLectivo.vigente.is_(True)))
-        salida = [self._persona_resumen(persona, anio) for persona in personas]
+        relaciones = cargar_relaciones_personas(self.sesion, personas, anio)
+        salida = [
+            self._persona_resumen(persona, anio, relaciones[persona.id]) for persona in personas
+        ]
         return {"elementos": salida, "total": total, "pagina": pagina, "tamano": tamano}
 
     def resumen_personas(self):
         anio = self.anio_vigente()
         if not anio:
             return {"estudiantes_activos": 0, "estudiantes_inactivos": 0}
-        consulta = select(func.count(Matricula.id)).join(Persona).where(
-            Matricula.anio_lectivo_id == anio.id,
-            Persona.tipo == "estudiante",
+        consulta = (
+            select(func.count(Matricula.id))
+            .join(Persona)
+            .where(
+                Matricula.anio_lectivo_id == anio.id,
+                Persona.tipo == "estudiante",
+            )
         )
         return {
             "estudiantes_activos": int(
@@ -63,50 +86,40 @@ class RepositorioCatalogosPersonas:
             ),
         }
 
+    def anio_vigente(self):
+        """Devuelve el año lectivo vigente para las consultas de personas."""
+        return self.sesion.scalar(select(AnioLectivo).where(AnioLectivo.vigente.is_(True)))
+
     def obtener_persona_resumen(self, persona_id: int):
         persona = self.persona(persona_id)
         if persona is None:
             return None
         return self._persona_resumen(persona, self.anio_vigente())
 
-    def _persona_resumen(self, persona, anio):
-        matricula = (
-            self.sesion.scalar(
-                select(Matricula).where(
-                    Matricula.persona_id == persona.id, Matricula.anio_lectivo_id == anio.id
-                )
-            )
-            if anio and persona.tipo == "estudiante"
-            else None
-        )
-        asignacion = (
-            self.sesion.scalar(
-                select(AsignacionRuta)
-                .where(
-                    AsignacionRuta.matricula_id == matricula.id,
-                    AsignacionRuta.fecha_inicio <= date.today(),
-                    or_(AsignacionRuta.fecha_fin.is_(None), AsignacionRuta.fecha_fin >= date.today()),
-                )
-                .order_by(AsignacionRuta.fecha_inicio.desc(), AsignacionRuta.id.desc())
-            )
-            if matricula
-            else None
-        )
-        ruta = self.sesion.get(Ruta, asignacion.ruta_id) if asignacion else None
-        cuenta = self.sesion.get(CuentaTiquete, persona.id)
+    def _persona_resumen(self, persona, anio, relaciones=None):
+        if relaciones is None:
+            relaciones = cargar_relaciones_personas(self.sesion, [persona], anio)[persona.id]
+        matricula, ruta, cuenta = relaciones
         ruta_valida = ruta and ruta.activo and ruta.codigo != "0000"
         return {
-            "id": persona.id, "referenciaPublica": persona.referencia_publica,
+            "id": persona.id,
+            "referenciaPublica": persona.referencia_publica,
             "cedula": persona.cedula,
-            "nombres": persona.nombres, "tipo": persona.tipo, "activo": persona.activo,
+            "nombres": persona.nombres,
+            "tipo": persona.tipo,
+            "activo": persona.activo,
             "matriculaId": matricula.id if matricula else None,
             "seccion": matricula.seccion if matricula else None,
             "becado": bool(matricula and matricula.becado),
-            "beneficioComedor": "Beneficiario" if matricula and matricula.becado else "No beneficiario",
+            "beneficioComedor": "Beneficiario"
+            if matricula and matricula.becado
+            else "No beneficiario",
             "estadoMatricula": matricula.estado if matricula else None,
             "rutaId": ruta.id if ruta is not None and ruta_valida else None,
             "descripcionRuta": ruta.descripcion if ruta is not None and ruta_valida else None,
-            "beneficioTransporte": f"Beneficiario – {ruta.descripcion}" if ruta is not None and ruta_valida else "No beneficiario",
+            "beneficioTransporte": f"Beneficiario – {ruta.descripcion}"
+            if ruta is not None and ruta_valida
+            else "No beneficiario",
             "saldoTiquetes": cuenta.saldo if cuenta else 0,
         }
 
@@ -146,11 +159,13 @@ class RepositorioCatalogosPersonas:
         self.sesion.add(persona)
         self.sesion.flush()
         credencial.persona_id = cuenta.persona_id = persona.id
-        self.sesion.add_all([
-            credencial,
-            cuenta,
-            EventoCredencialPortal(persona_id=persona.id, tipo="creacion"),
-        ])
+        self.sesion.add_all(
+            [
+                credencial,
+                cuenta,
+                EventoCredencialPortal(persona_id=persona.id, tipo="creacion"),
+            ]
+        )
 
     def actualizar_persona(self, persona, datos):
         persona.cedula = datos.cedula.strip() if datos.cedula else None
@@ -164,9 +179,12 @@ class RepositorioCatalogosPersonas:
         self.sesion.flush()
 
     def tiene_cuenta_administrativa(self, persona_id: int) -> bool:
-        return self.sesion.scalar(
-            select(CuentaAdministrativa.id).where(CuentaAdministrativa.persona_id == persona_id)
-        ) is not None
+        return (
+            self.sesion.scalar(
+                select(CuentaAdministrativa.id).where(CuentaAdministrativa.persona_id == persona_id)
+            )
+            is not None
+        )
 
     def cambiar_ruta_matricula(self, matricula, ruta_id: int | None):
         actual = self.sesion.scalar(
@@ -181,7 +199,9 @@ class RepositorioCatalogosPersonas:
         if ruta_id is None:
             self.sesion.flush()
             return None
-        asignacion = AsignacionRuta(matricula_id=matricula.id, ruta_id=ruta_id, fecha_inicio=date.today())
+        asignacion = AsignacionRuta(
+            matricula_id=matricula.id, ruta_id=ruta_id, fecha_inicio=date.today()
+        )
         self.sesion.add(asignacion)
         self.sesion.flush()
         return asignacion
@@ -196,12 +216,18 @@ class RepositorioCatalogosPersonas:
     def reiniciar_pin(self, persona, hash_pin: str, cuenta_id: int, tipo: str) -> None:
         credencial = self.sesion.get(CredencialPortal, persona.id)
         if credencial is None:
-            self.sesion.add(CredencialPortal(persona_id=persona.id, pin_hash=hash_pin, cambio_obligatorio=True))
+            self.sesion.add(
+                CredencialPortal(persona_id=persona.id, pin_hash=hash_pin, cambio_obligatorio=True)
+            )
         else:
             credencial.pin_hash = hash_pin
             credencial.cambio_obligatorio = True
         self.sesion.execute(delete(SesionAcceso).where(SesionAcceso.persona_id == persona.id))
-        self.sesion.add(EventoCredencialPortal(persona_id=persona.id, cuenta_administrativa_id=cuenta_id, tipo=tipo))
+        self.sesion.add(
+            EventoCredencialPortal(
+                persona_id=persona.id, cuenta_administrativa_id=cuenta_id, tipo=tipo
+            )
+        )
         self.sesion.flush()
 
     def estudiantes_seccion(self, anio_id: int, seccion: str):
@@ -209,8 +235,11 @@ class RepositorioCatalogosPersonas:
             select(Persona)
             .join(Matricula, Matricula.persona_id == Persona.id)
             .where(
-                Matricula.anio_lectivo_id == anio_id, Matricula.seccion == seccion,
-                Matricula.estado == "activo", Persona.tipo == "estudiante", Persona.activo.is_(True),
+                Matricula.anio_lectivo_id == anio_id,
+                Matricula.seccion == seccion,
+                Matricula.estado == "activo",
+                Persona.tipo == "estudiante",
+                Persona.activo.is_(True),
             )
             .order_by(Persona.nombres)
         ).all()

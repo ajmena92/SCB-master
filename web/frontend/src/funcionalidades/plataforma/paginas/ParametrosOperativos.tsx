@@ -10,7 +10,7 @@ import {
   Tabla,
 } from "../componentes/ElementosComunes";
 import { errMsg } from "@/compartido/consultas/errores_api";
-import { toast } from "sonner";
+import { notificar } from "@/compartido/notificaciones/notificaciones";
 
 export default function ParametrosOperativos() {
   const cliente = useQueryClient();
@@ -26,21 +26,21 @@ export default function ParametrosOperativos() {
   const crear = useMutation({
     mutationFn: plataformaApi.tiquetes.crearTarifa,
     onSuccess: () => {
-      toast.success("Tarifa programada");
+      notificar.exito("Tarifa programada");
       cliente.invalidateQueries({ queryKey: ["tarifas"] });
     },
   });
   const guardarHorario = useMutation({
     mutationFn: plataformaApi.tiquetes.actualizarHorarioReserva,
     onSuccess: () => {
-      toast.success("Hora límite actualizada");
+      notificar.exito("Hora límite actualizada");
       cliente.invalidateQueries({ queryKey: ["horarios-reserva"] });
     },
   });
   const guardarInstitucion = useMutation({
     mutationFn: plataformaApi.tiquetes.actualizarInstitucion,
     onSuccess: () => {
-      toast.success("Datos institucionales actualizados");
+      notificar.exito("Datos institucionales actualizados");
       cliente.invalidateQueries({ queryKey: ["institucion"] });
     },
   });

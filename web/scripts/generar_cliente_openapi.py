@@ -197,6 +197,22 @@ def _generar_esquemas(
             lineas.append("}")
         lineas.append("")
 
+    if not propios:
+        lineas.append("export {};" )
+    if dominio == "comedor":
+        lineas.extend([
+            "export type IngresoSalida = { idIngreso: number; nombreCompleto: string; horaMarca?: string; resultado?: string; modalidad?: string; advertencias?: string[] };",
+            "export type ReservaSalida = Record<string, unknown>;",
+            "export type CuentaTiquetesSalida = { idCuenta: number; saldo: number; disponibles: number; reservados?: number };",
+            "export type TiquetesEntrada = { cantidad: number; concepto: string; claveIdempotencia: string };",
+            "export type ConfiguracionOperacionSalida = { horarios: Array<Record<string, unknown>>; horaServidor?: string };",
+        ])
+    if dominio == "importaciones":
+        lineas.extend([
+            "export type Previsualizacion = { totalFilas: number; valida: boolean; errores: Array<{ fila: number; mensaje: string }> };",
+            "export type LoteSalida = { idLote: number; estado: string; totalFilas: number };",
+        ])
+
     return "\n".join(lineas)
 
 

@@ -27,6 +27,7 @@ import {
   MetricCard,
 } from "@/funcionalidades/administracion/componentes/DashboardGraficos";
 import { fechaLocalActual } from "@/compartido/utilidades/fecha";
+import { EncabezadoPagina } from "@/funcionalidades/plataforma/componentes/ElementosComunes";
 const COLORS = [
   "hsl(var(--chart-1))",
   "hsl(var(--chart-2))",
@@ -93,68 +94,77 @@ export default function DashboardTab() {
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h2 className="font-display text-2xl font-bold tracking-tight">Operación del comedor</h2>
-          <p className="text-sm text-muted-foreground">
-            Padrón activo, registros de ingreso y seguimiento de beneficios.
-          </p>
-        </div>
-        <div className="flex items-end gap-2">
-          <div>
-            <label
-              htmlFor="dashboard-fecha"
-              className="text-xs font-bold uppercase tracking-wide text-muted-foreground"
+      <EncabezadoPagina
+        titulo="Operación del comedor"
+        descripcion="Consulte el padrón activo, los registros de ingreso y el seguimiento de beneficios."
+        accion={
+          <div className="flex items-end gap-2">
+            <div>
+              <label
+                htmlFor="dashboard-fecha"
+                className="text-xs font-bold uppercase tracking-wide text-muted-foreground"
+              >
+                Fecha
+              </label>
+              <Input
+                type="date"
+                id="dashboard-fecha"
+                data-testid="dashboard-fecha"
+                value={fecha}
+                onChange={(e) => setFecha(e.target.value)}
+                className="h-10 w-44"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="dashboard-tipo-persona"
+                className="text-xs font-bold uppercase tracking-wide text-muted-foreground"
+              >
+                Vista
+              </label>
+              <select
+                id="dashboard-tipo-persona"
+                aria-label="Tipo de persona"
+                value={tipoPersona}
+                onChange={(e) => {
+                  setTipoPersona(e.target.value);
+                  setPagina(1);
+                }}
+                className="h-10 rounded-md border bg-background px-3 text-sm"
+              >
+                <option value="estudiante">Estudiantes</option>
+                <option value="profesor">Profesores</option>
+              </select>
+            </div>
+            <Button
+              variant="outline"
+              size="icon"
+              aria-label="Actualizar dashboard"
+              title="Actualizar dashboard"
+              data-testid="dashboard-refresh"
+              onClick={() => refetch()}
             >
-              Fecha
-            </label>
-            <Input
-              type="date"
-              id="dashboard-fecha"
-              data-testid="dashboard-fecha"
-              value={fecha}
-              onChange={(e) => setFecha(e.target.value)}
-              className="h-10 w-44"
-            />
+              <RefreshCw className="h-4 w-4" />
+            </Button>
           </div>
-          <div>
-            <label
-              htmlFor="dashboard-tipo-persona"
-              className="text-xs font-bold uppercase tracking-wide text-muted-foreground"
-            >
-              Vista
-            </label>
-            <select
-              id="dashboard-tipo-persona"
-              aria-label="Tipo de persona"
-              value={tipoPersona}
-              onChange={(e) => {
-                setTipoPersona(e.target.value);
-                setPagina(1);
-              }}
-              className="h-10 rounded-md border bg-background px-3 text-sm"
-            >
-              <option value="estudiante">Estudiantes</option>
-              <option value="profesor">Profesores</option>
-            </select>
-          </div>
-          <Button
-            variant="outline"
-            size="icon"
-            aria-label="Actualizar dashboard"
-            title="Actualizar dashboard"
-            data-testid="dashboard-refresh"
-            onClick={() => refetch()}
-          >
-            <RefreshCw className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
+        }
+      />
 
       {loading ? (
         <EstadoPanel variante="carga">Cargando el dashboard…</EstadoPanel>
       ) : error ? (
-        <EstadoPanel variante="error" accion={<Button variant="link" className="h-auto p-0 text-destructive" onClick={() => refetch()}>Reintentar</Button>}>
+        <EstadoPanel
+          variante="error"
+          accion={
+            <Button
+              variant="link"
+              className="h-auto p-0 text-destructive"
+              onClick={() => refetch()}
+            >
+              Reintentar
+            </Button>
+          }
+        >
           {mensajeError}{" "}
         </EstadoPanel>
       ) : vistaDocenteSinContrato ? (

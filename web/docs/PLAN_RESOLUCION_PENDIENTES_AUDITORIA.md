@@ -25,13 +25,88 @@ de cierre por sí sola.
 
 | Fase | Estado | Responsable | Inicio | Cierre | Evidencia y enlace | Riesgos o bloqueo |
 | --- | --- | --- | --- | --- | --- | --- |
-| 0. Línea base y decisiones | En curso | Responsable técnico y revisor por designar | 2026-09-03 | — | [Evidencia Fase 0](EVIDENCIA_FASE_0_AUDITORIA_2026-09-03.md); [ADR-0003](decisiones/0003-sesion-cookie-y-csrf.md) | **Bloqueada para cierre:** ADR aceptada; faltan responsables y fechas aprobadas, y el árbol inicial tiene 104 entradas pendientes de atribución. |
-| 1. Sesión, autenticación y secretos | Completada técnicamente | Responsable técnico y revisor por designar | 2026-09-03 | Técnico: 2026-09-03; operativo: — | [Evidencia Fase 1](EVIDENCIA_FASE_1_SESION_2026-09-03.md) | Cookie+CSRF y contratos verificados (12/12 ASGI, OpenAPI/TypeScript, Compose y proxy local `204`). Secretos locales provisionados sin exponer valores; falta validar ACL efectiva fuera del volumen Windows. DDL de inactividad (Fase 5), decisión sobre `pyodbc` y `typecheck` de Fase 1 siguen pendientes. |
-| 2. Arquitectura y mantenibilidad | Completada técnicamente | Responsable técnico y revisor por designar | 2026-09-03 | Técnico: 2026-09-03; global: — | [Evidencia Fase 2](EVIDENCIA_FASE_2_ARQUITECTURA_2026-09-03.md) | División por dominios, composición sin MRO y eliminación de HTTP directo verificadas. Persisten métodos transversales acotados y 3 exenciones documentadas. |
-| 3. Calidad, pruebas y cobertura | No iniciada | Por asignar | — | — | — | — |
-| 4. Rendimiento e importaciones | No iniciada | Por asignar | — | — | — | — |
-| 5. Datos, migraciones y operación | No iniciada | Por asignar | — | — | — | — |
-| 6. Diseño, accesibilidad y cierre | No iniciada | Por asignar | — | — | — | — |
+| 0. Línea base y decisiones | Completada técnicamente | Responsable técnico: ajmena92; revisión: Codex + validación de ajmena92; DBA: administrador de producción | 2026-09-03 | 2026-09-06 | [Evidencia Fase 0](EVIDENCIA_FASE_0_AUDITORIA_2026-09-03.md); [ADR-0003](decisiones/0003-sesion-cookie-y-csrf.md); commit de consolidación | Responsables, fecha y alcance definidos. El árbol concurrente de optimización queda atribuido al commit de consolidación; la aprobación operativa final permanece con ajmena92. |
+| 1. Sesión, autenticación y secretos | Completada técnicamente | Responsable técnico: ajmena92; revisión: Codex + validación de ajmena92 | 2026-09-03 | Objetivo: 2026-09-15 | [Evidencia Fase 1](EVIDENCIA_FASE_1_SESION_2026-09-03.md) | Cookie+CSRF y contratos verificados (12/12 ASGI, OpenAPI/TypeScript, Compose y proxy local `204`). Pendientes operativos de ACL y migración de inactividad siguen documentados. |
+| 2. Arquitectura y mantenibilidad | Completada técnicamente | Responsable técnico: ajmena92; revisión: Codex + validación de ajmena92 | 2026-09-03 | Objetivo: 2026-09-15 | [Evidencia Fase 2](EVIDENCIA_FASE_2_ARQUITECTURA_2026-09-03.md) | División por dominios verificada; persisten excepciones P2 documentadas. |
+| 3. Calidad, pruebas y cobertura | Completada técnicamente | Responsable técnico: ajmena92; revisión: Codex + validación de ajmena92 | 2026-09-04 | 2026-09-06 | Evidencia Fase 3 y commit de consolidación | Pruebas, typecheck, lint, build y E2E documentados; falta solo aprobación operativa. |
+| 4. Rendimiento e importaciones | En curso | Responsable técnico: ajmena92; revisión: Codex + validación de ajmena92 | 2026-09-04 | Objetivo: 2026-09-15 | [Evidencia Fase 4](EVIDENCIA_FASE_4_LINEA_BASE_2026-09-04.md) | Falta cerrar P95/P99 de importación, reportes, personas y concurrencia. |
+| 5. Datos, migraciones y operación | Completada técnicamente | Responsable técnico: ajmena92; DBA: administrador de producción | 2026-09-05 | 2026-09-06 | Deploy all con confirmación DBA; `alembic current/heads`; respaldo y restauración temporal verificados | Falta completar TSV y el corte definitivo de WinForms; no se autoriza retirar accesos históricos. |
+| 6. Diseño, accesibilidad y cierre | En curso | Responsable técnico: ajmena92; revisión: Codex + validación de ajmena92 | 2026-09-03 | Objetivo: 2026-09-15 | [Evidencia accesibilidad](EVIDENCIA_ACCESIBILIDAD_2026-09-03.md) | Falta repetir axe, auditar expediente y validar modales/formularios con datos reales. |
+
+### Tarea añadida — revisión visual de notificaciones
+
+- **Estado:** resuelta técnicamente el 2026-09-04.
+- **Descripción:** revisar en Chromium móvil, tableta y escritorio por qué los
+  mensajes toast aparecen recortados; validar ancho, salto de línea, botón de
+  cierre, contraste y duración.
+- **Alcance:** `frontend/src/components/ui/sonner.jsx` y tokens compartidos;
+  actualizar `ESTANDAR_MODULOS_FRONTEND.md` si se modifica el patrón visual.
+- **Criterio de salida:** evidencia visual en los tres tamaños y
+  `npm run verificar:diseno` sin errores.
+- **Resultado:** se aplicaron tokens semánticos, salto de línea y espacio para
+  cierre; Chromium confirmó ausencia de overflow en 390, 768 y 1440 px. Se
+  añadió deduplicación por identificador estable, sin imponer un límite nuevo de
+  avisos visibles. “No asistiré” quedó como acción `warning` reversible y el contador
+  usa `primary`/`warning` para conservar contraste en tema oscuro. El build
+  local Docker se compiló y el servicio web respondió HTTP 200.
+
+### Corte de progreso — 2026-09-04
+
+| Fase | Progreso técnico estimado | Estado verificable en este corte |
+| --- | ---: | --- |
+| 0. Línea base y decisiones | 70% | En curso; pendientes responsables, fechas y atribución del inventario. |
+| 1. Sesión, autenticación y secretos | 95% | Completada técnicamente; pendiente validación operativa de ACL y migración de inactividad. |
+| 2. Arquitectura y mantenibilidad | 90% | Completada técnicamente; quedan excepciones P2 documentadas. |
+| 3. Calidad, pruebas y cobertura | 100% | Completada técnicamente con evidencia de typecheck, lint, build, cobertura, backend y E2E. |
+| 4. Rendimiento e importaciones | 30% | En curso; línea base parcial, cuenta sintética local y corrección de reservas disponibles. |
+| 5. Datos, migraciones y operación | 0% | No iniciada. |
+| 6. Diseño, accesibilidad y cierre | 70% | En curso; toast normalizado y puertas locales aprobadas; falta validación axe/bundle desplegado y modales reales. |
+
+### Actualización de progreso — 2026-09-04 (portal y notificaciones)
+
+| Fase | Avance actualizado | Evidencia del corte |
+| --- | ---: | --- |
+| 4. Rendimiento e importaciones | 30% | Sin cambios: continúa pendiente la medición P95/P99 de importaciones, reportes, personas y concurrencia. |
+| 6. Diseño, accesibilidad y cierre | 78% | Toast deduplicado y opaco; navegación Carnet/Menú y contador con contraste semántico en tema oscuro; build Docker local exitoso y `HTTP 200` en `127.0.0.1:8081`. |
+
+El porcentaje es una señal de seguimiento técnico, no un criterio de cierre. Solo
+los estados y evidencias enlazados determinan si una fase está completada.
+
+### Actualización de progreso — 2026-09-04 (credencial e impresión en producción)
+
+- La credencial PDF ahora muestra debajo de la fotografía la fecha de impresión y
+  el año lectivo; los iconos auxiliares del bloque QR se ocultan al imprimir.
+- La hoja se configura en tamaño carta vertical, con la credencial horizontal
+  centrada y el QR visible.
+- Build frontend validado correctamente y frontend desplegado en producción con
+  `deploy-production.sh web --remote`; el sitio respondió HTTP 200.
+- No se ejecutaron migraciones en este corte.
+
+### Actualización de progreso — 2026-09-05 (verificación PostgreSQL productiva)
+
+- PostgreSQL productivo se verificó con el rol administrador: `alembic_version`
+  registra `0018_control_intentos_autenticacion`, que coincide con la cabeza
+  disponible; no hay migraciones pendientes.
+- La tabla `intento_autenticacion` existe, confirmando que la revisión instalada
+  está aplicada.
+- El DBA transfirió la propiedad DDL de tablas y secuencias públicas a
+  `scb_migrador`, conservando los permisos DML de `scb_api`.
+- `alembic current` y `upgrade head` ejecutados con el contenedor migrador,
+  ambos correctos; la base ya estaba en `0018_control_intentos_autenticacion`.
+- El bloqueo de permisos queda resuelto técnicamente; permanece la validación
+  operativa de respaldo/restauración de la Fase 5.
+
+### Actualización de progreso — 2026-09-06 (puerta de despliegue y recuperación)
+
+- `deploy all` ahora exige `CONFIRMAR_MIGRACION_DBA=SI` antes de construir o
+  reiniciar servicios; sin la confirmación termina con código 2.
+- El despliegue productivo completo se ejecutó con confirmación explícita y API
+  saludable; `alembic current` coincidió con `alembic heads`.
+- El respaldo productivo generó el conjunto lógico, globals, base física y WAL.
+- La restauración temporal verificó hashes y restauró 34 tablas correctamente.
+- La puerta técnica de migraciones, respaldo y recuperación queda completada;
+  permanecen fuera de este corte los TSV de importación y el retiro definitivo
+  de WinForms.
 
 ## Fase 0 — Línea base, alcance y decisiones
 

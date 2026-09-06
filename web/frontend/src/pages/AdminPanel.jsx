@@ -1,14 +1,10 @@
-import { useLocation, useNavigate, Outlet } from "react-router-dom";
+import { useNavigate, Outlet } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useAutenticacion } from "@/aplicacion/estado/ContextoAutenticacion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ShieldCheck, LogOut } from "lucide-react";
-import {
-  obtenerGrupoAdministrativoActivo,
-  ADMIN_NAVIGATION,
-  obtenerRutaAdministrativaPredeterminada,
-} from "@/config/adminNavigation";
+import { obtenerRutaAdministrativaPredeterminada } from "@/config/adminNavigation";
 import AdminSidebar from "@/compartido/componentes/AdminSidebar";
 import AdminBottomNav from "@/compartido/componentes/AdminBottomNav";
 import { SelectorTema } from "@/compartido/componentes/SelectorTema";
@@ -18,10 +14,6 @@ import { esAdministrador } from "@/funcionalidades/plataforma/seguridad";
 export default function AdminPanel() {
   const { session, logout } = useAutenticacion();
   const navigate = useNavigate();
-  const location = useLocation();
-  const activeModule = ADMIN_NAVIGATION.find((item) => item.path === location.pathname);
-  const activeGroup = obtenerGrupoAdministrativoActivo(location.pathname);
-  const esExpediente = location.pathname.startsWith("/admin/panel/estudiantes/expediente/");
   const institucion = useQuery({
     queryKey: ["institucion"],
     queryFn: plataformaApi.tiquetes.institucion,
@@ -54,7 +46,7 @@ export default function AdminPanel() {
             </span>
             <span className="min-w-0">
               <span className="block truncate font-heading text-sm font-bold tracking-tight sm:text-base">
-                Comedor SCSC
+                {nombreColegio}
               </span>
               <span className="hidden text-xs font-medium text-muted-foreground sm:block">
                 Administración
@@ -67,7 +59,10 @@ export default function AdminPanel() {
               <p className="text-sm font-semibold leading-tight">
                 {session?.nombres || session?.usuario}
               </p>
-              <Badge className="bg-primary text-primary-foreground text-[10px]" data-testid="admin-rol-badge">
+              <Badge
+                className="bg-primary text-primary-foreground text-[10px]"
+                data-testid="admin-rol-badge"
+              >
                 {session?.rol}
               </Badge>
             </div>
@@ -91,24 +86,6 @@ export default function AdminPanel() {
           id="admin-content"
           className="min-w-0 flex-1 overflow-x-hidden px-4 py-6 pb-28 sm:px-6 lg:px-8 lg:py-8 lg:pb-8 xl:px-10"
         >
-          {!esExpediente && (
-            <div className="mb-8 flex min-w-0 items-end justify-between gap-4 border-b border-border/80 pb-5">
-              <div className="min-w-0">
-                <p className="text-xs font-semibold capitalize tracking-wide text-muted-foreground">
-                  {activeGroup || "Administración"}
-                </p>
-                <h1 className="mt-1 truncate font-heading text-2xl font-bold tracking-tight text-foreground">
-                  {activeModule?.label || "Panel administrativo"}
-                </h1>
-              </div>
-              <span
-                className="hidden max-w-[18rem] shrink-0 truncate rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-semibold text-muted-foreground sm:inline-flex"
-                title={nombreColegio}
-              >
-                {nombreColegio}
-              </span>
-            </div>
-          )}
           <Outlet />
         </main>
       </div>

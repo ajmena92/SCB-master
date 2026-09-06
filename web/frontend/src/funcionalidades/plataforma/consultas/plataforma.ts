@@ -12,6 +12,7 @@ import type {
   ResumenPersonas,
   ResumenImportacion,
   Tarifa,
+  Pagina,
 } from "@/compartido/contratos/plataforma";
 import { api } from "@/compartido/consultas/cliente_http";
 import { normalizarObjeto, normalizarPagina } from "./normalizacion";

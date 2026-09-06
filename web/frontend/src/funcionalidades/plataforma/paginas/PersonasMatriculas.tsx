@@ -2,7 +2,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Key, MagnifyingGlass, X } from "@phosphor-icons/react";
 import { useNavigate } from "react-router-dom";
-import type { AnioLectivo, CredencialTemporal, Persona } from "@/compartido/contratos/plataforma";
+import type { AnioLectivo, CredencialTemporal } from "@/compartido/contratos/plataforma";
 import { errMsg } from "@/compartido/consultas/errores_api";
 import DialogoCredencialTemporal from "../componentes/DialogoCredencialTemporal";
 import ListadoPersonas, { type OrdenPersonas } from "../componentes/ListadoPersonas";

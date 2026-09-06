@@ -69,13 +69,13 @@ export function VistaMenuEstudiante({
               <p
                 data-testid="countdown"
                 aria-labelledby="countdown-title"
-                className={`mt-1 font-display text-4xl font-bold tracking-tight ${cierreProximo ? "text-primary" : "text-secondary"}`}
+                className={`mt-1 font-display text-4xl font-bold tracking-tight ${cierreProximo ? "text-warning" : "text-primary"}`}
               >
                 {cuentaRegresiva}
               </p>
             </div>
             <div
-              className={`rounded-full p-3 ${cierreProximo ? "bg-primary text-primary-foreground" : "bg-accent text-secondary"}`}
+              className={`rounded-full p-3 ${cierreProximo ? "bg-warning/20 text-warning" : "bg-primary/15 text-primary"}`}
               aria-hidden="true"
             >
               {cierreProximo ? <Bell className="h-6 w-6" /> : <Clock className="h-6 w-6" />}
@@ -155,7 +155,7 @@ export function VistaMenuEstudiante({
                     key={componente.Orden}
                     className="flex items-center gap-3 rounded-xl bg-accent/40 px-4 py-3"
                   >
-                    <Icono className="h-5 w-5 shrink-0 text-secondary" />
+                    <Icono className="h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
                     <div>
                       <p className="text-sm font-semibold">{componente.Nombre}</p>
                       <p className="text-xs text-muted-foreground">{componente.TipoComponente}</p>
@@ -235,7 +235,7 @@ export function VistaMenuEstudiante({
                 <CheckCircle2 className="mr-2 h-5 w-5" /> Confirmar almuerzo
               </Button>
               <Button
-                variant={asistenciaConfirmada ? "destructive" : "outline"}
+                variant="warning"
                 data-testid="decline-btn"
                 disabled={ejecutando || rechazada || !servicioDisponible}
                 onClick={() => registrarAsistencia("decline")}

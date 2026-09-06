@@ -8,6 +8,9 @@ from aplicacion.modelos.maestros import AnioLectivo, AsignacionRuta, Ruta
 
 
 class RepositorioCatalogosRutas:
+    def __init__(self, sesion):
+        self.sesion = sesion
+
     def listar_rutas(self):
         return self.sesion.execute(
             select(Ruta, func.count(AsignacionRuta.id))
@@ -40,9 +43,6 @@ class RepositorioCatalogosRutas:
         return self.sesion.get(Ruta, ruta_id)
 
     def asignacion_solapada(self, entrada) -> bool:
-        from datetime import date
-
-        from sqlalchemy import or_
 
         return (
             self.sesion.scalar(

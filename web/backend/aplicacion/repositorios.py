@@ -123,12 +123,19 @@ class RepositorioReportes:
         ).all()
 
     def alertas_analiticas(self, fecha: date):
-        ultima = self.sesion.scalar(select(func.max(IndicadorAnaliticoComedor.fecha_corte)).where(IndicadorAnaliticoComedor.fecha_corte <= fecha))
+        ultima = self.sesion.scalar(
+            select(func.max(IndicadorAnaliticoComedor.fecha_corte)).where(
+                IndicadorAnaliticoComedor.fecha_corte <= fecha
+            )
+        )
         if ultima is None:
             return []
         return self.sesion.execute(
             select(IndicadorAnaliticoComedor.senal, func.count())
-            .where(IndicadorAnaliticoComedor.fecha_corte == ultima, IndicadorAnaliticoComedor.senal != "sin datos suficientes")
+            .where(
+                IndicadorAnaliticoComedor.fecha_corte == ultima,
+                IndicadorAnaliticoComedor.senal != "sin datos suficientes",
+            )
             .group_by(IndicadorAnaliticoComedor.senal)
         ).all()
 

@@ -3,13 +3,21 @@
 from sqlalchemy import delete, select
 
 from aplicacion.modelos.menu import (
-    CalendarioMenu, ComponenteMenu, ComponentePublicado,
-    ComponenteSustitucionMenu, ConfiguracionCicloMenu, PlantillaMenu,
-    PublicacionMenu, SustitucionMenu,
+    CalendarioMenu,
+    ComponenteMenu,
+    ComponentePublicado,
+    ComponenteSustitucionMenu,
+    ConfiguracionCicloMenu,
+    PlantillaMenu,
+    PublicacionMenu,
+    SustitucionMenu,
 )
 
 
 class RepositorioCatalogosMenu:
+    def __init__(self, sesion):
+        self.sesion = sesion
+
     def configuracion_ciclo_menu(self):
         return self.sesion.get(ConfiguracionCicloMenu, 1)
 
@@ -22,6 +30,7 @@ class RepositorioCatalogosMenu:
             registro.inicio_ciclo_menu = inicio_ciclo_menu
         self.sesion.flush()
         return registro
+
     def listar_plantillas(self):
         salida = []
         for plantilla in self.sesion.scalars(
@@ -168,14 +177,16 @@ class RepositorioCatalogosMenu:
 
     def publicaciones_rango(self, desde, hasta):
         return self.sesion.scalars(
-            select(PublicacionMenu)
-            .where(PublicacionMenu.fecha >= desde, PublicacionMenu.fecha <= hasta)
+            select(PublicacionMenu).where(
+                PublicacionMenu.fecha >= desde, PublicacionMenu.fecha <= hasta
+            )
         ).all()
 
     def sustituciones_rango(self, desde, hasta):
         return self.sesion.scalars(
-            select(SustitucionMenu)
-            .where(SustitucionMenu.fecha >= desde, SustitucionMenu.fecha <= hasta)
+            select(SustitucionMenu).where(
+                SustitucionMenu.fecha >= desde, SustitucionMenu.fecha <= hasta
+            )
         ).all()
 
     def listar_sustituciones(self):

@@ -176,12 +176,17 @@ class ServicioIdentidad:
     def renovar_sesion(self, token: str) -> tuple[str, datetime]:
         """Rota el identificador sin ampliar el vencimiento absoluto vigente."""
         acceso = self.repo.sesion_acceso(token_hash(token))
-        if acceso is None or acceso.expira_en.replace(tzinfo=timezone.utc) <= datetime.now(timezone.utc):
+        if acceso is None or acceso.expira_en.replace(tzinfo=timezone.utc) <= datetime.now(
+            timezone.utc
+        ):
             raise HTTPException(401, "Sesion invalida o vencida")
         nuevo_token = secrets.token_urlsafe(32)
         acceso_nuevo = type(acceso)(
-            token_hash=token_hash(nuevo_token), tipo=acceso.tipo, persona_id=acceso.persona_id,
-            cuenta_id=acceso.cuenta_id, cambio_obligatorio=acceso.cambio_obligatorio,
+            token_hash=token_hash(nuevo_token),
+            tipo=acceso.tipo,
+            persona_id=acceso.persona_id,
+            cuenta_id=acceso.cuenta_id,
+            cambio_obligatorio=acceso.cambio_obligatorio,
             expira_en=acceso.expira_en,
         )
         self.repo.revocar_sesion(token_hash(token))

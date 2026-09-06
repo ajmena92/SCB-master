@@ -6,7 +6,7 @@ import {
   guardarSustitucion,
 } from "@/funcionalidades/administracion/consultas/menu";
 import { prepararComponente, prepararComponentes } from "@/funcionalidades/menu/componentesMenu";
-import { toast } from "sonner";
+import { notificar } from "@/compartido/notificaciones/notificaciones";
 
 export function useSustituciones() {
   const [open, setOpen] = useState(false);
@@ -32,7 +32,7 @@ export function useSustituciones() {
     },
   });
   useEffect(() => {
-    if (consulta.error) toast.error(mensajeError(consulta.error));
+    if (consulta.error) notificar.error(mensajeError(consulta.error));
   }, [consulta.error]);
   function abrir(sustitucion) {
     setForm(
@@ -80,7 +80,7 @@ export function useSustituciones() {
     }));
   }
   async function guardar() {
-    if (!form.Titulo.trim()) return toast.error("El título es obligatorio");
+    if (!form.Titulo.trim()) return notificar.error("El título es obligatorio");
     setSaving(true);
     try {
       await guardarSustitucion({
@@ -95,11 +95,11 @@ export function useSustituciones() {
           }),
         ),
       });
-      toast.success("Sustitución guardada (prevalece sobre la plantilla)");
+      notificar.exito("Sustitución guardada (prevalece sobre la plantilla)");
       setOpen(false);
       await consulta.refetch();
     } catch (error) {
-      toast.error(mensajeError(error));
+      notificar.error(mensajeError(error));
     } finally {
       setSaving(false);
     }

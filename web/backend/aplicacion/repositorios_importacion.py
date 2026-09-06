@@ -1,6 +1,6 @@
 """Persistencia de importaciones anuales."""
 
-from sqlalchemy import delete, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.orm import Session
 
 from aplicacion.modelos.maestros import (
@@ -25,6 +25,39 @@ class RepositorioImportacion:
 
     def persona_cedula(self, cedula):
         return self.sesion.scalar(select(Persona).where(Persona.cedula == cedula))
+
+    def personas_por_cedulas(self, cedulas: set[str]) -> dict[str, Persona]:
+        valores = list(cedulas)
+        personas: dict[str, Persona] = {}
+        for inicio in range(0, len(valores), 500):
+            consulta = select(Persona).where(Persona.cedula.in_(valores[inicio : inicio + 500]))
+            personas.update(
+                (p.cedula, p) for p in self.sesion.scalars(consulta) if p.cedula is not None
+            )
+        return personas
+
+    def contar_activas_ausentes(self, tipos: set[str], cedulas_presentes: set[str]) -> int:
+        consulta = (
+            select(func.count())
+            .select_from(Persona)
+            .where(Persona.activo.is_(True), Persona.tipo.in_(tipos))
+        )
+        if cedulas_presentes:
+            consulta = consulta.where(Persona.cedula.not_in(cedulas_presentes))
+        return self.sesion.scalar(consulta) or 0
+
+    def matriculas_por_personas(
+        self, personas_ids: list[int], anio_id: int
+    ) -> dict[int, Matricula]:
+        valores = list(personas_ids)
+        matriculas: dict[int, Matricula] = {}
+        for inicio in range(0, len(valores), 500):
+            consulta = select(Matricula).where(
+                Matricula.anio_lectivo_id == anio_id,
+                Matricula.persona_id.in_(valores[inicio : inicio + 500]),
+            )
+            matriculas.update((m.persona_id, m) for m in self.sesion.scalars(consulta))
+        return matriculas
 
     def activas_ausentes_del_padron(self, tipos, cedulas_presentes):
         consulta = select(Persona).where(Persona.activo.is_(True), Persona.tipo.in_(tipos))
