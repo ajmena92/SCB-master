@@ -29,7 +29,7 @@ de cierre por sí sola.
 | 1. Sesión, autenticación y secretos | Completada técnicamente | Responsable técnico: ajmena92; revisión: Codex + validación de ajmena92 | 2026-09-03 | Objetivo: 2026-09-15 | [Evidencia Fase 1](EVIDENCIA_FASE_1_SESION_2026-09-03.md) | Cookie+CSRF y contratos verificados (12/12 ASGI, OpenAPI/TypeScript, Compose y proxy local `204`). Pendientes operativos de ACL y migración de inactividad siguen documentados. |
 | 2. Arquitectura y mantenibilidad | Completada técnicamente | Responsable técnico: ajmena92; revisión: Codex + validación de ajmena92 | 2026-09-03 | Objetivo: 2026-09-15 | [Evidencia Fase 2](EVIDENCIA_FASE_2_ARQUITECTURA_2026-09-03.md) | División por dominios verificada; persisten excepciones P2 documentadas. |
 | 3. Calidad, pruebas y cobertura | Completada técnicamente | Responsable técnico: ajmena92; revisión: Codex + validación de ajmena92 | 2026-09-04 | 2026-09-06 | Evidencia Fase 3 y commit de consolidación | Pruebas, typecheck, lint, build y E2E documentados; falta solo aprobación operativa. |
-| 4. Rendimiento e importaciones | En curso | Responsable técnico: ajmena92; revisión: Codex + validación de ajmena92 | 2026-09-04 | Objetivo: 2026-09-15 | [Evidencia Fase 4](EVIDENCIA_FASE_4_LINEA_BASE_2026-09-04.md) | Falta cerrar P95/P99 de importación, reportes, personas y concurrencia. |
+| 4. Rendimiento e importaciones | En curso | Responsable técnico: ajmena92; revisión: Codex + validación de ajmena92 | 2026-09-04 | Objetivo: 2026-09-15 | [Medición Fase 4](EVIDENCIA_FASE_4_RENDIMIENTO_2026-09-05.md) | P95/P99, reportes, personas, límite XLSX y RSS medidos. Faltan aprobación operativa de presupuestos, altas con Argon2, contención y carga sostenida por Nginx/TLS. |
 | 5. Datos, migraciones y operación | Completada técnicamente | Responsable técnico: ajmena92; DBA: administrador de producción | 2026-09-05 | 2026-09-06 | Deploy all con confirmación DBA; `alembic current/heads`; respaldo y restauración temporal verificados | Falta completar TSV y el corte definitivo de WinForms; no se autoriza retirar accesos históricos. |
 | 6. Diseño, accesibilidad y cierre | En curso | Responsable técnico: ajmena92; revisión: Codex + validación de ajmena92 | 2026-09-03 | Objetivo: 2026-09-15 | [Evidencia accesibilidad](EVIDENCIA_ACCESIBILIDAD_2026-09-03.md) | Falta repetir axe, auditar expediente y validar modales/formularios con datos reales. |
 
@@ -107,6 +107,14 @@ los estados y evidencias enlazados determinan si una fase está completada.
 - La puerta técnica de migraciones, respaldo y recuperación queda completada;
   permanecen fuera de este corte los TSV de importación y el retiro definitivo
   de WinForms.
+
+### Actualización de progreso — 2026-09-06 (Fase 4)
+
+- La prueba focal de rendimiento de importación pasó 3/3 en 8,55 s.
+- Se registraron presupuestos técnicos provisionales: P95 HTTP y previsualización
+  ≤500 ms, confirmación ≤2 s y RSS combinado ≤256 MiB.
+- La Fase 4 continúa en curso hasta medir coste Argon2, contención de una misma
+  persona/reserva y carga sostenida mediante Nginx/TLS.
 
 ## Fase 0 — Línea base, alcance y decisiones
 
@@ -253,6 +261,13 @@ aprobadas; y no hay regresión de autorización.
 commit evaluado; cobertura conforme; inventario de pruebas excluidas revisado.
 
 ## Fase 4 — Rendimiento, importaciones y concurrencia
+
+**Corte 2026-09-05:** [resultados y límites](EVIDENCIA_FASE_4_RENDIMIENTO_2026-09-05.md).
+Previsualización de mil filas: de 1.001 a 3 consultas. Confirmación: de 4.006
+a 13 sentencias. Reportes poblados, personas, ingresos concurrentes y XLSX de
+exactamente 12 MiB verificados. Suite completa: 87 pruebas; comprobación focal
+posterior: 12 pruebas, mypy y Ruff aprobados. El 30 % de las tablas anteriores
+es histórico; este corte no declara el cierre de la fase.
 
 **Objetivo.** Corregir únicamente los cuellos de botella demostrados con medición.
 

@@ -30,8 +30,11 @@ class ServicioOperacionComedor(ServicioOperacionBase):
         )
         if identidad["tipo"] == "portal" and identidad["persona"].cedula != persona.cedula:
             raise HTTPException(403, "No puede reservar para otra persona")
+        self.repo.bloquear_operacion_persona(persona.id)
+        if self.repo.ingreso_fecha(persona.id, datos.fecha):
+            raise HTTPException(409, "Ya existe un ingreso para esta fecha")
         reserva_existente = self.repo.reserva_fecha(persona.id, datos.fecha)
-        if reserva_existente and reserva_existente.estado == "reservada":
+        if reserva_existente and reserva_existente.estado != "cancelada":
             raise HTTPException(409, "Ya existe una reserva")
         matricula = self._matricula(persona, datos.fecha)
         if persona.tipo == "estudiante" and not matricula:
@@ -84,6 +87,7 @@ class ServicioOperacionComedor(ServicioOperacionBase):
         )
         if identidad["tipo"] == "portal" and identidad["persona"].cedula != persona.cedula:
             raise HTTPException(403, "No puede cancelar una reserva ajena")
+        self.repo.bloquear_operacion_persona(persona.id)
         reserva = self.repo.reserva_fecha(persona.id, datos.fecha, True)
         if not reserva:
             # DELETE es idempotente: la ausencia de reserva ya representa que
@@ -113,6 +117,7 @@ class ServicioOperacionComedor(ServicioOperacionBase):
 
     def ingresar(self, datos, operador_id):
         persona = self._persona(cedula=datos.cedula)
+        self.repo.bloquear_operacion_persona(persona.id)
         if self.repo.ingreso_fecha(persona.id, datos.fecha):
             raise HTTPException(409, "Ingreso duplicado")
         reserva = self.repo.reserva_fecha(persona.id, datos.fecha, True)
@@ -142,6 +147,8 @@ class ServicioOperacionComedor(ServicioOperacionBase):
             reserva.estado = "consumida"
         elif consume:
             self._mover(persona.id, "consumo", -1, datos.fecha.isoformat())
+        if reserva:
+            reserva.estado = "consumida"
         return self.repo.guardar(
             IngresoComedor(
                 persona_id=persona.id,

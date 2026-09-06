@@ -136,7 +136,15 @@ class RepositorioOperacion:
     def cuenta(self, persona_id):
         return self.sesion.get(CuentaTiquete, persona_id)
 
+    def bloquear_operacion_persona(self, persona_id: int) -> None:
+        """Serializa operaciones incluso cuando aún no existe cuenta o reserva.
+
+        El bloqueo se conserva hasta commit/rollback de la solicitud.
+        """
+        self.sesion.execute(select(Persona.id).where(Persona.id == persona_id).with_for_update())
+
     def obtener_o_crear_cuenta(self, persona_id):
+        self.bloquear_operacion_persona(persona_id)
         registro = self.cuenta(persona_id)
         if not registro:
             registro = self.guardar(CuentaTiquete(persona_id=persona_id, saldo=0, reservados=0))

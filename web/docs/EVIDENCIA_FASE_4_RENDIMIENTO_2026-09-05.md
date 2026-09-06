@@ -88,6 +88,11 @@ La suite completa pasó **87 pruebas en 47,38 s** antes de la consolidación fin
 del resumen individual. Las guardas nuevas cubren consultas por bloques,
 equivalencia de huella XLSX y consulta única de saldos por página.
 
+Verificación posterior: **12 pruebas focales en 15,04 s**, mypy aprobado en
+65 archivos y Ruff aprobado. No se ejecutaron comprobaciones npm.
+Se usaron `executing-plans` y `verification-before-completion` para seguimiento
+del plan y comprobación de los criterios de salida.
+
 Faltan para el cierre completo original:
 
 1. Aprobar presupuestos y volumen representativo. Propuesta para este escenario
@@ -102,3 +107,16 @@ Faltan para el cierre completo original:
 
 No se ejecutó deploy de este corte. La medición ASGI no incluye Nginx, red ni TLS.
 No se declara completada la fase ni se extrapolan los resultados a producción.
+
+## Corte de verificación — 2026-09-06
+
+- La prueba focal `backend/pruebas_postgresql/test_importacion_rendimiento.py`
+  pasó **3/3** en 8,55 s.
+- El despliegue productivo completo validó API/web saludables y no cambió los
+  datos de medición sintética.
+- Se acepta como presupuesto técnico provisional para el entorno local:
+  P95 HTTP ≤500 ms, previsualización ≤500 ms, confirmación ≤2 s y RSS combinado
+  ≤256 MiB. La aprobación operativa definitiva corresponde a ajmena92.
+- La fase permanece en curso porque todavía no existe evidencia reproducible de
+  coste Argon2 con altas nuevas, contención sobre una misma persona/reserva ni
+  carga sostenida a través de Nginx/TLS.
