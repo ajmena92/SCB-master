@@ -40,9 +40,12 @@ export const usuariosAdministrativosApi = {
     ).data;
   },
   async cambiarContrasena(contrasenaActual: string, contrasenaNueva: string): Promise<void> {
-    await api.post("/v1/autenticacion/administracion/contrasena", {
-      contrasenaActual,
-      contrasenaNueva,
-    });
+    await api.post(
+      "/v1/autenticacion/administracion/contrasena",
+      { contrasenaActual, contrasenaNueva },
+      // Un 401 aquí significa que la contraseña actual no coincide; no que
+      // la sesión haya expirado. La pantalla debe conservarse para corregirla.
+      { omitirManejoFalloAutenticacion: true },
+    );
   },
 };

@@ -34,7 +34,6 @@ import {
   RefreshCw,
   Search,
   Users,
-  X,
 } from "lucide-react";
 import {
   CapacidadServicio,
@@ -50,8 +49,29 @@ const COLORS = [
   "var(--chart-4-color)",
 ];
 
-function etiquetaAsistencia(row) {
+const FILTROS_VACIOS = {
+  comedor: { busqueda: "", seccion: "", confirmacion: "", asistencia: "", beneficio: "" },
+  transporte: { busqueda: "", seccion: "", ruta: "", asignacion: "", asistencia: "" },
+};
+
+const FILTROS_PROFESOR_VACIOS = { busqueda: "", estado: "" };
+
+function copiarFiltrosVacios() {
+  return {
+    comedor: { ...FILTROS_VACIOS.comedor },
+    transporte: { ...FILTROS_VACIOS.transporte },
+  };
+}
+
+function filtrosConValor(filtros) {
+  return Object.fromEntries(Object.entries(filtros).filter(([, valor]) => valor));
+}
+
+function etiquetaAsistencia(row, servicio = "comedor") {
   if (row.historico) return "Registro histórico";
+  if (servicio === "transporte") {
+    return row.estadoClave === "presente" ? "Usó transporte" : "Aún sin marca";
+  }
   return row.estadoClave === "presente" ? "Ingresó al comedor" : "Aún sin ingreso";
 }
 
@@ -97,27 +117,32 @@ function ResumenLinea({ datos, tipo }) {
 export default function DashboardTab() {
   const { session } = useAutenticacion();
   const [fecha, setFecha] = useState(fechaLocalActual);
-  const [busqueda, setBusqueda] = useState("");
-  const [ruta, setRuta] = useState("");
-  const [beneficioTransporte, setBeneficioTransporte] = useState("");
-  const [seccion, setSeccion] = useState("");
-  const [estado, setEstado] = useState("");
   const [tipoPersona, setTipoPersona] = useState("estudiante");
-  const [servicioExportacion, setServicioExportacion] = useState("comedor");
+  const [servicioNominal, setServicioNominal] = useState("comedor");
+  const [filtrosBorrador, setFiltrosBorrador] = useState(copiarFiltrosVacios);
+  const [filtrosAplicados, setFiltrosAplicados] = useState(copiarFiltrosVacios);
+  const [filtrosProfesorBorrador, setFiltrosProfesorBorrador] = useState(
+    FILTROS_PROFESOR_VACIOS,
+  );
+  const [filtrosProfesorAplicados, setFiltrosProfesorAplicados] = useState(
+    FILTROS_PROFESOR_VACIOS,
+  );
   const [pagina, setPagina] = useState(1);
+  const esProfesor = tipoPersona === "profesor";
+  const filtrosNominales = esProfesor
+    ? filtrosProfesorAplicados
+    : filtrosAplicados[servicioNominal];
   const filtros = {
-    ...(busqueda ? { busqueda } : {}),
-    ...(ruta ? { ruta } : {}),
-    ...(beneficioTransporte ? { beneficioTransporte } : {}),
-    ...(seccion ? { seccion } : {}),
-    ...(estado ? { estado } : {}),
+    ...filtrosConValor(filtrosNominales),
     tipoPersona,
+    ...(!esProfesor ? { servicio: servicioNominal } : {}),
     pagina,
   };
   const {
     data = null,
     error,
     isPending: loading,
+    isFetching,
     refetch,
     mensajeError,
   } = useDashboard(fecha, filtros);
@@ -127,7 +152,6 @@ export default function DashboardTab() {
   const estadosComedor = data?.porEstadoComedor || [];
   const alertas = data?.alertas || [];
   const casosAnaliticos = data?.casosAnaliticos || [];
-  const esProfesor = tipoPersona === "profesor";
   const tendencia = data?.tendenciaVeinteDias || data?.ultimosCincoDias || [];
   const hayRegistrosHistoricos = tendencia.some((dia) => dia.presentes > 0);
   const beneficiariosConIngreso =
@@ -139,15 +163,31 @@ export default function DashboardTab() {
   const puedeExportar =
     session?.tipo === "administracion" &&
     (session.rol === "administrador" || session.permisos?.includes("reportes.leer"));
-  const filtrosExportacion = {
-    busqueda,
-    ruta,
-    seccion,
-    estado,
-    beneficioTransporte,
-  };
+  const filtrosExportacion = filtrosAplicados[servicioNominal];
   const enlaceExportacion = (formato) =>
-    urlListaControl(fecha, servicioExportacion, formato, filtrosExportacion);
+    urlListaControl(fecha, servicioNominal, formato, filtrosExportacion);
+
+  const actualizarFiltroEstudiante = (campo, valor) => {
+    setFiltrosBorrador((actual) => ({
+      ...actual,
+      [servicioNominal]: { ...actual[servicioNominal], [campo]: valor },
+    }));
+  };
+
+  const aplicarFiltrosEstudiante = () => {
+    setFiltrosAplicados((actual) => ({
+      ...actual,
+      [servicioNominal]: { ...filtrosBorrador[servicioNominal] },
+    }));
+    setPagina(1);
+  };
+
+  const limpiarFiltrosEstudiante = () => {
+    const vacios = { ...FILTROS_VACIOS[servicioNominal] };
+    setFiltrosBorrador((actual) => ({ ...actual, [servicioNominal]: vacios }));
+    setFiltrosAplicados((actual) => ({ ...actual, [servicioNominal]: vacios }));
+    setPagina(1);
+  };
 
   return (
     <div className="space-y-5">
@@ -186,11 +226,6 @@ export default function DashboardTab() {
                 onChange={(e) => {
                   const nuevoTipo = e.target.value;
                   setTipoPersona(nuevoTipo);
-                  if (nuevoTipo === "profesor") {
-                    setRuta("");
-                    setBeneficioTransporte("");
-                    setSeccion("");
-                  }
                   setPagina(1);
                 }}
                 className="h-11 rounded-md border bg-background px-3 text-sm"
@@ -214,7 +249,7 @@ export default function DashboardTab() {
         }
       />
 
-      {loading ? (
+      {loading && !data ? (
         <EstadoPanel variante="carga">Cargando el dashboard…</EstadoPanel>
       ) : error ? (
         <EstadoPanel
@@ -484,149 +519,243 @@ export default function DashboardTab() {
       )}
 
       <div className="overflow-hidden rounded-xl border bg-card">
-        <div className="flex flex-wrap items-end justify-between gap-3 p-4">
-          <div>
-            <h3 className="font-display font-bold">Lista nominal</h3>
-            <p className="text-sm text-muted-foreground">
-              {esProfesor
-                ? "Profesores habilitados; solo se muestran en esta vista."
-                : "Solo estudiantes; inactivos únicamente con marca histórica."}
-            </p>
-          </div>
-          {!esProfesor && puedeExportar && (
-            <div className="flex flex-wrap items-end gap-2" aria-label="Exportar lista de control">
-              <div>
-                <label
-                  htmlFor="servicio-exportacion"
-                  className="text-xs font-bold uppercase tracking-wide text-muted-foreground"
-                >
-                  Servicio
-                </label>
-                <select
-                  id="servicio-exportacion"
-                  aria-label="Servicio de la lista a exportar"
-                  value={servicioExportacion}
-                  onChange={(evento) => setServicioExportacion(evento.target.value)}
-                  className="mt-1 h-11 rounded-md border bg-background px-3 text-sm"
-                >
-                  <option value="comedor">Comedor</option>
-                  <option value="transporte">Transporte</option>
-                </select>
+        <div className="border-b p-4 sm:p-5">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <h3 className="font-display font-bold">Lista nominal</h3>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {esProfesor
+                  ? "Profesores habilitados; solo se muestran en esta vista."
+                  : "Seleccione un servicio y aplique solo los filtros que correspondan."}
+              </p>
+            </div>
+            {!esProfesor && puedeExportar && (
+              <div className="flex flex-wrap items-center gap-2" aria-label="Exportar lista de control">
+                <span className="text-xs text-muted-foreground">Exporta los filtros aplicados</span>
+                <Button asChild variant="default" size="sm">
+                  <a href={enlaceExportacion("xlsx")} download>
+                    <FileSpreadsheet aria-hidden="true" /> Excel
+                  </a>
+                </Button>
+                <Button asChild variant="outline" size="sm">
+                  <a href={enlaceExportacion("csv")} download>
+                    <Download aria-hidden="true" /> CSV
+                  </a>
+                </Button>
+                <Button asChild variant="outline" size="sm">
+                  <a href={enlaceExportacion("pdf")} target="_blank" rel="noopener noreferrer">
+                    <Printer aria-hidden="true" /> Imprimir / PDF
+                  </a>
+                </Button>
               </div>
-              <Button asChild variant="default" size="sm">
-                <a href={enlaceExportacion("xlsx")} download>
-                  <FileSpreadsheet aria-hidden="true" /> Excel
-                </a>
-              </Button>
-              <Button asChild variant="outline" size="sm">
-                <a href={enlaceExportacion("csv")} download>
-                  <Download aria-hidden="true" /> CSV
-                </a>
-              </Button>
-              <Button asChild variant="outline" size="sm">
-                <a href={enlaceExportacion("pdf")} target="_blank" rel="noopener noreferrer">
-                  <Printer aria-hidden="true" /> Imprimir / PDF
-                </a>
-              </Button>
+            )}
+          </div>
+
+          {!esProfesor && (
+            <div className="mt-5" role="radiogroup" aria-label="Servicio de la lista nominal">
+              <p className="mb-2 text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                Servicio a consultar
+              </p>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked={servicioNominal === "comedor"}
+                  onClick={() => {
+                    setServicioNominal("comedor");
+                    setPagina(1);
+                  }}
+                  className={`min-h-24 rounded-xl border p-4 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                    servicioNominal === "comedor"
+                      ? "border-primary bg-primary/5"
+                      : "border-border bg-background hover:bg-muted/50"
+                  }`}
+                >
+                  <span className="flex items-start gap-3">
+                    <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
+                      <Coffee aria-hidden="true" className="h-5 w-5" />
+                    </span>
+                    <span>
+                      <span className="block font-semibold text-foreground">Comedor</span>
+                      <span className="mt-1 block text-sm leading-5 text-muted-foreground">
+                        Confirmación, asistencia y beneficio del servicio de alimentación.
+                      </span>
+                    </span>
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked={servicioNominal === "transporte"}
+                  onClick={() => {
+                    setServicioNominal("transporte");
+                    setPagina(1);
+                  }}
+                  className={`min-h-24 rounded-xl border p-4 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                    servicioNominal === "transporte"
+                      ? "border-primary bg-primary/5"
+                      : "border-border bg-background hover:bg-muted/50"
+                  }`}
+                >
+                  <span className="flex items-start gap-3">
+                    <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
+                      <Bus aria-hidden="true" className="h-5 w-5" />
+                    </span>
+                    <span>
+                      <span className="block font-semibold text-foreground">Transporte</span>
+                      <span className="mt-1 block text-sm leading-5 text-muted-foreground">
+                        Ruta asignada y uso registrado durante la jornada.
+                      </span>
+                    </span>
+                  </span>
+                </button>
+              </div>
             </div>
           )}
-          <div className="flex flex-wrap gap-2">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="relative sm:col-span-2 xl:col-span-1">
+              <label htmlFor="nominal-search" className="mb-1 block text-xs font-medium text-muted-foreground">
+                {esProfesor ? "Profesor" : "Estudiante"}
+              </label>
+              <Search className="absolute left-3 top-[2.1rem] h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 id="nominal-search"
                 data-testid="nominal-search"
                 aria-label={esProfesor ? "Buscar profesor" : "Buscar estudiante"}
                 placeholder={esProfesor ? "Buscar profesor" : "Buscar estudiante"}
-                value={busqueda}
+                value={esProfesor ? filtrosProfesorBorrador.busqueda : filtrosBorrador[servicioNominal].busqueda}
                 onChange={(event) => {
-                  setBusqueda(event.target.value);
-                  setPagina(1);
+                  if (esProfesor) {
+                    setFiltrosProfesorBorrador((actual) => ({ ...actual, busqueda: event.target.value }));
+                  } else {
+                    actualizarFiltroEstudiante("busqueda", event.target.value);
+                  }
                 }}
-                className="h-11 w-56 pl-9 pr-12"
+                className="h-11 pl-9"
               />
-              {busqueda && (
-                <button
-                  type="button"
-                  aria-label="Limpiar búsqueda"
-                  onClick={() => setBusqueda("")}
-                  className="absolute right-1 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-md text-muted-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              )}
             </div>
             {!esProfesor && (
-              <select
-                aria-label="Filtrar asignación de transporte"
-                value={beneficioTransporte}
-                onChange={(e) => {
-                  setBeneficioTransporte(e.target.value);
-                  setRuta("");
-                  setPagina(1);
-                }}
-                className="h-11 rounded-md border bg-background px-3 text-sm"
-              >
-                <option value="">Toda asignación de transporte</option>
-                <option value="beneficiario">Con ruta asignada</option>
-                <option value="no_beneficiario">Sin ruta asignada</option>
-              </select>
-            )}
-            {!esProfesor && (
-              <select
-                aria-label="Filtrar ruta"
-                value={ruta}
-                onChange={(e) => {
-                  setRuta(e.target.value);
-                  setPagina(1);
-                }}
-                className="h-11 rounded-md border bg-background px-3 text-sm"
-              >
-                <option value="">Todas las rutas</option>
-                {rutas
-                  .filter((item) => item.idRuta)
-                  .map((item) => (
-                    <option key={item.idRuta} value={item.idRuta}>
-                      {item.nombre}
-                    </option>
+              <div>
+                <label htmlFor="nominal-seccion" className="mb-1 block text-xs font-medium text-muted-foreground">Sección</label>
+                <select
+                  id="nominal-seccion"
+                  value={filtrosBorrador[servicioNominal].seccion}
+                  onChange={(e) => actualizarFiltroEstudiante("seccion", e.target.value)}
+                  className="h-11 w-full rounded-md border bg-background px-3 text-sm"
+                >
+                  <option value="">Todas las secciones</option>
+                  {seccionesActivas.map((nivel) => (
+                    <optgroup key={nivel.etiqueta} label={nivel.etiqueta}>
+                      {nivel.secciones.map((seccionDisponible) => (
+                        <option key={seccionDisponible} value={seccionDisponible}>{seccionDisponible}</option>
+                      ))}
+                    </optgroup>
                   ))}
-              </select>
+                </select>
+              </div>
             )}
-            {!esProfesor && (
-              <select
-                aria-label="Filtrar sección"
-                value={seccion}
-                onChange={(e) => {
-                  setSeccion(e.target.value);
-                  setPagina(1);
+            {esProfesor ? (
+              <div>
+                <label htmlFor="profesor-asistencia" className="mb-1 block text-xs font-medium text-muted-foreground">Ingreso al comedor</label>
+                <select
+                  id="profesor-asistencia"
+                  value={filtrosProfesorBorrador.estado}
+                  onChange={(e) => setFiltrosProfesorBorrador((actual) => ({ ...actual, estado: e.target.value }))}
+                  className="h-11 w-full rounded-md border bg-background px-3 text-sm"
+                >
+                  <option value="">Todos los registros</option>
+                  <option value="presente">Con ingreso</option>
+                  <option value="sin_registro">Sin ingreso</option>
+                </select>
+              </div>
+            ) : servicioNominal === "comedor" ? (
+              <>
+                <div>
+                  <label htmlFor="nominal-confirmacion" className="mb-1 block text-xs font-medium text-muted-foreground">Confirmación</label>
+                  <select id="nominal-confirmacion" value={filtrosBorrador.comedor.confirmacion} onChange={(e) => actualizarFiltroEstudiante("confirmacion", e.target.value)} className="h-11 w-full rounded-md border bg-background px-3 text-sm">
+                    <option value="">Todas</option>
+                    <option value="confirmada">Confirmó asistencia</option>
+                    <option value="sin_confirmar">Sin confirmación</option>
+                  </select>
+                </div>
+                <div>
+                  <label htmlFor="nominal-asistencia-comedor" className="mb-1 block text-xs font-medium text-muted-foreground">Asistencia</label>
+                  <select id="nominal-asistencia-comedor" value={filtrosBorrador.comedor.asistencia} onChange={(e) => actualizarFiltroEstudiante("asistencia", e.target.value)} className="h-11 w-full rounded-md border bg-background px-3 text-sm">
+                    <option value="">Todas</option>
+                    <option value="presente">Asistió al comedor</option>
+                    <option value="sin_registro">Sin ingreso</option>
+                  </select>
+                </div>
+                <div>
+                  <label htmlFor="nominal-beneficio" className="mb-1 block text-xs font-medium text-muted-foreground">Beneficio</label>
+                  <select id="nominal-beneficio" value={filtrosBorrador.comedor.beneficio} onChange={(e) => actualizarFiltroEstudiante("beneficio", e.target.value)} className="h-11 w-full rounded-md border bg-background px-3 text-sm">
+                    <option value="">Con y sin beneficio</option>
+                    <option value="beneficiario">Beneficiario</option>
+                    <option value="no_beneficiario">No beneficiario</option>
+                  </select>
+                </div>
+              </>
+            ) : (
+              <>
+                <div>
+                  <label htmlFor="nominal-asignacion" className="mb-1 block text-xs font-medium text-muted-foreground">Asignación</label>
+                  <select id="nominal-asignacion" value={filtrosBorrador.transporte.asignacion} onChange={(e) => actualizarFiltroEstudiante("asignacion", e.target.value)} className="h-11 w-full rounded-md border bg-background px-3 text-sm">
+                    <option value="">Con y sin ruta</option>
+                    <option value="con_ruta">Con ruta asignada</option>
+                    <option value="sin_ruta">Sin ruta asignada</option>
+                  </select>
+                </div>
+                <div>
+                  <label htmlFor="nominal-ruta" className="mb-1 block text-xs font-medium text-muted-foreground">Ruta</label>
+                  <select id="nominal-ruta" value={filtrosBorrador.transporte.ruta} onChange={(e) => actualizarFiltroEstudiante("ruta", e.target.value)} className="h-11 w-full rounded-md border bg-background px-3 text-sm">
+                    <option value="">Todas las rutas</option>
+                    {rutas.filter((item) => item.idRuta).map((item) => <option key={item.idRuta} value={item.idRuta}>{item.nombre}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label htmlFor="nominal-uso-transporte" className="mb-1 block text-xs font-medium text-muted-foreground">Uso de transporte</label>
+                  <select id="nominal-uso-transporte" value={filtrosBorrador.transporte.asistencia} onChange={(e) => actualizarFiltroEstudiante("asistencia", e.target.value)} className="h-11 w-full rounded-md border bg-background px-3 text-sm">
+                    <option value="">Con y sin marca</option>
+                    <option value="presente">Usó transporte</option>
+                    <option value="sin_registro">Sin marca</option>
+                  </select>
+                </div>
+              </>
+            )}
+          </div>
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+            <p className="text-xs text-muted-foreground" role="status" aria-live="polite">
+              {isFetching ? "Actualizando resultados…" : "Los resultados cambian al aplicar los filtros."}
+            </p>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  if (esProfesor) {
+                    setFiltrosProfesorBorrador(FILTROS_PROFESOR_VACIOS);
+                    setFiltrosProfesorAplicados(FILTROS_PROFESOR_VACIOS);
+                    setPagina(1);
+                  } else {
+                    limpiarFiltrosEstudiante();
+                  }
                 }}
-                className="h-11 rounded-md border bg-background px-3 text-sm"
               >
-                <option value="">Todas las secciones</option>
-                {seccionesActivas.map((nivel) => (
-                  <optgroup key={nivel.etiqueta} label={nivel.etiqueta}>
-                    {nivel.secciones.map((seccionDisponible) => (
-                      <option key={seccionDisponible} value={seccionDisponible}>
-                        {seccionDisponible}
-                      </option>
-                    ))}
-                  </optgroup>
-                ))}
-              </select>
-            )}
-            <select
-              aria-label="Filtrar asistencia de hoy"
-              value={estado}
-              onChange={(e) => {
-                setEstado(e.target.value);
-                setPagina(1);
-              }}
-              className="h-11 rounded-md border bg-background px-3 text-sm"
-            >
-              <option value="">Toda la asistencia de hoy</option>
-              <option value="presente">Ingresaron al comedor</option>
-              <option value="sin_registro">Aún sin ingreso</option>
-            </select>
+                Limpiar
+              </Button>
+              <Button
+                onClick={() => {
+                  if (esProfesor) {
+                    setFiltrosProfesorAplicados({ ...filtrosProfesorBorrador });
+                    setPagina(1);
+                  } else {
+                    aplicarFiltrosEstudiante();
+                  }
+                }}
+              >
+                Aplicar filtros
+              </Button>
+            </div>
           </div>
         </div>
         <div className="hidden overflow-x-auto md:block">
@@ -636,8 +765,8 @@ export default function DashboardTab() {
                 <TableHead>{esProfesor ? "Profesor" : "Estudiante"}</TableHead>
                 {!esProfesor && <TableHead>Sección</TableHead>}
                 {!esProfesor && <TableHead>Ruta</TableHead>}
-                <TableHead>{esProfesor ? "Identificación" : "Beneficio de comedor"}</TableHead>
-                <TableHead>Asistencia hoy</TableHead>
+                <TableHead>{esProfesor ? "Identificación" : servicioNominal === "comedor" ? "Beneficio de comedor" : "Asignación"}</TableHead>
+                <TableHead>{esProfesor || servicioNominal === "comedor" ? "Asistencia hoy" : "Uso hoy"}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -663,10 +792,10 @@ export default function DashboardTab() {
                         </span>
                       </TableCell>
                     )}
-                    <TableCell>{esProfesor ? row.identificacion : row.beneficioComedor}</TableCell>
+                    <TableCell>{esProfesor ? row.identificacion : row.beneficioServicio}</TableCell>
                     <TableCell>
                       <Badge variant={varianteAsistencia(row)}>
-                        {etiquetaAsistencia(row)}
+                        {etiquetaAsistencia(row, servicioNominal)}
                       </Badge>
                     </TableCell>
                   </TableRow>
@@ -686,7 +815,7 @@ export default function DashboardTab() {
                 <div className="flex items-start justify-between gap-3">
                   <p className="font-medium text-foreground">{row.nombreCompleto}</p>
                   <Badge variant={varianteAsistencia(row)}>
-                    {etiquetaAsistencia(row)}
+                    {etiquetaAsistencia(row, servicioNominal)}
                   </Badge>
                 </div>
                 <dl className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
@@ -703,8 +832,8 @@ export default function DashboardTab() {
                     </div>
                   )}
                   <div>
-                    <dt className="text-xs text-muted-foreground">{esProfesor ? "Identificación" : "Comedor"}</dt>
-                    <dd>{esProfesor ? row.identificacion : row.beneficioComedor}</dd>
+                    <dt className="text-xs text-muted-foreground">{esProfesor ? "Identificación" : servicioNominal === "comedor" ? "Comedor" : "Transporte"}</dt>
+                    <dd>{esProfesor ? row.identificacion : row.beneficioServicio}</dd>
                   </div>
                 </dl>
               </article>

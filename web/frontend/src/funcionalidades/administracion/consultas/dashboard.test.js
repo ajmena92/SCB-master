@@ -28,10 +28,11 @@ describe("consulta del dashboard", () => {
       urlListaControl("2026-08-27", "transporte", "xlsx", {
         seccion: "7-1",
         ruta: "12",
-        estado: "presente",
+        asistencia: "presente",
+        asignacion: "con_ruta",
       }),
     ).toBe(
-      "/api/v1/reportes/lista-control?fecha=2026-08-27&servicio=transporte&formato=xlsx&ruta=12&seccion=7-1&estado=presente",
+      "/api/v1/reportes/lista-control?fecha=2026-08-27&servicio=transporte&formato=xlsx&ruta=12&seccion=7-1&asistencia=presente&asignacion=con_ruta",
     );
   });
 });

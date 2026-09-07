@@ -6,7 +6,14 @@ from datetime import date
 from sqlalchemy import func, or_, select, update
 from sqlalchemy.orm import Session
 
-from aplicacion.modelos.maestros import AnioLectivo, AsignacionRuta, Matricula, Persona, Ruta
+from aplicacion.modelos.maestros import (
+    AnioLectivo,
+    AsignacionRuta,
+    ConfiguracionInstitucional,
+    Matricula,
+    Persona,
+    Ruta,
+)
 from aplicacion.modelos.operacion import (
     EventoExportacionListaControl,
     IndicadorAnaliticoComedor,
@@ -74,6 +81,9 @@ class RepositorioReportes:
 
     def ventas(self, desde: date, hasta: date):
         return filas_reporte_ventas(self.sesion, desde, hasta)
+
+    def configuracion_institucional(self):
+        return self.sesion.get(ConfiguracionInstitucional, 1)
 
     def personas_dashboard(self, fecha: date, tipo_persona: str):
         if tipo_persona == "profesor":

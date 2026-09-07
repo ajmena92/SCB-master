@@ -201,6 +201,11 @@ class ServicioAdministracion:
         cuenta = self.repo.cuenta(cuenta_id, bloquear=True)
         if cuenta is None:
             raise HTTPException(404, "Cuenta no encontrada")
+        if cuenta.id == actor_id:
+            raise HTTPException(
+                409,
+                "No puede restablecer su propia contraseña. Use Cambiar mi contraseña.",
+            )
         contrasena = _secreto_temporal()
         cuenta.contrasena_hash = hash_secreto(contrasena)
         cuenta.cambio_contrasena_obligatorio = True

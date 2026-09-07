@@ -12,7 +12,7 @@ export async function consultarDashboard(fecha, filtros = {}) {
 /** Ruta de una exportación completa; no depende de la página nominal visible. */
 export function urlListaControl(fecha, servicio, formato, filtros = {}) {
   const parametros = new URLSearchParams({ fecha, servicio, formato });
-  ["busqueda", "ruta", "seccion", "estado", "beneficioTransporte"].forEach((clave) => {
+  ["busqueda", "ruta", "seccion", "confirmacion", "asistencia", "beneficio", "asignacion"].forEach((clave) => {
     if (filtros[clave]) parametros.set(clave, filtros[clave]);
   });
   return `${API}/v1/reportes/lista-control?${parametros.toString()}`;

@@ -36,16 +36,49 @@ def _cabecera_descarga(nombre: str) -> dict[str, str]:
     return {"Content-Disposition": f'attachment; filename="{nombre}"'}
 
 
+def _descripcion_filtros(filtros: dict[str, str]) -> str:
+    """Convierte los parámetros técnicos en una leyenda legible para impresión."""
+    etiquetas = {
+        "busqueda": "Búsqueda",
+        "ruta": "Ruta",
+        "seccion": "Sección",
+        "estado": "Estado",
+        "confirmacion": "Confirmación",
+        "asistencia": "Asistencia",
+        "beneficio": "Beneficio",
+        "asignacion": "Asignación",
+    }
+    valores = {
+        "confirmada": "Confirmó asistencia",
+        "sin_confirmar": "Sin confirmación",
+        "presente": "Con registro",
+        "sin_registro": "Sin registro",
+        "beneficiario": "Beneficiario",
+        "no_beneficiario": "No beneficiario",
+        "con_ruta": "Con ruta asignada",
+        "sin_ruta": "Sin ruta asignada",
+    }
+    partes = []
+    for clave, valor in filtros.items():
+        if not valor:
+            continue
+        etiqueta = etiquetas.get(clave, clave)
+        texto = valores.get(str(valor), str(valor))
+        partes.append(f"{etiqueta}: {texto}")
+    return " · ".join(partes) if partes else "Sin filtros adicionales"
+
+
 def _filas_exportacion(filas: list[dict]) -> tuple[list[str], list[list[str]]]:
     if not filas:
-        return ["N°", "Identificación", "Nombre completo", "Sección", "Ruta", "Servicio", "Estado"], []
+        return ["N°", "Identificación", "Apellidos", "Nombres", "Sección", "Ruta", "Servicio", "Estado"], []
     servicio = filas[0]["columnaServicio"]
-    columnas = ["N°", "Identificación", "Nombre completo", "Sección", "Ruta", servicio, "Estado"]
+    columnas = ["N°", "Identificación", "Apellidos", "Nombres", "Sección", "Ruta", servicio, "Estado"]
     valores = [
         [
             str(indice),
             _celda_segura(fila["identificacion"]),
-            _celda_segura(fila["nombreCompleto"]),
+            _celda_segura(fila["apellidos"]),
+            _celda_segura(fila["nombres"]),
             _celda_segura(fila["seccion"]),
             _celda_segura(fila["ruta"]),
             _celda_segura(fila["beneficio"]),
@@ -64,23 +97,35 @@ def _csv_lista_control(columnas: list[str], filas: list[list[str]]) -> bytes:
     return ("\ufeff" + salida.getvalue()).encode("utf-8")
 
 
-def _xlsx_lista_control(titulo: str, fecha: date, columnas: list[str], filas: list[list[str]]) -> bytes:
+def _xlsx_lista_control(
+    titulo: str,
+    fecha: date,
+    columnas: list[str],
+    filas: list[list[str]],
+    filtros: dict[str, str],
+    institucion: dict[str, str],
+) -> bytes:
     libro = Workbook()
     hoja = libro.active
     hoja.title = "Lista de control"
+    hoja.append([institucion["nombre_colegio"]])
+    hoja.append([institucion["subtitulo_reportes"]])
     hoja.append([titulo])
     hoja.append([f"Fecha: {fecha.isoformat()} · Total: {len(filas)}"])
+    hoja.append([f"Filtros aplicados: {_descripcion_filtros(filtros)}"])
     hoja.append([])
     hoja.append(columnas)
     for fila in filas:
         hoja.append(fila)
     for celda in hoja[1]:
         celda.font = Font(bold=True, size=14)
-    for celda in hoja[4]:
+    for celda in hoja[3]:
+        celda.font = Font(bold=True, size=12)
+    for celda in hoja[7]:
         celda.font = Font(bold=True, color="FFFFFF")
         celda.fill = PatternFill("solid", fgColor="1E4F8A")
-    hoja.freeze_panes = "A5"
-    hoja.auto_filter.ref = f"A4:G{max(4, len(filas) + 4)}"
+    hoja.freeze_panes = "A8"
+    hoja.auto_filter.ref = f"A7:H{max(7, len(filas) + 7)}"
     for columna in hoja.columns:
         letra = columna[0].column_letter
         ancho = min(42, max(12, max(len(str(celda.value or "")) for celda in columna) + 2))
@@ -90,7 +135,14 @@ def _xlsx_lista_control(titulo: str, fecha: date, columnas: list[str], filas: li
     return salida.getvalue()
 
 
-def _html_lista_control(titulo: str, fecha: date, columnas: list[str], filas: list[list[str]]) -> str:
+def _html_lista_control(
+    titulo: str,
+    fecha: date,
+    columnas: list[str],
+    filas: list[list[str]],
+    filtros: dict[str, str],
+    institucion: dict[str, str],
+) -> str:
     encabezados = "".join(f"<th>{html.escape(columna)}</th>" for columna in columnas)
     cuerpo = "".join(
         "<tr>" + "".join(f"<td>{html.escape(valor)}</td>" for valor in fila) + "</tr>"
@@ -99,12 +151,18 @@ def _html_lista_control(titulo: str, fecha: date, columnas: list[str], filas: li
     return f"""<!doctype html><html lang=\"es\"><head><meta charset=\"utf-8\">
     <title>{html.escape(titulo)}</title><style>
     @page {{ size: landscape; margin: 14mm; }} body {{ color:#14213d; font:11px Arial,sans-serif; }}
-    h1 {{ color:#174c85; font-size:18px; margin:0 0 5px; }} p {{ margin:0 0 16px; color:#43546b; }}
+    .institucion {{ color:#174c85; font-size:14px; font-weight:bold; margin:0 0 3px; }}
+    .subtitulo {{ color:#43546b; margin:0 0 12px; }}
+    h1 {{ color:#174c85; font-size:18px; margin:0 0 5px; }} p {{ margin:0 0 8px; color:#43546b; }}
     table {{ width:100%; border-collapse:collapse; }} th,td {{ border:1px solid #aab7c6; padding:6px; text-align:left; }}
     th {{ background:#e8f0f8; color:#14213d; }} tr {{ break-inside:avoid; }}
     .firma {{ margin-top:28px; width:240px; border-top:1px solid #4a5568; padding-top:5px; text-align:center; }}
     @media print {{ button {{ display:none; }} }}
-    </style></head><body><h1>{html.escape(titulo)}</h1><p>Fecha: {fecha.isoformat()} · Registros: {len(filas)}</p>
+    </style></head><body><p class="institucion">{html.escape(institucion["nombre_colegio"])}</p>
+    <p class="subtitulo">{html.escape(institucion["subtitulo_reportes"])}</p>
+    <h1>{html.escape(titulo)}</h1>
+    <p>Servicio: {html.escape(titulo.rsplit(" — ", 1)[-1])} · Fecha: {fecha.isoformat()} · Registros: {len(filas)}</p>
+    <p>Filtros aplicados: {html.escape(_descripcion_filtros(filtros))}</p>
     <table><thead><tr>{encabezados}</tr></thead><tbody>{cuerpo}</tbody></table>
     <div class=\"firma\">Responsable de control</div><script>window.addEventListener('load', () => window.print());</script>
     </body></html>"""
@@ -171,7 +229,11 @@ def crear_router(obtener_servicio, exigir_permiso) -> APIRouter:
         ruta: str = "",
         seccion: str = "",
         estado: str = "",
-        beneficio_transporte: Annotated[str, Query(alias="beneficioTransporte")] = "",
+        servicio_nominal: Annotated[str, Query(alias="servicio")] = "comedor",
+        confirmacion: str = "",
+        asistencia: str = "",
+        beneficio: str = "",
+        asignacion: str = "",
         pagina: int = 1,
         por_pagina: Annotated[int, Query(alias="porPagina")] = 25,
         servicio=Depends(obtener_servicio),
@@ -184,7 +246,11 @@ def crear_router(obtener_servicio, exigir_permiso) -> APIRouter:
                 "ruta": ruta,
                 "seccion": seccion,
                 "estado": estado,
-                "beneficioTransporte": beneficio_transporte,
+                "servicio": servicio_nominal,
+                "confirmacion": confirmacion,
+                "asistencia": asistencia,
+                "beneficio": beneficio,
+                "asignacion": asignacion,
                 "pagina": pagina,
                 "porPagina": por_pagina,
             },
@@ -199,7 +265,10 @@ def crear_router(obtener_servicio, exigir_permiso) -> APIRouter:
         ruta: str = "",
         seccion: str = "",
         estado: str = "",
-        beneficio_transporte: Annotated[str, Query(alias="beneficioTransporte")] = "",
+        confirmacion: str = "",
+        asistencia: str = "",
+        beneficio: str = "",
+        asignacion: str = "",
         servicio=Depends(obtener_servicio),
         identidad=Depends(exigir_permiso("reportes.leer")),
     ):
@@ -214,7 +283,10 @@ def crear_router(obtener_servicio, exigir_permiso) -> APIRouter:
                     "ruta": ruta,
                     "seccion": seccion,
                     "estado": estado,
-                    "beneficioTransporte": beneficio_transporte,
+                    "confirmacion": confirmacion,
+                    "asistencia": asistencia,
+                    "beneficio": beneficio,
+                    "asignacion": asignacion,
                 },
             )
         except ValueError as error:
@@ -224,11 +296,15 @@ def crear_router(obtener_servicio, exigir_permiso) -> APIRouter:
             "ruta": ruta,
             "seccion": seccion,
             "estado": estado,
-            "beneficioTransporte": beneficio_transporte,
+            "confirmacion": confirmacion,
+            "asistencia": asistencia,
+            "beneficio": beneficio,
+            "asignacion": asignacion,
         }
         servicio.registrar_exportacion_lista_control(
             identidad["cuenta"].id, servicio_control, formato, fecha, filtros, len(datos)
         )
+        institucion = servicio.configuracion_institucional()
         columnas, filas = _filas_exportacion(datos)
         titulo = f"Lista de control — {servicio_control.capitalize()}"
         if formato == "csv":
@@ -239,14 +315,14 @@ def crear_router(obtener_servicio, exigir_permiso) -> APIRouter:
             )
         if formato == "xlsx":
             return Response(
-                _xlsx_lista_control(titulo, fecha, columnas, filas),
+                _xlsx_lista_control(titulo, fecha, columnas, filas, filtros, institucion),
                 media_type=(
                     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                 ),
                 headers=_cabecera_descarga(_nombre_archivo(servicio_control, fecha, "xlsx")),
             )
         return Response(
-            _html_lista_control(titulo, fecha, columnas, filas),
+            _html_lista_control(titulo, fecha, columnas, filas, filtros, institucion),
             media_type="text/html; charset=utf-8",
             headers={"Content-Disposition": f'inline; filename="{_nombre_archivo(servicio_control, fecha, "pdf")}"'},
         )

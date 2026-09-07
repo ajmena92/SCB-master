@@ -52,7 +52,11 @@ def crear_router(obtener_servicio, exigir_permiso, clave_resultados: str = "") -
             try:
                 datos = ImportacionEntrada.model_validate(await request.json())
             except ValidationError as error:
-                raise HTTPException(422, detail=error.errors()) from error
+                # Pydantic conserva la excepción original en ctx.error. Ese
+                # objeto Python no es serializable por JSON y convertía una
+                # validación de usuario en un 500. El contrato HTTP conserva
+                # ubicación y mensaje, sin exponer contexto interno.
+                raise HTTPException(422, detail=error.errors(include_context=False)) from error
 
         def construir_respuesta():
             return {

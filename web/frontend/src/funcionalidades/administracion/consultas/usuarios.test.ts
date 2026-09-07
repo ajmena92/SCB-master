@@ -38,9 +38,13 @@ describe("usuariosAdministrativosApi", () => {
   it("cambia la contraseña administrativa mediante su endpoint exclusivo", async () => {
     vi.mocked(api.post).mockResolvedValue({ data: {} });
     await usuariosAdministrativosApi.cambiarContrasena("temporal", "definitiva-segura");
-    expect(api.post).toHaveBeenCalledWith("/v1/autenticacion/administracion/contrasena", {
-      contrasenaActual: "temporal",
-      contrasenaNueva: "definitiva-segura",
-    });
+    expect(api.post).toHaveBeenCalledWith(
+      "/v1/autenticacion/administracion/contrasena",
+      {
+        contrasenaActual: "temporal",
+        contrasenaNueva: "definitiva-segura",
+      },
+      { omitirManejoFalloAutenticacion: true },
+    );
   });
 });

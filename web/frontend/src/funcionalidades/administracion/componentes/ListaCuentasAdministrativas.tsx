@@ -2,22 +2,33 @@ import { KeyRound, Pencil, ShieldCheck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { CuentaAdministrativa } from "@/compartido/contratos/usuarios_administrativos";
+import { Link } from "react-router-dom";
 
 interface PropiedadesCuenta {
   cuenta: CuentaAdministrativa;
+  cuentaActualId?: number;
   alEditar: () => void;
   alRestablecer: () => void;
 }
 
-function AccionesCuenta({ alEditar, alRestablecer }: Omit<PropiedadesCuenta, "cuenta">) {
+function AccionesCuenta({ cuenta, cuentaActualId, alEditar, alRestablecer }: Omit<PropiedadesCuenta, "cuenta"> & { cuenta: CuentaAdministrativa }) {
+  const esPropia = cuenta.id === cuentaActualId;
   return (
     <div className="flex justify-end gap-2">
       <Button variant="outline" size="sm" className="min-h-10 gap-1.5" onClick={alEditar}>
         <Pencil className="h-4 w-4" /> Editar
       </Button>
-      <Button variant="ghost" size="sm" className="min-h-10 gap-1.5" onClick={alRestablecer}>
-        <KeyRound className="h-4 w-4" /> Restablecer
-      </Button>
+      {esPropia ? (
+        <Button asChild variant="outline" size="sm" className="min-h-10 gap-1.5">
+          <Link to="/admin/cambiar-contrasena">
+            <KeyRound className="h-4 w-4" /> Cambiar mi contraseña
+          </Link>
+        </Button>
+      ) : (
+        <Button variant="ghost" size="sm" className="min-h-10 gap-1.5" onClick={alRestablecer}>
+          <KeyRound className="h-4 w-4" /> Restablecer
+        </Button>
+      )}
     </div>
   );
 }
@@ -32,7 +43,7 @@ function EstadoCuenta({ cuenta }: Pick<PropiedadesCuenta, "cuenta">) {
   return <Badge className="bg-emerald-100 text-emerald-900 hover:bg-emerald-100">Activa</Badge>;
 }
 
-function FilaCuenta({ cuenta, alEditar, alRestablecer }: PropiedadesCuenta) {
+function FilaCuenta({ cuenta, cuentaActualId, alEditar, alRestablecer }: PropiedadesCuenta) {
   return (
     <tr className="border-t">
       <td className="px-4 py-3">
@@ -45,13 +56,13 @@ function FilaCuenta({ cuenta, alEditar, alRestablecer }: PropiedadesCuenta) {
         <EstadoCuenta cuenta={cuenta} />
       </td>
       <td className="px-4 py-3">
-        <AccionesCuenta alEditar={alEditar} alRestablecer={alRestablecer} />
+        <AccionesCuenta cuenta={cuenta} cuentaActualId={cuentaActualId} alEditar={alEditar} alRestablecer={alRestablecer} />
       </td>
     </tr>
   );
 }
 
-function TarjetaCuenta({ cuenta, alEditar, alRestablecer }: PropiedadesCuenta) {
+function TarjetaCuenta({ cuenta, cuentaActualId, alEditar, alRestablecer }: PropiedadesCuenta) {
   return (
     <article className="rounded-2xl border bg-card p-4">
       <div className="flex items-start justify-between gap-3">
@@ -67,7 +78,7 @@ function TarjetaCuenta({ cuenta, alEditar, alRestablecer }: PropiedadesCuenta) {
         <EstadoCuenta cuenta={cuenta} />
       </div>
       <div className="mt-4 border-t pt-3">
-        <AccionesCuenta alEditar={alEditar} alRestablecer={alRestablecer} />
+        <AccionesCuenta cuenta={cuenta} cuentaActualId={cuentaActualId} alEditar={alEditar} alRestablecer={alRestablecer} />
       </div>
     </article>
   );
@@ -75,10 +86,12 @@ function TarjetaCuenta({ cuenta, alEditar, alRestablecer }: PropiedadesCuenta) {
 
 export default function ListaCuentasAdministrativas({
   cuentas,
+  cuentaActualId,
   alEditar,
   alRestablecer,
 }: {
   cuentas: CuentaAdministrativa[];
+  cuentaActualId?: number;
   alEditar: (cuenta: CuentaAdministrativa) => void;
   alRestablecer: (cuenta: CuentaAdministrativa) => void;
 }) {
@@ -100,6 +113,7 @@ export default function ListaCuentasAdministrativas({
               <FilaCuenta
                 key={cuenta.id}
                 cuenta={cuenta}
+                cuentaActualId={cuentaActualId}
                 alEditar={() => alEditar(cuenta)}
                 alRestablecer={() => alRestablecer(cuenta)}
               />
@@ -112,6 +126,7 @@ export default function ListaCuentasAdministrativas({
           <TarjetaCuenta
             key={cuenta.id}
             cuenta={cuenta}
+            cuentaActualId={cuentaActualId}
             alEditar={() => alEditar(cuenta)}
             alRestablecer={() => alRestablecer(cuenta)}
           />

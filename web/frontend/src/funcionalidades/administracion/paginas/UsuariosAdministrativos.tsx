@@ -191,6 +191,7 @@ export default function UsuariosAdministrativos() {
       ) : (
         <ListaCuentasAdministrativas
           cuentas={filtradas}
+          cuentaActualId={session && typeof session === "object" ? session.cuentaId : undefined}
           alEditar={editar}
           alRestablecer={(cuenta) => restablecer.mutate(cuenta.id)}
         />

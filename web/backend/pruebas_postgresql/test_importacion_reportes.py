@@ -49,6 +49,8 @@ def test_importacion_normaliza_seccion_y_rechaza_formato_ambiguo(entorno):
         },
     )
     assert invalida.status_code == 422
+    assert invalida.json()["detail"][0]["loc"] == ["filas", 0, "seccion"]
+    assert "formato 7-1 a 12-n" in invalida.json()["detail"][0]["msg"]
 
 
 def test_importacion_previsualiza_confirma_y_es_idempotente(entorno):

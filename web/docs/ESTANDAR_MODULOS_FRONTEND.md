@@ -55,6 +55,11 @@ imports directos de notificaciones fuera de la capa compartida.
   descargan todas las coincidencias de los filtros activos, no únicamente las
   filas visibles. Si existen servicios mutuamente excluyentes, la interfaz
   obliga a seleccionar uno antes de elegir el formato.
+- En listas nominales con servicios distintos, el servicio se selecciona como
+  contexto mediante tarjetas accesibles con icono y descripción. Cada servicio
+  conserva su borrador de filtros; la tabla solo se actualiza con una acción
+  explícita de “Aplicar filtros” y conserva los resultados visibles durante la
+  actualización. Las exportaciones usan exactamente el conjunto aplicado.
 - Las vistas por tipo de persona no reutilizan métricas ajenas: la vista de
   profesorado muestra padrón docente e ingresos al comedor; no presenta
   secciones, rutas, becas ni alertas analíticas propias del estudiantado.

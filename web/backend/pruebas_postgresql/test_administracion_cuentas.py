@@ -65,6 +65,17 @@ def test_cuenta_operador_exige_cambio_y_revoca_permiso_inmediatamente(entorno):
 def test_operador_cambia_su_contrasena_sin_cambio_obligatorio(entorno):
     _, _, h = entorno
     operador = h["operador_cliente"]
+    incorrecta = operador.post(
+        "/api/v1/autenticacion/administracion/contrasena",
+        headers=operador.csrf(),
+        json={
+            "contrasenaActual": "clave-incorrecta-2026",
+            "contrasenaNueva": "Clave-operador-nueva-2026",
+        },
+    )
+    assert incorrecta.status_code == 401
+    assert operador.get("/api/v1/sesion").status_code == 200
+
     cambio = operador.post(
         "/api/v1/autenticacion/administracion/contrasena",
         headers=operador.csrf(),
@@ -327,6 +338,20 @@ def test_profesor_nuevo_entrega_secretos_y_reset_revoca_sesiones(entorno):
     assert reset.status_code == 200
     assert reset.json()["contrasenaTemporal"] != secretos["contrasena"]
     assert cuenta.get("/api/v1/sesion").status_code == 204
+
+
+def test_administrador_no_puede_restablecer_su_propia_cuenta(entorno):
+    cliente, motor, h = entorno
+    with Session(motor) as sesion:
+        cuenta = sesion.scalar(
+            select(CuentaAdministrativa).where(CuentaAdministrativa.usuario == "admin")
+        )
+    respuesta = cliente.post(
+        f"/api/v1/administracion/cuentas/{cuenta.id}/restablecer-contrasena",
+        headers=h["admin"],
+    )
+    assert respuesta.status_code == 409
+    assert "Cambiar mi contraseña" in respuesta.json()["detail"]
 
 
 def test_sesion_se_invalida_si_el_profesor_deja_de_ser_activo(entorno):

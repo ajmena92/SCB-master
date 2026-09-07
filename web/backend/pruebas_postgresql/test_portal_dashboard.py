@@ -2,7 +2,13 @@ from datetime import date, time, timedelta
 
 from sqlalchemy.orm import Session
 
-from aplicacion.modelos.maestros import AsignacionRuta, Matricula, Persona, Ruta
+from aplicacion.modelos.maestros import (
+    AsignacionRuta,
+    ConfiguracionInstitucional,
+    Matricula,
+    Persona,
+    Ruta,
+)
 from aplicacion.modelos.operacion import (
     EventoExportacionListaControl,
     IngresoComedor,
@@ -226,12 +232,61 @@ def test_lista_control_exporta_un_servicio_y_respeta_los_filtros(entorno):
                     consumio_tiquete=False,
                     operador_id=1,
                 ),
+                ReservaComedor(persona_id=estudiante["id"], fecha=fecha, estado="reservada"),
                 MarcaTransporte(
                     matricula_id=matricula["id"], ruta_id=ruta.id, fecha=fecha, operador_id=1
                 ),
             ]
         )
+        sesion.add(
+            ConfiguracionInstitucional(
+                id=1,
+                nombre_colegio="CTP Platanares — Prueba",
+                subtitulo_reportes="Control institucional de servicios",
+            )
+        )
         sesion.commit()
+
+    tablero_comedor = cliente.get(
+        "/api/v1/reportes/dashboard",
+        headers=auth["admin"],
+        params={
+            "fecha": fecha.isoformat(),
+            "servicio": "comedor",
+            "confirmacion": "confirmada",
+            "asistencia": "presente",
+            "beneficio": "no_beneficiario",
+        },
+    )
+    assert tablero_comedor.status_code == 200, tablero_comedor.text
+    assert [fila["idPersona"] for fila in tablero_comedor.json()["nominal"]["elementos"]] == [
+        estudiante["id"]
+    ]
+
+    tablero_ordenado = cliente.get(
+        "/api/v1/reportes/dashboard",
+        headers=auth["admin"],
+        params={"fecha": fecha.isoformat(), "servicio": "comedor"},
+    )
+    assert tablero_ordenado.status_code == 200, tablero_ordenado.text
+    assert [fila["seccion"] for fila in tablero_ordenado.json()["nominal"]["elementos"]] == [
+        "7-1", "8-1"
+    ]
+
+    tablero_transporte = cliente.get(
+        "/api/v1/reportes/dashboard",
+        headers=auth["admin"],
+        params={
+            "fecha": fecha.isoformat(),
+            "servicio": "transporte",
+            "asignacion": "con_ruta",
+            "asistencia": "presente",
+        },
+    )
+    assert tablero_transporte.status_code == 200, tablero_transporte.text
+    assert [fila["idPersona"] for fila in tablero_transporte.json()["nominal"]["elementos"]] == [
+        estudiante["id"]
+    ]
 
     parametros = {"fecha": fecha.isoformat(), "servicio": "comedor", "seccion": "7-1"}
     csv_respuesta = cliente.get(
@@ -244,6 +299,19 @@ def test_lista_control_exporta_un_servicio_y_respeta_los_filtros(entorno):
     assert "Aún sin ingreso" not in csv_respuesta.text
     assert "'=formula" in csv_respuesta.text
     assert "lista-oculta" not in csv_respuesta.text
+
+    ordenada = cliente.get(
+        "/api/v1/reportes/lista-control",
+        headers=auth["admin"],
+        params={"fecha": fecha.isoformat(), "servicio": "comedor", "formato": "csv"},
+    )
+    lineas = ordenada.text.lstrip("\ufeff").splitlines()
+    assert lineas[0].split(",") == [
+        "N°", "Identificación", "Apellidos", "Nombres", "Sección", "Ruta",
+        "Beneficio de comedor", "Estado",
+    ]
+    assert lineas[1].split(",")[1] == "'=formula"
+    assert lineas[2].split(",")[1] == "lista-oculta"
 
     xlsx_respuesta = cliente.get(
         "/api/v1/reportes/lista-control",
@@ -259,13 +327,18 @@ def test_lista_control_exporta_un_servicio_y_respeta_los_filtros(entorno):
         params={**parametros, "servicio": "transporte", "formato": "pdf"},
     )
     assert transporte.status_code == 200, transporte.text
+    assert "CTP Platanares — Prueba" in transporte.text
+    assert "Control institucional de servicios" in transporte.text
     assert "Lista de control — Transporte" in transporte.text
+    assert "Servicio: Transporte" in transporte.text
+    assert "Filtros aplicados: Sección: 7-1" in transporte.text
     assert "Asignación de transporte" in transporte.text
     assert "Beneficio de comedor" not in transporte.text
     with Session(motor) as sesion:
         eventos = list(sesion.query(EventoExportacionListaControl).all())
     assert [(evento.servicio, evento.formato, evento.total_registros) for evento in eventos] == [
         ("comedor", "csv", 1),
+        ("comedor", "csv", 2),
         ("comedor", "xlsx", 1),
         ("transporte", "pdf", 1),
     ]
