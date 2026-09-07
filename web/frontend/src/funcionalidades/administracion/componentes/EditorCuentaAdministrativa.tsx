@@ -79,6 +79,7 @@ export default function EditorCuentaAdministrativa({
     const permisosCuenta = rol === "administrador" ? [] : seleccionados;
     if (cuenta) {
       alGuardar({
+        ...(usuario.trim() !== cuenta.usuario ? { usuario: usuario.trim() } : {}),
         rol,
         activo,
         permisos: permisosCuenta,
@@ -150,20 +151,24 @@ export default function EditorCuentaAdministrativa({
                   </p>
                 )}
               </div>
-              {!cuenta && (
-                <div className="space-y-2">
-                  <Label htmlFor="cuenta-usuario">Nombre de usuario</Label>
-                  <Input
-                    id="cuenta-usuario"
-                    required
-                    minLength={3}
-                    autoComplete="off"
-                    value={usuario}
-                    onChange={(evento) => setUsuario(evento.target.value)}
-                    placeholder="Ej. mrojas"
-                  />
-                </div>
-              )}
+              <div className="space-y-2">
+                <Label htmlFor="cuenta-usuario">Nombre de usuario</Label>
+                <Input
+                  id="cuenta-usuario"
+                  required
+                  minLength={3}
+                  maxLength={80}
+                  autoComplete="username"
+                  value={usuario}
+                  onChange={(evento) => setUsuario(evento.target.value)}
+                  placeholder="Ej. mrojas"
+                  aria-describedby="cuenta-usuario-ayuda"
+                />
+                <p id="cuenta-usuario-ayuda" className="text-xs text-muted-foreground">
+                  Usá entre 3 y 80 caracteres: letras, números, punto, guion o guion bajo.
+                  {cuenta && " Cambiarlo cerrará las sesiones activas de esta cuenta."}
+                </p>
+              </div>
             </section>
 
             <section className="space-y-4" aria-labelledby="acceso-cuenta">

@@ -45,6 +45,7 @@ export type EstadoPortal = {
   rechazada: boolean;
   servicioDisponible: boolean;
   cuentaRegresiva: string | null;
+  minutosAviso: number;
   horaServidor: string | null;
   cierreProximo: boolean;
   vistaAsistencia: string;

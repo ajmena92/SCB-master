@@ -6,7 +6,7 @@ from typing import Literal
 from pydantic import Field, field_validator, model_validator
 
 from aplicacion.esquemas_base import Contrato
-
+from aplicacion.secciones import normalizar_seccion
 
 PIN_COMUNES = frozenset({"012345", "123456", "987654"})
 
@@ -113,10 +113,15 @@ class FilaImportacion(Contrato):
     tipo: Literal["estudiante", "profesor"]
     seccion: str | None = None
 
+    @field_validator("seccion", mode="before")
+    @classmethod
+    def normalizar_seccion_importada(cls, valor: str | None) -> str | None:
+        return normalizar_seccion(str(valor) if valor is not None else None)
+
 
 class ImportacionEntrada(Contrato):
-    anio: int
-    filas: list[FilaImportacion]
+    anio: int = Field(ge=2000, le=2200)
+    filas: list[FilaImportacion] = Field(min_length=1, max_length=5000)
 
 
 class ConfirmacionImportacion(ImportacionEntrada):

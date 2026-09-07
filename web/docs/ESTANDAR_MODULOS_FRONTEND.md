@@ -31,17 +31,33 @@ imports directos de notificaciones fuera de la capa compartida.
   directamente desde un módulo.
 - Toast: confirmaciones breves, errores recuperables y avisos de operación.
   Modal: confirmación destructiva, edición compleja o resultado extenso.
+- Procesos asíncronos muestran estado en pantalla mediante consulta controlada,
+  no mediante un toast persistente. Si producen datos sensibles de descarga
+  única, la interfaz explica esa condición, solicita el resultado solo tras
+  completarse y no lo conserva fuera del estado temporal de la pantalla.
+- Las credenciales administrativas se gestionan fuera de formularios de edición
+  de cuentas: toda sesión administrativa dispone de un acceso visible para
+  cambiar su propia contraseña; el restablecimiento de otra cuenta solo aparece
+  en la gestión autorizada de usuarios y nunca revela la contraseña previa.
 
 ## Contrato responsive
 
 - En móvil, las tablas extensas se presentan como tarjetas apiladas; en
   `md` y superior se conserva la tabla.
 - No se permite scroll horizontal accidental ni controles menores de 44 px.
+- Los gráficos incluyen una alternativa textual con su período, valores y unidades; el SVG y su tooltip no pueden ser la única fuente de información.
 - Las acciones principales permanecen disponibles en móvil y teclado.
 - La estación de comedor es una excepción operativa: usa encabezado oscuro
   compacto, pero conserva siempre identidad del colegio, conexión, cámara,
   sonido y salida; en pantalla completa se reduce sin desaparecer.
 - Los estados de carga, vacío, error y éxito deben ser visibles y accesibles.
+- Las exportaciones que operan sobre listados paginados explican el alcance:
+  descargan todas las coincidencias de los filtros activos, no únicamente las
+  filas visibles. Si existen servicios mutuamente excluyentes, la interfaz
+  obliga a seleccionar uno antes de elegir el formato.
+- Las vistas por tipo de persona no reutilizan métricas ajenas: la vista de
+  profesorado muestra padrón docente e ingresos al comedor; no presenta
+  secciones, rutas, becas ni alertas analíticas propias del estudiantado.
 
 ## Checklist obligatorio
 

@@ -1,0 +1,18 @@
+FROM python:3.12.14-slim-bookworm
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1
+
+WORKDIR /app
+COPY backend/requirements-produccion.txt ./requirements-produccion.txt
+RUN pip install --no-compile --requirement requirements-produccion.txt \
+    && rm requirements-produccion.txt
+
+COPY backend/aplicacion ./aplicacion
+COPY backend/config.py ./config.py
+COPY ops/entrada_trabajador_importacion.sh /usr/local/bin/entrada_trabajador_importacion.sh
+RUN useradd --create-home --uid 10001 appuser \
+    && chmod 0550 /usr/local/bin/entrada_trabajador_importacion.sh \
+    && chown -R appuser:appuser /app
+ENTRYPOINT ["/usr/local/bin/entrada_trabajador_importacion.sh"]

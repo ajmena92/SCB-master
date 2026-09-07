@@ -3,6 +3,8 @@
 from collections import defaultdict
 from datetime import date, timedelta
 
+from aplicacion.secciones import agrupar_secciones_activas
+
 
 class ServicioReportes:
     def __init__(self, repo):
@@ -16,6 +18,74 @@ class ServicioReportes:
 
     def ventas(self, desde, hasta):
         return self.repo.ventas(desde, hasta)
+
+    @staticmethod
+    def _filtrar_nominal(nominal, filtros):
+        busqueda = str(filtros.get("busqueda", "")).casefold().strip()
+        ruta_filtro = str(filtros.get("ruta", "")).strip()
+        seccion = str(filtros.get("seccion", "")).casefold().strip()
+        estado = str(filtros.get("estado", "")).strip()
+        beneficio = str(filtros.get("beneficioTransporte", "")).strip()
+        if busqueda:
+            nominal = [r for r in nominal if busqueda in r["nombreCompleto"].casefold()]
+        if ruta_filtro:
+            nominal = [r for r in nominal if str(r["idRuta"]) == ruta_filtro]
+        if seccion:
+            nominal = [r for r in nominal if seccion in r["seccion"].casefold()]
+        if estado:
+            nominal = [r for r in nominal if r["estadoClave"] == estado]
+        if beneficio == "beneficiario":
+            nominal = [r for r in nominal if r["idRuta"] is not None]
+        elif beneficio == "no_beneficiario":
+            nominal = [r for r in nominal if r["idRuta"] is None]
+        return nominal
+
+    def lista_control(self, fecha, servicio, filtros):
+        """Entrega el padrón completo filtrado para una sola operación.
+
+        La tabla del dashboard es paginada; esta salida no. Ambas comparten los
+        mismos filtros para que una descarga no contradiga la pantalla.
+        """
+        if servicio not in {"comedor", "transporte"}:
+            raise ValueError("El servicio debe ser comedor o transporte")
+        filas = list(self.repo.personas_dashboard(fecha, "estudiante"))
+        presentes = {persona_id for persona_id, _ in self.repo.ingresos_en_fechas([fecha])}
+        matriculas_con_marca = self.repo.matriculas_con_marca_transporte_en_fecha(fecha)
+        nominal = []
+        for persona, matricula, ruta in filas:
+            tiene_ruta = ruta is not None
+            if servicio == "comedor":
+                estado_clave = "presente" if persona.id in presentes else "sin_registro"
+                estado = "Ingresó al comedor" if estado_clave == "presente" else "Aún sin ingreso"
+                beneficio = "Beneficiario" if matricula and matricula.becado else "No beneficiario"
+                columna_servicio = "Beneficio de comedor"
+            else:
+                estado_clave = (
+                    "presente" if matricula and matricula.id in matriculas_con_marca else "sin_registro"
+                )
+                estado = "Usó transporte" if estado_clave == "presente" else "Aún sin marca"
+                beneficio = "Con ruta asignada" if tiene_ruta else "Sin ruta asignada"
+                columna_servicio = "Asignación de transporte"
+            nominal.append(
+                {
+                    "idPersona": persona.id,
+                    "identificacion": persona.cedula,
+                    "nombreCompleto": persona.nombres,
+                    "seccion": matricula.seccion if matricula else "—",
+                    "ruta": ruta.nombre if ruta else "Sin ruta",
+                    "idRuta": ruta.id if ruta else None,
+                    "beneficio": beneficio,
+                    "columnaServicio": columna_servicio,
+                    "estado": estado,
+                    "estadoClave": estado_clave,
+                }
+            )
+        return self._filtrar_nominal(nominal, filtros)
+
+    def registrar_exportacion_lista_control(self, cuenta_id, servicio, formato, fecha, filtros, total):
+        self.repo.registrar_exportacion_lista_control(
+            cuenta_id, servicio, formato, fecha, filtros, total
+        )
 
     def dashboard(self, fecha, filtros):
         tipo = filtros.get("tipoPersona", "estudiante")
@@ -34,21 +104,23 @@ class ServicioReportes:
             if persona_id in personas_padron:
                 ingresos_por_dia[dia].add(persona_id)
         presentes_hoy = ingresos_por_dia[fecha]
+        confirmados_hoy = self.repo.reservas_confirmadas_en_fecha(fecha).intersection(
+            personas_padron
+        )
 
         nominal = []
         rutas: dict[tuple[int | None, str], set[int]] = defaultdict(set)
-        secciones: dict[str, set[int]] = defaultdict(set)
         beneficiarios = 0
         for persona, matricula, ruta in filas:
             becado = bool(matricula and matricula.becado)
             beneficiarios += int(becado)
             nombre_ruta = ruta.nombre if ruta else "Sin ruta"
             rutas[(ruta.id if ruta else None, nombre_ruta)].add(persona.id)
-            secciones[matricula.seccion if matricula else "Sin sección"].add(persona.id)
             presente = persona.id in presentes_hoy
             nominal.append(
                 {
                     "idPersona": persona.id,
+                    "identificacion": persona.cedula,
                     "nombreCompleto": persona.nombres,
                     "seccion": matricula.seccion if matricula else "—",
                     "ruta": nombre_ruta,
@@ -60,23 +132,7 @@ class ServicioReportes:
                 }
             )
 
-        busqueda = str(filtros.get("busqueda", "")).casefold().strip()
-        ruta_filtro = str(filtros.get("ruta", "")).strip()
-        seccion = str(filtros.get("seccion", "")).casefold().strip()
-        estado = str(filtros.get("estado", "")).strip()
-        beneficio = str(filtros.get("beneficioTransporte", "")).strip()
-        if busqueda:
-            nominal = [r for r in nominal if busqueda in r["nombreCompleto"].casefold()]
-        if ruta_filtro:
-            nominal = [r for r in nominal if str(r["idRuta"]) == ruta_filtro]
-        if seccion:
-            nominal = [r for r in nominal if seccion in r["seccion"].casefold()]
-        if estado:
-            nominal = [r for r in nominal if r["estadoClave"] == estado]
-        if beneficio == "beneficiario":
-            nominal = [r for r in nominal if r["idRuta"] is not None]
-        elif beneficio == "no_beneficiario":
-            nominal = [r for r in nominal if r["idRuta"] is None]
+        nominal = self._filtrar_nominal(nominal, filtros)
 
         total = len(filas)
         presentes = len(presentes_hoy.intersection({p.id for p, _, _ in filas}))
@@ -150,6 +206,13 @@ class ServicioReportes:
         ]
         return {
             "tipoPersona": tipo,
+            "seccionesActivas": (
+                agrupar_secciones_activas(
+                    [matricula.seccion for _, matricula, _ in filas if matricula]
+                )
+                if tipo == "estudiante"
+                else []
+            ),
             "asistencia": {
                 "porcentaje": round(presentes * 100 / total, 1) if total else 0,
                 "presentes": presentes,
@@ -157,14 +220,16 @@ class ServicioReportes:
                 "sinRegistro": total - presentes,
                 "ausentes": 0,
             },
+            "capacidad": {
+                "totalEstudiantes": total,
+                "confirmados": len(confirmados_hoy),
+                "asistieron": presentes,
+                "pendientes": max(0, len(confirmados_hoy) - presentes),
+            },
             "beneficiariosComedor": beneficiarios,
             "noBeneficiarios": total - beneficiarios,
             "consumoComedor": presentes,
             "porRuta": por_ruta,
-            "porSeccion": [
-                {"nombre": nombre, "total": len(personas)}
-                for nombre, personas in sorted(secciones.items(), key=lambda elemento: elemento[0])
-            ],
             "porEstadoComedor": estados_comedor,
             "alertas": alertas,
             "casosAnaliticos": casos_analiticos,

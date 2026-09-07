@@ -21,15 +21,20 @@
     --destructive: 255 107 122;
     --destructive-foreground: 24 32 82;
     --success: 81 216 154;
-    --warning: 217 119 6;
+    --warning: 146 64 14;
     --border: 221 225 255;
     --input: 221 225 255;
     --ring: 67 74 165;
     --chart-1: 67 74 165;
     --chart-2: 24 32 82;
-    --chart-3: 81 216 154;
-    --chart-4: 169 177 255;
-    --chart-5: 255 107 122;
+    --chart-3: 23 117 79;
+    --chart-4: 64 72 156;
+    --chart-5: 165 42 57;
+    --chart-1-color: rgb(67 74 165);
+    --chart-2-color: rgb(24 32 82);
+    --chart-3-color: rgb(23 117 79);
+    --chart-4-color: rgb(64 72 156);
+    --chart-5-color: rgb(165 42 57);
     --radius: 0.5rem;
     --radius-card: 0.75rem;
   }
@@ -56,11 +61,16 @@
     --border: 71 85 105;
     --input: 71 85 105;
     --ring: 129 140 248;
-    --chart-1: 129 140 248;
-    --chart-2: 165 180 252;
+    --chart-1: 165 180 252;
+    --chart-2: 129 140 248;
     --chart-3: 110 231 183;
     --chart-4: 203 213 225;
     --chart-5: 248 113 113;
+    --chart-1-color: rgb(165 180 252);
+    --chart-2-color: rgb(129 140 248);
+    --chart-3-color: rgb(110 231 183);
+    --chart-4-color: rgb(203 213 225);
+    --chart-5-color: rgb(248 113 113);
   }
 }
 

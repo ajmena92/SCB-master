@@ -56,6 +56,7 @@ describe("student meal attendance view state", () => {
 
   it("uses the configured warning threshold instead of a fixed fifteen minutes", () => {
     expect(estaProximoElCierre(10 * 60, 15)).toBe(true);
+    expect(estaProximoElCierre(15 * 60, 15)).toBe(false);
     expect(estaProximoElCierre(10 * 60, 5)).toBe(false);
     expect(estaProximoElCierre(0, 15)).toBe(false);
   });

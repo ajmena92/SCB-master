@@ -35,6 +35,7 @@ export function PortalComedor({
     rechazada,
     servicioDisponible,
     cuentaRegresiva,
+    minutosAviso,
     horaServidor,
     cierreProximo,
     vistaAsistencia,
@@ -61,8 +62,14 @@ export function PortalComedor({
               <span>{estado.descripcionHorario}</span>
               {!cerrado && !asistenciaConfirmada && horaServidor && (
                 <span>
-                  {" "}
-                  · Hora servidor <span data-testid="server-clock">{horaServidor}</span>
+                  {" "}· Hora servidor{" "}
+                  <span
+                    data-testid="server-clock"
+                    className="ml-1 inline-flex rounded-md bg-muted px-2 py-0.5 font-display text-sm font-bold tabular-nums text-foreground shadow-sm"
+                    aria-label={`Hora del servidor ${horaServidor}`}
+                  >
+                    {horaServidor}
+                  </span>
                 </span>
               )}
             </div>
@@ -88,6 +95,7 @@ export function PortalComedor({
             rechazada={rechazada}
             servicioDisponible={servicioDisponible}
             cuentaRegresiva={cuentaRegresiva}
+            minutosAviso={minutosAviso}
             cierreProximo={cierreProximo}
             ejecutando={ejecutando}
             tarjetaConfirmacion={tarjetaConfirmacion}

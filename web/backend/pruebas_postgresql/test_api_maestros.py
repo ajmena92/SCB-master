@@ -109,7 +109,7 @@ def test_expediente_busqueda_estados_y_reinicio_de_pin(entorno):
         f"/api/v1/personas/{persona['id']}/reiniciar-pin", headers=h["admin"]
     )
     assert reinicio.status_code == 200 and len(reinicio.json()["pinTemporal"]) == 6
-    assert portal.get("/api/v1/sesion").status_code == 401
+    assert portal.get("/api/v1/sesion").status_code == 204
     nuevo_portal = autenticar_portal(cliente.app, "701", reinicio.json()["pinTemporal"])
     assert nuevo_portal.get("/api/v1/sesion").json()["cambioObligatorio"] is True
     assert cliente.post(
@@ -198,7 +198,7 @@ def test_cambio_pin_revoca_sesion_y_desactiva_cambio_obligatorio(entorno):
     )
     assert cambio.status_code == 200
     assert cambio.json() == {"cambioObligatorio": False, "sesionesRevocadas": True}
-    assert portal.get("/api/v1/sesion").status_code == 401
+    assert portal.get("/api/v1/sesion").status_code == 204
     assert (
         cliente.post(
             "/api/v1/autenticacion/portal",
@@ -213,7 +213,7 @@ def test_cambio_pin_revoca_sesion_y_desactiva_cambio_obligatorio(entorno):
     nuevo = autenticar_portal(cliente.app, persona["cedula"], "654321")
     assert nuevo.get("/api/v1/sesion").json()["cambioObligatorio"] is False
     assert nuevo.post("/api/v1/autenticacion/logout", headers=nuevo.csrf()).status_code == 204
-    assert nuevo.get("/api/v1/sesion").status_code == 401
+    assert nuevo.get("/api/v1/sesion").status_code == 204
 
 
 def test_alta_manual_se_rechaza_aunque_los_datos_sean_validos(entorno):

@@ -15,6 +15,7 @@ from sqlalchemy import (
     Integer,
     Numeric,
     String,
+    Text,
     UniqueConstraint,
 )
 from sqlalchemy.orm import Mapped, mapped_column
@@ -178,6 +179,28 @@ class EventoOperacionComedor(BaseDeclarativa):
     )
 
 
+class EventoExportacionListaControl(BaseDeclarativa):
+    """Trazabilidad de exportaciones sin copiar los datos personales exportados."""
+
+    __tablename__ = "evento_exportacion_lista_control"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    cuenta_administrativa_id: Mapped[int] = mapped_column(
+        ForeignKey("cuenta_administrativa.id"), index=True
+    )
+    servicio: Mapped[str] = mapped_column(String(16))
+    formato: Mapped[str] = mapped_column(String(8))
+    fecha_operativa: Mapped[date] = mapped_column(Date, index=True)
+    filtros: Mapped[str] = mapped_column(Text, default="{}")
+    total_registros: Mapped[int] = mapped_column(Integer)
+    creado_en: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
+    )
+    __table_args__ = (
+        CheckConstraint("servicio IN ('comedor','transporte')", name="servicio_exportacion_lista"),
+        CheckConstraint("formato IN ('csv','xlsx','pdf')", name="formato_exportacion_lista"),
+        CheckConstraint("total_registros >= 0", name="total_exportacion_lista"),
+        Index("ix_exportacion_lista_fecha_cuenta", "fecha_operativa", "cuenta_administrativa_id"),
+    )
 class MarcaTransporte(BaseDeclarativa):
     __tablename__ = "marca_transporte"
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -209,6 +232,33 @@ class LoteImportacion(BaseDeclarativa):
             name="estado_lote_importacion",
         ),
         Index("ix_lote_importacion_creado_en", "creado_en"),
+    )
+
+
+class TrabajoImportacion(BaseDeclarativa):
+    """Trabajo durable de confirmación, separado del lote ya aplicado."""
+
+    __tablename__ = "trabajo_importacion"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    huella: Mapped[str] = mapped_column(String(64), unique=True)
+    cuenta_solicitante_id: Mapped[int] = mapped_column(ForeignKey("cuenta_administrativa.id"))
+    entrada_json: Mapped[str] = mapped_column(Text)
+    resumen_json: Mapped[str] = mapped_column(String(1000))
+    estado: Mapped[str] = mapped_column(String(16), default="pendiente")
+    error: Mapped[str | None] = mapped_column(String(300), nullable=True)
+    resultado_cifrado: Mapped[str | None] = mapped_column(Text, nullable=True)
+    resultado_entregado: Mapped[bool] = mapped_column(Boolean, default=False)
+    creado_en: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
+    )
+    iniciado_en: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    finalizado_en: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    __table_args__ = (
+        CheckConstraint(
+            "estado IN ('pendiente','ejecutando','completado','fallido','cancelado')",
+            name="estado_trabajo_importacion",
+        ),
+        Index("ix_trabajo_importacion_estado_creado", "estado", "creado_en"),
     )
 
 

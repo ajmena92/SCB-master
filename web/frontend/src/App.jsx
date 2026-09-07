@@ -97,8 +97,6 @@ function PreparacionAdministrativa({ paso, children }) {
   if (paso === "vinculacion" && !session.vinculacionPendiente) return <Navigate to="/" replace />;
   if (paso === "contrasena" && session.vinculacionPendiente)
     return <Navigate to="/admin/vinculacion-inicial" replace />;
-  if (paso === "contrasena" && !session.cambioContrasenaObligatorio)
-    return <Navigate to="/" replace />;
   return children;
 }
 

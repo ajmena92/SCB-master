@@ -26,6 +26,7 @@ type PropsVistaMenu = {
   rechazada: boolean;
   servicioDisponible: boolean;
   cuentaRegresiva?: string | null;
+  minutosAviso: number;
   cierreProximo: boolean;
   ejecutando: boolean;
   tarjetaConfirmacion: React.RefObject<HTMLElement | null>;
@@ -48,6 +49,7 @@ export function VistaMenuEstudiante({
   rechazada,
   servicioDisponible,
   cuentaRegresiva,
+  minutosAviso,
   cierreProximo,
   ejecutando,
   tarjetaConfirmacion,
@@ -58,7 +60,7 @@ export function VistaMenuEstudiante({
       {abierto && !asistenciaConfirmada && cuentaRegresiva && (
         <section
           data-testid="countdown-card"
-          className={`animate-fade-up rounded-2xl border p-6 shadow-[0_8px_30px_rgb(45_54_150_/_0.08)] ${cierreProximo ? "border-primary/40 bg-primary/10" : "bg-card"}`}
+          className={`animate-fade-up rounded-2xl border p-6 shadow-[0_8px_30px_rgb(45_54_150_/_0.08)] ${cierreProximo ? "border-warning/60 bg-warning/10 ring-2 ring-warning/20" : "bg-card"}`}
           aria-label="Tiempo restante para confirmar el almuerzo"
         >
           <div className="flex items-start justify-between gap-4">
@@ -88,10 +90,13 @@ export function VistaMenuEstudiante({
           {cierreProximo && (
             <p
               data-testid="reminder-banner"
-              className="mt-3 flex items-center gap-2 text-sm font-semibold text-primary"
+              role="alert"
+              className="mt-3 flex items-start gap-2 rounded-lg border border-warning/40 bg-warning/15 px-3 py-2 text-sm font-semibold text-foreground"
             >
-              <AlertTriangle className="h-4 w-4 shrink-0" /> Estás en el aviso previo al cierre.
-              Confirmá ahora.
+              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-warning" aria-hidden="true" />
+              <span>
+                Atención: faltan menos de {minutosAviso} minutos para el cierre. Confirmá ahora.
+              </span>
             </p>
           )}
         </section>
@@ -153,7 +158,7 @@ export function VistaMenuEstudiante({
                 return (
                   <li
                     key={componente.Orden}
-                    className="flex items-center gap-3 rounded-xl bg-accent/40 px-4 py-3"
+                    className="flex items-center gap-3 rounded-xl border border-border bg-accent/40 px-4 py-3 text-foreground"
                   >
                     <Icono className="h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
                     <div>
@@ -235,7 +240,7 @@ export function VistaMenuEstudiante({
                 <CheckCircle2 className="mr-2 h-5 w-5" /> Confirmar almuerzo
               </Button>
               <Button
-                variant="warning"
+                variant="destructive"
                 data-testid="decline-btn"
                 disabled={ejecutando || rechazada || !servicioDisponible}
                 onClick={() => registrarAsistencia("decline")}

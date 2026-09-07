@@ -3,6 +3,9 @@ name: scb-web-local
 services:
   postgres:
     restart: "no"
+  migracion:
+    command: ["upgrade", "head"]
+    restart: "no"
   api:
     restart: "no"
   web:

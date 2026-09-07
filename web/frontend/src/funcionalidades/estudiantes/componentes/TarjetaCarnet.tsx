@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Expand, IdCard, Printer, ScanLine, Utensils } from "lucide-react";
+import { AlertCircle, Expand, IdCard, Printer, ScanLine, Utensils } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { api } from "@/compartido/consultas/cliente_http";
 import { ImagenConFallback } from "@/compartido/componentes/ImagenConFallback";
-import { CodigoQrCarnet } from "./CodigoQrCarnet";
+import { CodigoQrCarnet, esCodigoQrCarnetValido } from "./CodigoQrCarnet";
 import {
   LOGO_COLEGIO,
   NOMBRE_COLEGIO,
@@ -35,6 +35,7 @@ export function TarjetaCarnet({
   const colorRuta = obtenerColorRutaSeguro(datosCarnet.rutaColor);
   const nombre = obtenerNombreCompleto(datosCarnet);
   const fotoDisponible = tieneFoto ?? Boolean(datosCarnet.tieneFoto);
+  const qrDisponible = esCodigoQrCarnetValido(datosCarnet.codigoQr);
   const anioLectivo = obtenerAnioCarnet(datosCarnet);
   const fechaImpresion = new Intl.DateTimeFormat("es-CR", {
     day: "2-digit",
@@ -109,7 +110,7 @@ export function TarjetaCarnet({
   return (
     <>
     <div
-      className="mx-auto grid w-full max-w-[24rem] overflow-hidden rounded-[1.75rem] border border-white/80 bg-white text-carnet-foreground shadow-[0_20px_55px_rgb(64_68_170_/_0.2)] lg:max-w-3xl lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]"
+      className="mx-auto grid w-full max-w-[24rem] overflow-hidden rounded-[1.75rem] border border-border bg-white text-carnet-foreground shadow-[0_20px_55px_rgb(64_68_170_/_0.2)] lg:max-w-3xl lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]"
       data-testid="html-student-card"
     >
       <div
@@ -118,20 +119,20 @@ export function TarjetaCarnet({
       >
         <div className="absolute -right-16 -top-20 h-48 w-48 rounded-full border-[22px] border-current opacity-15" />
         <div className="relative flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3 lg:gap-4">
+          <div className="flex min-w-0 items-center gap-3 lg:gap-4">
             <img
               src={LOGO_COLEGIO}
               alt="Escudo del CTP Platanares"
               className="h-12 w-12 rounded-full bg-white/90 object-contain p-1 lg:h-16 lg:w-16 lg:p-1.5"
             />
-            <div>
-              <p className="text-[0.58rem] font-bold uppercase tracking-[0.14em] sm:text-[0.6rem] lg:text-[0.7rem] lg:tracking-[0.16em]">
+            <div className="min-w-0">
+              <p className="break-words text-xs font-bold uppercase leading-snug tracking-[0.14em] lg:text-sm lg:tracking-[0.16em]">
                 {NOMBRE_COLEGIO}
               </p>
-              <h3 className="mt-1 font-display text-xl font-bold tracking-tight">Credencial digital</h3>
+              <h3 className="mt-1 break-words font-display text-xl font-bold tracking-tight">Credencial digital</h3>
             </div>
           </div>
-          <IdCard className="h-8 w-8 shrink-0 opacity-90" aria-hidden="true" />
+          <IdCard className="h-8 w-8 shrink-0" aria-hidden="true" />
         </div>
         <div className="relative mt-6 flex items-end gap-4 lg:mt-8 lg:flex-col lg:items-center lg:gap-4">
           <div className="flex shrink-0 flex-col items-center gap-1">
@@ -141,10 +142,8 @@ export function TarjetaCarnet({
                 alt={`Fotografía de ${nombre}`}
                 className="h-full w-full object-cover object-top"
                 fallback={
-                  <div className="flex h-full items-center justify-center text-center text-[0.6rem] font-bold uppercase leading-tight">
-                    Foto
-                    <br />
-                    pendiente
+                  <div className="flex h-full items-center justify-center px-2 text-center text-xs font-bold uppercase leading-tight">
+                    Sin fotografía
                   </div>
                 }
               />
@@ -157,28 +156,28 @@ export function TarjetaCarnet({
             </p>
           </div>
           <div className="min-w-0 pb-1 lg:text-center">
-            <p className="text-[0.58rem] font-bold uppercase tracking-[0.18em] sm:text-[0.6rem]">
+            <p className="text-xs font-bold uppercase tracking-[0.18em]">
               {tipoPersona === "profesor" ? "Profesor" : "Estudiante"}
             </p>
-            <p className="mt-1 line-clamp-3 font-display text-base font-bold leading-tight sm:text-lg lg:line-clamp-2 lg:text-xl">
+            <p className="mt-1 line-clamp-3 break-words font-display text-base font-bold leading-tight sm:text-lg lg:line-clamp-2 lg:text-xl">
               {nombre || "Sin nombre"}
             </p>
           </div>
         </div>
       </div>
-      <div className="space-y-5 p-6 lg:flex lg:flex-col lg:gap-3 lg:space-y-0 lg:p-6">
+      <div className="space-y-5 border-t border-border bg-card p-6 lg:flex lg:flex-col lg:gap-3 lg:space-y-0 lg:border-l lg:border-t-0 lg:p-6">
         <div className="order-1 space-y-4 text-sm lg:order-1">
           <div className="grid grid-cols-2 gap-x-4 gap-y-5">
           {tipoPersona === "profesor" ? (
             <div className="col-span-2">
-              <p className="text-[0.58rem] font-bold uppercase tracking-wider text-muted-foreground sm:text-[0.6rem]">
+              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                 Colegio
               </p>
               <p className="mt-1 font-bold">{datosCarnet.colegio || NOMBRE_COLEGIO}</p>
             </div>
           ) : (
             <div>
-              <p className="text-[0.58rem] font-bold uppercase tracking-wider text-muted-foreground sm:text-[0.6rem]">
+              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                 Año
               </p>
               <p className="mt-1 font-bold">{obtenerAnioCarnet(datosCarnet)}</p>
@@ -186,7 +185,7 @@ export function TarjetaCarnet({
           )}
           {tipoPersona === "estudiante" && (
             <div className="order-3 col-span-1 lg:col-span-1">
-              <p className="text-[0.58rem] font-bold uppercase tracking-wider text-muted-foreground sm:text-[0.6rem]">
+              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                 Sección
               </p>
               <p className="mt-1 font-bold">{datosCarnet.seccion || "Sin sección"}</p>
@@ -194,7 +193,7 @@ export function TarjetaCarnet({
           )}
           {tipoPersona === "estudiante" && (
             <div className="order-2 col-span-1">
-              <p className="text-[0.58rem] font-bold uppercase tracking-wider text-muted-foreground sm:text-[0.6rem]">
+              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                 Ruta asignada
               </p>
               <p className="mt-1 flex items-center gap-2 font-semibold">
@@ -221,34 +220,45 @@ export function TarjetaCarnet({
           </div>
         </div>
         <div className="order-2 space-y-3 lg:order-2">
-          <button
-            type="button"
-            onClick={() => setQrAbierto(true)}
-            className="group relative block w-full overflow-hidden rounded-[1.5rem] border border-primary/15 bg-primary/5 p-3 text-carnet-foreground transition-[transform,background-color,border-color] duration-200 hover:-translate-y-0.5 hover:border-primary/35 hover:bg-primary/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-            aria-label="Ampliar QR del carnet"
-            aria-haspopup="dialog"
-            data-testid="student-card-qr"
-          >
-            <span
-              className="absolute right-3 top-3 grid h-10 w-10 place-items-center rounded-full bg-background/90 text-primary shadow-sm transition-transform duration-200 group-hover:scale-105"
-              aria-hidden="true"
-              data-print-hide
+          {qrDisponible ? (
+            <button
+              type="button"
+              onClick={() => setQrAbierto(true)}
+              className="group relative block w-full overflow-hidden rounded-[1.5rem] border border-primary/15 bg-primary/5 p-3 text-carnet-foreground transition-[transform,background-color,border-color] duration-200 hover:-translate-y-0.5 hover:border-primary/35 hover:bg-primary/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+              aria-label="Ampliar QR del carnet"
+              aria-haspopup="dialog"
+              data-testid="student-card-qr"
             >
-              <Expand className="h-4 w-4" />
-            </span>
-            <span className="mb-3 flex items-center gap-2 text-left text-[0.65rem] font-bold uppercase tracking-[0.16em] text-primary">
-              <ScanLine className="h-4 w-4" aria-hidden="true" data-print-hide /> Listo para escanear
-            </span>
-            <span className="block rounded-xl bg-background p-3 shadow-sm lg:[&_svg]:h-[240px] lg:[&_svg]:w-[240px]">
-              <CodigoQrCarnet valor={datosCarnet.codigoQr} />
-            </span>
-            <span className="mt-3 block text-center text-xs font-semibold text-muted-foreground">
-              Tocá para ampliar
-            </span>
-          </button>
-          <p className="text-center text-xs font-semibold text-muted-foreground">
-            Presentá este QR ante el lector.
-          </p>
+              <span
+                className="absolute right-3 top-3 grid h-10 w-10 place-items-center rounded-full bg-background/90 text-primary shadow-sm transition-transform duration-200 group-hover:scale-105"
+                aria-hidden="true"
+                data-print-hide
+              >
+                <Expand className="h-4 w-4" />
+              </span>
+              <span className="mb-3 flex items-center gap-2 text-left text-sm font-bold uppercase tracking-[0.16em] text-primary">
+                <ScanLine className="h-4 w-4" aria-hidden="true" data-print-hide /> Listo para escanear
+              </span>
+              <span className="block rounded-xl bg-background p-3 shadow-sm lg:[&_svg]:h-[240px] lg:[&_svg]:w-[240px]">
+                <CodigoQrCarnet valor={datosCarnet.codigoQr} />
+              </span>
+              <span className="mt-3 block text-center text-sm font-semibold text-muted-foreground">
+                Tocá para ampliar · Presentalo ante el lector
+              </span>
+            </button>
+          ) : (
+            <div
+              className="flex items-center gap-3 rounded-[1.5rem] border border-warning/35 bg-warning/10 p-4 text-sm text-foreground"
+              role="status"
+              data-testid="student-card-qr-unavailable"
+            >
+              <AlertCircle className="h-5 w-5 shrink-0 text-warning" aria-hidden="true" />
+              <div>
+                <p className="font-bold">QR no disponible</p>
+                <p className="mt-1 text-sm text-muted-foreground">El carné podrá ampliarse cuando se genere el código.</p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -257,7 +267,7 @@ export function TarjetaCarnet({
         <Printer className="mr-2 h-4 w-4" aria-hidden="true" /> Imprimir carné
       </button>
     </div>
-      <Dialog open={qrAbierto} onOpenChange={setQrAbierto}>
+      <Dialog open={qrAbierto && qrDisponible} onOpenChange={setQrAbierto}>
         <DialogContent className="max-w-md p-5 sm:p-7">
           <DialogHeader>
             <DialogTitle className="font-display text-xl font-bold">QR del carnet</DialogTitle>

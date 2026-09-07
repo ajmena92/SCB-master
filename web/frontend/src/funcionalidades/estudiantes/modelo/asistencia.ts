@@ -78,5 +78,5 @@ export function estaProximoElCierre(
   if (typeof segundos !== "number" || !Number.isFinite(segundos) || segundos <= 0) return false;
   const minutosAvisoSeguro =
     typeof minutosAviso === "number" && Number.isFinite(minutosAviso) ? minutosAviso : 15;
-  return segundos <= minutosAvisoSeguro * 60;
+  return segundos < minutosAvisoSeguro * 60;
 }

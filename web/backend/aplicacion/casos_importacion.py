@@ -6,12 +6,14 @@ import json
 import secrets
 from typing import Literal, cast
 
+from cryptography.fernet import Fernet, InvalidToken
 from fastapi import HTTPException
 
 from aplicacion.esquemas import FilaImportacion, ImportacionEntrada
 from aplicacion.modelos.maestros import AnioLectivo, Matricula, Persona
 from aplicacion.modelos.operacion import LoteImportacion
 from aplicacion.seguridad import hash_secreto
+from aplicacion.limites_importacion import MAXIMO_COLUMNAS, MAXIMO_FILAS, validar_excel
 
 
 class ServicioImportacion:
@@ -19,18 +21,23 @@ class ServicioImportacion:
         self.repo = repo
 
     def desde_excel(self, contenido: bytes, anio: int) -> ImportacionEntrada:
+        validar_excel(contenido)
         try:
             from openpyxl import load_workbook
 
             libro = load_workbook(io.BytesIO(contenido), read_only=True, data_only=True)
             hoja = libro.active
+            if hoja.max_column and hoja.max_column > MAXIMO_COLUMNAS:
+                raise HTTPException(413, "El Excel supera el límite de 32 columnas")
             filas = hoja.iter_rows(values_only=True)
             encabezados = [str(v).strip().lower() if v else "" for v in next(filas, ())]
             requeridas = {"cedula", "nombres", "tipo"}
             if not requeridas <= set(encabezados):
                 raise ValueError("faltan columnas cedula, nombres o tipo")
             datos = []
-            for valores in filas:
+            for numero, valores in enumerate(filas, 1):
+                if numero > MAXIMO_FILAS:
+                    raise HTTPException(413, "El Excel supera el límite de 5.000 filas")
                 fila = dict(zip(encabezados, valores))
                 if not any(v is not None for v in valores):
                     continue
@@ -44,6 +51,8 @@ class ServicioImportacion:
                     )
                 )
             return ImportacionEntrada(anio=anio, filas=datos)
+        except HTTPException:
+            raise
         except Exception as exc:
             raise HTTPException(422, f"Excel invalido: {exc}") from exc
         finally:
@@ -154,3 +163,55 @@ class ServicioImportacion:
             "credenciales": credenciales,
             **resumen,
         }
+
+    def encolar(self, datos: ImportacionEntrada, huella: str, cuenta_solicitante_id: int):
+        """Persiste una confirmación idempotente sin ejecutar hashes en HTTP."""
+        resumen = self.previsualizar(datos)
+        if resumen["huella"] != huella:
+            raise HTTPException(409, "El contenido cambio")
+        if not resumen["aplicable"]:
+            raise HTTPException(422, detail=resumen["errores"])
+        trabajo = self.repo.trabajo_por_huella(huella)
+        if trabajo is not None and trabajo.cuenta_solicitante_id != cuenta_solicitante_id:
+            raise HTTPException(403, "No puede reutilizar un trabajo de otra cuenta")
+        if trabajo is None:
+            from aplicacion.modelos.operacion import TrabajoImportacion
+
+            trabajo = self.repo.guardar(
+                TrabajoImportacion(
+                    huella=huella,
+                    cuenta_solicitante_id=cuenta_solicitante_id,
+                    entrada_json=datos.model_dump_json(),
+                    resumen_json=json.dumps(resumen),
+                    estado="pendiente",
+                )
+            )
+        return self.resumen_trabajo(trabajo)
+
+    @staticmethod
+    def resumen_trabajo(trabajo):
+        resumen = json.loads(trabajo.resumen_json)
+        return {
+            "trabajoId": trabajo.id,
+            "estado": trabajo.estado,
+            "total": resumen["total"],
+            "altas": resumen["altas"],
+            "cambios": resumen["cambios"],
+        }
+
+    def entregar_resultado(self, trabajo_id: int, cuenta_solicitante_id: int, clave: str):
+        trabajo = self.repo.trabajo_para_entrega(trabajo_id)
+        if trabajo is None:
+            raise HTTPException(404, "Trabajo de importación no encontrado")
+        if trabajo.cuenta_solicitante_id != cuenta_solicitante_id:
+            raise HTTPException(403, "No puede descargar este resultado")
+        if trabajo.resultado_entregado:
+            raise HTTPException(410, "Las credenciales ya fueron entregadas")
+        if trabajo.estado != "completado" or not trabajo.resultado_cifrado:
+            raise HTTPException(409, "El resultado aún no está disponible")
+        try:
+            resultado = json.loads(Fernet(clave.encode()).decrypt(trabajo.resultado_cifrado.encode()))
+        except (InvalidToken, ValueError) as error:
+            raise HTTPException(500, "No se pudo recuperar el resultado") from error
+        trabajo.resultado_entregado, trabajo.resultado_cifrado = True, None
+        return resultado

@@ -102,7 +102,9 @@ run_remote() {
 
 sync_directory() {
     local directory="$1"
-    local options=(-az --delete --exclude '__pycache__/' --exclude '*.pyc' --exclude 'node_modules/' --exclude 'build/')
+    # Los entornos virtuales y cachés son locales; sincronizarlos aumenta el
+    # despliegue y puede introducir binarios de otra plataforma.
+    local options=(-az --delete --exclude '__pycache__/' --exclude '*.pyc' --exclude '.venv/' --exclude '.venv-*/' --exclude 'node_modules/' --exclude 'build/')
     if "$dry_run"; then
         options+=(--dry-run)
     fi

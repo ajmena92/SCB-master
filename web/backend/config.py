@@ -74,6 +74,7 @@ class Settings:
     student_session_days: int = 365
     admin_session_minutes: int = 60
     csrf_anonymous_ttl_seconds: int = 600
+    importacion_resultados_key: str = ""
 
     @classmethod
     def from_environment(cls) -> "Settings":
@@ -134,4 +135,5 @@ class Settings:
             student_session_days=_entero_en_rango("STUDENT_SESSION_DAYS", 1, 730),
             admin_session_minutes=_entero_en_rango("ADMIN_SESSION_MINUTES", 5, 720),
             csrf_anonymous_ttl_seconds=_entero_en_rango("CSRF_ANONYMOUS_TTL_SECONDS", 60, 3600),
+            importacion_resultados_key=_secreto("IMPORTACION_RESULTADOS_KEY"),
         )

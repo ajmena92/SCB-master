@@ -1,5 +1,6 @@
 """Consultas compuestas que no pertenecen a los adaptadores HTTP."""
 
+import json
 from datetime import date
 
 from sqlalchemy import func, or_, select, update
@@ -7,9 +8,11 @@ from sqlalchemy.orm import Session
 
 from aplicacion.modelos.maestros import AnioLectivo, AsignacionRuta, Matricula, Persona, Ruta
 from aplicacion.modelos.operacion import (
+    EventoExportacionListaControl,
     IndicadorAnaliticoComedor,
     IngresoComedor,
     MarcaTransporte,
+    ReservaComedor,
     VentaTiquete,
 )
 
@@ -74,13 +77,15 @@ class RepositorioReportes:
 
     def personas_dashboard(self, fecha: date, tipo_persona: str):
         if tipo_persona == "profesor":
-            return self.sesion.execute(
-                select(Persona, Matricula, Ruta)
-                .outerjoin(Matricula, Matricula.id == -1)
-                .outerjoin(Ruta, Ruta.id == -1)
+            profesores = self.sesion.scalars(
+                select(Persona)
                 .where(Persona.tipo == "profesor", Persona.activo.is_(True))
                 .order_by(Persona.nombres)
             ).all()
+            # La forma de salida del tablero siempre es (persona, matrícula,
+            # ruta). Un profesor no posee matrícula ni ruta escolar: se
+            # representa explícitamente con None, sin joins artificiales.
+            return [(profesor, None, None) for profesor in profesores]
         # El tablero representa personas, no asignaciones. Si un dato histórico
         # contiene rutas con vigencias solapadas, se elige sólo la más reciente.
         asignacion_vigente_id = (
@@ -121,6 +126,40 @@ class RepositorioReportes:
                 IngresoComedor.fecha.in_(fechas)
             )
         ).all()
+
+    def reservas_confirmadas_en_fecha(self, fecha: date) -> set[int]:
+        return set(
+            self.sesion.scalars(
+                select(ReservaComedor.persona_id).where(
+                    ReservaComedor.fecha == fecha,
+                    ReservaComedor.estado.in_(("reservada", "consumida")),
+                )
+            )
+        )
+
+    def matriculas_con_marca_transporte_en_fecha(self, fecha: date) -> set[int]:
+        return set(
+            self.sesion.scalars(
+                select(MarcaTransporte.matricula_id).where(MarcaTransporte.fecha == fecha)
+            )
+        )
+
+    def registrar_exportacion_lista_control(
+        self, cuenta_id: int, servicio: str, formato: str, fecha: date, filtros: dict, total: int
+    ) -> None:
+        # La búsqueda puede contener nombre o identificación: la trazabilidad no
+        # debe replicar esa información personal fuera del padrón.
+        filtros_auditoria = {clave: valor for clave, valor in filtros.items() if clave != "busqueda" and valor}
+        self.sesion.add(
+            EventoExportacionListaControl(
+                cuenta_administrativa_id=cuenta_id,
+                servicio=servicio,
+                formato=formato,
+                fecha_operativa=fecha,
+                filtros=json.dumps(filtros_auditoria, ensure_ascii=False, sort_keys=True),
+                total_registros=total,
+            )
+        )
 
     def alertas_analiticas(self, fecha: date):
         ultima = self.sesion.scalar(

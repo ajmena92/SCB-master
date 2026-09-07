@@ -29,9 +29,9 @@ de cierre por sí sola.
 | 1. Sesión, autenticación y secretos | Completada técnicamente | Responsable técnico: ajmena92; revisión: Codex + validación de ajmena92 | 2026-09-03 | Objetivo: 2026-09-15 | [Evidencia Fase 1](EVIDENCIA_FASE_1_SESION_2026-09-03.md) | Cookie+CSRF y contratos verificados (12/12 ASGI, OpenAPI/TypeScript, Compose y proxy local `204`). Pendientes operativos de ACL y migración de inactividad siguen documentados. |
 | 2. Arquitectura y mantenibilidad | Completada técnicamente | Responsable técnico: ajmena92; revisión: Codex + validación de ajmena92 | 2026-09-03 | Objetivo: 2026-09-15 | [Evidencia Fase 2](EVIDENCIA_FASE_2_ARQUITECTURA_2026-09-03.md) | División por dominios verificada; persisten excepciones P2 documentadas. |
 | 3. Calidad, pruebas y cobertura | Completada técnicamente | Responsable técnico: ajmena92; revisión: Codex + validación de ajmena92 | 2026-09-04 | 2026-09-06 | Evidencia Fase 3 y commit de consolidación | Pruebas, typecheck, lint, build y E2E documentados; falta solo aprobación operativa. |
-| 4. Rendimiento e importaciones | En curso | Responsable técnico: ajmena92; revisión: Codex + validación de ajmena92 | 2026-09-04 | Objetivo: 2026-09-15 | [Medición Fase 4](EVIDENCIA_FASE_4_RENDIMIENTO_2026-09-05.md) | P95/P99, reportes, personas, límite XLSX y RSS medidos. Faltan aprobación operativa de presupuestos, altas con Argon2, contención y carga sostenida por Nginx/TLS. |
-| 5. Datos, migraciones y operación | Completada técnicamente | Responsable técnico: ajmena92; DBA: administrador de producción | 2026-09-05 | 2026-09-06 | Deploy all con confirmación DBA; `alembic current/heads`; respaldo y restauración temporal verificados | Falta completar TSV y el corte definitivo de WinForms; no se autoriza retirar accesos históricos. |
-| 6. Diseño, accesibilidad y cierre | En curso | Responsable técnico: ajmena92; revisión: Codex + validación de ajmena92 | 2026-09-03 | Objetivo: 2026-09-15 | [Evidencia accesibilidad](EVIDENCIA_ACCESIBILIDAD_2026-09-03.md) | Falta repetir axe, auditar expediente y validar modales/formularios con datos reales. |
+| 4. Rendimiento e importaciones | En curso | Responsable técnico: ajmena92; revisión: Codex + validación de ajmena92 | 2026-09-04 | Objetivo: 2026-09-15 | [Medición inicial](EVIDENCIA_FASE_4_RENDIMIENTO_2026-09-05.md); [Contención y carga](EVIDENCIA_FASE_4_CONTENCION_2026-09-05.md) | Altas Argon2 y carga ASGI medidas; contención de profesores corregida y verificada. Faltan presupuestos aprobados, carga por Nginx/TLS con recursos continuos, contención estudiantil y límites de filas/descompresión. |
+| 5. Datos, migraciones y operación | Completada técnicamente | Responsable técnico: ajmena92; DBA: administrador de producción | 2026-09-05 | 2026-09-06 | Deploy all con confirmación DBA; `alembic current/heads`; [copia local de integración](EVIDENCIA_INTEGRACION_COPIA_PRODUCCION_2026-09-06.md) | Falta completar TSV y el corte definitivo de WinForms; el perfil de respaldo debe corregirse para no recrear PostgreSQL. |
+| 6. Diseño, accesibilidad y cierre | En curso por módulos | Responsable técnico: ajmena92; revisión: Codex + validación de ajmena92 | 2026-09-03 | Objetivo: 2026-09-15 | [Evidencia accesibilidad](EVIDENCIA_ACCESIBILIDAD_2026-09-03.md); [Auditoría Dashboard y Personas](AUDITORIA_FASE6_DASHBOARD_PERSONAS_2026-09-06.md) | Dashboard y Personas completados técnicamente: incluye capacidad, listas de control filtradas y secciones reales agrupadas desde matrícula activa. Falta repetir axe, aplicar Alembic 0021 en cada entorno y auditar expediente y modales/formularios con datos reales en módulos restantes. |
 
 ### Tarea añadida — revisión visual de notificaciones
 
@@ -113,8 +113,110 @@ los estados y evidencias enlazados determinan si una fase está completada.
 - La prueba focal de rendimiento de importación pasó 3/3 en 8,55 s.
 - Se registraron presupuestos técnicos provisionales: P95 HTTP y previsualización
   ≤500 ms, confirmación ≤2 s y RSS combinado ≤256 MiB.
-- La Fase 4 continúa en curso hasta medir coste Argon2, contención de una misma
-  persona/reserva y carga sostenida mediante Nginx/TLS.
+- El segundo corte enlazado en Fase 4 aporta coste Argon2, contención de una misma
+  persona/reserva y carga sostenida ASGI. La fase continúa en curso: falta ampliar
+  la contención a estudiantes y medir mediante Nginx/TLS, además de aprobar
+  presupuestos diferenciados para altas y actualizaciones.
+
+### Actualización de operación — 2026-09-05 (despliegue autorizado)
+
+- Se creó el respaldo `20260906T030359Z`, se verificaron sus hashes y se
+  restauraron 34 tablas en una base temporal antes de promover el código.
+- Con aprobación DBA se aplicó `0018_control_intentos_autenticacion`; la base
+  quedó en `head` y existe la tabla `intento_autenticacion`.
+- API y frontend se reconstruyeron y quedaron saludables. El smoke HTTPS sin
+  sesión confirmó salud 200, acceso 200, sesión anónima 204 y emisión CSRF 204.
+- Se corrigió el sincronizador para excluir entornos virtuales locales. No hubo
+  importaciones, carga sostenida, creación de cuentas ni cambios de comedor.
+- Para próximas revisiones con datos, el ensayo de la migración debe realizarse
+  sobre una copia restaurada antes de la base productiva.
+
+### Actualización de rendimiento — 2026-09-05 (medición separada)
+
+- Cinco lotes sintéticos de 25 altas con commit real mostraron P95 de 2.471 ms:
+  Argon2 representó 2.344 ms, SQL 101 ms y commit 7 ms. Se limpiaron al
+  finalizar las filas efímeras del entorno de medición.
+- La línea base productiva de bajo impacto fue 30/30 respuestas internas de
+  salud correctas, P95 4,8 ms. La API en reposo ocupa 168,6 MiB de 256 MiB.
+- No se realizaron importaciones, login ni comedor sobre datos institucionales.
+  El siguiente corte requiere aprobar trabajo en segundo plano con concurrencia
+  limitada y actores de prueba para medir coexistencia con login y comedor.
+
+### Actualización de rendimiento — 2026-09-06 (cola durable de importaciones)
+
+- La confirmación HTTP ahora encola un trabajo durable; el hash Argon2 y la
+  escritura definitiva se ejecutan en un trabajador único separado de la API.
+  La clave de resultados se monta como secreto y el resultado con PIN temporal
+  se conserva cifrado hasta una única entrega autenticada (`410` posterior).
+- Se cubrieron con pruebas: idempotencia, cifrado sin PIN en texto, entrega
+  única, propiedad del trabajo y recuperación de una ejecución interrumpida.
+  La regresión backend actual registró **90 aprobadas y 6 omitidas**; el contrato
+  TypeScript y la consulta focal de plataforma también aprobaron.
+- Aún no se publica esta cola: el Compose local no dispone de los tres secretos
+  PostgreSQL configurados, por lo que falta construir/arrancar el trabajador,
+  aplicar `0019_trabajos_importacion` en una base de ensayo y medir concurrencia
+  PostgreSQL con login y comedor. No se debe promover esta migración a producción
+  antes de esa evidencia.
+
+### Actualización de rendimiento — 2026-09-06 (ensayo integrado aislado)
+
+- Se creó un Compose efímero, con volumen, base y secretos propios, sin tocar
+  datos locales ni productivos. `config -q`, PostgreSQL, `0019_trabajos_importacion`,
+  API y el trabajador único finalizaron correctamente.
+- Un trabajo sintético atravesó la cola real hasta `completado`, con resultado
+  cifrado y aún no entregado. Durante el ensayo se corrigieron dos riesgos reales:
+  la codificación URL de contraseñas PostgreSQL con caracteres reservados en los
+  entrypoints de API, migración y worker; y la exclusión de profesores con una
+  cuenta administrativa activa de las desactivaciones del padrón anual.
+- Sigue pendiente la medición de concurrencia en PostgreSQL de importación con
+  login y comedor. El ensayo se limita a una fila sintética; no estima todavía
+  la espera de la cola para el flujo promedio de 2.500 personas.
+
+### Actualización de seguridad — 2026-09-06 (contraseñas administrativas)
+
+- Se confirmó que la API ya separaba cambio propio y restablecimiento por un
+  administrador, pero la ruta visual de cambio propio solo aceptaba sesiones
+  con cambio obligatorio y no tenía acceso desde el panel. La corrección permite
+  el acceso para administrador u operador autenticado y conserva el desvío
+  obligatorio para credenciales temporales.
+- La regresión cubre ahora a un operador con sesión ordinaria: cambio con
+  contraseña actual, revocación de sesión y autenticación posterior únicamente
+  con la nueva contraseña. No se modificaron hashes, secretos ni datos.
+
+### Actualización de rendimiento — 2026-09-06 (coexistencia PostgreSQL aislada)
+
+- Se añadió una prueba de reclamo concurrente de trabajos con cuatro sesiones
+  PostgreSQL: un único trabajador obtiene el trabajo pendiente y los otros tres
+  no reciben ninguno. La suite de contención aislada aprobó **7/7**.
+- El medidor `backend/medir_coexistencia_fase4.py` creó exclusivamente datos
+  sintéticos y ejecutó una importación real de 25 altas en paralelo con diez
+  inicios de sesión y diez consultas de estado de comedor. Resultado: importación
+  **2.845,21 ms**, P95 de login **1.540,34 ms** y P95 de comedor **52,74 ms**.
+- Una segunda muestra de 100 altas obtuvo **8.558,08 ms**, con P95 de login
+  **1.441,95 ms** y P95 de comedor **36,16 ms**. La proyección lineal bruta de
+  un trabajador para 2.500 altas es aproximadamente 3,6 minutos; debe validarse
+  con el archivo representativo, no usarse aún como SLA.
+- El comedor se mantiene dentro de un presupuesto interactivo de 300 ms gracias
+  al trabajador único, pero el login compite por CPU con Argon2. No se reducirá
+  el costo de Argon2: antes de declarar el cierre se deben acordar el presupuesto
+  de P95 de login, la capacidad de CPU/replicas y una medición de cola para el
+  volumen promedio de 2.500 filas. El entorno PostgreSQL temporal se elimina al
+  concluir el corte.
+
+### Cierre operativo de Fase 4 — 2026-09-06
+
+La organización confirmó que las importaciones se ejecutan fuera del horario de
+comedor o durante recesos autorizados, aproximadamente cinco veces al año. Con
+ese perfil, la capacidad observada es suficiente: una importación estimada de
+2.500 filas tarda aproximadamente 3–4 minutos y no se justifica aumentar la
+concurrencia ni reducir Argon2. Se adopta un worker único, cola durable,
+recuperación de trabajos, progreso visible y validación posterior de login,
+portal y base de datos.
+
+**Estado: Fase 4 cerrada con condición operativa.** La ventana de mantenimiento
+debe quedar configurada y registrada; si en una importación real se supera el
+límite operativo acordado, se reabre la fase para medir aislamiento de CPU antes
+de considerar workers adicionales.
 
 ## Fase 0 — Línea base, alcance y decisiones
 
@@ -262,6 +364,13 @@ commit evaluado; cobertura conforme; inventario de pruebas excluidas revisado.
 
 ## Fase 4 — Rendimiento, importaciones y concurrencia
 
+**Segundo corte 2026-09-05:** [contención, altas Argon2 y carga sostenida](EVIDENCIA_FASE_4_CONTENCION_2026-09-05.md).
+Cuatro fallos de integridad concurrente reproducidos y corregidos con bloqueo
+transaccional por persona; seis regresiones PostgreSQL añadidas. Suite: 93 pruebas
+aprobadas. Carga ASGI: 2.467 respuestas 200 en 60,04 s. Diez lotes de 25 altas
+con Argon2: 2,6–3,45 s. Criterios operativos restantes descritos en la evidencia;
+la fase conserva el estado en curso.
+
 **Corte 2026-09-05:** [resultados y límites](EVIDENCIA_FASE_4_RENDIMIENTO_2026-09-05.md).
 Previsualización de mil filas: de 1.001 a 3 consultas. Confirmación: de 4.006
 a 13 sentencias. Reportes poblados, personas, ingresos concurrentes y XLSX de
@@ -290,6 +399,9 @@ es histórico; este corte no declara el cierre de la fase.
 
 **Criterio de salida.** Presupuestos aprobados y cumplidos en el escenario acordado;
 sin regresión funcional, de autorización o de idempotencia.
+
+**Estado actual:** cerrado bajo ventana operativa de mantenimiento; la referencia
+vigente es el cierre operativo registrado arriba.
 
 ## Fase 5 — Datos, migraciones y operación
 
@@ -328,6 +440,8 @@ artefactos TSV de carga aprobados; y ninguna migración aplicada con rol de API.
 2. Auditar los recorridos críticos en móvil y escritorio: navegación por teclado,
    foco visible, etiquetas, contraste 4.5:1, objetivos táctiles de 44 px, errores,
    carga, vacío, movimiento reducido y ausencia de desbordamiento horizontal.
+   Incluir contraste de series, ejes, etiquetas, leyendas y estados de alerta de
+   las gráficas en tema claro y tema oscuro; no depender únicamente del color.
 3. Añadir pruebas de componentes y Playwright para los recorridos críticos que se
    hayan modificado; adjuntar capturas y resultados de revisión manual.
 4. Ejecutar una revisión final contra este plan, actualizar el registro de avance y
@@ -336,6 +450,129 @@ artefactos TSV de carga aprobados; y ninguna migración aplicada con rol de API.
 **Criterio de salida.** Una guía visual vigente, WCAG AA comprobado en recorridos
 críticos, pruebas finales aprobadas y cierre firmado por responsables técnicos y
 operativos.
+
+### Orden de corrección visual pendiente
+
+1. Toast: fondo estándar, icono único, texto completo y múltiples notificaciones.
+2. Contraste general del tema oscuro.
+3. Contraste de iconos y reloj del portal.
+4. Contraste y legibilidad del carnet y menú principal.
+5. Contraste de gráficas en tema claro: series, ejes, leyendas, etiquetas y
+   estados de error o vacío.
+
+### Mejora posterior — Etapa 2
+
+**Notificaciones Web Push para estudiantes.** Queda fuera del corte visual actual.
+Se evaluará después de estabilizar el portal con la alerta dentro de la aplicación.
+El alcance futuro incluye permisos del navegador, Service Worker, suscripciones
+por dispositivo, claves VAPID protegidas, expiración, revocación y prevención de
+notificaciones duplicadas.
+
+### Corte visual — 2026-09-06 (gráficas y toast)
+
+- Las gráficas del dashboard dejaron de consumir variables RGB como `hsl(...)`;
+  ahora usan `rgb(...)` y una paleta con contraste suficiente en tema claro y
+  oscuro. Ejes, líneas, rejilla y etiquetas usan tokens de tema.
+- El toast usa fondo opaco estándar, ancho adaptable, contenido con salto de
+  línea completo, icono estable y cierre separado para evitar solapamientos.
+- Los botones fantasma declaran explícitamente `text-foreground` y la navegación
+  estudiantil dejó de depender del token inexistente `--brand-primary`.
+- La compilación local del frontend terminó correctamente con Vite.
+- Chromium local comprobó el acceso, el selector de tema y el cambio a tema oscuro.
+  Queda pendiente revisar los estados autenticados de portal, carné, menú, reloj
+  y dashboard con datos visibles.
+
+### Corte visual — 2026-09-06 (alerta de cierre del comedor)
+
+- El reloj del portal conserva la hora autoritativa del servidor y actualiza la
+  cuenta regresiva cada segundo mientras la página está visible.
+- Al quedar menos del umbral configurado (15 minutos por defecto), la tarjeta
+  cambia a un estado de advertencia de alto contraste, muestra una alerta
+  accesible y emite un único toast por ventana de cierre. El aviso se identifica
+  con un ID estable para no duplicarse durante las actualizaciones del reloj.
+- La regresión focal pasó **4/4**, el typecheck pasó y la compilación Vite pasó.
+
+### Corte visual — 2026-09-06 (reloj, menú y navegación)
+
+- La hora del servidor ahora se presenta como una cápsula con fondo `muted`,
+  tipografía tabular y `aria-label`, manteniendo contraste en ambos temas.
+- Los componentes del menú tienen borde de token y texto explícito de primer
+  plano para no perder legibilidad sobre `accent` en tema oscuro.
+- La regresión del reloj pasó **4/4** y el build local Vite terminó correctamente.
+
+### Corrección visual — 2026-09-06 (colores de gráficas visibles)
+
+- Se añadieron tokens CSS completos (`--chart-*-color`) para que Recharts no
+  interprete de forma ambigua los valores RGB dentro de atributos SVG.
+- Líneas y barras ahora consumen esos colores completos por tema, manteniendo la
+  paleta contrastada en claro y oscuro. El build local volvió a pasar.
+
+### Validación Chromium — 2026-09-06 (cierre de recorridos automatizados)
+
+- Chromium ejecutó la batería E2E con un worker y el ejecutable local instalado:
+  **8/8 pruebas aprobadas**.
+- Se comprobaron navegación administrativa, restricciones por rol, ausencia de
+  credenciales persistidas, entrega única de credenciales, kiosk de comedor,
+  captura sin desborde y formularios accesibles de ambos accesos.
+- Se corrigió el mock E2E de importación para representar el flujo vigente:
+  confirmación, sondeo del trabajo completado y entrega única de credenciales.
+- La validación visual autenticada contra la API real del portal (carné con foto,
+  QR, menú, reloj y dashboard con datos) queda pendiente de un backend local
+  disponible; las pruebas de componentes y los estados simulados ya están cubiertos.
+
+### Desbloqueo local — 2026-09-06 (API y frontend publicados)
+
+- Se creó un proyecto Docker local aislado (`scb-visual-local`) con credenciales
+  aleatorias de desarrollo fuera del repositorio; no se reutilizaron secretos ni
+  volúmenes de producción.
+- PostgreSQL quedó saludable, Alembic terminó con código 0 y la API quedó saludable.
+- El frontend se compiló dentro de Docker y se publicó en
+  `http://127.0.0.1:8081/`.
+- Comprobaciones HTTP: portada `200`, `/api/v1/salud` `200` y CSRF `204`.
+- Chromium contra la publicación local aprobó los dos accesos canónicos (**2/2**).
+- Ya se puede continuar con la revisión autenticada del portal usando datos de
+  desarrollo; el siguiente pendiente es crear datos de prueba no productivos para
+  carné, foto, QR, menú y dashboard.
+
+### Corrección de arranque local — 2026-09-06 (migración de esquema)
+
+- El primer login local devolvía `500` porque el servicio de migración ejecutaba
+  su comando predeterminado `current`, que no aplica DDL; faltaba la tabla
+  `intento_autenticacion`.
+- Se ejecutó explícitamente `upgrade head` sobre el volumen aislado y se aplicaron
+  las revisiones `0001` a `0019` correctamente.
+- La comprobación CSRF + login ahora devuelve `401 Usuario o contrasena incorrectos`
+  para credenciales inválidas, en lugar de `500`; `/sesion` conserva `204` para
+  sesión anónima.
+- Se creó únicamente en el entorno local la cuenta `adminlocal` para revisión
+  visual; sus credenciales viven fuera del repositorio y no se reutilizan en
+  producción.
+- Una cookie de sesión inválida o revocada ahora se trata como sesión anónima
+  (`204`) y se elimina automáticamente; `Bearer` inválido y endpoints protegidos
+  conservan `401`. Las pruebas de autenticación y administración relacionadas
+  quedaron aprobadas (**25/25**).
+
+### Cierre de auditoría de diagnósticos — 2026-09-06
+
+- Se confirmó por HTTP local que `administrador` autentica correctamente y que la
+  credencial se valida mediante Argon2; no se intenta leer ni registrar el secreto
+  en texto plano.
+- La cuenta inicial quedó vinculada a un profesor sintético local. Antes de esa
+  vinculación el login era válido, pero los módulos protegidos devolvían `403` por
+  diseño; no era un fallo de contraseña ni de CORS.
+- Se añadió la revisión Alembic `0020_fotografia_persona`, que faltaba pese a que
+  el modelo y los endpoints de carné la utilizaban. La migración se aplicó al
+  PostgreSQL local y el flujo de carné con foto dejó de fallar por tabla ausente.
+- El servicio migrador conserva la política de secretos 0600: Compose le concede
+  únicamente `DAC_READ_SEARCH` durante su ciclo efímero para leer el secreto
+  montado, y una ejecución posterior quedó idempotente en `0020_fotografia_persona`.
+- Se sembraron datos sintéticos fuera del repositorio para comprobar portal,
+  matrícula, PIN, QR, fotografía, menú, confirmación, cancelación y reconfirmación
+  de reserva. No se copiaron datos de producción.
+- Suite backend posterior al cierre: **92 aprobadas, 7 omitidas**. La hipótesis de
+  que todos los `401/403/500` eran fallos de un único módulo queda descartada:
+  se separaron sesión anónima, CSRF/origen, migración pendiente, vinculación
+  inicial y credenciales inválidas.
 
 ## Cadencia de seguimiento
 

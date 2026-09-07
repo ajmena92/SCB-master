@@ -166,6 +166,7 @@ def entorno():
             cookie_secure=False,
             csrf_secret="csrf-pruebas",
             carnet_qr_clave="MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=",
+            importacion_resultados_key="eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHg=",
         ),
     )
     cliente = ClienteASGI(app)

@@ -1,16 +1,17 @@
 """Persistencia de importaciones anuales."""
 
-from sqlalchemy import delete, func, select
+from sqlalchemy import delete, func, or_, select
 from sqlalchemy.orm import Session
 
 from aplicacion.modelos.maestros import (
     AnioLectivo,
     CredencialPortal,
+    CuentaAdministrativa,
     Matricula,
     Persona,
     SesionAcceso,
 )
-from aplicacion.modelos.operacion import CuentaTiquete, LoteImportacion
+from aplicacion.modelos.operacion import CuentaTiquete, LoteImportacion, TrabajoImportacion
 
 
 class RepositorioImportacion:
@@ -19,6 +20,48 @@ class RepositorioImportacion:
 
     def lote(self, huella):
         return self.sesion.scalar(select(LoteImportacion).where(LoteImportacion.huella == huella))
+
+    def trabajo_por_huella(self, huella: str) -> TrabajoImportacion | None:
+        return self.sesion.scalar(
+            select(TrabajoImportacion).where(TrabajoImportacion.huella == huella)
+        )
+
+    def trabajo(self, trabajo_id: int) -> TrabajoImportacion | None:
+        return self.sesion.get(TrabajoImportacion, trabajo_id)
+
+    def trabajo_para_entrega(self, trabajo_id: int) -> TrabajoImportacion | None:
+        return self.sesion.scalar(
+            select(TrabajoImportacion)
+            .where(TrabajoImportacion.id == trabajo_id)
+            .with_for_update()
+        )
+
+    def recuperar_trabajos_interrumpidos(self, antes_de) -> int:
+        trabajos = self.sesion.scalars(
+            select(TrabajoImportacion)
+            .where(TrabajoImportacion.estado == "ejecutando", TrabajoImportacion.iniciado_en < antes_de)
+            .with_for_update(skip_locked=True)
+        ).all()
+        for trabajo in trabajos:
+            trabajo.estado, trabajo.iniciado_en = "pendiente", None
+        self.sesion.flush()
+        return len(trabajos)
+
+    def tomar_trabajo_pendiente(self) -> TrabajoImportacion | None:
+        trabajo = self.sesion.scalar(
+            select(TrabajoImportacion)
+            .where(TrabajoImportacion.estado == "pendiente")
+            .order_by(TrabajoImportacion.creado_en, TrabajoImportacion.id)
+            .with_for_update(skip_locked=True)
+            .limit(1)
+        )
+        if trabajo is not None:
+            from datetime import datetime, timezone
+
+            trabajo.estado = "ejecutando"
+            trabajo.iniciado_en = datetime.now(timezone.utc)
+            self.sesion.flush()
+        return trabajo
 
     def anio(self, valor):
         return self.sesion.scalar(select(AnioLectivo).where(AnioLectivo.anio == valor))
@@ -40,7 +83,12 @@ class RepositorioImportacion:
         consulta = (
             select(func.count())
             .select_from(Persona)
-            .where(Persona.activo.is_(True), Persona.tipo.in_(tipos))
+            .outerjoin(CuentaAdministrativa, CuentaAdministrativa.persona_id == Persona.id)
+            .where(
+                Persona.activo.is_(True),
+                Persona.tipo.in_(tipos),
+                or_(CuentaAdministrativa.id.is_(None), CuentaAdministrativa.activo.is_(False)),
+            )
         )
         if cedulas_presentes:
             consulta = consulta.where(Persona.cedula.not_in(cedulas_presentes))
@@ -60,7 +108,15 @@ class RepositorioImportacion:
         return matriculas
 
     def activas_ausentes_del_padron(self, tipos, cedulas_presentes):
-        consulta = select(Persona).where(Persona.activo.is_(True), Persona.tipo.in_(tipos))
+        consulta = (
+            select(Persona)
+            .outerjoin(CuentaAdministrativa, CuentaAdministrativa.persona_id == Persona.id)
+            .where(
+                Persona.activo.is_(True),
+                Persona.tipo.in_(tipos),
+                or_(CuentaAdministrativa.id.is_(None), CuentaAdministrativa.activo.is_(False)),
+            )
+        )
         if cedulas_presentes:
             consulta = consulta.where(Persona.cedula.not_in(cedulas_presentes))
         return self.sesion.scalars(consulta).all()

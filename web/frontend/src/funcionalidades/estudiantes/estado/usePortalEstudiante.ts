@@ -58,6 +58,7 @@ export function usePortalEstudiante(
       avisoMostradoRef.current = true;
       notificar.advertencia(
         `Faltan menos de ${minutosAviso} minutos para el cierre. ¡No olvidés confirmar tu asistencia!`,
+        { id: "aviso-cierre-comedor" },
       );
     }
   }, [cerrado, cierreProximo, asistenciaConfirmada, minutosAviso]);
@@ -107,6 +108,7 @@ export function usePortalEstudiante(
     rechazada,
     servicioDisponible,
     cuentaRegresiva,
+    minutosAviso,
     horaServidor: horaServidor ?? null,
     cierreProximo,
     vistaAsistencia,

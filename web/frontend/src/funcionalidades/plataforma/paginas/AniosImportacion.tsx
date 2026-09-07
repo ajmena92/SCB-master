@@ -35,6 +35,7 @@ export default function AniosImportacion() {
   const [anio, setAnio] = useState(0);
   const [resumen, setResumen] = useState<ResumenImportacion>();
   const [credenciales, setCredenciales] = useState<CredencialTemporal[]>([]);
+  const [trabajoId, setTrabajoId] = useState<number>();
   const anios = useQuery({ queryKey: ["anios"], queryFn: plataformaApi.anios.listar });
   const crear = useMutation({
     mutationFn: plataformaApi.anios.crear,
@@ -51,8 +52,21 @@ export default function AniosImportacion() {
   });
   const confirmar = useMutation({
     mutationFn: plataformaApi.importaciones.confirmar,
-    onSuccess: (resultado) => {
+    onSuccess: (trabajo) => {
       setResumen(undefined);
+      setTrabajoId(trabajo.trabajoId);
+    },
+  });
+  const trabajo = useQuery({
+    queryKey: ["importacion", trabajoId],
+    queryFn: () => plataformaApi.importaciones.trabajo(trabajoId!),
+    enabled: trabajoId !== undefined,
+    refetchInterval: (consulta) =>
+      ["pendiente", "ejecutando"].includes(consulta.state.data?.estado ?? "") ? 1000 : false,
+  });
+  const descargar = useMutation({
+    mutationFn: plataformaApi.importaciones.credenciales,
+    onSuccess: (resultado) => {
       setCredenciales(resultado.credenciales);
       cliente.invalidateQueries();
     },
@@ -64,7 +78,7 @@ export default function AniosImportacion() {
     crear.mutate({ anio: Number(datos.get("anio")), vigente: datos.get("vigente") === "on" });
   }
   const error =
-    anios.error || crear.error || activar.error || previsualizar.error || confirmar.error;
+    anios.error || crear.error || activar.error || previsualizar.error || confirmar.error || trabajo.error || descargar.error;
   return (
     <section>
       <EncabezadoPagina
@@ -72,9 +86,19 @@ export default function AniosImportacion() {
         descripcion="Cree o seleccione el año lectivo, importe el padrón anual y confirme únicamente cuando el resumen sea correcto. Becas y rutas se gestionan después de la importación."
       />
       {error && <Aviso tipo="error">{errMsg(error)}</Aviso>}
-      {confirmar.isSuccess && (
+      {trabajo.data && (
         <Aviso tipo="exito">
-          Importación confirmada.
+          Importación: {trabajo.data.estado}. {trabajo.data.altas} altas de {trabajo.data.total} filas.
+          {trabajo.data.estado === "completado" && credenciales.length === 0 && (
+            <button
+              className="button secondary credentials-download"
+              type="button"
+              disabled={descargar.isPending}
+              onClick={() => void descargar.mutate(trabajo.data!.trabajoId)}
+            >
+              Descargar credenciales una vez
+            </button>
+          )}
           {credenciales.length > 0 && (
             <>
               {" "}

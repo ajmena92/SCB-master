@@ -77,6 +77,25 @@ avisos distintos pueden coexistir hasta un máximo visible de cuatro.
 
 No se agregan verdes, violetas o tipografías nuevas como estilo local de una pantalla. Las excepciones deben incorporarse a esta guía y reutilizarse en componentes compartidos.
 
+## Gráficas operativas
+
+Las gráficas usan colores `chart` definidos por tema y superficies de tooltip con tokens semánticos. Debajo de cada gráfica se ofrece “Ver datos del gráfico”, una alternativa textual plegable con período, valores y unidades. En móvil esa alternativa complementa la lectura rápida sin sustituir la gráfica; nunca se obliga a desplazamiento horizontal para interpretar indicadores.
+
+El Dashboard del comedor no usa gráficas de distribución por sección: ese dato ya
+está disponible como filtro del padrón y no orienta una decisión inmediata. En
+su lugar presenta una tarjeta de capacidad estimada con padrón activo,
+confirmaciones válidas y asistencia registrada para la fecha consultada. Las
+reservas canceladas no son confirmaciones; las consumidas sí, porque ya
+representan una asistencia confirmada.
+
+En la lista nominal, la columna y el filtro se denominan **Asistencia hoy**:
+“Ingresó al comedor” comunica un ingreso registrado y “Aún sin ingreso” una
+persona activa sin marca para la fecha consultada. No se usan “Estado”,
+“Presente” ni “Sin registro” como etiquetas aisladas. El filtro de sección se
+deriva del padrón activo de la fecha consultada y se agrupa por nivel, desde
+Séptimo hasta Duodécimo. No se fija una cantidad de grupos: puede mostrar, por
+ejemplo, `7-1` hasta `7-9`; solo se presentan secciones existentes.
+
 ## Excepción operativa: lector de comedor
 
 La estación de lectura (`/admin/panel/comedor`) usa una superficie carbón de alto
@@ -98,6 +117,21 @@ usar vibración breve además del sonido.
 Los reportes generados desde la interfaz fuerzan una composición clara para
 impresión, independientemente del tema seleccionado. No deben consumir los
 colores de superficie oscura ni depender del modo oscuro del navegador.
+
+### Lista de control operativa
+
+La lista nominal del Dashboard se exporta como **Lista de control**. Su panel
+mantiene un selector obligatorio y excluyente de servicio: *Comedor* o
+*Transporte*; no mezcla beneficios ni estados de ambos servicios en un mismo
+archivo. Los tres formatos usan exactamente los filtros activos de la pantalla,
+pero incluyen todas las coincidencias, no solo la página visible. Excel es la
+acción principal; CSV es la alternativa interoperable y “Imprimir / PDF” abre
+una composición clara que el navegador guarda como PDF. Las acciones conservan
+texto, icono de apoyo, foco visible y altura táctil mínima.
+
+Los filtros del padrón no presentan beneficios de comedor y transporte como si
+fueran equivalentes: **Beneficio de comedor** se muestra únicamente en la lista
+de Comedor; la pertenencia a una ruta se denomina **Asignación de transporte**.
 
 ## Carné digital
 
@@ -124,6 +158,14 @@ El carné mantiene una superficie blanca y usa el token fijo `carnet-foreground`
 para sus textos, incluso en tema oscuro. El color de la ruta nunca se sustituye:
 `obtenerColorTextoRuta` selecciona texto claro u oscuro según la luminancia del
 color de catálogo. Las opacidades decorativas no se aplican a textos esenciales.
+Las etiquetas mantienen como mínimo el tamaño `text-xs` y las instrucciones
+operativas `text-sm` para conservar legibilidad en móvil. El estado de fotografía
+pendiente se comunica con un único mensaje explicativo fuera del marco de imagen;
+el marco usa el texto breve “Sin fotografía”. Cuando el código no existe, el QR no
+se presenta como una acción: se muestra un estado accesible con indicación de que
+podrá ampliarse cuando esté disponible. Con QR válido, la instrucción de ampliar y
+la indicación de presentación ante el lector se mantienen en una sola línea para
+evitar duplicidad visual.
 
 ## Calendario del menú
 

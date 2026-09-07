@@ -1,9 +1,13 @@
 import { QRCodeSVG } from "qrcode.react";
 
+export function esCodigoQrCarnetValido(valor?: string): boolean {
+  return Boolean(valor?.startsWith("SCBQR1."));
+}
+
 export function CodigoQrCarnet({ valor, tamano = 184 }: { valor?: string; tamano?: number }) {
-  if (!valor?.startsWith("SCBQR1.")) {
+  if (!valor || !esCodigoQrCarnetValido(valor)) {
     return (
-      <p className="py-5 text-center text-sm font-semibold text-muted-foreground">
+      <p className="py-5 text-center text-sm font-semibold text-muted-foreground" role="status">
         QR no disponible
       </p>
     );

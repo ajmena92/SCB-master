@@ -119,20 +119,38 @@ describe("plataformaApi", () => {
     });
   });
 
-  it("normaliza las credenciales devueltas al confirmar una importación", async () => {
+  it("encola la importación y descarga sus credenciales por una ruta de entrega única", async () => {
+    vi.mocked(api.post).mockResolvedValueOnce({
+      data: {
+        trabajo_id: 18,
+        estado: "pendiente",
+        total: 1,
+        altas: 1,
+        cambios: 0,
+      },
+    });
+    const trabajo = await plataformaApi.importaciones.confirmar(
+      JSON.stringify({ anio: 2026, filas: [], huella: "abc" }),
+    );
+    expect(trabajo).toMatchObject({ trabajoId: 18, estado: "pendiente", total: 1 });
+    expect(api.post).toHaveBeenCalledWith("/v1/importaciones/confirmar", {
+      anio: 2026,
+      filas: [],
+      huella: "abc",
+    });
+
     vi.mocked(api.post).mockResolvedValueOnce({
       data: {
         credenciales: [{ codigo: "E-00000018", nombre: "Ana", pin_temporal: "654321" }],
       },
     });
 
-    const resultado = await plataformaApi.importaciones.confirmar(
-      JSON.stringify({ anio: 2026, filas: [], huella: "abc" }),
-    );
+    const resultado = await plataformaApi.importaciones.credenciales(18);
 
     expect(resultado.credenciales).toEqual([
       { cedula: "E-00000018", nombre: "Ana", pinTemporal: "654321" },
     ]);
+    expect(api.post).toHaveBeenLastCalledWith("/v1/importaciones/trabajos/18/credenciales");
   });
 
   it("usa la cédula en ventas y escaneos de comedor", async () => {

@@ -140,7 +140,7 @@ export default function ListadoPersonas({
   return (
     <>
       <div
-        className="overflow-x-auto rounded-xl border border-border bg-card"
+        className="hidden overflow-x-auto rounded-xl border border-border bg-card md:block"
         role="region"
         aria-label="Padrón de personas"
       >

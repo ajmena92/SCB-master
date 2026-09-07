@@ -43,7 +43,7 @@ def test_cuenta_operador_exige_cambio_y_revoca_permiso_inmediatamente(entorno):
         },
     )
     assert cambio.status_code == 200
-    assert cuenta.get("/api/v1/sesion").status_code == 401
+    assert cuenta.get("/api/v1/sesion").status_code == 204
 
 
     cuenta = autenticar_administracion(cliente.app, "nuevo.operador", "Otra-clave-segura-2026")
@@ -59,7 +59,26 @@ def test_cuenta_operador_exige_cambio_y_revoca_permiso_inmediatamente(entorno):
         json={"permisos": []},
     )
     assert actualizada.status_code == 200, actualizada.text
-    assert cuenta.get("/api/v1/sesion").status_code == 401
+    assert cuenta.get("/api/v1/sesion").status_code == 204
+
+
+def test_operador_cambia_su_contrasena_sin_cambio_obligatorio(entorno):
+    _, _, h = entorno
+    operador = h["operador_cliente"]
+    cambio = operador.post(
+        "/api/v1/autenticacion/administracion/contrasena",
+        headers=operador.csrf(),
+        json={
+            "contrasenaActual": "Clave-operador-2026",
+            "contrasenaNueva": "Clave-operador-nueva-2026",
+        },
+    )
+    assert cambio.status_code == 200, cambio.text
+    assert operador.get("/api/v1/sesion").status_code == 204
+    nueva_sesion = autenticar_administracion(
+        operador.app, "operador", "Clave-operador-nueva-2026"
+    )
+    assert nueva_sesion.get("/api/v1/sesion").status_code == 200
 
 
 def test_permite_cambiar_el_profesor_vinculado_y_revoca_sus_sesiones(entorno):
@@ -93,7 +112,20 @@ def test_permite_cambiar_el_profesor_vinculado_y_revoca_sus_sesiones(entorno):
     )
     assert actualizada.status_code == 200, actualizada.text
     assert actualizada.json()["persona"]["id"] == profesor_destino["id"]
-    assert cuenta.get("/api/v1/sesion").status_code == 401
+    assert cuenta.get("/api/v1/sesion").status_code == 204
+
+
+def test_administrador_puede_cambiar_el_usuario_de_operador(entorno):
+    cliente, _, h = entorno
+    respuesta = cliente.put(
+        "/api/v1/administracion/cuentas/2",
+        headers=h["admin"],
+        json={"usuario": "Operador.Nuevo"},
+    )
+
+    assert respuesta.status_code == 200, respuesta.text
+    assert respuesta.json()["usuario"] == "operador.nuevo"
+    assert autenticar_administracion(cliente.app, "OPERADOR.NUEVO", "Clave-operador-2026")
 
 
 def test_protege_cuenta_propia_y_ultimo_administrador(entorno):
@@ -294,7 +326,7 @@ def test_profesor_nuevo_entrega_secretos_y_reset_revoca_sesiones(entorno):
     )
     assert reset.status_code == 200
     assert reset.json()["contrasenaTemporal"] != secretos["contrasena"]
-    assert cuenta.get("/api/v1/sesion").status_code == 401
+    assert cuenta.get("/api/v1/sesion").status_code == 204
 
 
 def test_sesion_se_invalida_si_el_profesor_deja_de_ser_activo(entorno):
@@ -306,4 +338,4 @@ def test_sesion_se_invalida_si_el_profesor_deja_de_ser_activo(entorno):
         profesor = sesion.get(Persona, cuenta.persona_id)
         profesor.activo = False
         sesion.commit()
-    assert cliente.get("/api/v1/sesion", headers=h["operador"]).status_code == 401
+    assert cliente.get("/api/v1/sesion", headers=h["operador"]).status_code == 204

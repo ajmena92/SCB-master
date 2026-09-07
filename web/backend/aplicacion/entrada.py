@@ -126,7 +126,11 @@ def crear_aplicacion(
     api.include_router(router_administracion(obtener_administracion, actual, administrador))
     api.include_router(router_maestros(obtener_catalogos, exigir_permiso, exigir_alguno))
     api.include_router(router_fotos(obtener_catalogos, exigir_permiso))
-    api.include_router(router_importaciones(obtener_importacion, exigir_permiso))
+    api.include_router(
+        router_importaciones(
+            obtener_importacion, exigir_permiso, configuracion.importacion_resultados_key
+        )
+    )
     api.include_router(router_menu(obtener_catalogos, exigir_permiso))
     api.include_router(
         router_operacion(obtener_operacion, portal_operativo, exigir_permiso, exigir_alguno)

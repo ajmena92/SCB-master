@@ -27,7 +27,7 @@ export function NavegacionEstudiante({
               aria-current={active ? "page" : undefined}
               aria-label={`Ver ${label}`}
               onClick={() => alCambiar(id)}
-              className={`flex min-h-14 flex-col items-center justify-center gap-1 rounded-2xl px-4 text-xs font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${active ? "bg-primary text-primary-foreground shadow-[0_8px_20px_rgb(var(--brand-primary)_/_0.28)]" : "text-muted-foreground hover:bg-primary/10 hover:text-foreground"}`}
+              className={`flex min-h-14 flex-col items-center justify-center gap-1 rounded-2xl px-4 text-xs font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${active ? "bg-primary text-primary-foreground shadow-[0_8px_20px_rgb(var(--primary)_/_0.28)]" : "text-muted-foreground hover:bg-primary/10 hover:text-foreground"}`}
             >
               <Icon className="h-5 w-5" aria-hidden="true" />
               <span>{label}</span>

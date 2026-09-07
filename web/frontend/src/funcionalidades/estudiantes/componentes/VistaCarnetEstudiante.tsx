@@ -73,8 +73,8 @@ export function VistaCarnetEstudiante({
         />
       )}
       {fotoDisponible === false && (
-        <p className="mt-4 text-xs text-muted-foreground">
-          El administrador todavía debe cargar tu fotografía.
+        <p className="mt-4 text-sm text-muted-foreground">
+          Fotografía pendiente de carga administrativa.
         </p>
       )}
     </section>

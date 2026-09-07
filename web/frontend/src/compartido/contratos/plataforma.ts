@@ -89,6 +89,14 @@ export interface ResultadoConfirmacionImportacion {
   [campo: string]: unknown;
 }
 
+export interface TrabajoImportacion {
+  trabajoId: number;
+  estado: "pendiente" | "ejecutando" | "completado" | "fallido" | "cancelado";
+  total: number;
+  altas: number;
+  cambios: number;
+}
+
 export interface ResultadoOperacion {
   estado: "aceptada" | "rechazada" | "pendiente";
   mensaje: string;

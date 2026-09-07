@@ -158,6 +158,7 @@ def crear_router(
     @router.get("/sesion", responses={204: {"description": "Sin sesión activa"}})
     async def consultar(
         request: Request,
+        response: Response,
         scb_sesion: str | None = Cookie(default=None),
         servicio: ServicioIdentidad = Depends(obtener_servicio),
     ):
@@ -167,7 +168,14 @@ def crear_router(
             raise HTTPException(status_code=401, detail="Autenticación por Bearer no admitida")
         if not scb_sesion:
             return Response(status_code=204)
-        identidad = servicio.identidad_por_token(scb_sesion)
+        try:
+            identidad = servicio.identidad_por_token(scb_sesion)
+        except HTTPException as exc:
+            if exc.status_code == 401:
+                _limpiar_cookies(response, seguro=cookie_secure)
+                response.status_code = 204
+                return response
+            raise
         if identidad["tipo"] == "portal":
             persona = identidad["persona"]
             return {

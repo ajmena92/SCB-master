@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { api } from "@/compartido/consultas/cliente_http";
-import { consultarDashboard } from "./dashboard";
+import { consultarDashboard, urlListaControl } from "./dashboard";
 
 describe("consulta del dashboard", () => {
   it("envía la vista separada de profesores al backend", async () => {
@@ -21,5 +21,17 @@ describe("consulta del dashboard", () => {
     expect(api.get).toHaveBeenCalledWith("/v1/reportes/dashboard", {
       params: { fecha: "2026-08-27", porPagina: 25, ruta: "12", pagina: 1 },
     });
+  });
+
+  it("crea una exportación completa con los filtros activos y un único servicio", () => {
+    expect(
+      urlListaControl("2026-08-27", "transporte", "xlsx", {
+        seccion: "7-1",
+        ruta: "12",
+        estado: "presente",
+      }),
+    ).toBe(
+      "/api/v1/reportes/lista-control?fecha=2026-08-27&servicio=transporte&formato=xlsx&ruta=12&seccion=7-1&estado=presente",
+    );
   });
 });

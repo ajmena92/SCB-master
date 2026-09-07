@@ -12,12 +12,13 @@ import { usuariosAdministrativosApi } from "../consultas/usuarios";
 import type { AutenticacionPlataforma } from "@/funcionalidades/plataforma/seguridad";
 
 export default function CambioContrasenaAdministrativa() {
-  const { limpiarSesion, logout } = useAutenticacion() as unknown as AutenticacionPlataforma;
+  const { session, limpiarSesion, logout } = useAutenticacion() as unknown as AutenticacionPlataforma;
   const navigate = useNavigate();
   const [actual, setActual] = useState("");
   const [nueva, setNueva] = useState("");
   const [confirmacion, setConfirmacion] = useState("");
   const [errorLocal, setErrorLocal] = useState("");
+  const cambioObligatorio = Boolean(session && session.cambioContrasenaObligatorio);
   const cambiar = useMutation({
     mutationFn: () => usuariosAdministrativosApi.cambiarContrasena(actual, nueva),
     onSuccess: () => {
@@ -56,11 +57,14 @@ export default function CambioContrasenaAdministrativa() {
           Seguridad de la cuenta
         </p>
         <h1 id="cambio-contrasena-titulo" className="mt-1 font-display text-2xl font-bold">
-          Creá tu contraseña definitiva
+          {cambioObligatorio
+            ? "Creá tu contraseña definitiva"
+            : "Cambiá tu contraseña"}
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          La contraseña temporal solo sirve para este primer acceso. Al guardarla tendrás que
-          iniciar sesión otra vez.
+          {cambioObligatorio
+            ? "La contraseña temporal solo sirve para este primer acceso. Al guardarla tendrás que iniciar sesión otra vez."
+            : "Por seguridad, al guardarla se cerrarán tus sesiones y tendrás que iniciar sesión otra vez."}
         </p>
         {(errorLocal || cambiar.error) && (
           <Alert variant="destructive" className="mt-5">

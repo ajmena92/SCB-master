@@ -12,6 +12,7 @@ import type {
   ResumenPersonas,
   ResumenImportacion,
   Tarifa,
+  TrabajoImportacion,
   Pagina,
 } from "@/compartido/contratos/plataforma";
 import { api } from "@/compartido/consultas/cliente_http";
@@ -157,8 +158,14 @@ export const plataformaApi = {
         })),
       } satisfies ResumenImportacion;
     },
-    confirmar: async (token: string): Promise<ResultadoConfirmacionImportacion> => {
+    confirmar: async (token: string): Promise<TrabajoImportacion> => {
       const { data } = await api.post("/v1/importaciones/confirmar", JSON.parse(token));
+      return normalizarObjeto<TrabajoImportacion>(data);
+    },
+    trabajo: async (trabajoId: number): Promise<TrabajoImportacion> =>
+      normalizarObjeto<TrabajoImportacion>((await api.get(`/v1/importaciones/trabajos/${trabajoId}`)).data),
+    credenciales: async (trabajoId: number): Promise<ResultadoConfirmacionImportacion> => {
+      const { data } = await api.post(`/v1/importaciones/trabajos/${trabajoId}/credenciales`);
       const normalizados = normalizarObjeto<{
         credenciales?: CredencialTemporal[];
         codigo?: string;

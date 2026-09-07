@@ -87,4 +87,20 @@ describe("carnet del estudiante", () => {
     expect(container.querySelector('svg[aria-label="Código QR del carnet"]')).not.toBeNull();
     await act(async () => root.unmount());
   });
+
+  it("muestra un estado no accionable cuando el QR no está disponible", async () => {
+    const container = document.createElement("div");
+    const root = createRoot(container);
+    await act(async () =>
+      root.render(
+        <VistaCarnetEstudiante
+          datosCarnet={{ nombre: "Ana", codigoQr: "" }}
+          tieneFoto={false}
+        />,
+      ),
+    );
+    expect(container.querySelector('[data-testid="student-card-qr-unavailable"]')).not.toBeNull();
+    expect(container.querySelector('button[aria-label="Ampliar QR del carnet"]')).toBeNull();
+    await act(async () => root.unmount());
+  });
 });

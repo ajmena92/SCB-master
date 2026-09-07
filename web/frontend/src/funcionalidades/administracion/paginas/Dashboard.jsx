@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useDashboard } from "@/funcionalidades/administracion/hooks/useDashboard";
+import { urlListaControl } from "@/funcionalidades/administracion/consultas/dashboard";
+import { useAutenticacion } from "@/aplicacion/estado/ContextoAutenticacion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,19 +23,41 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { Activity, Bus, Coffee, GraduationCap, RefreshCw, Search, Users, X } from "lucide-react";
 import {
+  Activity,
+  Bus,
+  Coffee,
+  Download,
+  FileSpreadsheet,
+  GraduationCap,
+  Printer,
+  RefreshCw,
+  Search,
+  Users,
+  X,
+} from "lucide-react";
+import {
+  CapacidadServicio,
   GroupChart,
   MetricCard,
 } from "@/funcionalidades/administracion/componentes/DashboardGraficos";
 import { fechaLocalActual } from "@/compartido/utilidades/fecha";
 import { EncabezadoPagina } from "@/funcionalidades/plataforma/componentes/ElementosComunes";
 const COLORS = [
-  "hsl(var(--chart-1))",
-  "hsl(var(--chart-2))",
-  "hsl(var(--chart-3))",
-  "hsl(var(--chart-4))",
+  "var(--chart-1-color)",
+  "var(--chart-2-color)",
+  "var(--chart-3-color)",
+  "var(--chart-4-color)",
 ];
+
+function etiquetaAsistencia(row) {
+  if (row.historico) return "Registro histórico";
+  return row.estadoClave === "presente" ? "Ingresó al comedor" : "Aún sin ingreso";
+}
+
+function varianteAsistencia(row) {
+  return row.historico || row.estadoClave !== "presente" ? "secondary" : "default";
+}
 
 function resumirGruposParaGrafico(grupos, limite, etiquetaResto) {
   if (grupos.length <= limite) return grupos;
@@ -49,20 +73,41 @@ function resumirGruposParaGrafico(grupos, limite, etiquetaResto) {
   ];
 }
 
+function ResumenLinea({ datos, tipo }) {
+  if (!datos.length) return null;
+  return (
+    <details className="mt-3 rounded-lg border border-border bg-muted/30 px-3 py-2 text-sm">
+      <summary className="cursor-pointer font-medium text-foreground">
+        Ver datos del gráfico
+      </summary>
+      <ul className="mt-2 space-y-1 text-muted-foreground">
+        {datos.map((dato) => (
+          <li key={dato.dia}>
+            <span className="font-medium text-foreground">{dato.dia}:</span>{" "}
+            {tipo === "asistencia"
+              ? `${dato.presentes ?? 0} ingresos; ${dato.ausentes ?? 0} sin registro.`
+              : `${dato.porcentaje ?? 0}% con ingreso registrado.`}
+          </li>
+        ))}
+      </ul>
+    </details>
+  );
+}
+
 export default function DashboardTab() {
+  const { session } = useAutenticacion();
   const [fecha, setFecha] = useState(fechaLocalActual);
   const [busqueda, setBusqueda] = useState("");
   const [ruta, setRuta] = useState("");
-  const [idEstadoComedor, setIdEstadoComedor] = useState("");
   const [beneficioTransporte, setBeneficioTransporte] = useState("");
   const [seccion, setSeccion] = useState("");
   const [estado, setEstado] = useState("");
   const [tipoPersona, setTipoPersona] = useState("estudiante");
+  const [servicioExportacion, setServicioExportacion] = useState("comedor");
   const [pagina, setPagina] = useState(1);
   const filtros = {
     ...(busqueda ? { busqueda } : {}),
     ...(ruta ? { ruta } : {}),
-    ...(idEstadoComedor ? { idEstadoComedor } : {}),
     ...(beneficioTransporte ? { beneficioTransporte } : {}),
     ...(seccion ? { seccion } : {}),
     ...(estado ? { estado } : {}),
@@ -81,7 +126,6 @@ export default function DashboardTab() {
   const rutas = data?.porRuta || [];
   const estadosComedor = data?.porEstadoComedor || [];
   const alertas = data?.alertas || [];
-  const secciones = data?.porSeccion || [];
   const casosAnaliticos = data?.casosAnaliticos || [];
   const esProfesor = tipoPersona === "profesor";
   const tendencia = data?.tendenciaVeinteDias || data?.ultimosCincoDias || [];
@@ -89,8 +133,21 @@ export default function DashboardTab() {
   const beneficiariosConIngreso =
     estadosComedor.find((grupo) => grupo.nombre === "Beneficiarios")?.presentes ?? 0;
   const rutasParaGrafico = resumirGruposParaGrafico(rutas, 10, "Otras rutas");
-  const seccionesParaGrafico = resumirGruposParaGrafico(secciones, 10, "Otras secciones");
+  const capacidad = data?.capacidad;
+  const seccionesActivas = data?.seccionesActivas || [];
   const vistaDocenteSinContrato = esProfesor && data?.tipoPersona !== "profesor";
+  const puedeExportar =
+    session?.tipo === "administracion" &&
+    (session.rol === "administrador" || session.permisos?.includes("reportes.leer"));
+  const filtrosExportacion = {
+    busqueda,
+    ruta,
+    seccion,
+    estado,
+    beneficioTransporte,
+  };
+  const enlaceExportacion = (formato) =>
+    urlListaControl(fecha, servicioExportacion, formato, filtrosExportacion);
 
   return (
     <div className="space-y-5">
@@ -112,7 +169,7 @@ export default function DashboardTab() {
                 data-testid="dashboard-fecha"
                 value={fecha}
                 onChange={(e) => setFecha(e.target.value)}
-                className="h-10 w-44"
+                className="h-11 w-44"
               />
             </div>
             <div>
@@ -127,10 +184,16 @@ export default function DashboardTab() {
                 aria-label="Tipo de persona"
                 value={tipoPersona}
                 onChange={(e) => {
-                  setTipoPersona(e.target.value);
+                  const nuevoTipo = e.target.value;
+                  setTipoPersona(nuevoTipo);
+                  if (nuevoTipo === "profesor") {
+                    setRuta("");
+                    setBeneficioTransporte("");
+                    setSeccion("");
+                  }
                   setPagina(1);
                 }}
-                className="h-10 rounded-md border bg-background px-3 text-sm"
+                className="h-11 rounded-md border bg-background px-3 text-sm"
               >
                 <option value="estudiante">Estudiantes</option>
                 <option value="profesor">Profesores</option>
@@ -143,6 +206,7 @@ export default function DashboardTab() {
               title="Actualizar dashboard"
               data-testid="dashboard-refresh"
               onClick={() => refetch()}
+              className="h-11 w-11"
             >
               <RefreshCw className="h-4 w-4" />
             </Button>
@@ -180,46 +244,52 @@ export default function DashboardTab() {
         <>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <MetricCard
-              label={esProfesor ? "Profesores habilitados" : "Ingresos registrados"}
-              value={`${asistencia?.porcentaje ?? 0}%`}
-              detail={`${asistencia?.presentes ?? 0} de ${asistencia?.total ?? 0} ${esProfesor ? "profesores" : "estudiantes activos"}`}
+              label={esProfesor ? "Profesores activos" : "Ingresos registrados"}
+              value={esProfesor ? asistencia?.total ?? 0 : `${asistencia?.porcentaje ?? 0}%`}
+              detail={
+                esProfesor
+                  ? "Padrón docente activo"
+                  : `${asistencia?.presentes ?? 0} de ${asistencia?.total ?? 0} estudiantes activos`
+              }
               icon={Activity}
             />
             <MetricCard
-              label={esProfesor ? "Sin ingreso" : "Sin registro"}
-              value={asistencia?.sinRegistro ?? 0}
-              detail={esProfesor ? "Sin ingreso registrado" : "Sin registro de ingreso al comedor"}
+              label={esProfesor ? "Ingresaron al comedor" : "Sin registro"}
+              value={esProfesor ? asistencia?.presentes ?? 0 : asistencia?.sinRegistro ?? 0}
+              detail={
+                esProfesor ? "Con ingreso registrado hoy" : "Sin registro de ingreso al comedor"
+              }
               icon={Users}
             />
             <MetricCard
-              label={esProfesor ? "Personas con tiquete" : "Beneficiarios de comedor"}
-              value={data?.beneficiariosComedor ?? 0}
+              label={esProfesor ? "Sin ingreso" : "Beneficiarios de comedor"}
+              value={esProfesor ? asistencia?.sinRegistro ?? 0 : data?.beneficiariosComedor ?? 0}
               detail={
-                esProfesor ? "Requieren tiquete" : `${data?.noBeneficiarios ?? 0} no beneficiarios`
+                esProfesor ? "Aún sin ingreso hoy" : `${data?.noBeneficiarios ?? 0} no beneficiarios`
               }
               icon={GraduationCap}
             />
             <MetricCard
-              label={esProfesor ? "Consumo comedor" : "Cobertura de beneficiarios"}
+              label={esProfesor ? "Cobertura de hoy" : "Cobertura de beneficiarios"}
               value={
                 esProfesor
-                  ? (data?.consumoComedor ?? 0)
+                  ? `${asistencia?.porcentaje ?? 0}%`
                   : `${beneficiariosConIngreso} de ${data?.beneficiariosComedor ?? 0}`
               }
-              detail={esProfesor ? `Fecha ${fecha}` : "Beneficiarios con ingreso registrado hoy"}
+              detail={esProfesor ? "Del padrón docente activo" : "Beneficiarios con ingreso registrado hoy"}
               icon={Coffee}
             />
           </div>
           {!esProfesor && (
             <p className="rounded-lg border border-primary/15 bg-primary/5 px-3 py-2 text-xs text-muted-foreground">
-              Padrón activo 2026:{" "}
+              Padrón activo {fecha.slice(0, 4)}:{" "}
               <strong className="text-foreground">
                 {asistencia?.total ?? 0} estudiantes REGULAR
               </strong>{" "}
               · datos al {fecha}.
             </p>
           )}
-          {alertas.some((alerta) => alerta.cantidad > 0) && (
+          {!esProfesor && alertas.some((alerta) => alerta.cantidad > 0) && (
             <section
               aria-labelledby="dashboard-alertas"
               className="rounded-xl border border-warning/35 bg-warning/10 p-4"
@@ -239,46 +309,36 @@ export default function DashboardTab() {
               </div>
             </section>
           )}
-          {esProfesor && (
-            <section className="grid gap-3 sm:grid-cols-3" aria-label="Tiquetes de profesores">
-              <MetricCard
-                label="Saldo de tiquetes"
-                value={data?.saldoTiquetes ?? 0}
-                detail="Saldo disponible acumulado"
-                icon={Coffee}
-              />
-              <MetricCard
-                label="Tiquetes reservados"
-                value={data?.tiquetesReservados ?? 0}
-                detail="Comprometidos para ingreso"
-                icon={Activity}
-              />
-              <MetricCard
-                label="Consumo histórico"
-                value={data?.tiquetesConsumidos ?? 0}
-                detail={`${data?.ingresosHistoricos ?? 0} ingresos registrados`}
-                icon={Users}
-              />
-            </section>
-          )}
           <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
             <div className="rounded-xl border bg-card p-4">
               <h3 className="mb-4 font-display text-sm font-bold uppercase tracking-wide">
                 Últimos 5 días hábiles
               </h3>
               <p className="-mt-2 mb-4 text-xs text-muted-foreground">
-                Ingresos registrados y estudiantes sin registro de ingreso al comedor.
+                Ingresos registrados y {esProfesor ? "profesores" : "estudiantes"} sin registro de ingreso al comedor.
               </p>
               {!hayRegistrosHistoricos ? (
                 <p className="flex h-28 items-center justify-center text-center text-sm text-muted-foreground">
                   Aún no hay registros de ingreso al comedor en este período.
                 </p>
               ) : (
-                <ResponsiveContainer width="100%" height={250}>
-                  <LineChart data={data?.semana || []} margin={{ left: 0, right: 12 }}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="dia" tick={{ fontSize: 11 }} />
-                    <YAxis allowDecimals={false} />
+                <>
+                  <div role="img" aria-label="Gráfico de ingresos y estudiantes sin registro de los últimos cinco días hábiles.">
+                    <ResponsiveContainer width="100%" height={250}>
+                      <LineChart data={data?.semana || []} margin={{ left: 0, right: 12 }}>
+                    <CartesianGrid stroke="rgb(var(--border))" strokeDasharray="3 3" />
+                    <XAxis
+                      dataKey="dia"
+                      tick={{ fontSize: 11, fill: "rgb(var(--muted-foreground))" }}
+                      axisLine={{ stroke: "rgb(var(--border))" }}
+                      tickLine={{ stroke: "rgb(var(--border))" }}
+                    />
+                    <YAxis
+                      allowDecimals={false}
+                      tick={{ fill: "rgb(var(--muted-foreground))" }}
+                      axisLine={{ stroke: "rgb(var(--border))" }}
+                      tickLine={{ stroke: "rgb(var(--border))" }}
+                    />
                     <Tooltip
                       contentStyle={{
                         backgroundColor: "rgb(var(--popover))",
@@ -302,8 +362,11 @@ export default function DashboardTab() {
                       stroke={COLORS[3]}
                       strokeWidth={2}
                     />
-                  </LineChart>
-                </ResponsiveContainer>
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <ResumenLinea datos={data?.semana || []} tipo="asistencia" />
+                </>
               )}
             </div>
             <div className="rounded-xl border bg-card p-4">
@@ -318,11 +381,24 @@ export default function DashboardTab() {
                   La tendencia aparecerá cuando existan registros de ingreso.
                 </p>
               ) : (
-                <ResponsiveContainer width="100%" height={250}>
-                  <LineChart data={tendencia} margin={{ left: 0, right: 12 }}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="dia" tick={{ fontSize: 11 }} />
-                    <YAxis allowDecimals={false} unit="%" />
+                <>
+                  <div role="img" aria-label="Gráfico de porcentaje de ingreso registrado durante los últimos veinte días lectivos.">
+                    <ResponsiveContainer width="100%" height={250}>
+                      <LineChart data={tendencia} margin={{ left: 0, right: 12 }}>
+                    <CartesianGrid stroke="rgb(var(--border))" strokeDasharray="3 3" />
+                    <XAxis
+                      dataKey="dia"
+                      tick={{ fontSize: 11, fill: "rgb(var(--muted-foreground))" }}
+                      axisLine={{ stroke: "rgb(var(--border))" }}
+                      tickLine={{ stroke: "rgb(var(--border))" }}
+                    />
+                    <YAxis
+                      allowDecimals={false}
+                      unit="%"
+                      tick={{ fill: "rgb(var(--muted-foreground))" }}
+                      axisLine={{ stroke: "rgb(var(--border))" }}
+                      tickLine={{ stroke: "rgb(var(--border))" }}
+                    />
                     <Tooltip
                       contentStyle={{
                         backgroundColor: "rgb(var(--popover))",
@@ -339,29 +415,28 @@ export default function DashboardTab() {
                       stroke={COLORS[0]}
                       strokeWidth={3}
                     />
-                  </LineChart>
-                </ResponsiveContainer>
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <ResumenLinea datos={tendencia} tipo="tendencia" />
+                </>
               )}
             </div>
           </div>
-          <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
-            <GroupChart
-              title="Beneficio de comedor"
-              description="Distribución del padrón activo entre beneficiarios y no beneficiarios."
-              data={estadosComedor}
-            />
-            <GroupChart
-              title="Rutas de transporte"
-              description="Las 9 rutas principales y el resto agrupado. Mide asignación activa, no viajes realizados."
-              data={rutasParaGrafico}
-            />
-            <GroupChart
-              title="Secciones"
-              description="Las 9 secciones con mayor población y el resto agrupado."
-              data={seccionesParaGrafico}
-            />
-          </div>
-          <section
+          {!esProfesor && <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
+              <GroupChart
+                title="Beneficio de comedor"
+                description="Distribución del padrón activo entre beneficiarios y no beneficiarios."
+                data={estadosComedor}
+              />
+              <GroupChart
+                title="Rutas de transporte"
+                description="Las 9 rutas principales y el resto agrupado. Mide asignación activa, no viajes realizados."
+                data={rutasParaGrafico}
+              />
+              <CapacidadServicio capacidad={capacidad} fecha={fecha} />
+            </div>}
+          {!esProfesor && <section
             className="overflow-hidden rounded-xl border bg-card"
             aria-labelledby="casos-analiticos"
           >
@@ -404,7 +479,7 @@ export default function DashboardTab() {
                 </Table>
               </div>
             )}
-          </section>
+          </section>}
         </>
       )}
 
@@ -418,27 +493,64 @@ export default function DashboardTab() {
                 : "Solo estudiantes; inactivos únicamente con marca histórica."}
             </p>
           </div>
+          {!esProfesor && puedeExportar && (
+            <div className="flex flex-wrap items-end gap-2" aria-label="Exportar lista de control">
+              <div>
+                <label
+                  htmlFor="servicio-exportacion"
+                  className="text-xs font-bold uppercase tracking-wide text-muted-foreground"
+                >
+                  Servicio
+                </label>
+                <select
+                  id="servicio-exportacion"
+                  aria-label="Servicio de la lista a exportar"
+                  value={servicioExportacion}
+                  onChange={(evento) => setServicioExportacion(evento.target.value)}
+                  className="mt-1 h-11 rounded-md border bg-background px-3 text-sm"
+                >
+                  <option value="comedor">Comedor</option>
+                  <option value="transporte">Transporte</option>
+                </select>
+              </div>
+              <Button asChild variant="default" size="sm">
+                <a href={enlaceExportacion("xlsx")} download>
+                  <FileSpreadsheet aria-hidden="true" /> Excel
+                </a>
+              </Button>
+              <Button asChild variant="outline" size="sm">
+                <a href={enlaceExportacion("csv")} download>
+                  <Download aria-hidden="true" /> CSV
+                </a>
+              </Button>
+              <Button asChild variant="outline" size="sm">
+                <a href={enlaceExportacion("pdf")} target="_blank" rel="noopener noreferrer">
+                  <Printer aria-hidden="true" /> Imprimir / PDF
+                </a>
+              </Button>
+            </div>
+          )}
           <div className="flex flex-wrap gap-2">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 id="nominal-search"
                 data-testid="nominal-search"
-                aria-label="Buscar estudiante"
-                placeholder="Buscar estudiante"
+                aria-label={esProfesor ? "Buscar profesor" : "Buscar estudiante"}
+                placeholder={esProfesor ? "Buscar profesor" : "Buscar estudiante"}
                 value={busqueda}
                 onChange={(event) => {
                   setBusqueda(event.target.value);
                   setPagina(1);
                 }}
-                className="w-56 pl-9 pr-8"
+                className="h-11 w-56 pl-9 pr-12"
               />
               {busqueda && (
                 <button
                   type="button"
                   aria-label="Limpiar búsqueda"
                   onClick={() => setBusqueda("")}
-                  className="absolute right-2 top-1/2 -translate-y-1/2"
+                  className="absolute right-1 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-md text-muted-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -446,18 +558,18 @@ export default function DashboardTab() {
             </div>
             {!esProfesor && (
               <select
-                aria-label="Filtrar beneficio de transporte"
+                aria-label="Filtrar asignación de transporte"
                 value={beneficioTransporte}
                 onChange={(e) => {
                   setBeneficioTransporte(e.target.value);
                   setRuta("");
                   setPagina(1);
                 }}
-                className="h-10 rounded-md border bg-background px-3 text-sm"
+                className="h-11 rounded-md border bg-background px-3 text-sm"
               >
-                <option value="">Todo beneficio de transporte</option>
-                <option value="beneficiario">Beneficiario</option>
-                <option value="no_beneficiario">No beneficiario</option>
+                <option value="">Toda asignación de transporte</option>
+                <option value="beneficiario">Con ruta asignada</option>
+                <option value="no_beneficiario">Sin ruta asignada</option>
               </select>
             )}
             {!esProfesor && (
@@ -468,7 +580,7 @@ export default function DashboardTab() {
                   setRuta(e.target.value);
                   setPagina(1);
                 }}
-                className="h-10 rounded-md border bg-background px-3 text-sm"
+                className="h-11 rounded-md border bg-background px-3 text-sm"
               >
                 <option value="">Todas las rutas</option>
                 {rutas
@@ -482,57 +594,50 @@ export default function DashboardTab() {
             )}
             {!esProfesor && (
               <select
-                aria-label="Filtrar estado de comedor"
-                value={idEstadoComedor}
-                onChange={(e) => {
-                  setIdEstadoComedor(e.target.value);
-                  setPagina(1);
-                }}
-                className="h-10 rounded-md border bg-background px-3 text-sm"
-              >
-                <option value="">Todos los estados</option>
-                <option value="1">Beneficiario</option>
-                <option value="2">No beneficiario</option>
-              </select>
-            )}
-            {!esProfesor && (
-              <Input
                 aria-label="Filtrar sección"
-                placeholder="Sección"
                 value={seccion}
                 onChange={(e) => {
                   setSeccion(e.target.value);
                   setPagina(1);
                 }}
-                className="h-10 w-28"
-              />
+                className="h-11 rounded-md border bg-background px-3 text-sm"
+              >
+                <option value="">Todas las secciones</option>
+                {seccionesActivas.map((nivel) => (
+                  <optgroup key={nivel.etiqueta} label={nivel.etiqueta}>
+                    {nivel.secciones.map((seccionDisponible) => (
+                      <option key={seccionDisponible} value={seccionDisponible}>
+                        {seccionDisponible}
+                      </option>
+                    ))}
+                  </optgroup>
+                ))}
+              </select>
             )}
             <select
-              aria-label="Filtrar estado"
+              aria-label="Filtrar asistencia de hoy"
               value={estado}
               onChange={(e) => {
                 setEstado(e.target.value);
                 setPagina(1);
               }}
-              className="h-10 rounded-md border bg-background px-3 text-sm"
+              className="h-11 rounded-md border bg-background px-3 text-sm"
             >
-              <option value="">Todos los estados</option>
-              <option value="presente">Presentes</option>
-              <option value="ausente">Ausentes</option>
-              <option value="tardanza">Tardanzas</option>
-              <option value="sin_registro">Sin registro</option>
+              <option value="">Toda la asistencia de hoy</option>
+              <option value="presente">Ingresaron al comedor</option>
+              <option value="sin_registro">Aún sin ingreso</option>
             </select>
           </div>
         </div>
-        <div className="overflow-x-auto">
+        <div className="hidden overflow-x-auto md:block">
           <Table data-testid="nominal-table">
             <TableHeader>
               <TableRow>
                 <TableHead>{esProfesor ? "Profesor" : "Estudiante"}</TableHead>
                 {!esProfesor && <TableHead>Sección</TableHead>}
                 {!esProfesor && <TableHead>Ruta</TableHead>}
-                <TableHead>{esProfesor ? "Persona" : "Beneficio de comedor"}</TableHead>
-                <TableHead>Estado</TableHead>
+                <TableHead>{esProfesor ? "Identificación" : "Beneficio de comedor"}</TableHead>
+                <TableHead>Asistencia hoy</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -558,10 +663,10 @@ export default function DashboardTab() {
                         </span>
                       </TableCell>
                     )}
-                    <TableCell>{esProfesor ? "Profesor" : row.beneficioComedor}</TableCell>
+                    <TableCell>{esProfesor ? row.identificacion : row.beneficioComedor}</TableCell>
                     <TableCell>
-                      <Badge variant={row.historico ? "secondary" : "default"}>
-                        {row.historico ? "Histórico" : row.estado}
+                      <Badge variant={varianteAsistencia(row)}>
+                        {etiquetaAsistencia(row)}
                       </Badge>
                     </TableCell>
                   </TableRow>
@@ -569,6 +674,42 @@ export default function DashboardTab() {
               )}
             </TableBody>
           </Table>
+        </div>
+        <div className="grid gap-3 p-4 md:hidden" data-testid="nominal-cards">
+          {nominal.length === 0 ? (
+            <p className="py-4 text-center text-sm text-muted-foreground">
+              Sin personas para los filtros seleccionados.
+            </p>
+          ) : (
+            nominal.map((row) => (
+              <article className="rounded-lg border border-border bg-muted/20 p-3" key={row.idPersona}>
+                <div className="flex items-start justify-between gap-3">
+                  <p className="font-medium text-foreground">{row.nombreCompleto}</p>
+                  <Badge variant={varianteAsistencia(row)}>
+                    {etiquetaAsistencia(row)}
+                  </Badge>
+                </div>
+                <dl className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
+                  {!esProfesor && (
+                    <div>
+                      <dt className="text-xs text-muted-foreground">Sección</dt>
+                      <dd>{row.seccion}</dd>
+                    </div>
+                  )}
+                  {!esProfesor && (
+                    <div>
+                      <dt className="text-xs text-muted-foreground">Ruta</dt>
+                      <dd className="flex items-center gap-1"><Bus aria-hidden="true" className="h-3.5 w-3.5" />{row.ruta}</dd>
+                    </div>
+                  )}
+                  <div>
+                    <dt className="text-xs text-muted-foreground">{esProfesor ? "Identificación" : "Comedor"}</dt>
+                    <dd>{esProfesor ? row.identificacion : row.beneficioComedor}</dd>
+                  </div>
+                </dl>
+              </article>
+            ))
+          )}
         </div>
         {data?.nominal && (
           <div className="flex items-center justify-between border-t px-4 py-3 text-xs text-muted-foreground">

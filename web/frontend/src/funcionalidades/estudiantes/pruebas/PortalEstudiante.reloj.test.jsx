@@ -5,6 +5,8 @@ import { vi } from "vitest";
 import PaginaPortalEstudiante from "../paginas/PaginaPortalEstudiante";
 import { api } from "@/compartido/consultas/cliente_http";
 
+const { toastWarning } = vi.hoisted(() => ({ toastWarning: vi.fn() }));
+
 vi.mock("@/compartido/consultas/cliente_http", () => ({
   api: { get: vi.fn(), post: vi.fn() },
   errMsg: vi.fn(() => "Error"),
@@ -15,7 +17,9 @@ vi.mock("@/aplicacion/estado/ContextoAutenticacion", () => ({
 }));
 
 vi.mock("react-router-dom", () => ({ useNavigate: () => vi.fn() }), { virtual: true });
-vi.mock("sonner", () => ({ toast: { success: vi.fn(), warning: vi.fn(), error: vi.fn() } }));
+vi.mock("sonner", () => ({
+  toast: { success: vi.fn(), warning: toastWarning, error: vi.fn() },
+}));
 
 const respuestaMenu = {
   data: {
@@ -53,6 +57,14 @@ const asistenciaJustoAntesDeApertura = {
   },
 };
 
+const asistenciaAvisoCierre = {
+  data: {
+    ...asistenciaAbierta.data,
+    segundosParaCierre: 14 * 60 + 59,
+    minutosAvisoPrevio: 15,
+  },
+};
+
 function diferida() {
   let resolve;
   let reject;
@@ -85,6 +97,7 @@ describe("Portal del estudiante", () => {
     queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
     api.get.mockReset();
     api.post.mockReset();
+    toastWarning.mockReset();
   });
 
   afterEach(async () => {
@@ -102,6 +115,9 @@ describe("Portal del estudiante", () => {
     });
 
     expect(container.querySelector('[data-testid="server-clock"]').textContent).toBe("10:00:00");
+    expect(container.querySelector('[data-testid="server-clock"]').className).toContain(
+      "tabular-nums",
+    );
     expect(container.querySelector('[data-testid="countdown"]').textContent).toBe(
       "01 h 00 min 00 s",
     );
@@ -138,6 +154,30 @@ describe("Portal del estudiante", () => {
     });
 
     expect(container.querySelector('[data-testid="server-clock"]').textContent).toBe("10:00:01");
+  });
+
+  it("shows a high-contrast closing alert and notifies once below fifteen minutes", async () => {
+    vi.useFakeTimers();
+    api.get.mockResolvedValueOnce(respuestaMenu).mockResolvedValueOnce(asistenciaAvisoCierre);
+
+    await act(async () => {
+      root.render(<PortalEstudiantePrueba />);
+    });
+
+    const countdownCard = container.querySelector('[data-testid="countdown-card"]');
+    expect(countdownCard.className).toContain("border-warning");
+    expect(countdownCard.className).toContain("bg-warning/10");
+    expect(container.querySelector('[data-testid="reminder-banner"]').getAttribute("role")).toBe(
+      "alert",
+    );
+    expect(toastWarning).toHaveBeenCalledTimes(1);
+    expect(toastWarning.mock.calls[0][0]).toContain("Faltan menos de 15 minutos");
+
+    await act(async () => {
+      vi.advanceTimersByTime(1_000);
+    });
+
+    expect(toastWarning).toHaveBeenCalledTimes(1);
   });
 
   it("refreshes from the server exactly at opening before enabling attendance controls", async () => {

@@ -10,7 +10,7 @@ from aplicacion.esquemas import ConfirmacionImportacion, ImportacionEntrada
 MAXIMO_IMPORTACION_BYTES = 12 * 1024 * 1024
 
 
-def crear_router(obtener_servicio, exigir_permiso) -> APIRouter:
+def crear_router(obtener_servicio, exigir_permiso, clave_resultados: str = "") -> APIRouter:
     router = APIRouter(
         prefix="/importaciones",
         dependencies=[Depends(exigir_permiso("importaciones.administrar"))],
@@ -34,7 +34,10 @@ def crear_router(obtener_servicio, exigir_permiso) -> APIRouter:
             valor_anio = formulario.get("anio")
             if isinstance(valor_anio, UploadFile):
                 raise HTTPException(422, "El año es invalido")
-            anio = int(str(valor_anio or 0))
+            try:
+                anio = int(str(valor_anio or 0))
+            except ValueError as error:
+                raise HTTPException(422, "El año es inválido") from error
             if (
                 not isinstance(archivo, UploadFile)
                 or not archivo.filename
@@ -59,9 +62,36 @@ def crear_router(obtener_servicio, exigir_permiso) -> APIRouter:
 
         return await run_in_threadpool(construir_respuesta)
 
-    @router.post("/confirmar")
-    def confirmar(datos: ConfirmacionImportacion, servicio=Depends(obtener_servicio)):
+    @router.post("/confirmar", status_code=202)
+    def confirmar(
+        datos: ConfirmacionImportacion,
+        identidad=Depends(exigir_permiso("importaciones.administrar")),
+        servicio=Depends(obtener_servicio),
+    ):
         entrada = ImportacionEntrada(anio=datos.anio, filas=datos.filas)
-        return servicio.confirmar(entrada, datos.huella)
+        return servicio.encolar(entrada, datos.huella, identidad["cuenta"].id)
+
+    @router.get("/trabajos/{trabajo_id}")
+    def consultar_trabajo(
+        trabajo_id: int,
+        identidad=Depends(exigir_permiso("importaciones.administrar")),
+        servicio=Depends(obtener_servicio),
+    ):
+        trabajo = servicio.repo.trabajo(trabajo_id)
+        if trabajo is None:
+            raise HTTPException(404, "Trabajo de importación no encontrado")
+        if trabajo.cuenta_solicitante_id != identidad["cuenta"].id:
+            raise HTTPException(403, "No puede consultar este trabajo")
+        return servicio.resumen_trabajo(trabajo)
+
+    @router.post("/trabajos/{trabajo_id}/credenciales")
+    def entregar_credenciales(
+        trabajo_id: int,
+        identidad=Depends(exigir_permiso("importaciones.administrar")),
+        servicio=Depends(obtener_servicio),
+    ):
+        if not clave_resultados:
+            raise HTTPException(503, "Entrega de credenciales no configurada")
+        return servicio.entregar_resultado(trabajo_id, identidad["cuenta"].id, clave_resultados)
 
     return router

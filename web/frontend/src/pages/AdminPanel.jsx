@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useAutenticacion } from "@/aplicacion/estado/ContextoAutenticacion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ShieldCheck, LogOut } from "lucide-react";
+import { KeyRound, ShieldCheck, LogOut } from "lucide-react";
 import { obtenerRutaAdministrativaPredeterminada } from "@/config/adminNavigation";
 import AdminSidebar from "@/compartido/componentes/AdminSidebar";
 import AdminBottomNav from "@/compartido/componentes/AdminBottomNav";
@@ -66,6 +66,16 @@ export default function AdminPanel() {
                 {session?.rol}
               </Badge>
             </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Cambiar mi contraseña"
+              title="Cambiar mi contraseña"
+              onClick={() => navigate("/admin/cambiar-contrasena")}
+              className="text-foreground hover:bg-primary/10 hover:text-primary"
+            >
+              <KeyRound className="h-4 w-4" />
+            </Button>
             <Button
               variant="ghost"
               size="icon"
