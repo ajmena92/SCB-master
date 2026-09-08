@@ -40,6 +40,7 @@ web/ops/tmp/
 
 # Local credentials and certificates. Store the corresponding public setup in
 # documentation or an example file, never the private material itself.
+/.env
 .envrc
 .direnv/
 *.key
@@ -70,6 +71,16 @@ bld/
 [Bb]in/
 [Oo]bj/
 [Ll]og/
+
+# Artefactos y estados locales de la raíz. Los datos restringidos, worktrees y
+# archivos grandes residen fuera del repositorio en los directorios indicados
+# por README.md.
+/artifacts/
+/backups/
+/logs/
+/output/
+/tmp/
+/Installer/
 
 # Legacy desktop build outputs and local signing material
 escritorio/**/bin/
