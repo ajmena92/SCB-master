@@ -146,7 +146,7 @@ export default function FotoEstudiante({
 
   return (
     <>
-      <section className="student-photo" aria-label="Fotografía del estudiante">
+      <section className="student-photo" aria-label="Fotografía de la persona">
         <div className="student-photo-preview">
           <ImagenConFallback
             src={url}

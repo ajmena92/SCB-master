@@ -15,7 +15,10 @@ import DialogoCredencialTemporal from "../componentes/DialogoCredencialTemporal"
 import { ConfirmacionExpediente } from "../componentes/ConfirmacionExpediente";
 import FotoEstudiante from "../componentes/FotoEstudiante";
 import { Aviso, Campo, EstadoCarga } from "../componentes/ElementosComunes";
-import { CargandoExpedienteEstudiante, ExpedienteEstudianteNoEncontrado } from "../componentes/EstadoExpedienteEstudiante";
+import {
+  CargandoExpedienteEstudiante,
+  ExpedienteEstudianteNoEncontrado,
+} from "../componentes/EstadoExpedienteEstudiante";
 import { ResumenMatriculaEstudiante } from "../componentes/ResumenMatriculaEstudiante";
 import { plataformaApi } from "../consultas/plataforma";
 
@@ -32,6 +35,7 @@ export default function EditarEstudiante() {
     enabled: Boolean(referencia && !personaInicial),
   });
   const persona = personaInicial ?? consultaPersona.data;
+  const esEstudiante = persona?.tipo === "estudiante";
   const navegar = useNavigate();
   const cliente = useQueryClient();
   const [confirmacion, setConfirmacion] = useState<Confirmacion>();
@@ -40,11 +44,11 @@ export default function EditarEstudiante() {
   const rutas = useQuery({
     queryKey: ["rutas"],
     queryFn: plataformaApi.rutas.listar,
-    enabled: Boolean(persona),
+    enabled: esEstudiante,
   });
   const guardar = useMutation({
     mutationFn: async (formulario: FormData) => {
-      if (!persona?.matriculaId) return;
+      if (!esEstudiante || !persona?.matriculaId) return;
       const ruta = String(formulario.get("rutaId") || "");
       await plataformaApi.matriculas.actualizarBeneficios(persona.matriculaId, {
         becado: formulario.get("becado") === "on",
@@ -72,11 +76,15 @@ export default function EditarEstudiante() {
   });
 
   if (consultaPersona.isLoading) return <CargandoExpedienteEstudiante />;
-  if (!referencia || !persona || persona.tipo !== "estudiante")
+  if (!referencia || !persona)
     return <ExpedienteEstudianteNoEncontrado alVolver={() => navegar("/admin/panel/personas")} />;
 
   const error =
-    consultaPersona.error || guardar.error || reiniciarPin.error || desactivar.error || rutas.error;
+    consultaPersona.error ||
+    guardar.error ||
+    reiniciarPin.error ||
+    desactivar.error ||
+    (esEstudiante ? rutas.error : undefined);
   const ocupada = reiniciarPin.isPending || desactivar.isPending;
   return (
     <section className="mx-auto grid max-w-6xl gap-4 pb-8">
@@ -93,7 +101,7 @@ export default function EditarEstudiante() {
           type="button"
           onClick={() => navegar("/admin/panel/personas")}
         >
-          <ArrowLeft aria-hidden="true" size={17} /> Estudiantes / PIN
+          <ArrowLeft aria-hidden="true" size={17} /> Personas / PIN
         </button>
         <CaretRight aria-hidden="true" size={14} />
         <span>Expediente</span>
@@ -101,7 +109,7 @@ export default function EditarEstudiante() {
       <header className="grid gap-2 border-b border-border pb-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            Expediente del estudiante
+            {esEstudiante ? "Expediente del estudiante" : "Expediente del profesor"}
           </p>
           <h1 className="font-heading text-2xl font-semibold text-foreground sm:text-3xl">
             {persona.nombres}
@@ -111,9 +119,15 @@ export default function EditarEstudiante() {
               <IdentificationCard aria-hidden="true" size={17} />{" "}
               {persona.cedula ?? "Cédula no registrada"}
             </span>
-            <span className="inline-flex items-center gap-1">
-              <Bus aria-hidden="true" size={17} /> {persona.seccion ?? "Sin sección"}
-            </span>
+            {esEstudiante ? (
+              <span className="inline-flex items-center gap-1">
+                <Bus aria-hidden="true" size={17} /> {persona.seccion ?? "Sin sección"}
+              </span>
+            ) : (
+              <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">
+                Profesor
+              </span>
+            )}
             <span
               className={
                 persona.activo
@@ -127,7 +141,9 @@ export default function EditarEstudiante() {
         </div>
       </header>
       {error && <Aviso tipo="error">{errMsg(error)}</Aviso>}
-      {guardar.isSuccess && <Aviso tipo="exito">Los beneficios se actualizaron.</Aviso>}
+      {esEstudiante && guardar.isSuccess && (
+        <Aviso tipo="exito">Los beneficios se actualizaron.</Aviso>
+      )}
       <form
         id="formulario-expediente"
         className="grid gap-5"
@@ -140,7 +156,7 @@ export default function EditarEstudiante() {
         <div className="grid gap-5 lg:grid-cols-[minmax(17rem,22rem)_minmax(0,1fr)]">
           <aside className="grid content-start gap-4">
             <FotoEstudiante personaId={persona.id} nombre={persona.nombres} />
-            <ResumenMatriculaEstudiante persona={persona} />
+            {esEstudiante && <ResumenMatriculaEstudiante persona={persona} />}
           </aside>
           <div className="grid content-start gap-5">
             <section className="grid gap-4 rounded-xl border border-border bg-card p-4 shadow-sm">
@@ -149,7 +165,9 @@ export default function EditarEstudiante() {
                   <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                     Importado del padrón
                   </p>
-                  <h2 className="font-heading text-xl font-semibold">Datos del estudiante</h2>
+                  <h2 className="font-heading text-xl font-semibold">
+                    {esEstudiante ? "Datos del estudiante" : "Datos del profesor"}
+                  </h2>
                 </div>
                 <span
                   className="rounded-full bg-muted px-2 py-1 text-xs text-muted-foreground"
@@ -169,79 +187,85 @@ export default function EditarEstudiante() {
                 <Campo etiqueta="Nombre completo">
                   <input value={persona.nombres} disabled />
                 </Campo>
-                <Campo etiqueta="Sección">
-                  <input value={persona.seccion ?? "Sin sección"} disabled />
-                </Campo>
-              </div>
-            </section>
-            <section
-              id="beneficios"
-              className="grid gap-4 rounded-xl border border-border bg-card p-4 shadow-sm"
-            >
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                    Administrable en SCB
-                  </p>
-                  <h2 className="font-heading text-xl font-semibold">Beneficios de la matrícula</h2>
-                </div>
-                <span className="rounded-full bg-primary/10 px-2 py-1 text-xs font-semibold text-primary">
-                  Curso vigente
-                </span>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Los cambios se aplican únicamente a la matrícula anual activa.
-              </p>
-              {rutas.isLoading ? (
-                <EstadoCarga />
-              ) : (
-                <div className="grid gap-4">
-                  <Campo etiqueta="Ruta de transporte">
-                    <select
-                      id="ruta-transporte"
-                      name="rutaId"
-                      defaultValue={persona.rutaId ?? ""}
-                      disabled={!persona.activo}
-                    >
-                      <option value="">No utiliza transporte</option>
-                      {rutas.data?.elementos
-                        .filter((ruta) => ruta.activo && ruta.codigo !== "0000")
-                        .map((ruta) => (
-                          <option key={ruta.idRuta} value={ruta.idRuta}>
-                            {ruta.codigo} — {ruta.descripcion}
-                          </option>
-                        ))}
-                    </select>
+                {esEstudiante && (
+                  <Campo etiqueta="Sección">
+                    <input value={persona.seccion ?? "Sin sección"} disabled />
                   </Campo>
-                  <label
-                    id="beca-comedor"
-                    className="flex cursor-pointer items-center justify-between gap-4 rounded-lg border border-border bg-muted/40 p-3"
-                  >
-                    <span>
-                      <b className="block text-sm font-semibold">Beca de comedor</b>
-                      <small className="text-sm text-muted-foreground">
-                        Aplica a la beca completa de cinco días.
-                      </small>
-                    </span>
-                    <span className="relative inline-flex shrink-0">
-                      <input
-                        className="peer sr-only"
-                        name="becado"
-                        type="checkbox"
-                        role="switch"
-                        defaultChecked={persona.becado}
-                        disabled={!persona.activo}
-                        aria-label="Asignar beca de comedor"
-                      />
-                      <span
-                        aria-hidden="true"
-                        className="h-6 w-11 rounded-full bg-border transition peer-checked:bg-primary peer-focus-visible:ring-2 peer-focus-visible:ring-primary/30 after:absolute after:left-1 after:top-1 after:size-4 after:rounded-full after:bg-white after:transition peer-checked:after:translate-x-5"
-                      />
-                    </span>
-                  </label>
-                </div>
-              )}
+                )}
+              </div>
             </section>
+            {esEstudiante && (
+              <section
+                id="beneficios"
+                className="grid gap-4 rounded-xl border border-border bg-card p-4 shadow-sm"
+              >
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      Administrable en SCB
+                    </p>
+                    <h2 className="font-heading text-xl font-semibold">
+                      Beneficios de la matrícula
+                    </h2>
+                  </div>
+                  <span className="rounded-full bg-primary/10 px-2 py-1 text-xs font-semibold text-primary">
+                    Curso vigente
+                  </span>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Los cambios se aplican únicamente a la matrícula anual activa.
+                </p>
+                {rutas.isLoading ? (
+                  <EstadoCarga />
+                ) : (
+                  <div className="grid gap-4">
+                    <Campo etiqueta="Ruta de transporte">
+                      <select
+                        id="ruta-transporte"
+                        name="rutaId"
+                        defaultValue={persona.rutaId ?? ""}
+                        disabled={!persona.activo}
+                      >
+                        <option value="">No utiliza transporte</option>
+                        {rutas.data?.elementos
+                          .filter((ruta) => ruta.activo && ruta.codigo !== "0000")
+                          .map((ruta) => (
+                            <option key={ruta.idRuta} value={ruta.idRuta}>
+                              {ruta.codigo} — {ruta.descripcion}
+                            </option>
+                          ))}
+                      </select>
+                    </Campo>
+                    <label
+                      id="beca-comedor"
+                      className="flex cursor-pointer items-center justify-between gap-4 rounded-lg border border-border bg-muted/40 p-3"
+                    >
+                      <span>
+                        <b className="block text-sm font-semibold">Beca de comedor</b>
+                        <small className="text-sm text-muted-foreground">
+                          Aplica a la beca completa de cinco días.
+                        </small>
+                      </span>
+                      <span className="relative inline-flex shrink-0">
+                        <input
+                          className="peer sr-only"
+                          name="becado"
+                          type="checkbox"
+                          role="switch"
+                          defaultChecked={persona.becado}
+                          disabled={!persona.activo}
+                          aria-label="Asignar beca de comedor"
+                        />
+                        <span
+                          aria-hidden="true"
+                          className="h-6 w-11 rounded-full bg-border transition peer-checked:bg-primary peer-focus-visible:ring-2 peer-focus-visible:ring-primary/30 after:absolute after:left-1 after:top-1 after:size-4 after:rounded-full after:bg-white after:transition peer-checked:after:translate-x-5"
+                        />
+                      </span>
+                    </label>
+                  </div>
+                )}
+              </section>
+            )}
           </div>
         </div>
       </form>
@@ -250,11 +274,13 @@ export default function EditarEstudiante() {
         aria-label="Acciones del expediente"
       >
         <p className="text-sm text-muted-foreground" aria-live="polite">
-          {guardar.isPending
+          {esEstudiante && guardar.isPending
             ? "Guardando cambios…"
-            : cambiosPendientes
+            : esEstudiante && cambiosPendientes
               ? "Cambios sin guardar"
-              : "Sin cambios pendientes"}
+              : esEstudiante
+                ? "Sin cambios pendientes"
+                : "La fotografía se guarda al cargarla."}
         </p>
         <div className="flex flex-wrap gap-2">
           <button
@@ -275,13 +301,17 @@ export default function EditarEstudiante() {
               Desactivar
             </button>
           )}
-          <button
-            form="formulario-expediente"
-            className="button primary"
-            disabled={!persona.activo || guardar.isPending || rutas.isLoading || !cambiosPendientes}
-          >
-            <FloppyDisk aria-hidden="true" size={18} /> Guardar cambios
-          </button>
+          {esEstudiante && (
+            <button
+              form="formulario-expediente"
+              className="button primary"
+              disabled={
+                !persona.activo || guardar.isPending || rutas.isLoading || !cambiosPendientes
+              }
+            >
+              <FloppyDisk aria-hidden="true" size={18} /> Guardar cambios
+            </button>
+          )}
         </div>
       </footer>
       <ConfirmacionExpediente
