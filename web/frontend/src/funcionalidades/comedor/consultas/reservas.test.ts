@@ -13,7 +13,7 @@ describe("reservas de comedor", () => {
     });
   });
 
-  it("reserva para un profesor mediante la sesión administrativa docente", async () => {
+  it("reserva para un profesor mediante su sesión de portal", async () => {
     vi.spyOn(api, "post").mockResolvedValueOnce({ data: {} } as never);
 
     await reservarComedorProfesor("2026-08-27");

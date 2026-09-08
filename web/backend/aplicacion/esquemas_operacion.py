@@ -37,12 +37,10 @@ class ConfiguracionInstitucionalSalida(ConfiguracionInstitucionalEntrada):
 
 
 class ReservaEntrada(Contrato):
-    cedula: str | None = None
     fecha: date
 
 
 class CancelacionReservaEntrada(Contrato):
-    cedula: str | None = None
     fecha: date
 
 

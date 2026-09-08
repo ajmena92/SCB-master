@@ -62,13 +62,14 @@ def ejecutar(motor, codigo, operador_id, acciones):
     def operacion(accion):
         with Session(motor) as sesion:
             servicio = ServicioOperacion(RepositorioOperacion(sesion))
-            datos = ReservaEntrada(cedula=codigo, fecha=date(2026, 8, 20))
+            persona = servicio._persona(cedula=codigo)
+            datos = ReservaEntrada(fecha=date(2026, 8, 20))
             barrera.wait(timeout=15)
             try:
                 if accion == "ingresar":
                     servicio.ingresar(IngresoEntrada(cedula=codigo, fecha=datos.fecha), operador_id)
                 else:
-                    getattr(servicio, accion)(datos, {"tipo": "administracion"})
+                    getattr(servicio, accion)(datos, {"tipo": "portal", "persona": persona})
                 sesion.commit()
                 return 200
             except HTTPException as error:

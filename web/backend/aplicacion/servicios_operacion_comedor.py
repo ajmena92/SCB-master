@@ -23,13 +23,9 @@ class ServicioOperacionComedor(ServicioOperacionBase):
         self.rutas = repositorio_rutas
 
     def reservar(self, datos, identidad):
-        persona = (
-            identidad["persona"]
-            if identidad["tipo"] == "portal" and not datos.cedula
-            else self._persona(cedula=datos.cedula)
-        )
-        if identidad["tipo"] == "portal" and identidad["persona"].cedula != persona.cedula:
-            raise HTTPException(403, "No puede reservar para otra persona")
+        if identidad["tipo"] != "portal":
+            raise HTTPException(403, "Se requiere una sesión de portal")
+        persona = identidad["persona"]
         self.repo.bloquear_operacion_persona(persona.id)
         if self.repo.ingreso_fecha(persona.id, datos.fecha):
             raise HTTPException(409, "Ya existe un ingreso para esta fecha")
@@ -80,13 +76,9 @@ class ServicioOperacionComedor(ServicioOperacionBase):
         )
 
     def cancelar(self, datos, identidad):
-        persona = (
-            identidad["persona"]
-            if identidad["tipo"] == "portal" and not datos.cedula
-            else self._persona(cedula=datos.cedula)
-        )
-        if identidad["tipo"] == "portal" and identidad["persona"].cedula != persona.cedula:
-            raise HTTPException(403, "No puede cancelar una reserva ajena")
+        if identidad["tipo"] != "portal":
+            raise HTTPException(403, "Se requiere una sesión de portal")
+        persona = identidad["persona"]
         self.repo.bloquear_operacion_persona(persona.id)
         reserva = self.repo.reserva_fecha(persona.id, datos.fecha, True)
         if not reserva:

@@ -3,7 +3,7 @@ from datetime import date
 from sqlalchemy.orm import Session
 
 from aplicacion.modelos.maestros import HorarioReserva, Matricula
-from aplicacion.modelos.operacion import CuentaTiquete, MovimientoTiquete
+from aplicacion.modelos.operacion import CuentaTiquete, MovimientoTiquete, ReservaComedor
 
 from .conftest import autenticar_portal, crear_persona, preparar_estudiante
 
@@ -97,6 +97,39 @@ def test_cancelar_reserva_inexistente_es_idempotente(entorno):
     )
 
     assert respuesta.status_code == 204
+
+
+def test_sesion_administrativa_no_puede_modificar_reservas_de_portal(entorno):
+    cliente, motor, h = entorno
+    persona, _, _ = preparar_estudiante(cliente, h["admin"])
+    fecha = "2026-09-04"
+    datos_ajenos = {"cedula": persona["cedula"], "fecha": fecha}
+
+    crear = cliente.post("/api/v1/comedor/reservas", headers=h["operador"], json=datos_ajenos)
+    cancelar = cliente.delete("/api/v1/comedor/reservas", headers=h["admin"], json=datos_ajenos)
+
+    assert crear.status_code == 403
+    assert cancelar.status_code == 403
+    with Session(motor) as sesion:
+        cuenta = sesion.query(CuentaTiquete).filter_by(persona_id=persona["id"]).one()
+        assert (cuenta.saldo, cuenta.reservados) == (0, 0)
+        assert sesion.query(ReservaComedor).filter_by(persona_id=persona["id"]).count() == 0
+
+
+def test_reserva_portal_rechaza_cedula_enviada_por_cliente(entorno):
+    cliente, motor, h = entorno
+    persona, _, _ = preparar_estudiante(cliente, h["admin"], cedula="701")
+    portal = autenticar_portal(cliente.app, persona["cedula"])
+
+    respuesta = portal.post(
+        "/api/v1/comedor/reservas",
+        headers=portal.csrf(),
+        json={"cedula": "identidad-ajena", "fecha": "2026-09-04"},
+    )
+
+    assert respuesta.status_code == 422
+    with Session(motor) as sesion:
+        assert sesion.query(ReservaComedor).filter_by(persona_id=persona["id"]).count() == 0
 
 
 def test_reserva_cancelada_puede_confirmarse_de_nuevo(entorno):

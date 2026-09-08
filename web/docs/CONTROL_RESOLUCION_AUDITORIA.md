@@ -3,6 +3,33 @@
 Fecha: 2026-09-03  
 Alcance: exclusivamente `web/` y sus subdirectorios.
 
+## Corrección de autorización de reservas — 2026-09-08
+
+Estado: corregida técnicamente.
+
+Problema identificado: los endpoints de autoservicio `POST` y `DELETE`
+`/api/v1/comedor/reservas` aceptaban sesiones administrativas mediante la
+dependencia `portal_operativo`. Con una cédula enviada en el cuerpo, una cuenta
+administrativa podía modificar la reserva y los tiquetes de otra persona.
+
+Corrección aplicada:
+
+- `portal_operativo` exige una sesión de tipo `portal`.
+- Los contratos públicos de reserva y cancelación ya no aceptan `cedula`.
+- Los casos de uso resuelven siempre la persona desde la identidad de portal.
+- Los contratos TypeScript generados se actualizaron desde OpenAPI.
+
+Evidencia ejecutada:
+
+- `./.venv/bin/pytest -q pruebas_postgresql/test_operacion.py`: 10 aprobadas.
+- `npm test -- --run src/funcionalidades/comedor/consultas/reservas.test.ts`:
+  2 aprobadas.
+- `npm run verificar:cliente`, Ruff focal y `git diff --check`: aprobados.
+
+Cobertura de regresión: una sesión administrativa recibe `403` al crear o
+cancelar reservas, sin modificar saldo ni reservas; un cuerpo de portal con una
+cédula adicional se rechaza con `422` y no modifica datos.
+
 ## Paso 1: modelo de identidad
 
 Estado: corregido focalmente; no representa un cierre global de la auditoría.

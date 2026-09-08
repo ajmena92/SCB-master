@@ -17,6 +17,12 @@ export const OPERACIONES_REPORTES: readonly OperacionApi[] = [
   },
   {
     metodo: "GET",
+    ruta: "/api/v1/reportes/lista-control",
+    operacionId: "lista_control_api_v1_reportes_lista_control_get",
+    dominio: "reportes",
+  },
+  {
+    metodo: "GET",
     ruta: "/api/v1/reportes/transporte",
     operacionId: "transporte_api_v1_reportes_transporte_get",
     dominio: "reportes",

@@ -15,4 +15,16 @@ export const OPERACIONES_IMPORTACIONES: readonly OperacionApi[] = [
     operacionId: "previsualizar_api_v1_importaciones_previsualizar_post",
     dominio: "importaciones",
   },
+  {
+    metodo: "GET",
+    ruta: "/api/v1/importaciones/trabajos/{trabajo_id}",
+    operacionId: "consultar_trabajo_api_v1_importaciones_trabajos__trabajo_id__get",
+    dominio: "importaciones",
+  },
+  {
+    metodo: "POST",
+    ruta: "/api/v1/importaciones/trabajos/{trabajo_id}/credenciales",
+    operacionId: "entregar_credenciales_api_v1_importaciones_trabajos__trabajo_id__credenciales_post",
+    dominio: "importaciones",
+  },
 ] as const;

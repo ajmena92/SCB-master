@@ -21,7 +21,9 @@ def crear_dependencias(obtener_servicio):
         return identidad
 
     async def portal_operativo(identidad: dict = Depends(actual)) -> dict:
-        if identidad["tipo"] == "portal" and identidad.get("cambioObligatorio"):
+        if identidad["tipo"] != "portal":
+            raise HTTPException(403, "Se requiere una sesión de portal")
+        if identidad.get("cambioObligatorio"):
             raise HTTPException(403, "Debe cambiar el PIN temporal antes de continuar")
         return identidad
 

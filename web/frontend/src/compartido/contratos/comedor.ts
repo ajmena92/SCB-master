@@ -8,7 +8,6 @@ export interface AutorizacionEntrada {
 }
 
 export interface CancelacionReservaEntrada {
-  cedula?: string | null;
   fecha: string;
 }
 
@@ -23,7 +22,6 @@ export interface IngresoEntrada {
 }
 
 export interface ReservaEntrada {
-  cedula?: string | null;
   fecha: string;
 }
 
