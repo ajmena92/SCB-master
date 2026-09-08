@@ -94,7 +94,8 @@ def autenticar_portal(app, cedula: str, pin: str = "123456") -> ClienteASGI:
 
 
 @pytest.fixture
-def entorno():
+def entorno(request):
+    vigencia_portal, vigencia_administracion = getattr(request, "param", (365, 60))
     motor = crear_motor("sqlite://")
     BaseDeclarativa.metadata.create_all(motor)
     with Session(motor) as sesion:
@@ -167,6 +168,8 @@ def entorno():
             csrf_secret="csrf-pruebas",
             carnet_qr_clave="MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=",
             importacion_resultados_key="eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHg=",
+            student_session_days=vigencia_portal,
+            admin_session_minutes=vigencia_administracion,
         ),
     )
     cliente = ClienteASGI(app)

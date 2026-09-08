@@ -2,6 +2,8 @@
 
 from datetime import datetime, timedelta, timezone
 
+import pytest
+
 from aplicacion.seguridad import csrf_anonimo, csrf_sesion, csrf_valido, nueva_sesion
 
 
@@ -37,3 +39,8 @@ def test_sesiones_usan_vencimiento_absoluto_por_tipo() -> None:
 
     assert antes + timedelta(days=2) <= portal.expira_en <= despues + timedelta(days=2)
     assert antes + timedelta(minutes=15) <= administracion.expira_en <= despues + timedelta(minutes=15)
+
+
+def test_nueva_sesion_exige_una_politica_de_vigencia_explicita() -> None:
+    with pytest.raises(TypeError):
+        nueva_sesion(tipo="portal")

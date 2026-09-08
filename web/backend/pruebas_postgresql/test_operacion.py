@@ -1,11 +1,42 @@
 from datetime import date
 
+from datetime import datetime, timedelta, timezone
+
+import pytest
 from sqlalchemy.orm import Session
 
 from aplicacion.modelos.maestros import HorarioReserva, Matricula
 from aplicacion.modelos.operacion import CuentaTiquete, MovimientoTiquete, ReservaComedor
 
-from .conftest import autenticar_portal, crear_persona, preparar_estudiante
+from .conftest import ClienteASGI, autenticar_portal, crear_persona, preparar_estudiante
+
+
+@pytest.mark.parametrize("entorno", [(2, 15)], indirect=True)
+def test_autenticacion_aplica_vigencias_configuradas_en_toda_la_aplicacion(entorno):
+    cliente, _, _ = entorno
+    persona = crear_persona(cliente, {}, cedula="702")
+    antes = datetime.now(timezone.utc)
+
+    portal = ClienteASGI(cliente.app)
+    respuesta_portal = portal.post(
+        "/api/v1/autenticacion/portal",
+        json={"cedula": persona["cedula"], "pin": "123456"},
+        headers=portal.csrf(),
+    )
+    administracion = ClienteASGI(cliente.app)
+    respuesta_administracion = administracion.post(
+        "/api/v1/autenticacion/administracion",
+        json={"usuario": "admin", "contrasena": "Clave-segura-2026"},
+        headers=administracion.csrf(),
+    )
+    despues = datetime.now(timezone.utc)
+
+    assert respuesta_portal.status_code == 200
+    assert respuesta_administracion.status_code == 200
+    expira_portal = datetime.fromisoformat(respuesta_portal.json()["expiraEn"])
+    expira_administracion = datetime.fromisoformat(respuesta_administracion.json()["expiraEn"])
+    assert antes + timedelta(days=2) <= expira_portal <= despues + timedelta(days=2)
+    assert antes + timedelta(minutes=15) <= expira_administracion <= despues + timedelta(minutes=15)
 
 
 def _vender(cliente, h, cedula, cantidad=2):
