@@ -16,6 +16,10 @@ web/ops/.env
 web/ops/.env.local
 web/ops/importaciones/
 
+# Fuentes institucionales de fotografías y documentos personales. Deben residir
+# en almacenamiento privado fuera del repositorio y nunca en Git.
+/web/CTP Platanares CARNET COMEDOR 2026/
+
 # Python caches, test results and local quality-tool artifacts for the active web backend.
 web/backend/**/__pycache__/
 web/backend/**/*.py[cod]

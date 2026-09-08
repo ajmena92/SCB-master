@@ -29,22 +29,30 @@ La API no ejecuta migraciones ni expone fotografías como archivos públicos.
 
 ## Importación inicial de fotografías
 
-El script trabaja en simulación por defecto. Los archivos se asocian por los dígitos del nombre contra `dbo.Usuario.Cedula`.
+El script trabaja en simulación por defecto. Las fuentes de fotografías son
+datos personales: deben residir en almacenamiento privado fuera del repositorio,
+con acceso restringido y una retención aprobada. Nunca se copian al checkout ni
+se versionan en Git.
+
+Definir en el entorno operativo una ruta privada, por ejemplo
+`/srv/scb-datos-restringidos/importaciones/fotografias/2026`, y un directorio
+privado para los reportes de la importación. Los archivos se asocian por los
+dígitos del nombre contra `dbo.Usuario.Cedula`.
 
 ```bash
 cd web/backend
 SQL_CONNECTION_STRING="..." python scripts/import_student_photos.py \
-  --folder "../CTP Platanares CARNET COMEDOR 2026/fotos" \
-  --report /tmp/fotos-reporte.csv
+  --folder "$SCB_DIRECTORIO_FOTOS_IMPORTACION" \
+  --report "$SCB_DIRECTORIO_REPORTES_PRIVADOS/fotos-reporte.csv"
 ```
 
 Revisar las coincidencias, faltantes y archivos inválidos. Para aplicar la carga se requiere indicar el usuario administrativo:
 
 ```bash
 SQL_CONNECTION_STRING="..." python scripts/import_student_photos.py \
-  --folder "../CTP Platanares CARNET COMEDOR 2026/fotos" \
+  --folder "$SCB_DIRECTORIO_FOTOS_IMPORTACION" \
   --apply --admin-id 123 \
-  --report /tmp/fotos-reporte-aplicado.csv
+  --report "$SCB_DIRECTORIO_REPORTES_PRIVADOS/fotos-reporte-aplicado.csv"
 ```
 
 El script acepta JPG, PNG y WEBP de hasta 5 MB, aplica la orientación EXIF y guarda una versión JPEG progresiva de máximo 800 píxeles por lado. El reporte CSV contiene coincidencias, faltantes y archivos inválidos. El proceso es idempotente para una misma cédula.

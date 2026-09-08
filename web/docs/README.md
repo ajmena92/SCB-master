@@ -20,6 +20,7 @@
 - [Requisitos del portal de comedor](REQUISITOS_COMEDOR.md)
 - [Manual del estudiante](MANUAL_ESTUDIANTE_COMEDOR.md)
 - [Operación del carnet digital](CARNET_DIGITAL_OPERACION.md)
+- [Privacidad de fotografías personales](PRIVACIDAD_FOTOGRAFIAS_PERSONALES.md)
 - [Operación PostgreSQL, respaldo e importación](POSTGRESQL_OPERACION_Y_MIGRACION.md)
 
 ### Despliegue e integración
