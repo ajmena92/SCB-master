@@ -3,6 +3,25 @@
 Fecha: 2026-09-03  
 Alcance: exclusivamente `web/` y sus subdirectorios.
 
+## Vigencia efectiva de sesiones — 2026-09-08
+
+Estado: corregida y reforzada técnicamente.
+
+La política se aplica mediante la cadena verificable
+`STUDENT_SESSION_DAYS` y `ADMIN_SESSION_MINUTES` → `Settings` →
+`ServicioIdentidad` → `nueva_sesion` → `SesionAcceso.expira_en`.
+
+- Compose exige ambas variables en API y worker; no hay valores implícitos de
+  despliegue.
+- La creación de sesiones exige ambas duraciones de forma explícita.
+- La configuración valida portal entre 1 y 730 días, y administración entre 5
+  y 720 minutos.
+- Una prueba de integración autentica portal y administración con 2 días y 15
+  minutos, y comprueba los vencimientos devueltos por la API.
+
+No se incorporó expiración por inactividad: su duración cambia la política
+operativa y requiere aprobación institucional independiente.
+
 ## Corrección de autorización de reservas — 2026-09-08
 
 Estado: corregida técnicamente.

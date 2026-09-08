@@ -12,6 +12,7 @@ def _entorno_valido(monkeypatch: pytest.MonkeyPatch) -> None:
         "COOKIE_SECURE": "false",
         "CSRF_SECRET": "csrf-pruebas",
         "CARNET_QR_CLAVE": "qr-pruebas",
+        "IMPORTACION_RESULTADOS_KEY": "clave-importacion-pruebas",
         "STUDENT_MAX_LOGIN_ATTEMPTS": "8",
         "STUDENT_LOCK_MINUTES": "5",
         "ADMIN_MAX_LOGIN_ATTEMPTS": "5",

@@ -42,8 +42,8 @@ def nueva_sesion(
     persona_id: int | None = None,
     cuenta_id: int | None = None,
     cambio_obligatorio: bool = False,
-    student_session_days: int = 365,
-    admin_session_minutes: int = 60,
+    student_session_days: int,
+    admin_session_minutes: int,
 ) -> tuple[str, SesionAcceso]:
     if tipo not in {"portal", "administracion"}:
         raise ValueError("Tipo de sesion no valido")

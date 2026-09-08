@@ -24,8 +24,8 @@ class ServicioIdentidad:
         student_lock_minutes: int = 5,
         admin_max_login_attempts: int = 5,
         admin_lock_minutes: int = 15,
-        student_session_days: int = 365,
-        admin_session_minutes: int = 60,
+        student_session_days: int,
+        admin_session_minutes: int,
     ):
         self.repo = repositorio
         self.student_max_login_attempts = student_max_login_attempts

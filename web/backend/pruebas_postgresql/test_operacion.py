@@ -1,6 +1,4 @@
-from datetime import date
-
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 
 import pytest
 from sqlalchemy.orm import Session
