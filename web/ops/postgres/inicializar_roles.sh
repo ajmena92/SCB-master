@@ -21,6 +21,8 @@ SELECT format('GRANT CONNECT ON DATABASE %I TO %I', current_database(), :'migrat
 SELECT format('GRANT CONNECT ON DATABASE %I TO %I', current_database(), :'app_user') \gexec
 GRANT CREATE, USAGE ON SCHEMA public TO :"migrator_user";
 GRANT USAGE ON SCHEMA public TO :"app_user";
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO :"app_user";
+GRANT USAGE, SELECT, UPDATE ON ALL SEQUENCES IN SCHEMA public TO :"app_user";
 ALTER DEFAULT PRIVILEGES FOR ROLE :"migrator_user" IN SCHEMA public
     GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO :"app_user";
 ALTER DEFAULT PRIVILEGES FOR ROLE :"migrator_user" IN SCHEMA public

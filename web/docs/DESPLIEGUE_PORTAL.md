@@ -29,10 +29,9 @@ vida de la cookie CSRF previa al inicio de sesión.
 Desde `web/ops`:
 
 ```bash
-cp .env.example .env
+cp .env.production.example .env
 chmod 600 .env
-docker compose --env-file .env -f compose.production.yml config --quiet
-docker compose --env-file .env -f compose.production.yml build
+docker compose --env-file .env -f compose.production.yml -f compose.prod-deploy.yml config --quiet
 ```
 
 Antes de cada migración se crea y se restaura un respaldo de verificación:
@@ -62,10 +61,10 @@ en el servidor, almacenamiento, respaldo y checksum.
 ./web/scripts/deploy-production.sh web --remote
 ```
 
-Cada actualización usa `compose build <servicio>` y
-`compose up -d --no-deps <servicio>`; no use `up -d --build api web` como
-rutina de publicación. `all` requiere la confirmación DBA y conserva la
-secuencia de migración explícita.
+Cada actualización usa imágenes aprobadas por digest, `compose pull` y
+`compose up -d --no-build --no-deps <servicio>`; no use `build` ni
+`up -d --build api web` como rutina de publicación. `all` requiere la
+confirmación DBA y conserva la secuencia de migración explícita.
 
 El procedimiento ampliado, incluidas las puertas de datos y reversión, está en
 [RUNBOOK_DEPLOY_PRODUCCION.md](RUNBOOK_DEPLOY_PRODUCCION.md).
@@ -126,8 +125,8 @@ El código puede promoverse desde la raíz con:
 ./web/scripts/deploy-production.sh all
 ```
 
-El script preserva secretos, reconstruye solo los servicios solicitados y los
-actualiza con `--no-deps`; por tanto una publicación de frontend o API no
+El script preserva secretos, sincroniza solo la configuración operativa y los
+actualiza con `--no-build --no-deps`; por tanto una publicación de frontend o API no
 recrea PostgreSQL. Antes de publicar realiza un preflight bloqueante de solo
 lectura. No elimina datos. Para inspeccionar la sincronización use `--dry-run`.
 

@@ -10,6 +10,7 @@ RUTA_DOCKER_API = RAIZ_REPOSITORIO / "web" / "ops" / "Dockerfile.api"
 RUTA_ENTRADA_API = RAIZ_REPOSITORIO / "web" / "ops" / "entrada_api_postgres.sh"
 RUTA_DOCKER_MIGRACION = RAIZ_REPOSITORIO / "web" / "ops" / "Dockerfile.migracion"
 RUTA_COMPOSE_PRODUCCION = RAIZ_REPOSITORIO / "web" / "ops" / "compose.production.yml"
+RUTA_COMPOSE_LOCAL = RAIZ_REPOSITORIO / "web" / "ops" / "compose.local.yml"
 RUTA_MEDICION_MEMORIA = RAIZ_REPOSITORIO / "web" / "scripts" / "medir_memoria_operativa.sh"
 RUTA_NGINX = RAIZ_REPOSITORIO / "web" / "ops" / "nginx" / "default.conf"
 
@@ -75,7 +76,8 @@ def test_imagen_api_no_contiene_dependencias_ni_fuentes_de_pruebas() -> None:
 
 def test_migracion_y_puerta_de_memoria_tienen_entradas_separadas() -> None:
     migracion = RUTA_DOCKER_MIGRACION.read_text(encoding="utf-8")
-    compose = RUTA_COMPOSE_PRODUCCION.read_text(encoding="utf-8")
+    compose_produccion = RUTA_COMPOSE_PRODUCCION.read_text(encoding="utf-8")
+    compose_local = RUTA_COMPOSE_LOCAL.read_text(encoding="utf-8")
     medicion = RUTA_MEDICION_MEMORIA.read_text(encoding="utf-8")
     soporte_medicion = (RAIZ_REPOSITORIO / "web" / "scripts" / "medir_memoria_docker.sh").read_text(
         encoding="utf-8"
@@ -88,9 +90,11 @@ def test_migracion_y_puerta_de_memoria_tienen_entradas_separadas() -> None:
     assert 'ENTRYPOINT ["/usr/local/bin/entrada_migracion.sh"]' in migracion
     assert "MIGRACION_MANUAL_DBA:-" in entrada
     assert '!= "confirmada"' in entrada
-    assert "dockerfile: ops/Dockerfile.migracion" in compose
-    assert "profiles: [migracion]" in compose
-    assert 'restart: "no"' in compose
+    assert "dockerfile: ops/Dockerfile.migracion" in compose_local
+    assert "SCB_MIGRACIONES_IMAGE" in compose_produccion
+    assert "profiles: [migracion]" in compose_produccion
+    assert 'restart: "no"' in compose_produccion
+    assert "\n    build:" not in compose_produccion
     assert 'source "$directorio_script/medir_memoria_docker.sh"' in medicion
     assert "docker stats --no-stream" in soporte_medicion
     assert "UMBRAL_MEMORIA_PORCENTAJE" in medicion

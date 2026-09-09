@@ -6,6 +6,9 @@ volumes:
     name: scb-web_postgres_datos
 services:
   postgres:
+    entrypoint: [docker-entrypoint.sh]
+    volumes:
+      - postgres_datos:/var/lib/postgresql/data
     restart: "no"
   migracion:
     build:

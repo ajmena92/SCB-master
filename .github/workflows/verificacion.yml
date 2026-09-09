@@ -30,10 +30,10 @@ jobs:
         working-directory: web/frontend
     steps:
       - name: Obtener código
-        uses: actions/checkout@v4
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
 
       - name: Preparar Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
         with:
           node-version-file: web/frontend/.nvmrc
           cache: npm
@@ -60,10 +60,10 @@ jobs:
         working-directory: web/backend
     steps:
       - name: Obtener código
-        uses: actions/checkout@v4
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
 
       - name: Preparar Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: "3.12"
           cache: pip
@@ -96,7 +96,7 @@ jobs:
           --fail-under=90
 
       - name: Conservar reporte de cobertura
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: cobertura-backend-${{ github.run_id }}
           path: web/backend/coverage/coverage.json
@@ -125,17 +125,17 @@ jobs:
           - 5432:5432
     steps:
       - name: Obtener código
-        uses: actions/checkout@v4
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
 
       - name: Preparar Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
         with:
           node-version-file: web/frontend/.nvmrc
           cache: npm
           cache-dependency-path: web/frontend/package-lock.json
 
       - name: Preparar Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: "3.12"
           cache: pip
@@ -202,7 +202,7 @@ jobs:
 
       - name: Conservar reporte Playwright
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: playwright-report-${{ github.run_id }}
           path: web/frontend/playwright-report/
@@ -216,7 +216,7 @@ jobs:
     environment: staging
     steps:
       - name: Obtener código
-        uses: actions/checkout@v4
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
 
       - name: Medir memoria de los servicios desplegados
         env:
@@ -236,7 +236,7 @@ jobs:
 
       - name: Conservar evidencia de memoria
         if: ${{ always() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: medicion-memoria-${{ github.run_id }}
           path: |

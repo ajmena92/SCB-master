@@ -6,3 +6,5 @@ services:
       - type: bind
         source: ${POSTGRES_DATA_PATH:?Defina POSTGRES_DATA_PATH en el host de producción}
         target: /var/lib/postgresql/data
+        bind:
+          create_host_path: false

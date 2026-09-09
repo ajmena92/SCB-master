@@ -10,14 +10,19 @@ services:
       POSTGRES_PASSWORD_FILE: /run/secrets/postgres_admin_password
       POSTGRES_INITDB_ARGS: --encoding=UTF8 --locale=C.UTF-8 --data-checksums
       PGDATA: /var/lib/postgresql/data/pgdata
+      POSTGRES_SYSTEM_IDENTIFIER: ${POSTGRES_SYSTEM_IDENTIFIER:-}
       POSTGRES_APP_USER: ${POSTGRES_APP_USER:-scb_api}
       POSTGRES_MIGRATOR_USER: ${POSTGRES_MIGRATOR_USER:-scb_migrador}
+    entrypoint: [/bin/sh, /usr/local/bin/verificar_pgdata.sh]
     command:
       - postgres
       - -c
       - archive_mode=on
       - -c
-      - archive_command=test ! -f /archivo_wal/%f && cp %p /archivo_wal/%f
+      # Reintentos seguros: si existe un archivo parcial tras una interrupción,
+      # cmp detecta la diferencia y el reemplazo temporal evita publicar una
+      # nueva copia parcial.
+      - archive_command=test -f /archivo_wal/%f && cmp -s %p /archivo_wal/%f || { cp %p /archivo_wal/%f.tmp && mv -f /archivo_wal/%f.tmp /archivo_wal/%f; }
       - -c
       - archive_timeout=300s
       - -c
@@ -27,8 +32,22 @@ services:
       - postgres_app_password
       - postgres_migrator_password
     volumes:
-      - postgres_datos:/var/lib/postgresql/data
-      - ${POSTGRES_WAL_ARCHIVE_PATH:?Defina POSTGRES_WAL_ARCHIVE_PATH}:/archivo_wal
+      - type: bind
+        source: ${POSTGRES_DATA_PATH:-/srv/scsc-postgresql/datos}
+        target: /var/lib/postgresql/data
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${POSTGRES_WAL_ARCHIVE_PATH:?Defina POSTGRES_WAL_ARCHIVE_PATH}
+        target: /archivo_wal
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ./postgres/verificar_pgdata.sh
+        target: /usr/local/bin/verificar_pgdata.sh
+        read_only: true
+        bind:
+          create_host_path: false
       - ./postgres/inicializar_roles.sh:/docker-entrypoint-initdb.d/010-inicializar-roles.sh:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]

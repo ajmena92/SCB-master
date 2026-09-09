@@ -253,6 +253,14 @@
     "SCB_TRABAJADOR_IMPORTACION_IMAGE": {
       "type": "string",
       "pattern": "^\\S+@sha256:[a-f0-9]{64}$"
+    },
+    "SCB_IMPORTACION_IMAGE": {
+      "type": "string",
+      "pattern": "^\\S+@sha256:[a-f0-9]{64}$"
+    },
+    "SCB_ANALITICA_IMAGE": {
+      "type": "string",
+      "pattern": "^\\S+@sha256:[a-f0-9]{64}$"
     }
   },
   "additionalProperties": false
