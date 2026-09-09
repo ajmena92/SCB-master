@@ -1,19 +1,19 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ChevronDown, ScanBarcode, X } from "lucide-react";
+import { ChevronDown, ScanBarcode } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { plataformaApi } from "../consultas/plataforma";
 import { errMsg } from "@/compartido/consultas/errores_api";
 import { fechaLocalActual } from "@/compartido/utilidades/fecha";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import type { ResultadoOperacion } from "@/compartido/contratos/plataforma";
 import { ExcepcionSinReserva } from "../componentes/ExcepcionSinReserva";
 import { ControlesEstacionComedor } from "../componentes/ControlesEstacionComedor";
 import { LectorQrCamara } from "../componentes/LectorQrCamara";
 import { ResultadoLecturaComedor } from "../componentes/ResultadoLecturaComedor";
 import { emitirTonoEstacionComedor } from "../componentes/sonido_estacion_comedor";
+
+import { CapturaManualComedor } from "../componentes/captura_manual_comedor";
 
 type EstadoCamara = "iniciando" | "activo" | "error";
 
@@ -214,40 +214,12 @@ export default function OperacionComedor() {
           />
         )}
         {mostrarRespaldo && (
-          <form
-            className="sticky bottom-2 z-20 mx-auto flex w-full max-w-4xl flex-col gap-3 rounded-2xl border border-white/15 bg-slate-900 p-4 shadow-2xl sm:static sm:flex-row"
-            onSubmit={registrar}
-          >
-            <label htmlFor="captura-comedor" className="sr-only">
-              Lector USB o ingreso manual
-            </label>
-            <div className="relative min-w-0 flex-1">
-              <ScanBarcode className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-emerald-300" />
-              <Input
-                ref={entradaRef}
-                id="captura-comedor"
-                name="codigo"
-                autoComplete="off"
-                required
-                placeholder="Lector USB o número de identificación"
-                className="h-12 border-white/15 bg-slate-950 pl-12 text-base text-white placeholder:text-slate-300"
-              />
-            </div>
-            <Button
-              className="h-12 bg-emerald-400 px-6 font-bold text-slate-950 hover:bg-emerald-300"
-              disabled={ingreso.isPending}
-            >
-              {ingreso.isPending ? "Validando…" : "Registrar"}
-            </Button>
-            <button
-              type="button"
-              onClick={() => setMostrarRespaldo(false)}
-              className="grid h-12 w-12 place-items-center rounded-xl text-slate-300 hover:bg-white/10"
-              aria-label="Ocultar respaldo"
-            >
-              <X className="h-5 w-5" />
-            </button>
-          </form>
+          <CapturaManualComedor
+            referenciaEntrada={entradaRef}
+            pendiente={ingreso.isPending}
+            alRegistrar={registrar}
+            alOcultar={() => setMostrarRespaldo(false)}
+          />
         )}
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-3 text-xs font-semibold text-slate-400">
           <button

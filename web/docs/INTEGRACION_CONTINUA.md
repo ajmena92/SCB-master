@@ -1,8 +1,21 @@
 # Integración continua de la plataforma web
 
-El flujo versionado en [`.github/workflows/verificacion.yml`](../../.github/workflows/verificacion.yml)
-ejecuta las puertas automatizadas de Fase 0 para cambios en `web/backend`, `web/frontend` y
-`web/scripts`. También puede iniciarse manualmente.
+La rama canónica es `main`. Los flujos se ejecutan para cada PR dirigido a ella y
+para cada push a ella, sin filtros de rutas: así los checks que protegen la rama
+no quedan ausentes cuando un cambio toca configuración, documentación o un
+workflow.
+
+| Flujo | Responsabilidad |
+| --- | --- |
+| [Verificación](../../.github/workflows/verificacion.yml) | Calidad frontend/backend, configuración y E2E. |
+| [Construcción de imágenes](../../.github/workflows/docker-build.yml) | Construye API, web y migración; al publicar adjunta SBOM y provenance a cada imagen. |
+| [Seguridad de secretos](../../.github/workflows/secret-scanning.yml) | Detecta secretos versionados en PR, push y revisión programada. |
+
+El SBOM no se versiona ni se escribe en `main`: queda asociado al digest de la
+imagen publicada. `GITHUB_TOKEN` es efímero y se limita a los permisos declarados
+por cada trabajo; un secreto adicional solo se necesita al usar un registry externo.
+
+La puerta de verificación puede iniciarse manualmente para la medición de staging.
 
 ## Puertas frontend
 

@@ -37,13 +37,16 @@ def test_flujo_ci_usa_versiones_de_runtime_declaradas_por_el_proyecto() -> None:
 
     assert "node-version-file: web/frontend/.nvmrc" in contenido
     assert 'python-version: "3.12"' in contenido
-    assert "\n      - master\n" in contenido
-    assert "\n      - main\n" not in contenido
+    assert "branches: [main]" in contenido
+    assert "\n      - master\n" not in contenido
     assert "\npermissions:\n  contents: read\n" in contenido
     assert "\njobs:\n  frontend:\n" in contenido
     assert "\n  backend:\n" in contenido
-    assert contenido.count("working-directory: web/frontend") == 1
-    assert contenido.count("working-directory: web/backend") == 1
+    assert contenido.count("working-directory: web/frontend") >= 1
+    assert contenido.count("working-directory: web/backend") >= 1
+    assert "\n  e2e:\n" in contenido
+    assert "http://127.0.0.1:8000/salud" in contenido
+    assert 'CSRF_ANONYMOUS_TTL_SECONDS: "600"' in contenido
 
 
 def test_imagen_api_usa_la_entrada_modular_y_healthcheck_canonicos() -> None:

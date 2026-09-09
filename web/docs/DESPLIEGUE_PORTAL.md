@@ -52,16 +52,38 @@ CONFIRMAR_MIGRACION_DBA=SI ../scripts/validar_alembic_docker.sh check
 CONFIRMAR_MIGRACION_DBA=SI ../scripts/validar_alembic_docker.sh upgrade
 ```
 
-Después se levantan las imágenes y se comprueba el servicio:
+Después de la migración aprobada, actualice cada servicio sin evaluar ni
+recrear dependencias. El script ejecuta un preflight de solo lectura antes de
+construir: valida Compose, secretos sin imprimirlos, salud de API/PostgreSQL y,
+en el servidor, almacenamiento, respaldo y checksum.
 
 ```bash
-docker compose --env-file .env -f compose.production.yml up -d --build api web
-docker compose --env-file .env -f compose.production.yml ps
-curl --fail --silent --show-error http://127.0.0.1:8081/health
+./web/scripts/deploy-production.sh api --remote
+./web/scripts/deploy-production.sh web --remote
 ```
+
+Cada actualización usa `compose build <servicio>` y
+`compose up -d --no-deps <servicio>`; no use `up -d --build api web` como
+rutina de publicación. `all` requiere la confirmación DBA y conserva la
+secuencia de migración explícita.
 
 El procedimiento ampliado, incluidas las puertas de datos y reversión, está en
 [RUNBOOK_DEPLOY_PRODUCCION.md](RUNBOOK_DEPLOY_PRODUCCION.md).
+
+## Desarrollo local canónico
+
+Para desarrollo local, el único comando de arranque admitido es:
+
+```bash
+./web/scripts/levantar-desarrollo-local.sh
+```
+
+Este comando usa el volumen externo `scb-web_postgres_datos`, levanta
+PostgreSQL, API y web en `http://127.0.0.1:8082`, no ejecuta migraciones y no
+borra volúmenes. Para reutilizar imágenes ya construidas use
+`--sin-construir`; para otro puerto, `--puerto 8083`. No use `docker compose
+down -v` en el entorno de desarrollo. Las migraciones y restauraciones se
+ejecutan únicamente mediante sus procedimientos DBA documentados.
 
 ## Cuentas administrativas y permisos
 
@@ -104,9 +126,10 @@ El código puede promoverse desde la raíz con:
 ./web/scripts/deploy-production.sh all
 ```
 
-El script preserva secretos, reconstruye los servicios solicitados y espera
-`GET /health`. No ejecuta migraciones ni elimina datos. Para inspeccionar la
-sincronización use `--dry-run`.
+El script preserva secretos, reconstruye solo los servicios solicitados y los
+actualiza con `--no-deps`; por tanto una publicación de frontend o API no
+recrea PostgreSQL. Antes de publicar realiza un preflight bloqueante de solo
+lectura. No elimina datos. Para inspeccionar la sincronización use `--dry-run`.
 
 Si falla el smoke test, cerrar el proxy, conservar logs y detener `api` y `web`.
 Se vuelve a la imagen aprobada anterior; no se activa WinForms, no se habilita

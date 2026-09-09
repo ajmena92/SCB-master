@@ -126,7 +126,8 @@ Con la migración aprobada:
 ```
 
 El script sincroniza `backend/`, `frontend/` y `ops/`, conserva los secretos del
-servidor, reconstruye `api` y `web`, y espera `GET /health`. Para inspeccionar
+servidor, reconstruye `api` y `web`, y confirma la salud de la API mediante el
+proxy en `GET /health`. Para inspeccionar
 sin modificar producción:
 
 ```bash

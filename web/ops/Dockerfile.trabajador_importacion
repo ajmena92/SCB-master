@@ -1,4 +1,4 @@
-FROM python:3.12.14-slim-bookworm
+FROM dhi.io/python:3.12.14-debian12
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
@@ -15,4 +15,9 @@ COPY ops/entrada_trabajador_importacion.sh /usr/local/bin/entrada_trabajador_imp
 RUN useradd --create-home --uid 10001 appuser \
     && chmod 0550 /usr/local/bin/entrada_trabajador_importacion.sh \
     && chown -R appuser:appuser /app
+
+# Health check: verifica que el worker puede conectar a PostgreSQL
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+    CMD python -c "import os; from pathlib import Path; import psycopg; c=psycopg.connect(host=os.environ['POSTGRES_HOST'],port=os.environ.get('POSTGRES_PORT','5432'),dbname=os.environ['POSTGRES_DB'],user=os.environ['POSTGRES_USER'],password=Path(os.environ.get('POSTGRES_PASSWORD_FILE','/run/secrets/postgres_app_password')).read_text().strip(),connect_timeout=3); assert c.execute('SELECT 1').fetchone()==(1,); c.close()"
+
 ENTRYPOINT ["/usr/local/bin/entrada_trabajador_importacion.sh"]

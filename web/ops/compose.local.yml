@@ -1,5 +1,9 @@
 # Sobrescritura local. Debe combinarse después de compose.production.yml.
 name: scb-web-local
+volumes:
+  postgres_datos:
+    external: true
+    name: scb-web_postgres_datos
 services:
   postgres:
     restart: "no"

@@ -2,21 +2,9 @@ name: Verificación
 
 on:
   pull_request:
-    paths:
-      - ".github/workflows/verificacion.yml"
-      - "web/backend/**"
-      - "web/frontend/**"
-      - "web/ops/**"
-      - "web/scripts/**"
+    branches: [main]
   push:
-    branches:
-      - master
-    paths:
-      - ".github/workflows/verificacion.yml"
-      - "web/backend/**"
-      - "web/frontend/**"
-      - "web/ops/**"
-      - "web/scripts/**"
+    branches: [main]
   workflow_dispatch:
     inputs:
       ejecutar_medicion_memoria:
@@ -116,6 +104,109 @@ jobs:
 
       - name: Verificar cliente TypeScript generado desde OpenAPI
         run: python ../scripts/generar_cliente_openapi.py --verificar
+
+  e2e:
+    name: Integración E2E
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:17.6-bookworm
+        env:
+          POSTGRES_DB: scb_test
+          POSTGRES_USER: scb_api
+          POSTGRES_PASSWORD: test_password
+        options: >-
+          --health-cmd "pg_isready -U scb_api -d scb_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    steps:
+      - name: Obtener código
+        uses: actions/checkout@v4
+
+      - name: Preparar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: web/frontend/.nvmrc
+          cache: npm
+          cache-dependency-path: web/frontend/package-lock.json
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: web/backend/requirements-desarrollo.txt
+
+      - name: Instalar dependencias frontend
+        working-directory: web/frontend
+        run: npm ci
+
+      - name: Instalar dependencias backend
+        working-directory: web/backend
+        run: python -m pip install -r requirements-desarrollo.txt
+
+      - name: Aplicar migraciones
+        working-directory: web/backend
+        env:
+          DATABASE_URL: postgresql+psycopg://scb_api:test_password@localhost:5432/scb_test
+        run: alembic upgrade head
+
+      - name: Iniciar API
+        working-directory: web/backend
+        env:
+          DATABASE_URL: postgresql+psycopg://scb_api:test_password@localhost:5432/scb_test
+          CORS_ORIGIN: http://127.0.0.1:4173
+          APP_ENV: test
+          COOKIE_SECURE: "false"
+          CSRF_SECRET: test_secret_1234567890abcdef
+          CARNET_QR_CLAVE: test_key
+          IMPORTACION_RESULTADOS_KEY: test_key
+          STUDENT_MAX_LOGIN_ATTEMPTS: "8"
+          STUDENT_LOCK_MINUTES: "5"
+          ADMIN_MAX_LOGIN_ATTEMPTS: "5"
+          ADMIN_LOCK_MINUTES: "15"
+          STUDENT_SESSION_DAYS: "365"
+          ADMIN_SESSION_MINUTES: "60"
+          CSRF_ANONYMOUS_TTL_SECONDS: "600"
+        run: uvicorn aplicacion.entrada:crear_aplicacion --factory --host 127.0.0.1 --port 8000 &
+
+      - name: Esperar API disponible
+        run: |
+          for intento in {1..30}; do
+            curl --fail --silent --show-error http://127.0.0.1:8000/api/v1/salud >/dev/null && exit 0
+            sleep 1
+          done
+          echo "La API no inició correctamente." >&2
+          exit 1
+
+      - name: Verificar contrato de salud
+        run: >-
+          curl --fail --silent --show-error http://127.0.0.1:8000/api/v1/salud |
+          python -c "import json, sys; assert json.load(sys.stdin) == {'estado': 'ok', 'baseDatos': 'postgresql'}"
+
+      - name: Construir frontend
+        working-directory: web/frontend
+        run: npm run build
+
+      - name: Instalar navegador Playwright
+        working-directory: web/frontend
+        run: npx playwright install --with-deps chromium
+
+      - name: Ejecutar pruebas E2E
+        working-directory: web/frontend
+        run: npm run test:e2e
+
+      - name: Conservar reporte Playwright
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ github.run_id }}
+          path: web/frontend/playwright-report/
+          if-no-files-found: ignore
 
   memoria-staging:
     name: Memoria de staging

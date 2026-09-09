@@ -1,9 +1,14 @@
 """Casos de uso para reportes operativos y tablero PostgreSQL."""
 
-import re
 from collections import defaultdict
 from datetime import date, timedelta
 
+from aplicacion.reglas_padron_reportes import (
+    FilaNominal,
+    filtrar_nominal,
+    ordenar_lista_control,
+    partes_nombre,
+)
 from aplicacion.secciones import agrupar_secciones_activas
 
 
@@ -32,71 +37,6 @@ class ServicioReportes:
             "subtitulo_reportes": "Comedor estudiantil",
         }
 
-    @staticmethod
-    def _partes_nombre(nombre):
-        partes = " ".join(str(nombre or "").split()).split(" ")
-        if len(partes) > 2:
-            return " ".join(partes[-2:]), " ".join(partes[:-2])
-        return "", " ".join(partes)
-
-    @classmethod
-    def _ordenar_lista_control(cls, filas):
-        def clave(fila):
-            seccion = str(fila.get("seccion") or "")
-            coincidencia = re.match(r"^(\d+)\s*-\s*(\d+)", seccion)
-            grado = int(coincidencia.group(1)) if coincidencia else 999
-            grupo = int(coincidencia.group(2)) if coincidencia else 999
-            apellidos, nombres = cls._partes_nombre(fila.get("nombreCompleto"))
-            return (
-                grado,
-                grupo,
-                seccion.casefold(),
-                apellidos.casefold(),
-                nombres.casefold(),
-                str(fila.get("identificacion") or "").casefold(),
-            )
-
-        return sorted(filas, key=clave)
-
-    @staticmethod
-    def _filtrar_nominal(nominal, filtros):
-        """Aplica únicamente los filtros propios del servicio seleccionado.
-
-        El padrón de comedor y el de transporte comparten persona, sección y
-        búsqueda, pero no comparten el significado de una marca. Mantenerlos
-        separados evita que una asistencia al comedor se interprete como uso
-        de transporte (o a la inversa).
-        """
-        busqueda = str(filtros.get("busqueda", "")).casefold().strip()
-        ruta_filtro = str(filtros.get("ruta", "")).strip()
-        seccion = str(filtros.get("seccion", "")).casefold().strip()
-        servicio = str(filtros.get("servicio", "")).strip()
-        asistencia = str(filtros.get("asistencia", filtros.get("estado", ""))).strip()
-        confirmacion = str(filtros.get("confirmacion", "")).strip()
-        beneficio = str(filtros.get("beneficio", "")).strip()
-        asignacion = str(filtros.get("asignacion", "")).strip()
-        if busqueda:
-            nominal = [r for r in nominal if busqueda in r["nombreCompleto"].casefold()]
-        if ruta_filtro:
-            nominal = [r for r in nominal if str(r["idRuta"]) == ruta_filtro]
-        if seccion:
-            nominal = [r for r in nominal if seccion in r["seccion"].casefold()]
-        if asistencia:
-            nominal = [r for r in nominal if r["estadoClave"] == asistencia]
-        if servicio == "comedor":
-            if confirmacion:
-                nominal = [r for r in nominal if r["confirmacionClave"] == confirmacion]
-            if beneficio == "beneficiario":
-                nominal = [r for r in nominal if r["beneficioClave"] == "beneficiario"]
-            elif beneficio == "no_beneficiario":
-                nominal = [r for r in nominal if r["beneficioClave"] == "no_beneficiario"]
-        elif servicio == "transporte":
-            if asignacion == "con_ruta":
-                nominal = [r for r in nominal if r["idRuta"] is not None]
-            elif asignacion == "sin_ruta":
-                nominal = [r for r in nominal if r["idRuta"] is None]
-        return nominal
-
     def lista_control(self, fecha, servicio, filtros):
         """Entrega el padrón completo filtrado para una sola operación.
 
@@ -109,7 +49,7 @@ class ServicioReportes:
         presentes = {persona_id for persona_id, _ in self.repo.ingresos_en_fechas([fecha])}
         confirmados = self.repo.reservas_confirmadas_en_fecha(fecha)
         matriculas_con_marca = self.repo.matriculas_con_marca_transporte_en_fecha(fecha)
-        nominal = []
+        nominal: list[FilaNominal] = []
         for persona, matricula, ruta in filas:
             tiene_ruta = ruta is not None
             if servicio == "comedor":
@@ -119,7 +59,9 @@ class ServicioReportes:
                 columna_servicio = "Beneficio de comedor"
             else:
                 estado_clave = (
-                    "presente" if matricula and matricula.id in matriculas_con_marca else "sin_registro"
+                    "presente"
+                    if matricula and matricula.id in matriculas_con_marca
+                    else "sin_registro"
                 )
                 estado = "Usó transporte" if estado_clave == "presente" else "Aún sin marca"
                 beneficio = "Con ruta asignada" if tiene_ruta else "Sin ruta asignada"
@@ -133,7 +75,9 @@ class ServicioReportes:
                     "ruta": ruta.nombre if ruta else "Sin ruta",
                     "idRuta": ruta.id if ruta else None,
                     "beneficio": beneficio,
-                    "beneficioClave": "beneficiario" if matricula and matricula.becado else "no_beneficiario",
+                    "beneficioClave": "beneficiario"
+                    if matricula and matricula.becado
+                    else "no_beneficiario",
                     "columnaServicio": columna_servicio,
                     "estado": estado,
                     "estadoClave": estado_clave,
@@ -142,12 +86,14 @@ class ServicioReportes:
                     ),
                 }
             )
-        filtradas = self._filtrar_nominal(nominal, {**filtros, "servicio": servicio})
+        filtradas = filtrar_nominal(nominal, {**filtros, "servicio": servicio})
         for fila in filtradas:
-            fila["apellidos"], fila["nombres"] = self._partes_nombre(fila["nombreCompleto"])
-        return self._ordenar_lista_control(filtradas)
+            fila["apellidos"], fila["nombres"] = partes_nombre(fila["nombreCompleto"])
+        return ordenar_lista_control(filtradas)
 
-    def registrar_exportacion_lista_control(self, cuenta_id, servicio, formato, fecha, filtros, total):
+    def registrar_exportacion_lista_control(
+        self, cuenta_id, servicio, formato, fecha, filtros, total
+    ):
         self.repo.registrar_exportacion_lista_control(
             cuenta_id, servicio, formato, fecha, filtros, total
         )
@@ -175,7 +121,7 @@ class ServicioReportes:
         matriculas_con_marca = self.repo.matriculas_con_marca_transporte_en_fecha(fecha)
         servicio_nominal = filtros.get("servicio", "comedor") if tipo == "estudiante" else ""
 
-        nominal = []
+        nominal: list[FilaNominal] = []
         rutas: dict[tuple[int | None, str], set[int]] = defaultdict(set)
         beneficiarios = 0
         for persona, matricula, ruta in filas:
@@ -199,15 +145,23 @@ class ServicioReportes:
                     "idRuta": ruta.id if ruta else None,
                     "beneficioComedor": "Beneficiario" if becado else "No beneficiario",
                     "beneficioServicio": (
-                        "Con ruta asignada" if ruta else "Sin ruta asignada"
+                        "Con ruta asignada"
+                        if ruta
+                        else "Sin ruta asignada"
                         if servicio_nominal == "transporte"
-                        else "Beneficiario" if becado else "No beneficiario"
+                        else "Beneficiario"
+                        if becado
+                        else "No beneficiario"
                     ),
                     "beneficioClave": "beneficiario" if becado else "no_beneficiario",
                     "estado": (
-                        "Usó transporte" if presente else "Aún sin marca"
+                        "Usó transporte"
+                        if presente
+                        else "Aún sin marca"
                         if servicio_nominal == "transporte"
-                        else "Ingresó al comedor" if presente else "Aún sin ingreso"
+                        else "Ingresó al comedor"
+                        if presente
+                        else "Aún sin ingreso"
                     ),
                     "estadoClave": "presente" if presente else "sin_registro",
                     "confirmacionClave": (
@@ -217,7 +171,7 @@ class ServicioReportes:
                 }
             )
 
-        nominal = self._ordenar_lista_control(self._filtrar_nominal(nominal, filtros))
+        nominal = ordenar_lista_control(filtrar_nominal(nominal, filtros))
 
         total = len(filas)
         presentes = len(presentes_hoy.intersection({p.id for p, _, _ in filas}))

@@ -16,8 +16,8 @@ function valorCookie(nombre: string): string | undefined {
 
 let bootstrapCsrf: Promise<void> | undefined;
 
-async function asegurarCookieCsrf(): Promise<void> {
-  if (valorCookie(CSRF_COOKIE)) return;
+async function asegurarCookieCsrf(renovar = false): Promise<void> {
+  if (!renovar && valorCookie(CSRF_COOKIE)) return;
   bootstrapCsrf ??= fetch(`${API}/v1/autenticacion/csrf`, {
     credentials: "include",
     headers: { Accept: "application/json" },
@@ -34,7 +34,8 @@ export async function agregarCsrf(
 ): Promise<InternalAxiosRequestConfig> {
   const metodo = (config.method || "get").toLowerCase();
   if (!SAFE_METHODS.has(metodo) && !config.omitirCsrf) {
-    await asegurarCookieCsrf();
+    const esLogin = /\/v1\/autenticacion\/(administracion|portal)$/.test(config.url || "");
+    await asegurarCookieCsrf(esLogin);
     const token = valorCookie(CSRF_COOKIE);
     if (token) config.headers[CSRF_HEADER] = decodeURIComponent(token);
   }

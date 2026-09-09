@@ -12,6 +12,8 @@ def _origen_https(valor: str) -> str:
     origen = valor.strip().rstrip("/")
     parsed = urlparse(origen)
     if origen in {
+        "http://localhost:8082",
+        "http://127.0.0.1:8082",
         "http://localhost:5173",
         "http://127.0.0.1:5173",
         "http://localhost:8081",
@@ -101,6 +103,8 @@ class Settings:
                         "http://127.0.0.1:5173",
                         "http://localhost:8081",
                         "http://127.0.0.1:8081",
+                        "http://localhost:8082",
+                        "http://127.0.0.1:8082",
                     }
                     for item in origenes
                 )
@@ -115,6 +119,8 @@ class Settings:
             "http://127.0.0.1:5173",
             "http://localhost:8081",
             "http://127.0.0.1:8081",
+            "http://localhost:8082",
+            "http://127.0.0.1:8082",
         }
         if seguro == "false" and any(item not in origenes_locales for item in origenes):
             raise RuntimeError(

@@ -1,0 +1,233 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SCB Portal Web - Configuración de Entorno",
+  "description": "Esquema de validación para variables de entorno de producción",
+  "type": "object",
+  "required": [
+    "POSTGRES_DB",
+    "POSTGRES_ADMIN_USER",
+    "POSTGRES_APP_USER",
+    "POSTGRES_MIGRATOR_USER",
+    "POSTGRES_ADMIN_PASSWORD_FILE",
+    "POSTGRES_APP_PASSWORD_FILE",
+    "POSTGRES_MIGRATOR_PASSWORD_FILE",
+    "POSTGRES_WAL_ARCHIVE_PATH",
+    "POSTGRES_BACKUP_PATH",
+    "CORS_ORIGIN",
+    "APP_ENV",
+    "COOKIE_SECURE",
+    "CSRF_SECRET_FILE",
+    "CARNET_QR_CLAVE_FILE",
+    "IMPORTACION_RESULTADOS_KEY_FILE",
+    "CSRF_ANONYMOUS_TTL_SECONDS",
+    "TRUSTED_PROXY_CIDRS",
+    "FORWARDED_ALLOW_IPS",
+    "STUDENT_SESSION_DAYS",
+    "ADMIN_SESSION_MINUTES"
+  ],
+  "properties": {
+    "POSTGRES_DB": {
+      "type": "string",
+      "description": "Nombre de la base de datos PostgreSQL",
+      "default": "scb",
+      "minLength": 1
+    },
+    "POSTGRES_ADMIN_USER": {
+      "type": "string",
+      "description": "Usuario administrador de PostgreSQL",
+      "default": "scb_admin",
+      "pattern": "^[a-z_][a-z0-9_]*$"
+    },
+    "POSTGRES_APP_USER": {
+      "type": "string",
+      "description": "Usuario de aplicación (API) en PostgreSQL",
+      "default": "scb_api",
+      "pattern": "^[a-z_][a-z0-9_]*$"
+    },
+    "POSTGRES_MIGRATOR_USER": {
+      "type": "string",
+      "description": "Usuario para migraciones Alembic",
+      "default": "scb_migrador",
+      "pattern": "^[a-z_][a-z0-9_]*$"
+    },
+    "POSTGRES_ADMIN_PASSWORD_FILE": {
+      "type": "string",
+      "description": "Ruta del archivo con contraseña administrador",
+      "examples": ["/run/secrets/postgres_admin_password", "./secrets/postgres_admin_password"]
+    },
+    "POSTGRES_APP_PASSWORD_FILE": {
+      "type": "string",
+      "description": "Ruta del archivo con contraseña de aplicación",
+      "examples": ["/run/secrets/postgres_app_password"]
+    },
+    "POSTGRES_MIGRATOR_PASSWORD_FILE": {
+      "type": "string",
+      "description": "Ruta del archivo con contraseña del migrador",
+      "examples": ["/run/secrets/postgres_migrator_password"]
+    },
+    "POSTGRES_WAL_ARCHIVE_PATH": {
+      "type": "string",
+      "description": "Ruta para archivo WAL de PostgreSQL (backup)",
+      "examples": ["/var/lib/postgresql/wal-archive"]
+    },
+    "POSTGRES_BACKUP_PATH": {
+      "type": "string",
+      "description": "Ruta para respaldos de PostgreSQL",
+      "examples": ["/var/lib/postgresql/backups"]
+    },
+    "POSTGRES_SHM_SIZE": {
+      "type": "string",
+      "description": "Memoria compartida para PostgreSQL",
+      "default": "128m",
+      "pattern": "^[0-9]+[kmg]?$"
+    },
+    "POSTGRES_ADMIN_PASSWORD_FILE": {
+      "type": "string",
+      "description": "Ruta del archivo con contraseña"
+    },
+    "CORS_ORIGIN": {
+      "type": "string",
+      "description": "Origen CORS permitido (debe ser HTTPS en producción)",
+      "examples": ["https://portal.ejemplo.edu.cr", "http://localhost:8081"],
+      "format": "uri"
+    },
+    "APP_ENV": {
+      "type": "string",
+      "description": "Entorno de la aplicación",
+      "enum": ["development", "production", "test"],
+      "default": "production"
+    },
+    "APP_TZ": {
+      "type": "string",
+      "description": "Zona horaria de la aplicación",
+      "default": "America/Costa_Rica"
+    },
+    "COOKIE_SECURE": {
+      "type": "boolean",
+      "description": "Habilitar cookies secure (solo HTTPS). False solo en desarrollo local",
+      "default": true
+    },
+    "CSRF_SECRET_FILE": {
+      "type": "string",
+      "description": "Ruta del archivo con secreto CSRF"
+    },
+    "CARNET_QR_CLAVE_FILE": {
+      "type": "string",
+      "description": "Ruta del archivo con clave para carnet digital"
+    },
+    "IMPORTACION_RESULTADOS_KEY_FILE": {
+      "type": "string",
+      "description": "Ruta del archivo con clave de importación"
+    },
+    "CSRF_ANONYMOUS_TTL_SECONDS": {
+      "type": "integer",
+      "description": "TTL del token CSRF anónimo en segundos",
+      "default": 600,
+      "minimum": 60,
+      "maximum": 3600
+    },
+    "TRUSTED_PROXY_CIDRS": {
+      "type": "string",
+      "description": "CIDR de proxies confiados para X-Forwarded-For",
+      "examples": ["172.16.0.0/12", "10.0.0.0/8"]
+    },
+    "FORWARDED_ALLOW_IPS": {
+      "type": "string",
+      "description": "IPs que pueden usar encabezados X-Forwarded",
+      "examples": ["*", "127.0.0.1"]
+    },
+    "STUDENT_SESSION_DAYS": {
+      "type": "integer",
+      "description": "Días de sesión de estudiante",
+      "default": 365,
+      "minimum": 1,
+      "maximum": 730
+    },
+    "ADMIN_SESSION_MINUTES": {
+      "type": "integer",
+      "description": "Minutos de sesión de administrador",
+      "default": 60,
+      "minimum": 5,
+      "maximum": 720
+    },
+    "STUDENT_MAX_LOGIN_ATTEMPTS": {
+      "type": "integer",
+      "description": "Intentos máximos de login para estudiantes",
+      "default": 8,
+      "minimum": 3,
+      "maximum": 20
+    },
+    "STUDENT_LOCK_MINUTES": {
+      "type": "integer",
+      "description": "Minutos de bloqueo tras fallos de login estudiante",
+      "default": 5,
+      "minimum": 1,
+      "maximum": 120
+    },
+    "ADMIN_MAX_LOGIN_ATTEMPTS": {
+      "type": "integer",
+      "description": "Intentos máximos de login para administradores",
+      "default": 5,
+      "minimum": 3,
+      "maximum": 20
+    },
+    "ADMIN_LOCK_MINUTES": {
+      "type": "integer",
+      "description": "Minutos de bloqueo tras fallos de login admin",
+      "default": 15,
+      "minimum": 1,
+      "maximum": 120
+    },
+    "UVICORN_WORKERS": {
+      "type": "integer",
+      "description": "Número de workers de Uvicorn",
+      "default": 2,
+      "minimum": 1,
+      "maximum": 16
+    },
+    "API_MEMORIA_LIMITE": {
+      "type": "string",
+      "description": "Límite de memoria para contenedor API",
+      "default": "256m",
+      "pattern": "^[0-9]+[kmg]?$"
+    },
+    "API_MEMORIA_RESERVA": {
+      "type": "string",
+      "description": "Reserva de memoria para contenedor API",
+      "default": "128m",
+      "pattern": "^[0-9]+[kmg]?$"
+    },
+    "API_CPUS": {
+      "type": "string",
+      "description": "Límite de CPUs para contenedor API",
+      "default": "1.0",
+      "pattern": "^[0-9]+(\\.[0-9]+)?$"
+    },
+    "WEB_MEMORIA_LIMITE": {
+      "type": "string",
+      "description": "Límite de memoria para contenedor frontend",
+      "default": "64m",
+      "pattern": "^[0-9]+[kmg]?$"
+    },
+    "WEB_MEMORIA_RESERVA": {
+      "type": "string",
+      "description": "Reserva de memoria para contenedor frontend",
+      "default": "32m",
+      "pattern": "^[0-9]+[kmg]?$"
+    },
+    "WEB_HOST": {
+      "type": "string",
+      "description": "Host donde escucha el frontend (127.0.0.1 en prod, 0.0.0.0 en LAN)",
+      "default": "127.0.0.1",
+      "examples": ["127.0.0.1", "0.0.0.0"]
+    },
+    "WEB_PUERTO": {
+      "type": "integer",
+      "description": "Puerto del frontend",
+      "default": 8081,
+      "minimum": 1024,
+      "maximum": 65535
+    }
+  },
+  "additionalProperties": false
+}

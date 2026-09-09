@@ -78,6 +78,20 @@ imports directos de notificaciones fuera de la capa compartida.
 
 ## Cómo se mantiene vigente
 
+### Separación de responsabilidades en expedientes y estación de comedor
+
+La refactorización del 8 de septiembre de 2026 conserva el marcado, las clases,
+las etiquetas y las acciones existentes; no cambia el contrato visual.
+`DatosPadronExpediente` recibe una persona tipada y presenta datos de solo lectura.
+`CapturaManualComedor` recibe referencia, estado pendiente y callbacks; no registra
+ingresos ni administra duplicados. Las páginas conservan consultas, mutaciones,
+permisos de presentación, navegación y ciclo de vida. Ambos componentes usan
+archivos `snake_case` y símbolos `PascalCase`, conforme a las convenciones.
+
+En reportes, el adaptador HTTP conserva rutas y permisos, los serializadores
+generan CSV/XLSX/HTML y las reglas puras comparten filtrado y ordenamiento entre
+el tablero y la exportación. No se introducen consultas SQL en estas capas.
+
 La persona que modifica una pantalla es responsable de actualizar la guía en el
 mismo cambio. Las revisiones de código deben rechazar cambios visuales sin este
 checklist y sin evidencia. Las excepciones deben documentarse con alcance,
