@@ -45,7 +45,7 @@ def test_flujo_ci_usa_versiones_de_runtime_declaradas_por_el_proyecto() -> None:
     assert contenido.count("working-directory: web/frontend") >= 1
     assert contenido.count("working-directory: web/backend") >= 1
     assert "\n  e2e:\n" in contenido
-    assert "http://127.0.0.1:8000/salud" in contenido
+    assert "http://127.0.0.1:8000/api/v1/salud" in contenido
     assert 'CSRF_ANONYMOUS_TTL_SECONDS: "600"' in contenido
 
 

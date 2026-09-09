@@ -251,9 +251,7 @@ services:
     cap_drop: [ALL]
 
   web:
-    build:
-      context: ..
-      dockerfile: ops/Dockerfile.frontend
+    image: ${SCB_WEB_IMAGE:-nginx:1.30.4-alpine}
     depends_on:
       api:
         condition: service_healthy

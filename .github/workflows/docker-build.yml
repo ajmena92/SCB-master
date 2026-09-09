@@ -19,11 +19,36 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: Validate docker-compose syntax
+      - name: Validate docker-compose.production.yml
         working-directory: web/ops
         run: |
+          echo "🔍 Validando compose.production.yml..."
           docker compose --env-file .env.example -f compose.production.yml config --quiet
-          echo "✅ Docker Compose válido"
+          echo "✅ Docker Compose syntax válido"
+      
+      - name: Validate docker-compose.local.yml stack
+        working-directory: web/ops
+        run: |
+          echo "🔍 Validando compose.local.yml stack..."
+          docker compose --env-file .env.example -f compose.production.yml -f compose.local.yml config --quiet
+          echo "✅ Docker Compose stack válido"
+      
+      - name: Check for 'latest' tags in compose files
+        working-directory: web/ops
+        run: |
+          echo "🔍 Buscando ':latest' tags..."
+          if grep -r ':latest' compose*.yml; then
+            echo "❌ Found ':latest' tags in compose files - use specific versions"
+            exit 1
+          fi
+          echo "✅ No 'latest' tags found"
+      
+      - name: Validate .env.example schema
+        working-directory: web
+        run: |
+          echo "🔍 Validando .env.example..."
+          python3 scripts/validar_variables.py
+          echo "✅ Environment variables schema válido"
 
   build-api:
     runs-on: ubuntu-latest
@@ -52,11 +77,9 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-api
           tags: |
-            type=ref,event=branch
+            type=sha,prefix=sha-
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
-            type=sha
-            type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build and push API image
         uses: docker/build-push-action@v5
@@ -99,17 +122,9 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-web
           tags: |
-            type=ref,event=branch
+            type=sha,prefix=sha-
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
-            type=sha
-            type=raw,value=latest,enable={{is_default_branch}}
-
-      - name: Build Frontend first (npm build)
-        working-directory: web/frontend
-        run: |
-          npm ci
-          npm run build
 
       - name: Build and push Frontend image
         uses: docker/build-push-action@v5
@@ -151,10 +166,9 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-migrations
           tags: |
-            type=ref,event=branch
+            type=sha,prefix=sha-
             type=semver,pattern={{version}}
-            type=sha
-            type=raw,value=latest,enable={{is_default_branch}}
+            type=semver,pattern={{major}}.{{minor}}
 
       - name: Build and push Migrations image
         uses: docker/build-push-action@v5

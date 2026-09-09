@@ -1,0 +1,30 @@
+# Override para producción: imágenes inmutables por digest
+# 
+# Uso en CI/CD:
+# export SCB_API_IMAGE="ghcr.io/your-org/scb-repo-api@sha256:abc123..."
+# export SCB_WEB_IMAGE="ghcr.io/your-org/scb-repo-web@sha256:def456..."
+# export SCB_MIGRACIONES_IMAGE="ghcr.io/your-org/scb-repo-migrations@sha256:ghi789..."
+# 
+# docker compose \
+#   -f compose.production.yml \
+#   -f compose.prod-deploy.yml \
+#   up -d
+
+version: '3.9'
+
+services:
+  api:
+    image: ${SCB_API_IMAGE}
+    pull_policy: if_not_present
+
+  web:
+    image: ${SCB_WEB_IMAGE}
+    pull_policy: if_not_present
+
+  migracion:
+    image: ${SCB_MIGRACIONES_IMAGE}
+    pull_policy: if_not_present
+
+  trabajador_importacion:
+    image: ${SCB_API_IMAGE}
+    pull_policy: if_not_present

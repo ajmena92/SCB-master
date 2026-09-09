@@ -48,7 +48,14 @@ def cargar_env(env_path: str) -> Dict[str, str]:
                 
                 if '=' in linea:
                     clave, valor = linea.split('=', 1)
-                    env_vars[clave.strip()] = valor.strip()
+                    valor_limpio = valor.strip()
+                    # Convertir tipos si es necesario
+                    if valor_limpio.lower() in ('true', 'false'):
+                        env_vars[clave.strip()] = valor_limpio.lower()
+                    elif valor_limpio.isdigit():
+                        env_vars[clave.strip()] = int(valor_limpio)
+                    else:
+                        env_vars[clave.strip()] = valor_limpio
     except IOError as e:
         print(f"ERROR al leer .env: {e}", file=sys.stderr)
         sys.exit(1)
@@ -77,8 +84,12 @@ def validar_config(config: Dict, schema: Dict) -> Tuple[bool, List[str]]:
     return len(errores) == 0, errores
 
 
-def validar_secretos(config: Dict) -> List[str]:
-    """Valida que los archivos de secretos existan."""
+def validar_secretos(config: Dict, validar_existencia: bool = False) -> List[str]:
+    """Valida estructura de secretos. Solo valida existencia si validar_existencia=True.
+    
+    En template (.env.example), NO validamos existencia (no deben estar presentes).
+    En preflight (entorno real), SI validamos existencia.
+    """
     errores = []
     campos_secretos = [
         'POSTGRES_ADMIN_PASSWORD_FILE',
@@ -92,9 +103,14 @@ def validar_secretos(config: Dict) -> List[str]:
     for campo in campos_secretos:
         if campo in config:
             ruta = config[campo]
-            if ruta and not ruta.startswith('/run/secrets/'):  # Saltar validación en prod
+            # Validar formato (debe terminar en _FILE)
+            if not campo.endswith('_FILE'):
+                errores.append(f"ERROR: Campo secreto debe terminar en _FILE: {campo}")
+            
+            # Solo validar existencia si se pide (preflight de entorno real)
+            if validar_existencia and ruta and not ruta.startswith('/run/secrets/'):
                 if not Path(ruta).exists():
-                    errores.append(f"ADVERTENCIA: Archivo secreto no encontrado: {ruta} ({campo})")
+                    errores.append(f"ERROR: Archivo secreto no encontrado: {ruta} ({campo})")
     
     return errores
 
@@ -130,28 +146,67 @@ def validar_app_env(config: Dict) -> List[str]:
 
 
 def main():
-    """Punto de entrada principal."""
-    # Obtener rutas
+    """Punto de entrada principal.
+    
+    Uso:
+      python3 validar_variables.py [--template] [--preflight]
+    
+    --template: Validar .env.example o .env.local.example (sin exigir secretos)
+    --preflight: Validar .env real antes de desplegar (exige secretos)
+    """
     script_dir = Path(__file__).parent
-    repo_root = script_dir.parent.parent
-    ops_dir = repo_root / 'web' / 'ops'
-    env_path = repo_root / '.env'
+    repo_root = script_dir.parent
+    web_root = repo_root / 'web'
+    ops_dir = web_root / 'ops'
     schema_path = ops_dir / 'schema.json'
+    
+    # Detectar modo: template vs preflight
+    modo_template = '--template' in sys.argv
+    modo_preflight = '--preflight' in sys.argv
+    
+    # Elegir archivo a validar
+    if modo_template:
+        # Validar templates sin exigir secretos
+        env_files = [
+            ops_dir / '.env.local.example',
+            ops_dir / '.env.production.example',
+        ]
+        validar_existencia_secretos = False
+    elif modo_preflight:
+        # Validar .env real exigiendo secretos
+        env_files = [ops_dir / '.env']
+        validar_existencia_secretos = True
+    else:
+        # Default: buscar .env, si no existe buscar templates
+        env_real = ops_dir / '.env'
+        if env_real.exists():
+            env_files = [env_real]
+            validar_existencia_secretos = True
+        else:
+            env_files = [ops_dir / '.env.local.example']
+            validar_existencia_secretos = False
     
     print(f"🔍 Validando configuración SCB Portal Web")
     print(f"   Schema: {schema_path}")
-    print(f"   Config: {env_path}")
+    print(f"   Modo: {'TEMPLATE (sin secretos)' if not validar_existencia_secretos else 'PREFLIGHT (con secretos)'}")
+    for env_path in env_files:
+        print(f"   Config: {env_path}")
     print()
     
     # Cargar
     schema = cargar_schema(str(schema_path))
-    config = cargar_env(str(env_path))
+    config = {}
+    for env_path in env_files:
+        config.update(cargar_env(str(env_path)))
     
-    # Agregar variables del entorno del sistema
-    config.update(os.environ)
+    # Agregar variables del entorno del sistema (solo para preflight)
+    if modo_preflight:
+        config.update(os.environ)
     
-    # Validar
+    # Validar (pasar flag de existencia de secretos)
     valido, errores = validar_config(config, schema)
+    errores_secretos = validar_secretos(config, validar_existencia=validar_existencia_secretos)
+    errores.extend(errores_secretos)
     
     # Reportar
     if errores:
@@ -159,7 +214,7 @@ def main():
             print(f"  ⚠️  {error}")
         print()
     
-    if valido:
+    if not errores:
         print("✅ Configuración válida")
         return 0
     else:
