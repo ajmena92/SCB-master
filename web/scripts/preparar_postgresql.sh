@@ -31,7 +31,7 @@ if [[ ! -e "$secrets_dir/sql_server_origen" ]]; then
 fi
 
 if [[ ! -e "$destino/.env" ]]; then
-    cp "$ops_dir/.env.example" "$destino/.env"
+    cp "$ops_dir/.env.local.example" "$destino/.env"
     chmod 0600 "$destino/.env"
     echo "Creado $destino/.env; ajuste rutas y origen HTTPS antes de producción."
 fi

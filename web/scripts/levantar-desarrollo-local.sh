@@ -106,7 +106,11 @@ postgres_user="$(sed -n 's/^POSTGRES_ADMIN_USER=//p' "$env_file" | tail -n 1)"
 postgres_user="${postgres_user:-scb_admin}"
 if "${compose[@]}" exec -T postgres psql -U "$postgres_user" -d "$postgres_db" -Atc \
     "SELECT to_regclass('public.trabajo_importacion') IS NOT NULL;" | grep -qx 't'; then
-    "${entorno[@]}" "${compose[@]}" up -d trabajador_importacion
+    trabajador_args=(up -d)
+    if "$construir"; then
+        trabajador_args+=(--build)
+    fi
+    "${entorno[@]}" "${compose[@]}" "${trabajador_args[@]}" trabajador_importacion
 else
     echo "El trabajador de importación no se inicia: falta su migración oficial."
 fi

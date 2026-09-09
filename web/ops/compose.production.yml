@@ -42,9 +42,7 @@ services:
 
   migracion:
     profiles: [migracion]
-    build:
-      context: ..
-      dockerfile: ops/Dockerfile.migracion
+    image: ${SCB_MIGRACIONES_IMAGE:-scb-migraciones-local}
     restart: "no"
     environment:
       POSTGRES_HOST: postgres
@@ -68,9 +66,7 @@ services:
     cap_add: [DAC_READ_SEARCH]
 
   api:
-    build:
-      context: ..
-      dockerfile: ops/Dockerfile.api
+    image: ${SCB_API_IMAGE:-scb-api-local}
     environment:
       POSTGRES_HOST: postgres
       POSTGRES_PORT: "5432"
@@ -115,9 +111,7 @@ services:
     cap_add: [SETUID, SETGID, DAC_READ_SEARCH]
 
   trabajador_importacion:
-    build:
-      context: ..
-      dockerfile: ops/Dockerfile.trabajador_importacion
+    image: ${SCB_TRABAJADOR_IMPORTACION_IMAGE:-scb-trabajador-importacion-local}
     environment:
       POSTGRES_HOST: postgres
       POSTGRES_PORT: "5432"
@@ -178,9 +172,7 @@ services:
 
   importacion:
     profiles: [importacion]
-    build:
-      context: ..
-      dockerfile: ops/Dockerfile.importacion
+    image: ${SCB_IMPORTACION_IMAGE:-scb-importacion-local}
     restart: "no"
     environment:
       POSTGRES_HOST: postgres
@@ -207,9 +199,7 @@ services:
 
   analitica:
     profiles: [analitica]
-    build:
-      context: ..
-      dockerfile: ops/Dockerfile.analitica
+    image: ${SCB_ANALITICA_IMAGE:-scb-analitica-local}
     restart: "no"
     environment:
       POSTGRES_HOST: postgres
@@ -251,7 +241,7 @@ services:
     cap_drop: [ALL]
 
   web:
-    image: ${SCB_WEB_IMAGE:-nginx:1.30.4-alpine}
+    image: ${SCB_WEB_IMAGE:-scb-web-local}
     depends_on:
       api:
         condition: service_healthy

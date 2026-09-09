@@ -20,14 +20,14 @@ fi
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ops_dir="$(cd "$script_dir/../ops" && pwd)"
 if [[ ! -f "$ops_dir/.env" ]]; then
-    echo "Falta web/ops/.env; créelo desde .env.example mediante el almacén institucional." >&2
+    echo "Falta web/ops/.env; créelo desde .env.production.example mediante el almacén institucional." >&2
     exit 2
 fi
 
 cd "$ops_dir"
 echo "Se validarán conteos y se retirarán únicamente ComedorPortal.MenuComponente y ComedorPortal.MenuPlantilla."
 echo "Esta operación no se ejecuta automáticamente durante el despliegue."
-docker compose --env-file .env --profile migracion -f compose.production.yml run --rm --no-deps \
+docker compose --env-file .env --profile migracion -f compose.production.yml -f compose.prod-deploy.yml run --rm --no-deps \
     --env MIGRACION_MANUAL_DBA=confirmada \
     --env BORRAR_TABLAS_MENU_HISTORICAS=CONFIRMADO \
     --entrypoint /usr/local/bin/entrada_mantenimiento.sh migracion

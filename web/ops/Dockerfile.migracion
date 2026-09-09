@@ -1,6 +1,6 @@
 # Imagen aislada para comprobar y ejecutar migraciones Alembic.
 # Nunca se usa como contenedor de la API ni contiene pruebas de desarrollo.
-FROM dhi.io/python:3.12.14-debian12
+FROM python:3.12.14-slim-bookworm
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
