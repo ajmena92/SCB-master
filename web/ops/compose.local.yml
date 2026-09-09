@@ -8,9 +8,32 @@ services:
   postgres:
     restart: "no"
   migracion:
+    build:
+      context: ..
+      dockerfile: ops/Dockerfile.migracion
     command: ["upgrade", "head"]
     restart: "no"
   api:
+    build:
+      context: ..
+      dockerfile: ops/Dockerfile.api
     restart: "no"
+  trabajador_importacion:
+    build:
+      context: ..
+      dockerfile: ops/Dockerfile.trabajador_importacion
+    restart: "no"
+  importacion:
+    build:
+      context: ..
+      dockerfile: ops/Dockerfile.importacion
+  analitica:
+    build:
+      context: ..
+      dockerfile: ops/Dockerfile.analitica
   web:
+    image: scb-web-local
+    build:
+      context: ..
+      dockerfile: ops/Dockerfile.frontend
     restart: "no"

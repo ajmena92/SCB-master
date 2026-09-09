@@ -24,7 +24,7 @@ git push origin feature/cambio
 
 **Job: validate**
 - ✅ Valida sintaxis Compose: `docker compose config --quiet`
-- ✅ Valida estructura de variables: `python3 web/scripts/validar_variables.py --template`
+- ✅ Valida estructura de variables: `python3 web/scripts/validar_variables.py --template local|production`
 - ✅ Busca `:latest` prohibido: `grep ':latest' web/ops/compose.production.yml`
 
 **Job: build-frontend**
@@ -37,10 +37,11 @@ git push origin feature/cambio
 ### 3. Deploy en producción (manual o automático)
 
 ```bash
-# En el servidor, inyectar digests desde CI:
-export SCB_WEB_IMAGE="ghcr.io/org/repo-web@sha256:abc123..."
-export SCB_API_IMAGE="ghcr.io/org/repo-api@sha256:def456..."
-export SCB_MIGRACIONES_IMAGE="ghcr.io/org/repo-migrations@sha256:ghi789..."
+# En el servidor, registrar los digests en el archivo protegido ops/.env:
+SCB_WEB_IMAGE=ghcr.io/org/repo-web@sha256:abc123...
+SCB_API_IMAGE=ghcr.io/org/repo-api@sha256:def456...
+SCB_MIGRACIONES_IMAGE=ghcr.io/org/repo-migrations@sha256:ghi789...
+SCB_TRABAJADOR_IMPORTACION_IMAGE=ghcr.io/org/repo-trabajador@sha256:jkl012...
 
 # Usar override con digests inmutables
 docker compose \
@@ -69,7 +70,8 @@ docker compose \
 ```bash
 cd web/ops
 docker compose config --quiet
-python3 ../scripts/validar_variables.py --template
+python3 ../scripts/validar_variables.py --template local
+python3 ../scripts/validar_variables.py --template production
 grep ':latest' *.yml  # No debe encontrar nada
 ```
 
@@ -87,7 +89,7 @@ docker run --rm -p 8080:8080 scb-web:local
 ```bash
 # Solo si tienes .env real con secretos
 cd web/ops
-python3 ../scripts/validar_variables.py --preflight
+python3 ../scripts/validar_variables.py --preflight /ruta/protegida/.env
 ```
 
 ---
@@ -98,7 +100,7 @@ python3 ../scripts/validar_variables.py --preflight
 [ ] Merge a main → CI ejecuta workflows
 [ ] CI publica imágenes con digest (ve a GHCR)
 [ ] Copiar digest desde release notes de CI
-[ ] Exportar variables SCB_*_IMAGE=...@sha256:...
+[ ] Registrar variables SCB_*_IMAGE=...@sha256:... en ops/.env protegido
 [ ] docker compose -f compose.production.yml -f compose.prod-deploy.yml up -d
 [ ] Verificar: docker ps (deben estar en estado healthy)
 [ ] Verificar: curl http://localhost:8081 (o tu puerto)
@@ -127,8 +129,8 @@ echo $SCB_WEB_IMAGE  # Debe estar: ghcr.io/...@sha256:...
 ### "Validador dice que faltan secretos en .env.example"
 → No debe faltar. El validador ahora distingue `--template` (no exige secretos) vs `--preflight` (sí).
 ```bash
-python3 validar_variables.py --template  # OK sin secretos
-python3 validar_variables.py --preflight  # Exige secretos reales
+python3 validar_variables.py --template production  # OK sin secretos
+python3 validar_variables.py --preflight /ruta/protegida/.env  # Exige secretos reales
 ```
 
 ---

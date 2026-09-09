@@ -10,8 +10,6 @@
 #   -f compose.prod-deploy.yml \
 #   up -d
 
-version: '3.9'
-
 services:
   api:
     image: ${SCB_API_IMAGE}
@@ -26,5 +24,13 @@ services:
     pull_policy: if_not_present
 
   trabajador_importacion:
-    image: ${SCB_API_IMAGE}
+    image: ${SCB_TRABAJADOR_IMPORTACION_IMAGE}
+    pull_policy: if_not_present
+
+  importacion:
+    image: ${SCB_IMPORTACION_IMAGE}
+    pull_policy: if_not_present
+
+  analitica:
+    image: ${SCB_ANALITICA_IMAGE}
     pull_policy: if_not_present

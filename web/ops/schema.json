@@ -227,6 +227,32 @@
       "default": 8081,
       "minimum": 1024,
       "maximum": 65535
+    },
+    "MIGRACION_MANUAL_DBA": {
+      "type": "string",
+      "enum": ["no_confirmada", "confirmada"]
+    },
+    "SQL_SERVER_ORIGEN_FILE": {
+      "type": "string"
+    },
+    "CODIGO_MIGRACION_SEMILLA_FILE": {
+      "type": "string"
+    },
+    "SCB_API_IMAGE": {
+      "type": "string",
+      "pattern": "^\\S+@sha256:[a-f0-9]{64}$"
+    },
+    "SCB_WEB_IMAGE": {
+      "type": "string",
+      "pattern": "^\\S+@sha256:[a-f0-9]{64}$"
+    },
+    "SCB_MIGRACIONES_IMAGE": {
+      "type": "string",
+      "pattern": "^\\S+@sha256:[a-f0-9]{64}$"
+    },
+    "SCB_TRABAJADOR_IMPORTACION_IMAGE": {
+      "type": "string",
+      "pattern": "^\\S+@sha256:[a-f0-9]{64}$"
     }
   },
   "additionalProperties": false

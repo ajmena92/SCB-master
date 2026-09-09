@@ -5,7 +5,6 @@ Valida las variables de .env contra el esquema JSON definido en schema.json.
 """
 
 import json
-import os
 import sys
 from pathlib import Path
 from typing import Dict, List, Tuple
@@ -30,7 +29,7 @@ def cargar_schema(schema_path: str) -> Dict:
         sys.exit(1)
 
 
-def cargar_env(env_path: str) -> Dict[str, str]:
+def cargar_env(env_path: str) -> Dict[str, object]:
     """Carga variables de un archivo .env."""
     env_vars = {}
     
@@ -51,8 +50,8 @@ def cargar_env(env_path: str) -> Dict[str, str]:
                     valor_limpio = valor.strip()
                     # Convertir tipos si es necesario
                     if valor_limpio.lower() in ('true', 'false'):
-                        env_vars[clave.strip()] = valor_limpio.lower()
-                    elif valor_limpio.isdigit():
+                        env_vars[clave.strip()] = valor_limpio.lower() == 'true'
+                    elif valor_limpio.lstrip('-').isdigit():
                         env_vars[clave.strip()] = int(valor_limpio)
                     else:
                         env_vars[clave.strip()] = valor_limpio
@@ -77,7 +76,6 @@ def validar_config(config: Dict, schema: Dict) -> Tuple[bool, List[str]]:
         errores.append(f"Esquema inválido: {e.message}")
     
     # Validaciones adicionales personalizadas
-    errores.extend(validar_secretos(config))
     errores.extend(validar_cors(config))
     errores.extend(validar_app_env(config))
     
@@ -120,7 +118,10 @@ def validar_cors(config: Dict) -> List[str]:
     errores = []
     cors_origin = config.get('CORS_ORIGIN', '')
     app_env = config.get('APP_ENV', 'production')
-    cookie_secure = config.get('COOKIE_SECURE', 'true').lower() in ('true', '1', 'yes')
+    cookie_secure = config.get('COOKIE_SECURE', True)
+    if not isinstance(cookie_secure, bool):
+        errores.append('ERROR: COOKIE_SECURE debe ser booleano.')
+        return errores
     
     # En producción, CORS debe ser HTTPS
     if app_env == 'production' and cors_origin.startswith('http://'):
@@ -149,42 +150,40 @@ def main():
     """Punto de entrada principal.
     
     Uso:
-      python3 validar_variables.py [--template] [--preflight]
+      python3 validar_variables.py --template local|production
+      python3 validar_variables.py --preflight /ruta/a/.env
     
-    --template: Validar .env.example o .env.local.example (sin exigir secretos)
+    --template: Validar un template local o de producción (sin exigir secretos)
     --preflight: Validar .env real antes de desplegar (exige secretos)
     """
-    script_dir = Path(__file__).parent
-    repo_root = script_dir.parent
-    web_root = repo_root / 'web'
+    script_dir = Path(__file__).resolve().parent
+    web_root = script_dir.parent
     ops_dir = web_root / 'ops'
     schema_path = ops_dir / 'schema.json'
     
     # Detectar modo: template vs preflight
     modo_template = '--template' in sys.argv
     modo_preflight = '--preflight' in sys.argv
+    if modo_template == modo_preflight:
+        print('ERROR: indique exactamente --template o --preflight.', file=sys.stderr)
+        return 2
     
     # Elegir archivo a validar
     if modo_template:
-        # Validar templates sin exigir secretos
-        env_files = [
-            ops_dir / '.env.local.example',
-            ops_dir / '.env.production.example',
-        ]
+        indice = sys.argv.index('--template')
+        if len(sys.argv) <= indice + 1 or sys.argv[indice + 1] not in {'local', 'production'}:
+            print('ERROR: --template requiere local o production.', file=sys.stderr)
+            return 2
+        nombre = sys.argv[indice + 1]
+        env_files = [ops_dir / f'.env.{nombre}.example']
         validar_existencia_secretos = False
-    elif modo_preflight:
-        # Validar .env real exigiendo secretos
-        env_files = [ops_dir / '.env']
-        validar_existencia_secretos = True
     else:
-        # Default: buscar .env, si no existe buscar templates
-        env_real = ops_dir / '.env'
-        if env_real.exists():
-            env_files = [env_real]
-            validar_existencia_secretos = True
-        else:
-            env_files = [ops_dir / '.env.local.example']
-            validar_existencia_secretos = False
+        indice = sys.argv.index('--preflight')
+        if len(sys.argv) <= indice + 1:
+            print('ERROR: --preflight requiere la ruta del archivo .env real.', file=sys.stderr)
+            return 2
+        env_files = [Path(sys.argv[indice + 1]).resolve()]
+        validar_existencia_secretos = True
     
     print(f"🔍 Validando configuración SCB Portal Web")
     print(f"   Schema: {schema_path}")
@@ -195,18 +194,19 @@ def main():
     
     # Cargar
     schema = cargar_schema(str(schema_path))
-    config = {}
+    valido = True
+    errores = []
     for env_path in env_files:
-        config.update(cargar_env(str(env_path)))
-    
-    # Agregar variables del entorno del sistema (solo para preflight)
-    if modo_preflight:
-        config.update(os.environ)
-    
-    # Validar (pasar flag de existencia de secretos)
-    valido, errores = validar_config(config, schema)
-    errores_secretos = validar_secretos(config, validar_existencia=validar_existencia_secretos)
-    errores.extend(errores_secretos)
+        config = cargar_env(str(env_path))
+        if not config:
+            errores.append(f'ERROR: no se pudo cargar configuración desde {env_path}.')
+            continue
+        archivo_valido, archivo_errores = validar_config(config, schema)
+        archivo_errores.extend(
+            validar_secretos(config, validar_existencia=validar_existencia_secretos)
+        )
+        valido = valido and archivo_valido and not archivo_errores
+        errores.extend(archivo_errores)
     
     # Reportar
     if errores:

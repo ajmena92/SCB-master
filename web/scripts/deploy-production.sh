@@ -80,6 +80,13 @@ fallar_preflight() {
     exit 1
 }
 
+verificar_imagen_digest() {
+    local nombre="$1"
+    local imagen="$2"
+    [[ "$imagen" =~ ^[^[:space:]@]+@sha256:[a-f0-9]{64}$ ]] || \
+        fallar_preflight "$nombre debe usar una imagen por digest sha256."
+}
+
 verificar_secreto() {
     local nombre="$1"
     local archivo="$2"
@@ -172,6 +179,12 @@ preflight_despliegue() {
     [[ "$cantidad_roles" == "3" ]] || fallar_preflight "faltan roles PostgreSQL esperados."
 
     if [[ "$entorno" == "produccion" ]]; then
+        verificar_imagen_digest SCB_API_IMAGE "$(valor_entorno SCB_API_IMAGE)"
+        verificar_imagen_digest SCB_WEB_IMAGE "$(valor_entorno SCB_WEB_IMAGE)"
+        verificar_imagen_digest SCB_MIGRACIONES_IMAGE "$(valor_entorno SCB_MIGRACIONES_IMAGE)"
+        verificar_imagen_digest SCB_TRABAJADOR_IMPORTACION_IMAGE "$(valor_entorno SCB_TRABAJADOR_IMPORTACION_IMAGE)"
+        verificar_imagen_digest SCB_IMPORTACION_IMAGE "$(valor_entorno SCB_IMPORTACION_IMAGE)"
+        verificar_imagen_digest SCB_ANALITICA_IMAGE "$(valor_entorno SCB_ANALITICA_IMAGE)"
         ruta_wal="$(valor_entorno POSTGRES_WAL_ARCHIVE_PATH)"
         ruta_respaldos="$(valor_entorno POSTGRES_BACKUP_PATH)"
         verificar_espacio "archivo WAL" "$ruta_wal" "$minimo_kb"
@@ -235,17 +248,6 @@ run_remote() {
     ssh -p "$remote_port" "$remote_user@$remote_host" "sudo bash -lc $(printf '%q' "$command")"
 }
 
-sync_directory() {
-    local directory="$1"
-    # Los entornos virtuales y cachés son locales; sincronizarlos aumenta el
-    # despliegue y puede introducir binarios de otra plataforma.
-    local options=(-az --delete --exclude '__pycache__/' --exclude '*.pyc' --exclude '.venv/' --exclude '.venv-*/' --exclude 'node_modules/' --exclude 'build/')
-    if "$dry_run"; then
-        options+=(--dry-run)
-    fi
-    rsync "${options[@]}" -e "ssh -p $remote_port" --rsync-path='sudo rsync' "$web_dir/$directory/" "$remote_user@$remote_host:$remote_dir/$directory/"
-}
-
 sync_ops_directory() {
     local options=(-az --delete --exclude '.env' --exclude '.env.local' --exclude 'secrets/' --exclude 'importaciones/')
     if "$dry_run"; then
@@ -256,18 +258,14 @@ sync_ops_directory() {
 
 case "$component" in
     api)
-        sync_directory backend
         sync_ops_directory
         services="api"
         ;;
     web)
-        sync_directory frontend
         sync_ops_directory
         services="web"
         ;;
     all)
-        sync_directory backend
-        sync_directory frontend
         sync_ops_directory
         services="api web"
         ;;
@@ -280,12 +278,12 @@ fi
 
 deploy_log="/tmp/scsc-deploy-${component}.log"
 remote_confirmation=$(printf '%q' "${CONFIRMAR_MIGRACION_DBA:-}")
-preflight_functions="$(declare -f valor_entorno ruta_ops fallar_preflight verificar_secreto servicio_saludable verificar_espacio preflight_despliegue)"
+preflight_functions="$(declare -f valor_entorno ruta_ops fallar_preflight verificar_imagen_digest verificar_secreto servicio_saludable verificar_espacio preflight_despliegue)"
 remote_preflight="set -euo pipefail
 cd $(printf '%q' "$remote_dir")
 ops_dir=\"\$PWD/ops\"
 env_file=\"\$ops_dir/.env\"
-compose=(docker compose --env-file \"\$env_file\" -f \"\$ops_dir/compose.production.yml\")
+compose=(docker compose --env-file \"\$env_file\" -f \"\$ops_dir/compose.production.yml\" -f \"\$ops_dir/compose.prod-deploy.yml\")
 if [[ -f ops/compose.production.server.yml ]]; then
     compose+=(-f \"\$ops_dir/compose.production.server.yml\")
 fi
@@ -295,7 +293,7 @@ run_remote "$remote_preflight"
 
 remote_deploy="set -euo pipefail
 cd $(printf '%q' "$remote_dir")
-compose=(docker compose --env-file ops/.env -f ops/compose.production.yml)
+compose=(docker compose --env-file ops/.env -f ops/compose.production.yml -f ops/compose.prod-deploy.yml)
 if [[ -f ops/compose.production.server.yml ]]; then
     compose+=(-f ops/compose.production.server.yml)
 fi
@@ -304,7 +302,7 @@ if [[ $(printf '%q' "$component") == all ]]; then
         echo \"deploy all requiere CONFIRMAR_MIGRACION_DBA=SI para ejecutar migraciones.\" >&2
         exit 2
     fi
-    if ! \"\${compose[@]}\" --profile migracion run --rm --no-deps --build \\
+    if ! \"\${compose[@]}\" --profile migracion run --rm --no-deps \\
         -e MIGRACION_MANUAL_DBA=confirmada migracion upgrade head >> $(printf '%q' "$deploy_log") 2>&1; then
         tail -n 120 $(printf '%q' "$deploy_log")
         exit 1
@@ -320,11 +318,11 @@ if [[ $(printf '%q' "$component") == all ]]; then
         exit 1
     fi
 fi
-if ! \"\${compose[@]}\" build $services > $(printf '%q' "$deploy_log") 2>&1; then
+if ! \"\${compose[@]}\" pull $services > $(printf '%q' "$deploy_log") 2>&1; then
     tail -n 120 $(printf '%q' "$deploy_log")
     exit 1
 fi
-if ! \"\${compose[@]}\" up -d --no-deps $services >> $(printf '%q' "$deploy_log") 2>&1; then
+if ! \"\${compose[@]}\" up -d --no-build --no-deps $services >> $(printf '%q' "$deploy_log") 2>&1; then
     tail -n 120 $(printf '%q' "$deploy_log")
     exit 1
 fi
