@@ -1,0 +1,9 @@
+[Unit]
+Description=Copia cifrada del respaldo SCB en Google Drive
+After=network-online.target scb-respaldo.service
+Wants=network-online.target
+OnFailure=scb-alerta@%n.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/scb-respaldo-google

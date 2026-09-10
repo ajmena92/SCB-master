@@ -1,5 +1,10 @@
 # Incidente PostgreSQL del 8 de septiembre de 2026
 
+Estado final: servicio trasladado al nuevo volumen LUKS de 16 GiB, con arranque
+automático solicitado por el usuario. Las rutas antiguas y la ampliación pendiente
+descritas abajo corresponden a la primera recuperación. Véase
+[operación del nuevo disco](OPERACION_DISCO_POSTGRES_V2.md).
+
 ## Causa y recuperación
 Al recrear PostgreSQL solo con compose.production.yml, el servicio seleccionó
 el volumen Docker antiguo porque el montaje productivo estaba definido en

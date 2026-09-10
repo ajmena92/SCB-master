@@ -1,0 +1,10 @@
+[Unit]
+Description=Comprobacion de salud y capacidad de SCB
+After=docker.service network-online.target srv-scb-postgresql-v2.mount
+Wants=network-online.target
+Requires=docker.service
+OnFailure=scb-alerta@%n.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/scb-salud

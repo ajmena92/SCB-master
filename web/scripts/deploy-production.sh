@@ -283,9 +283,13 @@ remote_preflight="set -euo pipefail
 cd $(printf '%q' "$remote_dir")
 ops_dir=\"\$PWD/ops\"
 env_file=\"\$ops_dir/.env\"
+\"\$ops_dir/instalar_operacion_produccion.sh\"
 compose=(docker compose --env-file \"\$env_file\" -f \"\$ops_dir/compose.production.yml\" -f \"\$ops_dir/compose.prod-deploy.yml\")
 if [[ -f ops/compose.production.server.yml ]]; then
     compose+=(-f \"\$ops_dir/compose.production.server.yml\")
+fi
+if [[ -f ops/compose.production.hardening.yml ]]; then
+    compose+=(-f \"\$ops_dir/compose.production.hardening.yml\")
 fi
 $preflight_functions
 preflight_despliegue produccion"
@@ -296,6 +300,9 @@ cd $(printf '%q' "$remote_dir")
 compose=(docker compose --env-file ops/.env -f ops/compose.production.yml -f ops/compose.prod-deploy.yml)
 if [[ -f ops/compose.production.server.yml ]]; then
     compose+=(-f ops/compose.production.server.yml)
+fi
+if [[ -f ops/compose.production.hardening.yml ]]; then
+    compose+=(-f ops/compose.production.hardening.yml)
 fi
 if [[ $(printf '%q' "$component") == all ]]; then
     if [[ $remote_confirmation != SI ]]; then

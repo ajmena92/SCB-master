@@ -1,0 +1,14 @@
+# Google Workspace SMTP Relay. Copiar a /etc/msmtprc con permisos 0600.
+# La IP pública de salida debe estar autorizada en la regla SMTP Relay.
+defaults
+auth off
+tls on
+tls_starttls on
+tls_trust_file /etc/ssl/certs/ca-certificates.crt
+logfile /var/log/msmtp.log
+
+account default
+host smtp-relay.gmail.com
+port 587
+domain srv-web.ctpplatanares.ed.cr
+from amenaa@ctpplatanares.ed.cr

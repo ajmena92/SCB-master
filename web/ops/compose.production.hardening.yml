@@ -1,0 +1,33 @@
+services:
+  postgres:
+    mem_limit: ${POSTGRES_MEMORIA_LIMITE:-1g}
+    mem_reservation: ${POSTGRES_MEMORIA_RESERVA:-256m}
+    cpus: ${POSTGRES_CPUS:-2.0}
+    logging:
+      driver: local
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+  api:
+    cpus: ${API_CPUS:-1.0}
+    logging:
+      driver: local
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+  trabajador_importacion:
+    logging:
+      driver: local
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+  web:
+    cpus: ${WEB_CPUS:-0.5}
+    logging:
+      driver: local
+      options:
+        max-size: "10m"
+        max-file: "5"

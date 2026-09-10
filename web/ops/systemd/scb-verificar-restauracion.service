@@ -1,0 +1,10 @@
+[Unit]
+Description=Verificacion mensual de restauracion PostgreSQL SCB
+After=docker.service srv-scb-postgresql-v2.mount
+Requires=docker.service
+OnFailure=scb-alerta@%n.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/plat/scsc-comedor/ops
+ExecStart=/usr/bin/docker compose --env-file .env -f compose.production.yml -f compose.production.hardening.yml --profile verificacion_respaldo run --rm --no-deps verificar_restauracion

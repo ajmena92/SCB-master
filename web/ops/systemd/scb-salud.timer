@@ -1,0 +1,10 @@
+[Unit]
+Description=Comprobacion horaria de salud de SCB
+
+[Timer]
+OnCalendar=hourly
+Persistent=true
+Unit=scb-salud.service
+
+[Install]
+WantedBy=timers.target

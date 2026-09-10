@@ -1,0 +1,6 @@
+[Unit]
+Description=Alerta por correo de SCB para %I
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/scb-enviar-alerta %I

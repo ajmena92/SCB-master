@@ -1,0 +1,10 @@
+[Unit]
+Description=Verificacion mensual de restauracion PostgreSQL SCB
+
+[Timer]
+OnCalendar=*-*-01 03:30:00
+Persistent=true
+Unit=scb-verificar-restauracion.service
+
+[Install]
+WantedBy=timers.target
