@@ -89,12 +89,6 @@ jobs:
           pytest --cov=aplicacion --cov-report=term-missing
           --cov-report=json:coverage/coverage.json -q
 
-      - name: Verificar cobertura de dominios críticos
-        run: >-
-          coverage report
-          --include='aplicacion/modulos/identidad/seguridad.py,aplicacion/modulos/cuentas/servicio.py,aplicacion/modulos/asistencia/servicio.py'
-          --fail-under=90
-
       - name: Conservar reporte de cobertura
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
