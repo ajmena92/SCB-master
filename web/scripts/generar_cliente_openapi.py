@@ -37,6 +37,11 @@ DOMINIOS = (
     "comunes",
 )
 
+
+def _texto_generado(lineas: list[str]) -> str:
+    """Devuelve una salida estable con exactamente un salto final."""
+    return "\n".join(lineas).rstrip() + "\n"
+
 ESQUEMAS_POR_DOMINIO = {
     "identidad": {
         "AccesoEstudiante", "AdministracionEntrada", "AutenticacionSalida",
@@ -201,19 +206,38 @@ def _generar_esquemas(
         lineas.append("export {};" )
     if dominio == "comedor":
         lineas.extend([
-            "export type IngresoSalida = { idIngreso: number; nombreCompleto: string; horaMarca?: string; resultado?: string; modalidad?: string; advertencias?: string[] };",
+            "export type IngresoSalida = {",
+            "  idIngreso: number;",
+            "  nombreCompleto: string;",
+            "  horaMarca?: string;",
+            "  resultado?: string;",
+            "  modalidad?: string;",
+            "  advertencias?: string[];",
+            "};",
             "export type ReservaSalida = Record<string, unknown>;",
-            "export type CuentaTiquetesSalida = { idCuenta: number; saldo: number; disponibles: number; reservados?: number };",
+            "export type CuentaTiquetesSalida = {",
+            "  idCuenta: number;",
+            "  saldo: number;",
+            "  disponibles: number;",
+            "  reservados?: number;",
+            "};",
             "export type TiquetesEntrada = { cantidad: number; concepto: string; claveIdempotencia: string };",
-            "export type ConfiguracionOperacionSalida = { horarios: Array<Record<string, unknown>>; horaServidor?: string };",
+            "export type ConfiguracionOperacionSalida = {",
+            "  horarios: Array<Record<string, unknown>>;",
+            "  horaServidor?: string;",
+            "};",
         ])
     if dominio == "importaciones":
         lineas.extend([
-            "export type Previsualizacion = { totalFilas: number; valida: boolean; errores: Array<{ fila: number; mensaje: string }> };",
+            "export type Previsualizacion = {",
+            "  totalFilas: number;",
+            "  valida: boolean;",
+            "  errores: Array<{ fila: number; mensaje: string }>;",
+            "};",
             "export type LoteSalida = { idLote: number; estado: string; totalFilas: number };",
         ])
 
-    return "\n".join(lineas)
+    return _texto_generado(lineas)
 
 
 def _operaciones_por_dominio(especificacion: dict[str, Any]) -> dict[str, list[str]]:
@@ -235,12 +259,17 @@ def _operaciones_por_dominio(especificacion: dict[str, Any]) -> dict[str, list[s
             if len(linea) <= 100:
                 operaciones[dominio].append(linea)
             else:
+                operacion_linea = f"    operacionId: {operacion_texto},"
                 operaciones[dominio].extend(
                     [
                         "  {",
                         f"    metodo: {metodo_texto},",
                         f"    ruta: {ruta_texto},",
-                        f"    operacionId: {operacion_texto},",
+                        *(
+                            ["    operacionId:", f"      {operacion_texto},"]
+                            if len(operacion_linea) > 100
+                            else [operacion_linea]
+                        ),
                         f"    dominio: {json.dumps(dominio)},",
                         "  },",
                     ]
@@ -251,7 +280,7 @@ def _operaciones_por_dominio(especificacion: dict[str, Any]) -> dict[str, list[s
 def _generar_operaciones_dominio(dominio: str, operaciones: list[str]) -> str:
     constante = f"OPERACIONES_{dominio.upper()}"
     if not operaciones:
-        return "\n".join(
+        return _texto_generado(
             [
                 "/** Generado por web/scripts/generar_cliente_openapi.py; no editar manualmente. */",
                 "",
@@ -271,7 +300,7 @@ def _generar_operaciones_dominio(dominio: str, operaciones: list[str]) -> str:
         "] as const;",
         "",
     ]
-    return "\n".join(lineas)
+    return _texto_generado(lineas)
 
 
 def _generar_operaciones(especificacion: dict[str, Any]) -> str:
@@ -299,7 +328,7 @@ def _generar_operaciones(especificacion: dict[str, Any]) -> str:
     for dominio in DOMINIOS:
         lineas.append(f"  ...OPERACIONES_{dominio.upper()},")
     lineas.extend(["] as const;", ""])
-    return "\n".join(lineas)
+    return _texto_generado(lineas)
 
 
 def _generar_indice() -> str:
@@ -310,7 +339,7 @@ def _generar_indice() -> str:
     lineas.extend(f'export * from "./{dominio}";' for dominio in DOMINIOS)
     lineas.append('export * from "./operaciones";')
     lineas.append("")
-    return "\n".join(lineas)
+    return _texto_generado(lineas)
 
 
 def _generar(especificacion: dict[str, Any]) -> dict[Path, str]:
