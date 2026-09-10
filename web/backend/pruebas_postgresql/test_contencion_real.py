@@ -32,7 +32,9 @@ def base_concurrente():
     puerto = os.environ.get("SCB_PUERTO_MEDICION")
     if not url and not puerto:
         pytest.skip("Requiere PostgreSQL sintético: SCB_DATABASE_URL o SCB_PUERTO_MEDICION")
-    motor = crear_motor(url or f"postgresql+psycopg://postgres@127.0.0.1:{int(puerto)}/scb_medicion")
+    motor = crear_motor(
+        url or f"postgresql+psycopg://postgres@127.0.0.1:{int(puerto)}/scb_medicion"
+    )
     codigo = "CONT-" + uuid4().hex[:20]
     with Session(motor) as sesion:
         persona = Persona(cedula=codigo, nombres="Contención sintética", tipo="profesor")
@@ -176,8 +178,11 @@ def test_recuperacion_no_reclama_trabajo_bloqueado_vivo(base_concurrente):
     motor, _, _, actor = base_concurrente
     with Session(motor) as sesion:
         trabajo = TrabajoImportacion(
-            huella=uuid4().hex, cuenta_solicitante_id=actor,
-            entrada_json="{}", resumen_json="{}", estado="ejecutando",
+            huella=uuid4().hex,
+            cuenta_solicitante_id=actor,
+            entrada_json="{}",
+            resumen_json="{}",
+            estado="ejecutando",
             iniciado_en=datetime.now(timezone.utc) - timedelta(hours=1),
         )
         sesion.add(trabajo)

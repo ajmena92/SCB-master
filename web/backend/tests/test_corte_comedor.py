@@ -112,9 +112,7 @@ def test_el_estado_de_comedor_es_explicito_y_separa_profesores() -> None:
 
 
 def test_becado_reserva_sin_tiquete() -> None:
-    reserva = ServicioComedor(RepositorioComedorFalso()).reservar(
-        1, date(2026, 8, 28), None
-    )
+    reserva = ServicioComedor(RepositorioComedorFalso()).reservar(1, date(2026, 8, 28), None)
 
     assert isinstance(reserva, ReservaSalida)
     assert reserva.requiere_tiquete is False

@@ -168,8 +168,14 @@ def test_reserva_cancelada_puede_confirmarse_de_nuevo(entorno):
     portal = autenticar_portal(cliente.app, persona["cedula"])
     datos = {"fecha": "2026-09-04"}
 
-    assert portal.post("/api/v1/comedor/reservas", headers=portal.csrf(), json=datos).status_code == 201
-    assert portal.delete("/api/v1/comedor/reservas", headers=portal.csrf(), json=datos).status_code == 204
+    assert (
+        portal.post("/api/v1/comedor/reservas", headers=portal.csrf(), json=datos).status_code
+        == 201
+    )
+    assert (
+        portal.delete("/api/v1/comedor/reservas", headers=portal.csrf(), json=datos).status_code
+        == 204
+    )
     segunda = portal.post("/api/v1/comedor/reservas", headers=portal.csrf(), json=datos)
 
     assert segunda.status_code == 201, segunda.text
@@ -294,7 +300,10 @@ def test_captura_transporte_no_se_publica_hasta_etapa_dos(entorno):
         },
     )
     datos = {"cedula": persona["cedula"], "fecha": "2026-09-05"}
-    assert cliente.post("/api/v1/transporte/marcas", headers=h["operador"], json=datos).status_code == 404
+    assert (
+        cliente.post("/api/v1/transporte/marcas", headers=h["operador"], json=datos).status_code
+        == 404
+    )
     # Sin captura pública, se conserva la regla de estudiante sin reserva.
     assert (
         cliente.post(

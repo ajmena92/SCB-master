@@ -30,7 +30,9 @@ def upgrade() -> None:
         sa.Column("error", sa.String(300), nullable=True),
         sa.Column("resultado_cifrado", sa.Text(), nullable=True),
         sa.Column("resultado_entregado", sa.Boolean(), nullable=False, server_default=sa.false()),
-        sa.Column("creado_en", sa.DateTime(timezone=True), nullable=False, server_default=sa.text("now()")),
+        sa.Column(
+            "creado_en", sa.DateTime(timezone=True), nullable=False, server_default=sa.text("now()")
+        ),
         sa.Column("iniciado_en", sa.DateTime(timezone=True), nullable=True),
         sa.Column("finalizado_en", sa.DateTime(timezone=True), nullable=True),
         sa.CheckConstraint(

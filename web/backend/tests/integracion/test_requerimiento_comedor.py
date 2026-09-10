@@ -37,9 +37,7 @@ def test_composicion_expone_reservas_ingresos_y_filtro_de_personas() -> None:
     def exigir_permiso(_permiso: str):
         return lambda: {"idUsuario": 99}
 
-    enrutador = crear_enrutador(
-        lambda: object(), exigir_permiso, lambda: None, lambda: object()
-    )
+    enrutador = crear_enrutador(lambda: object(), exigir_permiso, lambda: None, lambda: object())
     rutas = {ruta.path for ruta in enrutador.routes}
 
     assert {
@@ -67,7 +65,9 @@ def test_ingreso_recibe_solo_codigo_y_fecha() -> None:
 def test_operacion_expone_configuracion_estado_historial_e_ingreso() -> None:
     from aplicacion.modulos.comedor.api import crear_enrutador
 
-    enrutador = crear_enrutador(lambda: object(), lambda _: lambda: {}, lambda: None, lambda: object())
+    enrutador = crear_enrutador(
+        lambda: object(), lambda _: lambda: {}, lambda: None, lambda: object()
+    )
     rutas = {ruta.path for ruta in enrutador.routes}
     assert {
         "/comedor/operacion/configuracion",
@@ -79,9 +79,15 @@ def test_operacion_expone_configuracion_estado_historial_e_ingreso() -> None:
 
 def test_migracion_registra_politicas_auditoria_y_reconciliacion() -> None:
     raiz = Path(__file__).resolve().parents[3]
-    migracion_29 = (raiz / "backend/alembic/versions/0029_uso_transporte_y_auditoria_comedor.py").read_text()
-    migracion_30 = (raiz / "backend/alembic/versions/0030_politicas_y_auditoria_operacion.py").read_text()
-    migracion_31 = (raiz / "backend/alembic/versions/0031_reconciliacion_corte_comedor.py").read_text()
+    migracion_29 = (
+        raiz / "backend/alembic/versions/0029_uso_transporte_y_auditoria_comedor.py"
+    ).read_text()
+    migracion_30 = (
+        raiz / "backend/alembic/versions/0030_politicas_y_auditoria_operacion.py"
+    ).read_text()
+    migracion_31 = (
+        raiz / "backend/alembic/versions/0031_reconciliacion_corte_comedor.py"
+    ).read_text()
     assert "transporte.uso_diario" in migracion_29
     assert "dbo.RegistroTransporte" in migracion_29
     assert "marca_transporte_existente" in migracion_29
@@ -99,7 +105,9 @@ def test_migracion_registra_politicas_auditoria_y_reconciliacion() -> None:
     assert "50063" in horarios
     assert "50064" in horarios
     assert "IdHorario" in horarios
-    migracion_final = (raiz / "backend/alembic/versions/0033_horarios_origen_comedor.py").read_text()
+    migracion_final = (
+        raiz / "backend/alembic/versions/0033_horarios_origen_comedor.py"
+    ).read_text()
     assert "id_horario_origen" in migracion_final
     assert "Descripcion" in migracion_final
     assert "%NOCTURN%" in migracion_final
@@ -125,11 +133,24 @@ def test_dashboard_usa_la_fecha_canonica_de_asignacion_de_ruta() -> None:
 def test_reconciliacion_operativa_cubre_diferencias_del_corte() -> None:
     raiz = Path(__file__).resolve().parents[3]
     script = (raiz / "backend/scripts/reconciliar_migracion_comedor.py").read_text()
-    for tipo in ("ruta_multiple", "saldo_negativo", "carnet_duplicado", "persona_sin_vinculo", "horario_sin_origen", "ingreso_duplicado"):
+    for tipo in (
+        "ruta_multiple",
+        "saldo_negativo",
+        "carnet_duplicado",
+        "persona_sin_vinculo",
+        "horario_sin_origen",
+        "ingreso_duplicado",
+    ):
         assert f'"{tipo}"' in script
     assert "--apply" in script
     assert "comedor.reconciliacion_migracion" in script
-    for tipo in ("saldo_local_web", "conteo_ingresos_local_web", "estado_comedor_local_web", "profesores_habilitados_local_web", "ingresos_por_fecha_local_web"):
+    for tipo in (
+        "saldo_local_web",
+        "conteo_ingresos_local_web",
+        "estado_comedor_local_web",
+        "profesores_habilitados_local_web",
+        "ingresos_por_fecha_local_web",
+    ):
         assert f'"{tipo}"' in script
     assert "OBJECT_ID" in script
     assert "INNER JOIN comedor.estado_comedor" in script
@@ -183,13 +204,15 @@ def test_migracion_y_runbook_exigen_modalidad_y_ejecucion_controlada() -> None:
     assert "r.modalidad" in corte
     assert "huella_idempotencia" in corte
     assert "DROP TABLE comedor.registro" not in corte
-    assert "0026_idempotencia_corte_comedor" in (
-        raiz / "backend/alembic/versions/0026_idempotencia_corte_comedor.py"
-    ).read_text()
+    assert (
+        "0026_idempotencia_corte_comedor"
+        in (raiz / "backend/alembic/versions/0026_idempotencia_corte_comedor.py").read_text()
+    )
     assert "LIKE" not in corte
-    assert "huella_idempotencia" in (
-        raiz / "backend/aplicacion/modulos/comedor/repositorio_catalogo.py"
-    ).read_text()
+    assert (
+        "huella_idempotencia"
+        in (raiz / "backend/aplicacion/modulos/comedor/repositorio_catalogo.py").read_text()
+    )
 
 
 def test_crear_estudiante_sincroniza_catalogo_y_cuenta_de_comedor() -> None:
@@ -204,7 +227,9 @@ def test_crear_estudiante_sincroniza_catalogo_y_cuenta_de_comedor() -> None:
 def test_migracion_asocia_turno_por_id_horario_de_origen() -> None:
     raiz = Path(__file__).resolve().parents[3]
     migracion = (raiz / "backend/alembic/versions/0034_migracion_datos_legados.py").read_text()
-    normalizacion = (raiz / "backend/alembic/versions/0035_normaliza_estado_horario_comedor.py").read_text()
+    normalizacion = (
+        raiz / "backend/alembic/versions/0035_normaliza_estado_horario_comedor.py"
+    ).read_text()
 
     assert "ho.id_horario_origen=u.IdHorario" in migracion
     assert "CASE WHEN u.IdHorario=1" not in migracion
@@ -214,9 +239,7 @@ def test_migracion_asocia_turno_por_id_horario_de_origen() -> None:
 
 def test_migracion_valida_horarios_operativos_canonicos() -> None:
     raiz = Path(__file__).resolve().parents[3]
-    migracion = (
-        raiz / "backend/alembic/versions/0037_valida_horarios_operativos.py"
-    ).read_text()
+    migracion = (raiz / "backend/alembic/versions/0037_valida_horarios_operativos.py").read_text()
 
     assert "CK_estudiantes_turno_comedor_canonico" in migracion
     assert "50069" in migracion
@@ -281,11 +304,11 @@ def test_portal_profesor_publica_el_contrato_que_consumen_frontend() -> None:
     assert ("/profesores/asistencia/{accion}", ("POST",)) in rutas
 
     ruta_asistencia = next(
-        ruta
-        for ruta in enrutador.routes
-        if ruta.path == "/profesores/asistencia/{accion}"
+        ruta for ruta in enrutador.routes if ruta.path == "/profesores/asistencia/{accion}"
     )
-    dependencias = {dependencia.call.__name__ for dependencia in ruta_asistencia.dependant.dependencies}
+    dependencias = {
+        dependencia.call.__name__ for dependencia in ruta_asistencia.dependant.dependencies
+    }
     assert "profesor_actual" in dependencias
     assert "exigir_csrf" in dependencias
 

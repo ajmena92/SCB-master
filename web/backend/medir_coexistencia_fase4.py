@@ -37,7 +37,9 @@ def crear_datos(motor) -> tuple[str, str, int]:
             anio_vigente = AnioLectivo(anio=2032, vigente=True)
             sesion.add(anio_vigente)
         anio = anio_vigente.anio
-        administrador = Persona(cedula=f"F4-A-{sufijo}", nombres="Administrador Fase 4", tipo="profesor")
+        administrador = Persona(
+            cedula=f"F4-A-{sufijo}", nombres="Administrador Fase 4", tipo="profesor"
+        )
         comedor = Persona(cedula=f"F4-C-{sufijo}", nombres="Comedor Fase 4", tipo="profesor")
         sesion.add_all([administrador, comedor])
         sesion.flush()
@@ -105,7 +107,10 @@ async def medir(url: str, filas: int, muestras: int) -> None:
             respuesta = await cliente.post(
                 "/api/v1/autenticacion/administracion",
                 json={"usuario": usuario, "contrasena": contrasena},
-                headers={"Origin": "http://localhost:5173", "X-CSRF-Token": csrf.cookies["csrf_token"]},
+                headers={
+                    "Origin": "http://localhost:5173",
+                    "X-CSRF-Token": csrf.cookies["csrf_token"],
+                },
             )
             return respuesta.status_code, (time.perf_counter() - inicio) * 1000
 
@@ -153,5 +158,7 @@ if __name__ == "__main__":
     argumentos = parser.parse_args()
     base = os.environ.get("SCB_DATABASE_URL")
     if not base:
-        raise SystemExit("Defina SCB_DATABASE_URL para una base PostgreSQL exclusivamente sintética")
+        raise SystemExit(
+            "Defina SCB_DATABASE_URL para una base PostgreSQL exclusivamente sintética"
+        )
     asyncio.run(medir(base, argumentos.filas, argumentos.muestras))

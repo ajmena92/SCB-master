@@ -37,14 +37,23 @@ def upgrade() -> None:
     op.create_unique_constraint("uq_plantilla_menu_semana_dia", "plantilla_menu", ["semana", "dia"])
     op.create_check_constraint("semana_plantilla_menu", "plantilla_menu", "semana BETWEEN 1 AND 5")
     op.create_check_constraint("dia_plantilla_menu", "plantilla_menu", "dia BETWEEN 1 AND 5")
-    op.add_column("componente_menu", sa.Column("tipo", sa.String(40), nullable=False, server_default="Principal"))
+    op.add_column(
+        "componente_menu",
+        sa.Column("tipo", sa.String(40), nullable=False, server_default="Principal"),
+    )
     op.alter_column("componente_menu", "tipo", server_default=None)
 
     op.alter_column("publicacion_menu", "nombre", new_column_name="titulo")
     op.add_column("publicacion_menu", sa.Column("observaciones", sa.Text(), nullable=True))
-    op.add_column("publicacion_menu", sa.Column("origen", sa.String(20), nullable=False, server_default="plantilla"))
+    op.add_column(
+        "publicacion_menu",
+        sa.Column("origen", sa.String(20), nullable=False, server_default="plantilla"),
+    )
     op.alter_column("publicacion_menu", "origen", server_default=None)
-    op.add_column("componente_publicado", sa.Column("tipo", sa.String(40), nullable=False, server_default="Principal"))
+    op.add_column(
+        "componente_publicado",
+        sa.Column("tipo", sa.String(40), nullable=False, server_default="Principal"),
+    )
     op.alter_column("componente_publicado", "tipo", server_default=None)
     op.add_column("calendario_menu", sa.Column("motivo", sa.String(300), nullable=True))
 

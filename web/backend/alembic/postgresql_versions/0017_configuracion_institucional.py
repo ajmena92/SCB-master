@@ -17,7 +17,9 @@ def upgrade() -> None:
         sa.Column("nombre_colegio", sa.String(180), nullable=False),
         sa.Column("subtitulo_reportes", sa.String(220), nullable=False),
     )
-    op.execute("INSERT INTO configuracion_institucional (id, nombre_colegio, subtitulo_reportes) VALUES (1, 'Colegio Técnico Profesional de Platanares', 'Comedor estudiantil')")
+    op.execute(
+        "INSERT INTO configuracion_institucional (id, nombre_colegio, subtitulo_reportes) VALUES (1, 'Colegio Técnico Profesional de Platanares', 'Comedor estudiantil')"
+    )
 
 
 def downgrade() -> None:

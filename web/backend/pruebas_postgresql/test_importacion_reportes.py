@@ -29,7 +29,12 @@ def test_importacion_normaliza_seccion_y_rechaza_formato_ambiguo(entorno):
     datos = {
         "anio": 2026,
         "filas": [
-            {"cedula": "seccion-normalizada", "nombres": "Sección", "tipo": "estudiante", "seccion": " 8 - 5 "}
+            {
+                "cedula": "seccion-normalizada",
+                "nombres": "Sección",
+                "tipo": "estudiante",
+                "seccion": " 8 - 5 ",
+            }
         ],
     }
     previa = cliente.post("/api/v1/importaciones/previsualizar", headers=h["admin"], json=datos)
@@ -44,7 +49,12 @@ def test_importacion_normaliza_seccion_y_rechaza_formato_ambiguo(entorno):
         json={
             "anio": 2026,
             "filas": [
-                {"cedula": "seccion-invalida", "nombres": "Inválida", "tipo": "estudiante", "seccion": "8-A"}
+                {
+                    "cedula": "seccion-invalida",
+                    "nombres": "Inválida",
+                    "tipo": "estudiante",
+                    "seccion": "8-A",
+                }
             ],
         },
     )
@@ -111,9 +121,7 @@ def test_worker_confirma_el_trabajo_y_cifra_credenciales(entorno):
     cliente, motor, h = entorno
     datos = {
         "anio": 2026,
-        "filas": [
-            {"cedula": "202", "nombres": "Worker", "tipo": "estudiante", "seccion": "9-1"}
-        ],
+        "filas": [{"cedula": "202", "nombres": "Worker", "tipo": "estudiante", "seccion": "9-1"}],
     }
     previa = cliente.post("/api/v1/importaciones/previsualizar", headers=h["admin"], json=datos)
     encolado = cliente.post(
@@ -122,7 +130,10 @@ def test_worker_confirma_el_trabajo_y_cifra_credenciales(entorno):
         json={**datos, "huella": previa.json()["huella"]},
     )
     assert encolado.status_code == 202
-    assert procesar_un_trabajo(crear_fabrica_sesiones(motor), CLAVE_RESULTADOS) == encolado.json()["trabajoId"]
+    assert (
+        procesar_un_trabajo(crear_fabrica_sesiones(motor), CLAVE_RESULTADOS)
+        == encolado.json()["trabajoId"]
+    )
 
     with Session(motor) as sesion:
         from aplicacion.modelos.operacion import TrabajoImportacion
@@ -169,9 +180,12 @@ def test_recupera_un_trabajo_interrumpido(entorno):
         sesion.commit()
 
     with Session(motor) as sesion:
-        assert RepositorioImportacion(sesion).recuperar_trabajos_interrumpidos(
-            datetime.now(timezone.utc) - timedelta(minutes=30)
-        ) == 1
+        assert (
+            RepositorioImportacion(sesion).recuperar_trabajos_interrumpidos(
+                datetime.now(timezone.utc) - timedelta(minutes=30)
+            )
+            == 1
+        )
         sesion.commit()
 
     with Session(motor) as sesion:
@@ -194,9 +208,13 @@ def test_importacion_anual_desactiva_ausentes_y_no_modifica_beca_ni_ruta(entorno
 
     actualizado = {
         "anio": 2026,
-        "filas": [{"cedula": "101", "nombres": "Permanece", "tipo": "estudiante", "seccion": "10-1"}],
+        "filas": [
+            {"cedula": "101", "nombres": "Permanece", "tipo": "estudiante", "seccion": "10-1"}
+        ],
     }
-    previa = cliente.post("/api/v1/importaciones/previsualizar", headers=h["admin"], json=actualizado)
+    previa = cliente.post(
+        "/api/v1/importaciones/previsualizar", headers=h["admin"], json=actualizado
+    )
     assert previa.status_code == 200, previa.text
     assert previa.json()["desactivaciones"] == 1
     encolar_y_procesar(cliente, motor, h["admin"], actualizado, previa.json()["huella"])
@@ -211,9 +229,7 @@ def test_importacion_preserva_profesores_con_cuenta_administrativa(entorno):
     cliente, motor, h = entorno
     datos = {
         "anio": 2026,
-        "filas": [
-            {"cedula": "204", "nombres": "Profesor importado", "tipo": "profesor"}
-        ],
+        "filas": [{"cedula": "204", "nombres": "Profesor importado", "tipo": "profesor"}],
     }
     previa = cliente.post("/api/v1/importaciones/previsualizar", headers=h["admin"], json=datos)
     assert previa.status_code == 200, previa.text

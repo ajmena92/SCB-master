@@ -17,21 +17,43 @@ def test_rutas_publicas_y_rbac(entorno):
     assert "/api/v1/transporte/rutas" not in rutas
     assert cliente.get("/api/v1/transporte/rutas", headers=h["admin"]).status_code == 404
     assert cliente.get("/api/v1/personas").status_code == 401
-    assert cliente.post("/api/v1/personas", headers=h["operador"], json={"nombres": "Sin permiso", "tipo": "profesor"}).status_code == 403
-    assert cliente.post("/api/v1/personas", headers=h["admin"], json={"nombres": "No permitido", "tipo": "profesor"}).status_code == 409
-    assert cliente.post("/api/v1/matriculas", headers=h["admin"], json={"personaId": 1, "anioLectivoId": 1, "seccion": "7-1"}).status_code == 409
+    assert (
+        cliente.post(
+            "/api/v1/personas",
+            headers=h["operador"],
+            json={"nombres": "Sin permiso", "tipo": "profesor"},
+        ).status_code
+        == 403
+    )
+    assert (
+        cliente.post(
+            "/api/v1/personas",
+            headers=h["admin"],
+            json={"nombres": "No permitido", "tipo": "profesor"},
+        ).status_code
+        == 409
+    )
+    assert (
+        cliente.post(
+            "/api/v1/matriculas",
+            headers=h["admin"],
+            json={"personaId": 1, "anioLectivoId": 1, "seccion": "7-1"},
+        ).status_code
+        == 409
+    )
 
 
 def test_resumen_personas_es_global_y_requiere_permiso_administrar(entorno):
     cliente, _, h = entorno
     crear_persona(cliente, h["admin"], cedula="801", nombres="Estudiante Activa")
-    crear_persona(
-        cliente, h["admin"], tipo="profesor", cedula="802", nombres="Profesor Activo"
-    )
+    crear_persona(cliente, h["admin"], tipo="profesor", cedula="802", nombres="Profesor Activo")
     inactiva = crear_persona(cliente, h["admin"], cedula="803", nombres="Estudiante Inactiva")
-    assert cliente.post(
-        f"/api/v1/personas/{inactiva['id']}/desactivar", headers=h["admin"]
-    ).status_code == 200
+    assert (
+        cliente.post(
+            f"/api/v1/personas/{inactiva['id']}/desactivar", headers=h["admin"]
+        ).status_code
+        == 200
+    )
 
     respuesta = cliente.get("/api/v1/personas/resumen", headers=h["admin"])
 
@@ -103,21 +125,23 @@ def test_expediente_busqueda_estados_y_reinicio_de_pin(entorno):
     assert fila["descripcionRuta"] == "Ruta San Jose"
 
     portal = autenticar_portal(cliente.app, "701")
-    reinicio = cliente.post(
-        f"/api/v1/personas/{persona['id']}/reiniciar-pin", headers=h["admin"]
-    )
+    reinicio = cliente.post(f"/api/v1/personas/{persona['id']}/reiniciar-pin", headers=h["admin"])
     assert reinicio.status_code == 200 and len(reinicio.json()["pinTemporal"]) == 6
     assert portal.get("/api/v1/sesion").status_code == 204
     nuevo_portal = autenticar_portal(cliente.app, "701", reinicio.json()["pinTemporal"])
     assert nuevo_portal.get("/api/v1/sesion").json()["cambioObligatorio"] is True
-    assert cliente.post(
+    assert (
+        cliente.post(
             "/api/v1/personas/pines/seccion",
             headers=h["admin"],
             json={"anioLectivoId": anio["id"], "seccion": "7-1"},
-    ).status_code == 200
-    assert cliente.post(
-        f"/api/v1/personas/{persona['id']}/desactivar", headers=h["admin"]
-    ).status_code == 200
+        ).status_code
+        == 200
+    )
+    assert (
+        cliente.post(f"/api/v1/personas/{persona['id']}/desactivar", headers=h["admin"]).status_code
+        == 200
+    )
     activos = cliente.get(
         "/api/v1/personas", headers=h["admin"], params={"estado": "activos"}
     ).json()["elementos"]
@@ -144,36 +168,64 @@ def test_beneficios_atomicos_exigen_matricula_vigente_y_ruta_operativa(entorno):
     )
     assert respuesta.status_code == 200
     assert respuesta.json() == {
-        "matriculaId": matricula["id"], "becado": True, "rutaId": ruta["idRuta"]
+        "matriculaId": matricula["id"],
+        "becado": True,
+        "rutaId": ruta["idRuta"],
     }
-    assert cliente.put(
-        f"/api/v1/matriculas/{matricula['id']}/beneficios",
-        headers=h["operador"], json={"becado": False, "rutaId": None},
-    ).status_code == 403
+    assert (
+        cliente.put(
+            f"/api/v1/matriculas/{matricula['id']}/beneficios",
+            headers=h["operador"],
+            json={"becado": False, "rutaId": None},
+        ).status_code
+        == 403
+    )
 
-    assert cliente.put(
-        f"/api/v1/rutas/{ruta['idRuta']}",
-        headers=h["admin"],
-        json={"codigo": "0990", "descripcion": "Ruta Beneficios", "colorHex": "#2563EB", "activa": False},
-    ).status_code == 200
-    assert cliente.put(
-        f"/api/v1/matriculas/{matricula['id']}/beneficios",
-        headers=h["admin"], json={"becado": False, "rutaId": ruta["idRuta"]},
-    ).status_code == 409
+    assert (
+        cliente.put(
+            f"/api/v1/rutas/{ruta['idRuta']}",
+            headers=h["admin"],
+            json={
+                "codigo": "0990",
+                "descripcion": "Ruta Beneficios",
+                "colorHex": "#2563EB",
+                "activa": False,
+            },
+        ).status_code
+        == 200
+    )
+    assert (
+        cliente.put(
+            f"/api/v1/matriculas/{matricula['id']}/beneficios",
+            headers=h["admin"],
+            json={"becado": False, "rutaId": ruta["idRuta"]},
+        ).status_code
+        == 409
+    )
 
-    assert cliente.post(
-        "/api/v1/anios-lectivos", headers=h["admin"], json={"anio": 2027, "vigente": True}
-    ).status_code == 201
-    assert cliente.put(
-        f"/api/v1/matriculas/{matricula['id']}/beneficios",
-        headers=h["admin"], json={"becado": False, "rutaId": None},
-    ).status_code == 409
+    assert (
+        cliente.post(
+            "/api/v1/anios-lectivos", headers=h["admin"], json={"anio": 2027, "vigente": True}
+        ).status_code
+        == 201
+    )
+    assert (
+        cliente.put(
+            f"/api/v1/matriculas/{matricula['id']}/beneficios",
+            headers=h["admin"],
+            json={"becado": False, "rutaId": None},
+        ).status_code
+        == 409
+    )
 
 
 def test_cambio_pin_revoca_sesion_y_desactiva_cambio_obligatorio(entorno):
     cliente, motor, h = entorno
     persona = crear_persona(
-        cliente, h["admin"], cedula="77", nombres="Pin Temporal",
+        cliente,
+        h["admin"],
+        cedula="77",
+        nombres="Pin Temporal",
         cambio_pin_obligatorio=True,
     )
     portal = autenticar_portal(cliente.app, persona["cedula"], persona["pinTemporal"])
@@ -233,7 +285,8 @@ def test_un_solo_anio_vigente_y_rutas_sin_solape(entorno):
     _, _, matricula = preparar_estudiante(cliente, h["admin"])
     segundo = cliente.post(
         "/api/v1/anios-lectivos",
-        headers=h["admin"], json={"anio": 2027, "vigente": True},
+        headers=h["admin"],
+        json={"anio": 2027, "vigente": True},
     )
     assert segundo.status_code == 201
     vigentes = [
@@ -352,70 +405,211 @@ def test_calendario_menu_registra_excepcion_habilitada(entorno):
     assert fin_de_semana["esLectivo"] is False
     assert fin_de_semana["origen"] == "no_lectivo"
     assert fin_de_semana["titulo"] is None
-    assert [{clave: valor for clave, valor in dia.items() if clave not in {"semana", "dia", "diaMes", "esLectivo", "componentes"}} for dia in dias.json() if dia["esLectivo"]] == [{
-        "fecha": "2026-09-01", "habilitado": True, "motivo": None,
-        "origen": "sin_menu", "titulo": None, "publicado": False, "tieneSustitucion": False,
-    }, {
-        "fecha": "2026-09-02", "habilitado": True, "motivo": None,
-        "origen": "sin_menu", "titulo": None, "publicado": False, "tieneSustitucion": False,
-    }, {
-        "fecha": "2026-09-03", "habilitado": True, "motivo": None,
-        "origen": "sin_menu", "titulo": None, "publicado": False, "tieneSustitucion": False,
-    }, {
-        "fecha": "2026-09-04", "habilitado": True, "motivo": None,
-        "origen": "sin_menu", "titulo": None, "publicado": False, "tieneSustitucion": False,
-    }, {
-        "fecha": "2026-09-07", "habilitado": True, "motivo": None,
-        "origen": "sin_menu", "titulo": None, "publicado": False, "tieneSustitucion": False,
-    }, {
-        "fecha": "2026-09-08", "habilitado": True, "motivo": None,
-        "origen": "sin_menu", "titulo": None, "publicado": False, "tieneSustitucion": False,
-    }, {
-        "fecha": "2026-09-09", "habilitado": True, "motivo": None,
-        "origen": "sin_menu", "titulo": None, "publicado": False, "tieneSustitucion": False,
-    }, {
-        "fecha": "2026-09-10", "habilitado": True, "motivo": None,
-        "origen": "sin_menu", "titulo": None, "publicado": False, "tieneSustitucion": False,
-    }, {
-        "fecha": "2026-09-11", "habilitado": True, "motivo": None,
-        "origen": "sin_menu", "titulo": None, "publicado": False, "tieneSustitucion": False,
-    }, {
-        "fecha": "2026-09-14", "habilitado": True, "motivo": None,
-        "origen": "sin_menu", "titulo": None, "publicado": False, "tieneSustitucion": False,
-    }, {
-        "fecha": "2026-09-15", "habilitado": False, "motivo": None,
-        "origen": "cerrado", "titulo": None, "publicado": False, "tieneSustitucion": False,
-    }, {
-        "fecha": "2026-09-16", "habilitado": True, "motivo": None,
-        "origen": "sin_menu", "titulo": None, "publicado": False, "tieneSustitucion": False,
-    }, {
-        "fecha": "2026-09-17", "habilitado": True, "motivo": None,
-        "origen": "sin_menu", "titulo": None, "publicado": False, "tieneSustitucion": False,
-    }, {
-        "fecha": "2026-09-18", "habilitado": True, "motivo": None,
-        "origen": "sin_menu", "titulo": None, "publicado": False, "tieneSustitucion": False,
-    }, {
-        "fecha": "2026-09-21", "habilitado": True, "motivo": None,
-        "origen": "sin_menu", "titulo": None, "publicado": False, "tieneSustitucion": False,
-    }, {
-        "fecha": "2026-09-22", "habilitado": True, "motivo": None,
-        "origen": "sin_menu", "titulo": None, "publicado": False, "tieneSustitucion": False,
-    }, {
-        "fecha": "2026-09-23", "habilitado": True, "motivo": None,
-        "origen": "sin_menu", "titulo": None, "publicado": False, "tieneSustitucion": False,
-    }, {
-        "fecha": "2026-09-24", "habilitado": True, "motivo": None,
-        "origen": "sin_menu", "titulo": None, "publicado": False, "tieneSustitucion": False,
-    }, {
-        "fecha": "2026-09-25", "habilitado": True, "motivo": None,
-        "origen": "sin_menu", "titulo": None, "publicado": False, "tieneSustitucion": False,
-    }, {
-        "fecha": "2026-09-28", "habilitado": True, "motivo": None,
-        "origen": "sin_menu", "titulo": None, "publicado": False, "tieneSustitucion": False,
-    }, {
-        "fecha": "2026-09-29", "habilitado": True, "motivo": None,
-        "origen": "sin_menu", "titulo": None, "publicado": False, "tieneSustitucion": False,
-    }, {
-        "fecha": "2026-09-30", "habilitado": True, "motivo": None,
-        "origen": "sin_menu", "titulo": None, "publicado": False, "tieneSustitucion": False,
-    }]
+    assert [
+        {
+            clave: valor
+            for clave, valor in dia.items()
+            if clave not in {"semana", "dia", "diaMes", "esLectivo", "componentes"}
+        }
+        for dia in dias.json()
+        if dia["esLectivo"]
+    ] == [
+        {
+            "fecha": "2026-09-01",
+            "habilitado": True,
+            "motivo": None,
+            "origen": "sin_menu",
+            "titulo": None,
+            "publicado": False,
+            "tieneSustitucion": False,
+        },
+        {
+            "fecha": "2026-09-02",
+            "habilitado": True,
+            "motivo": None,
+            "origen": "sin_menu",
+            "titulo": None,
+            "publicado": False,
+            "tieneSustitucion": False,
+        },
+        {
+            "fecha": "2026-09-03",
+            "habilitado": True,
+            "motivo": None,
+            "origen": "sin_menu",
+            "titulo": None,
+            "publicado": False,
+            "tieneSustitucion": False,
+        },
+        {
+            "fecha": "2026-09-04",
+            "habilitado": True,
+            "motivo": None,
+            "origen": "sin_menu",
+            "titulo": None,
+            "publicado": False,
+            "tieneSustitucion": False,
+        },
+        {
+            "fecha": "2026-09-07",
+            "habilitado": True,
+            "motivo": None,
+            "origen": "sin_menu",
+            "titulo": None,
+            "publicado": False,
+            "tieneSustitucion": False,
+        },
+        {
+            "fecha": "2026-09-08",
+            "habilitado": True,
+            "motivo": None,
+            "origen": "sin_menu",
+            "titulo": None,
+            "publicado": False,
+            "tieneSustitucion": False,
+        },
+        {
+            "fecha": "2026-09-09",
+            "habilitado": True,
+            "motivo": None,
+            "origen": "sin_menu",
+            "titulo": None,
+            "publicado": False,
+            "tieneSustitucion": False,
+        },
+        {
+            "fecha": "2026-09-10",
+            "habilitado": True,
+            "motivo": None,
+            "origen": "sin_menu",
+            "titulo": None,
+            "publicado": False,
+            "tieneSustitucion": False,
+        },
+        {
+            "fecha": "2026-09-11",
+            "habilitado": True,
+            "motivo": None,
+            "origen": "sin_menu",
+            "titulo": None,
+            "publicado": False,
+            "tieneSustitucion": False,
+        },
+        {
+            "fecha": "2026-09-14",
+            "habilitado": True,
+            "motivo": None,
+            "origen": "sin_menu",
+            "titulo": None,
+            "publicado": False,
+            "tieneSustitucion": False,
+        },
+        {
+            "fecha": "2026-09-15",
+            "habilitado": False,
+            "motivo": None,
+            "origen": "cerrado",
+            "titulo": None,
+            "publicado": False,
+            "tieneSustitucion": False,
+        },
+        {
+            "fecha": "2026-09-16",
+            "habilitado": True,
+            "motivo": None,
+            "origen": "sin_menu",
+            "titulo": None,
+            "publicado": False,
+            "tieneSustitucion": False,
+        },
+        {
+            "fecha": "2026-09-17",
+            "habilitado": True,
+            "motivo": None,
+            "origen": "sin_menu",
+            "titulo": None,
+            "publicado": False,
+            "tieneSustitucion": False,
+        },
+        {
+            "fecha": "2026-09-18",
+            "habilitado": True,
+            "motivo": None,
+            "origen": "sin_menu",
+            "titulo": None,
+            "publicado": False,
+            "tieneSustitucion": False,
+        },
+        {
+            "fecha": "2026-09-21",
+            "habilitado": True,
+            "motivo": None,
+            "origen": "sin_menu",
+            "titulo": None,
+            "publicado": False,
+            "tieneSustitucion": False,
+        },
+        {
+            "fecha": "2026-09-22",
+            "habilitado": True,
+            "motivo": None,
+            "origen": "sin_menu",
+            "titulo": None,
+            "publicado": False,
+            "tieneSustitucion": False,
+        },
+        {
+            "fecha": "2026-09-23",
+            "habilitado": True,
+            "motivo": None,
+            "origen": "sin_menu",
+            "titulo": None,
+            "publicado": False,
+            "tieneSustitucion": False,
+        },
+        {
+            "fecha": "2026-09-24",
+            "habilitado": True,
+            "motivo": None,
+            "origen": "sin_menu",
+            "titulo": None,
+            "publicado": False,
+            "tieneSustitucion": False,
+        },
+        {
+            "fecha": "2026-09-25",
+            "habilitado": True,
+            "motivo": None,
+            "origen": "sin_menu",
+            "titulo": None,
+            "publicado": False,
+            "tieneSustitucion": False,
+        },
+        {
+            "fecha": "2026-09-28",
+            "habilitado": True,
+            "motivo": None,
+            "origen": "sin_menu",
+            "titulo": None,
+            "publicado": False,
+            "tieneSustitucion": False,
+        },
+        {
+            "fecha": "2026-09-29",
+            "habilitado": True,
+            "motivo": None,
+            "origen": "sin_menu",
+            "titulo": None,
+            "publicado": False,
+            "tieneSustitucion": False,
+        },
+        {
+            "fecha": "2026-09-30",
+            "habilitado": True,
+            "motivo": None,
+            "origen": "sin_menu",
+            "titulo": None,
+            "publicado": False,
+            "tieneSustitucion": False,
+        },
+    ]

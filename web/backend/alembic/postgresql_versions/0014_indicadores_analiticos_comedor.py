@@ -22,12 +22,26 @@ def upgrade() -> None:
         sa.Column("consumos_comedor", sa.Integer(), nullable=False, server_default="0"),
         sa.Column("consumos_tiquete", sa.Integer(), nullable=False, server_default="0"),
         sa.Column("senal", sa.String(64), nullable=False),
-        sa.Column("generado_en", sa.DateTime(timezone=True), nullable=False, server_default=sa.text("now()")),
+        sa.Column(
+            "generado_en",
+            sa.DateTime(timezone=True),
+            nullable=False,
+            server_default=sa.text("now()"),
+        ),
         sa.UniqueConstraint("persona_id", "fecha_corte"),
-        sa.CheckConstraint("dias_observados >= 0 AND dias_presentes >= 0", name="conteos_indicador_no_negativos"),
-        sa.CheckConstraint("porcentaje_asistencia >= 0 AND porcentaje_asistencia <= 100", name="porcentaje_indicador_valido"),
+        sa.CheckConstraint(
+            "dias_observados >= 0 AND dias_presentes >= 0", name="conteos_indicador_no_negativos"
+        ),
+        sa.CheckConstraint(
+            "porcentaje_asistencia >= 0 AND porcentaje_asistencia <= 100",
+            name="porcentaje_indicador_valido",
+        ),
     )
-    op.create_index("ix_indicador_analitico_corte_senal", "indicador_analitico_comedor", ["fecha_corte", "senal"])
+    op.create_index(
+        "ix_indicador_analitico_corte_senal",
+        "indicador_analitico_comedor",
+        ["fecha_corte", "senal"],
+    )
 
 
 def downgrade() -> None:

@@ -201,6 +201,8 @@ class EventoExportacionListaControl(BaseDeclarativa):
         CheckConstraint("total_registros >= 0", name="total_exportacion_lista"),
         Index("ix_exportacion_lista_fecha_cuenta", "fecha_operativa", "cuenta_administrativa_id"),
     )
+
+
 class MarcaTransporte(BaseDeclarativa):
     __tablename__ = "marca_transporte"
     id: Mapped[int] = mapped_column(primary_key=True)

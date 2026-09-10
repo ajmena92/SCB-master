@@ -31,15 +31,15 @@ class RepositorioImportacion:
 
     def trabajo_para_entrega(self, trabajo_id: int) -> TrabajoImportacion | None:
         return self.sesion.scalar(
-            select(TrabajoImportacion)
-            .where(TrabajoImportacion.id == trabajo_id)
-            .with_for_update()
+            select(TrabajoImportacion).where(TrabajoImportacion.id == trabajo_id).with_for_update()
         )
 
     def recuperar_trabajos_interrumpidos(self, antes_de) -> int:
         trabajos = self.sesion.scalars(
             select(TrabajoImportacion)
-            .where(TrabajoImportacion.estado == "ejecutando", TrabajoImportacion.iniciado_en < antes_de)
+            .where(
+                TrabajoImportacion.estado == "ejecutando", TrabajoImportacion.iniciado_en < antes_de
+            )
             .with_for_update(skip_locked=True)
         ).all()
         for trabajo in trabajos:

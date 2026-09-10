@@ -159,10 +159,16 @@ def test_dashboard_informa_capacidad_con_reservas_confirmadas_y_asistencia(entor
         )
         sesion.add_all(
             [
-                ReservaComedor(persona_id=estudiante_reservado["id"], fecha=fecha, estado="reservada"),
+                ReservaComedor(
+                    persona_id=estudiante_reservado["id"], fecha=fecha, estado="reservada"
+                ),
                 reserva_consumida,
-                ReservaComedor(persona_id=estudiante_cancelado["id"], fecha=fecha, estado="cancelada"),
-                ReservaComedor(persona_id=estudiante_inactivo["id"], fecha=fecha, estado="reservada"),
+                ReservaComedor(
+                    persona_id=estudiante_cancelado["id"], fecha=fecha, estado="cancelada"
+                ),
+                ReservaComedor(
+                    persona_id=estudiante_inactivo["id"], fecha=fecha, estado="reservada"
+                ),
             ]
         )
         sesion.flush()
@@ -270,7 +276,8 @@ def test_lista_control_exporta_un_servicio_y_respeta_los_filtros(entorno):
     )
     assert tablero_ordenado.status_code == 200, tablero_ordenado.text
     assert [fila["seccion"] for fila in tablero_ordenado.json()["nominal"]["elementos"]] == [
-        "7-1", "8-1"
+        "7-1",
+        "8-1",
     ]
 
     tablero_transporte = cliente.get(
@@ -307,8 +314,14 @@ def test_lista_control_exporta_un_servicio_y_respeta_los_filtros(entorno):
     )
     lineas = ordenada.text.lstrip("\ufeff").splitlines()
     assert lineas[0].split(",") == [
-        "N°", "Identificación", "Apellidos", "Nombres", "Sección", "Ruta",
-        "Beneficio de comedor", "Estado",
+        "N°",
+        "Identificación",
+        "Apellidos",
+        "Nombres",
+        "Sección",
+        "Ruta",
+        "Beneficio de comedor",
+        "Estado",
     ]
     assert lineas[1].split(",")[1] == "'=formula"
     assert lineas[2].split(",")[1] == "lista-oculta"

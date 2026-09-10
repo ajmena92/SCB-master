@@ -159,7 +159,9 @@ class RepositorioReportes:
     ) -> None:
         # La búsqueda puede contener nombre o identificación: la trazabilidad no
         # debe replicar esa información personal fuera del padrón.
-        filtros_auditoria = {clave: valor for clave, valor in filtros.items() if clave != "busqueda" and valor}
+        filtros_auditoria = {
+            clave: valor for clave, valor in filtros.items() if clave != "busqueda" and valor
+        }
         self.sesion.add(
             EventoExportacionListaControl(
                 cuenta_administrativa_id=cuenta_id,

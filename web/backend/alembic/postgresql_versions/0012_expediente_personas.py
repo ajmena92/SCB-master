@@ -46,6 +46,8 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    op.drop_index("ix_evento_credencial_portal_persona_fecha", table_name="evento_credencial_portal")
+    op.drop_index(
+        "ix_evento_credencial_portal_persona_fecha", table_name="evento_credencial_portal"
+    )
     op.drop_table("evento_credencial_portal")
     op.drop_constraint("turno_matricula_diurno", "matricula", type_="check")

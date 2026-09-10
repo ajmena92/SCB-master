@@ -16,7 +16,9 @@ def upgrade() -> None:
         sa.Column("id", sa.SmallInteger(), primary_key=True),
         sa.Column("inicio_ciclo_menu", sa.Date(), nullable=False),
         sa.CheckConstraint("id = 1", name="configuracion_ciclo_menu_unica"),
-        sa.CheckConstraint("EXTRACT(ISODOW FROM inicio_ciclo_menu) = 1", name="inicio_ciclo_menu_lunes"),
+        sa.CheckConstraint(
+            "EXTRACT(ISODOW FROM inicio_ciclo_menu) = 1", name="inicio_ciclo_menu_lunes"
+        ),
     )
     # Evidencia operativa del comedor: 24–28 de agosto de 2026 fue Semana 4.
     # El lunes 16 de marzo de 2026 es una Semana 1 equivalente del ciclo de cinco semanas.

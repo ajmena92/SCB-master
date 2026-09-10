@@ -35,21 +35,15 @@ def test_generador_separa_esquemas_y_operaciones_por_dominio() -> None:
             }
         },
         "paths": {
-            "/api/v1/estudiantes": {
-                "get": {"operationId": "listar_estudiantes"}
-            },
-            "/api/v1/menu/plantillas": {
-                "get": {"operationId": "listar_menu"}
-            },
+            "/api/v1/estudiantes": {"get": {"operationId": "listar_estudiantes"}},
+            "/api/v1/menu/plantillas": {"get": {"operationId": "listar_menu"}},
         },
     }
 
     salidas = generador._generar(openapi)
     estudiantes = salidas[generador.DIRECTORIO_SALIDA / "estudiantes.ts"]
     operaciones = salidas[generador.DIRECTORIO_SALIDA / "operaciones.ts"]
-    operaciones_estudiantes = salidas[
-        generador.DIRECTORIO_OPERACIONES / "estudiantes.ts"
-    ]
+    operaciones_estudiantes = salidas[generador.DIRECTORIO_OPERACIONES / "estudiantes.ts"]
     indice = salidas[generador.SALIDA_INDICE]
 
     assert "export interface EstudianteSalida" in estudiantes

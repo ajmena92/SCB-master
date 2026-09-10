@@ -53,7 +53,9 @@ def proyectar_asistencia(
     resultado["beneficiario"] = resultado["id_estado_comedor"].eq(1)
     resultado["senal"] = "sin datos suficientes"
     muestra = resultado["dias_observados"] >= 3
-    resultado.loc[muestra & resultado["beneficiario"] & (resultado["porcentaje_asistencia"] < 50), "senal"] = "beneficiario con baja asistencia"
+    resultado.loc[
+        muestra & resultado["beneficiario"] & (resultado["porcentaje_asistencia"] < 50), "senal"
+    ] = "beneficiario con baja asistencia"
     resultado["consumos_comedor"] = 0
 
     if consumos is not None and "id_estudiante" in consumos.columns:
@@ -76,7 +78,14 @@ def proyectar_asistencia(
         resultado["consumos_tiquete"] = 0
 
     columnas = [
-        "id_estudiante", "dias_observados", "dias_presentes", "porcentaje_asistencia",
-        "ultima_fecha", "beneficiario", "consumos_comedor", "consumos_tiquete", "senal",
+        "id_estudiante",
+        "dias_observados",
+        "dias_presentes",
+        "porcentaje_asistencia",
+        "ultima_fecha",
+        "beneficiario",
+        "consumos_comedor",
+        "consumos_tiquete",
+        "senal",
     ]
     return resultado[columnas].to_dict(orient="records")

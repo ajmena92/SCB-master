@@ -28,8 +28,12 @@ def upgrade() -> None:
         sa.Column("fecha_operativa", sa.Date(), nullable=False),
         sa.Column("filtros", sa.Text(), nullable=False, server_default="{}"),
         sa.Column("total_registros", sa.Integer(), nullable=False),
-        sa.Column("creado_en", sa.DateTime(timezone=True), nullable=False, server_default=sa.text("now()")),
-        sa.CheckConstraint("servicio IN ('comedor','transporte')", name="servicio_exportacion_lista"),
+        sa.Column(
+            "creado_en", sa.DateTime(timezone=True), nullable=False, server_default=sa.text("now()")
+        ),
+        sa.CheckConstraint(
+            "servicio IN ('comedor','transporte')", name="servicio_exportacion_lista"
+        ),
         sa.CheckConstraint("formato IN ('csv','xlsx','pdf')", name="formato_exportacion_lista"),
         sa.CheckConstraint("total_registros >= 0", name="total_exportacion_lista"),
     )
@@ -41,5 +45,7 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    op.drop_index("ix_exportacion_lista_fecha_cuenta", table_name="evento_exportacion_lista_control")
+    op.drop_index(
+        "ix_exportacion_lista_fecha_cuenta", table_name="evento_exportacion_lista_control"
+    )
     op.drop_table("evento_exportacion_lista_control")

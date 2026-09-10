@@ -38,7 +38,9 @@ class ClienteASGI:
             ) as cliente:
                 cabeceras = dict(opciones.pop("headers", {}))
                 if self.cookies:
-                    cabeceras.setdefault("Cookie", "; ".join(f"{k}={v}" for k, v in self.cookies.items()))
+                    cabeceras.setdefault(
+                        "Cookie", "; ".join(f"{k}={v}" for k, v in self.cookies.items())
+                    )
                 respuesta = await cliente.request(metodo, ruta, headers=cabeceras, **opciones)
                 self.cookies.update(respuesta.cookies)
                 return respuesta
@@ -62,12 +64,17 @@ class ClienteASGI:
 
     def csrf(self) -> dict[str, str]:
         respuesta = self.get("/api/v1/autenticacion/csrf")
-        return {"Origin": "http://localhost:5173", "X-CSRF-Token": respuesta.cookies.get("csrf_token") or self.cookies["csrf_token"]}
+        return {
+            "Origin": "http://localhost:5173",
+            "X-CSRF-Token": respuesta.cookies.get("csrf_token") or self.cookies["csrf_token"],
+        }
 
     def cabecera_autenticada(self) -> dict[str, str]:
         """Expone solo las cookies de esta identidad aislada para una solicitud."""
         cabecera = self.csrf()
-        cabecera["Cookie"] = "; ".join(f"{nombre}={valor}" for nombre, valor in self.cookies.items())
+        cabecera["Cookie"] = "; ".join(
+            f"{nombre}={valor}" for nombre, valor in self.cookies.items()
+        )
         return cabecera
 
 
@@ -189,7 +196,12 @@ def entorno(request):
 
 
 def crear_persona(
-    cliente, cabecera, *, tipo="estudiante", cedula="1", nombres="Ana Perez",
+    cliente,
+    cabecera,
+    *,
+    tipo="estudiante",
+    cedula="1",
+    nombres="Ana Perez",
     cambio_pin_obligatorio=False,
 ):
     # El padrón es la única fuente de personas; la preparación de pruebas lo
@@ -198,18 +210,24 @@ def crear_persona(
         persona = Persona(cedula=cedula, nombres=nombres, tipo=tipo, activo=True)
         sesion.add(persona)
         sesion.flush()
-        sesion.add_all([
-            CredencialPortal(
-                persona_id=persona.id,
-                pin_hash=hash_secreto("123456"),
-                cambio_obligatorio=cambio_pin_obligatorio,
-            ),
-            CuentaTiquete(persona_id=persona.id, saldo=0, reservados=0),
-        ])
+        sesion.add_all(
+            [
+                CredencialPortal(
+                    persona_id=persona.id,
+                    pin_hash=hash_secreto("123456"),
+                    cambio_obligatorio=cambio_pin_obligatorio,
+                ),
+                CuentaTiquete(persona_id=persona.id, saldo=0, reservados=0),
+            ]
+        )
         sesion.commit()
         return {
-            "id": persona.id, "codigo": persona.cedula, "cedula": persona.cedula,
-            "nombres": persona.nombres, "tipo": persona.tipo, "activo": persona.activo,
+            "id": persona.id,
+            "codigo": persona.cedula,
+            "cedula": persona.cedula,
+            "nombres": persona.nombres,
+            "tipo": persona.tipo,
+            "activo": persona.activo,
             "pinTemporal": "123456",
         }
 
@@ -221,13 +239,25 @@ def preparar_estudiante(cliente, cabecera, cedula="1"):
         sesion.add(anio)
         sesion.flush()
         matricula = Matricula(
-            persona_id=persona["id"], anio_lectivo_id=anio.id, seccion="7-1",
-            turno="diurno", becado=False, estado="activo",
+            persona_id=persona["id"],
+            anio_lectivo_id=anio.id,
+            seccion="7-1",
+            turno="diurno",
+            becado=False,
+            estado="activo",
         )
         sesion.add(matricula)
         sesion.commit()
-        return persona, {"id": anio.id, "anio": anio.anio, "vigente": anio.vigente}, {
-            "id": matricula.id, "persona_id": matricula.persona_id,
-            "anio_lectivo_id": matricula.anio_lectivo_id, "seccion": matricula.seccion,
-            "turno": matricula.turno, "becado": matricula.becado, "estado": matricula.estado,
-        }
+        return (
+            persona,
+            {"id": anio.id, "anio": anio.anio, "vigente": anio.vigente},
+            {
+                "id": matricula.id,
+                "persona_id": matricula.persona_id,
+                "anio_lectivo_id": matricula.anio_lectivo_id,
+                "seccion": matricula.seccion,
+                "turno": matricula.turno,
+                "becado": matricula.becado,
+                "estado": matricula.estado,
+            },
+        )

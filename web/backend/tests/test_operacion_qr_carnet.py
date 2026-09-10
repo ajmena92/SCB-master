@@ -25,7 +25,9 @@ def test_captura_comedor_resuelve_el_qr_antes_de_buscar_por_cedula(monkeypatch) 
     token = CodigoQrCarnet(CLAVE_PRUEBA).emitir(
         id_persona=18, anio_lectivo=2026, hoy=date(2026, 9, 2)
     )
-    monkeypatch.setattr("aplicacion.servicios.date", SimpleNamespace(today=lambda: date(2026, 9, 2)))
+    monkeypatch.setattr(
+        "aplicacion.servicios.date", SimpleNamespace(today=lambda: date(2026, 9, 2))
+    )
 
     assert servicio._persona_por_carnet(token) is repo.persona_encontrada
     assert repo.cedulas_buscadas == []

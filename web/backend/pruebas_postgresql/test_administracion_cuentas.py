@@ -28,12 +28,11 @@ def test_cuenta_operador_exige_cambio_y_revoca_permiso_inmediatamente(entorno):
     assert "contrasena" in datos["credencialesTemporales"]
     assert "pin" not in datos["credencialesTemporales"]
 
-    cuenta = autenticar_administracion(cliente.app, "NUEVO.OPERADOR", datos["credencialesTemporales"]["contrasena"])
-    assert cuenta.get("/api/v1/sesion").json()["cambioContrasenaObligatorio"] is True
-    assert (
-        cuenta.get("/api/v1/reportes/dashboard?fecha=2026-08-31").status_code
-        == 403
+    cuenta = autenticar_administracion(
+        cliente.app, "NUEVO.OPERADOR", datos["credencialesTemporales"]["contrasena"]
     )
+    assert cuenta.get("/api/v1/sesion").json()["cambioContrasenaObligatorio"] is True
+    assert cuenta.get("/api/v1/reportes/dashboard?fecha=2026-08-31").status_code == 403
     cambio = cuenta.post(
         "/api/v1/autenticacion/administracion/contrasena",
         headers=cuenta.csrf(),
@@ -45,12 +44,8 @@ def test_cuenta_operador_exige_cambio_y_revoca_permiso_inmediatamente(entorno):
     assert cambio.status_code == 200
     assert cuenta.get("/api/v1/sesion").status_code == 204
 
-
     cuenta = autenticar_administracion(cliente.app, "nuevo.operador", "Otra-clave-segura-2026")
-    assert (
-        cuenta.get("/api/v1/reportes/dashboard?fecha=2026-08-31").status_code
-        == 200
-    )
+    assert cuenta.get("/api/v1/reportes/dashboard?fecha=2026-08-31").status_code == 200
 
     cuenta_id = datos["cuenta"]["id"]
     actualizada = cliente.put(
@@ -86,9 +81,7 @@ def test_operador_cambia_su_contrasena_sin_cambio_obligatorio(entorno):
     )
     assert cambio.status_code == 200, cambio.text
     assert operador.get("/api/v1/sesion").status_code == 204
-    nueva_sesion = autenticar_administracion(
-        operador.app, "operador", "Clave-operador-nueva-2026"
-    )
+    nueva_sesion = autenticar_administracion(operador.app, "operador", "Clave-operador-nueva-2026")
     assert nueva_sesion.get("/api/v1/sesion").status_code == 200
 
 
@@ -191,10 +184,7 @@ def test_vinculacion_inicial_es_unica_y_rechaza_portal(entorno):
         profesor_id = profesor.id
 
     cuenta = autenticar_administracion(cliente.app, "legado", "Clave-legada-segura-2026")
-    assert (
-        cuenta.get("/api/v1/administracion/profesores-disponibles").status_code
-        == 200
-    )
+    assert cuenta.get("/api/v1/administracion/profesores-disponibles").status_code == 200
     assert cuenta.get("/api/v1/personas").status_code == 403
     assert (
         cuenta.post(
@@ -224,9 +214,7 @@ def test_vinculacion_inicial_es_unica_y_rechaza_portal(entorno):
 
 def test_valida_profesor_permisos_y_usuario_sin_distinguir_mayusculas(entorno):
     cliente, motor, h = entorno
-    estudiante = crear_persona(
-        cliente, h["admin"], cedula="780", nombres="Persona Estudiante"
-    )
+    estudiante = crear_persona(cliente, h["admin"], cedula="780", nombres="Persona Estudiante")
     invalida = cliente.post(
         "/api/v1/administracion/cuentas",
         headers=h["admin"],

@@ -48,6 +48,7 @@ def test_rechaza_excel_con_mas_de_5000_filas():
 @pytest.mark.parametrize("cantidad", [0, 5001])
 def test_json_respeta_limite_de_filas(cantidad):
     with pytest.raises(ValidationError):
-        ImportacionEntrada(anio=2026, filas=[
-            {"cedula": "prueba", "nombres": "Prueba", "tipo": "profesor"}
-        ] * cantidad)
+        ImportacionEntrada(
+            anio=2026,
+            filas=[{"cedula": "prueba", "nombres": "Prueba", "tipo": "profesor"}] * cantidad,
+        )

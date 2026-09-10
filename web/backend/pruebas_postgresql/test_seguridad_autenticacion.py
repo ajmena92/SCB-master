@@ -3,10 +3,14 @@ def test_login_administrativo_se_bloquea_de_forma_persistente(entorno):
     credenciales = {"usuario": "admin", "contrasena": "incorrecta"}
 
     for _ in range(5):
-        respuesta = cliente.post("/api/v1/autenticacion/administracion", json=credenciales, headers=cliente.csrf())
+        respuesta = cliente.post(
+            "/api/v1/autenticacion/administracion", json=credenciales, headers=cliente.csrf()
+        )
         assert respuesta.status_code == 401
 
-    respuesta = cliente.post("/api/v1/autenticacion/administracion", json=credenciales, headers=cliente.csrf())
+    respuesta = cliente.post(
+        "/api/v1/autenticacion/administracion", json=credenciales, headers=cliente.csrf()
+    )
     assert respuesta.status_code == 429
 
 
@@ -65,14 +69,30 @@ def test_logout_y_renovacion_exigen_csrf_y_limpian_o_rotan_cookies(entorno):
 
     respuesta = cliente.post("/api/v1/autenticacion/logout", headers=cliente.csrf())
     assert respuesta.status_code == 204
-    assert any("csrf_token=" in cookie and "Path=/" in cookie for cookie in respuesta.headers.get_list("set-cookie"))
+    assert any(
+        "csrf_token=" in cookie and "Path=/" in cookie
+        for cookie in respuesta.headers.get_list("set-cookie")
+    )
 
 
 def test_mutacion_rechaza_origin_o_csrf_y_sesion_bearer(entorno):
     cliente, _, _ = entorno
-    assert cliente.post("/api/v1/autenticacion/logout", headers={"Origin": "http://malicioso"}).status_code == 403
-    assert cliente.post("/api/v1/autenticacion/logout", headers={"Origin": "http://localhost:5173"}).status_code == 403
-    assert cliente.get("/api/v1/sesion", headers={"Authorization": "Bearer no-valido"}).status_code == 401
+    assert (
+        cliente.post(
+            "/api/v1/autenticacion/logout", headers={"Origin": "http://malicioso"}
+        ).status_code
+        == 403
+    )
+    assert (
+        cliente.post(
+            "/api/v1/autenticacion/logout", headers={"Origin": "http://localhost:5173"}
+        ).status_code
+        == 403
+    )
+    assert (
+        cliente.get("/api/v1/sesion", headers={"Authorization": "Bearer no-valido"}).status_code
+        == 401
+    )
 
 
 def test_preflight_cors_permite_solo_csrf_y_patch_del_origen_configurado(entorno):

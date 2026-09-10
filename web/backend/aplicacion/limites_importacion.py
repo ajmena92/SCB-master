@@ -18,9 +18,12 @@ def validar_excel(contenido: bytes) -> None:
     try:
         with ZipFile(io.BytesIO(contenido)) as archivo:
             entradas = archivo.infolist()
-            if len(entradas) > MAXIMO_ARCHIVOS or sum(
-                entrada.file_size for entrada in entradas
-            ) > MAXIMO_DESCOMPRIMIDO:
-                raise HTTPException(413, "El Excel supera el límite descomprimido de 64 MiB o 256 archivos")
+            if (
+                len(entradas) > MAXIMO_ARCHIVOS
+                or sum(entrada.file_size for entrada in entradas) > MAXIMO_DESCOMPRIMIDO
+            ):
+                raise HTTPException(
+                    413, "El Excel supera el límite descomprimido de 64 MiB o 256 archivos"
+                )
     except BadZipFile as error:
         raise HTTPException(422, "El archivo no es un Excel válido") from error

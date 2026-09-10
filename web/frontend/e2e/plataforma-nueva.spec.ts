@@ -12,6 +12,16 @@ const sesionAdministrador = {
   vinculacionPendiente: false,
 };
 
+test.beforeEach(async ({ page }) => {
+  await page.route("**/api/v1/parametros-operativos/institucion", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ nombreColegio: "CTP Platanares", subtituloReportes: "" }),
+    }),
+  );
+});
+
 test("el administrador navega al padrón anual", async ({ page }) => {
   await page.route("**/api/v1/sesion", (route) =>
     route.fulfill({
@@ -59,7 +69,9 @@ test("el administrador navega al padrón anual", async ({ page }) => {
   );
 
   await page.goto("/admin/panel/personas");
-  await expect(page.getByRole("heading", { name: "Estudiantes / PIN" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Estudiantes / PIN" })).toBeVisible({
+    timeout: 10_000,
+  });
   await expect(page.getByRole("cell", { name: "1-1111-1111" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Años e importación" })).toBeVisible();
 });

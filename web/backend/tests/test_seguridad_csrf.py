@@ -14,7 +14,9 @@ def test_csrf_anonimo_tiene_emision_vencimiento_y_no_es_reutilizable_tras_ttl() 
     partes = token.split(".")
     assert partes[0] == "a"
     assert int(partes[2]) - int(partes[1]) == 60
-    assert csrf_valido(token, token=None, secreto="secreto-pruebas", ahora=ahora + timedelta(seconds=60))
+    assert csrf_valido(
+        token, token=None, secreto="secreto-pruebas", ahora=ahora + timedelta(seconds=60)
+    )
     assert not csrf_valido(
         token, token=None, secreto="secreto-pruebas", ahora=ahora + timedelta(seconds=61)
     )
@@ -38,7 +40,9 @@ def test_sesiones_usan_vencimiento_absoluto_por_tipo() -> None:
     despues = datetime.now(timezone.utc)
 
     assert antes + timedelta(days=2) <= portal.expira_en <= despues + timedelta(days=2)
-    assert antes + timedelta(minutes=15) <= administracion.expira_en <= despues + timedelta(minutes=15)
+    assert (
+        antes + timedelta(minutes=15) <= administracion.expira_en <= despues + timedelta(minutes=15)
+    )
 
 
 def test_nueva_sesion_exige_una_politica_de_vigencia_explicita() -> None:

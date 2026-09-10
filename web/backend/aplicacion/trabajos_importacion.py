@@ -37,9 +37,9 @@ def procesar_un_trabajo(fabrica: sessionmaker[Session], clave_resultados: str) -
             entrada = ImportacionEntrada.model_validate_json(trabajo.entrada_json)
             resultado = ServicioImportacion(repo).confirmar(entrada, trabajo.huella)
             # El resultado contiene PIN temporales: solo se persiste cifrado.
-            trabajo.resultado_cifrado = Fernet(clave_resultados.encode()).encrypt(
-                json.dumps(resultado).encode()
-            ).decode()
+            trabajo.resultado_cifrado = (
+                Fernet(clave_resultados.encode()).encrypt(json.dumps(resultado).encode()).decode()
+            )
             trabajo.estado = "completado"
             trabajo.finalizado_en = datetime.now(timezone.utc)
             sesion.commit()

@@ -109,8 +109,12 @@ def test_migracion_y_puerta_de_memoria_tienen_entradas_separadas() -> None:
 
 def test_cargas_http_tienen_limite_en_proxy_y_lectura_acotada() -> None:
     nginx = RUTA_NGINX.read_text(encoding="utf-8")
-    fotos = (RAIZ_REPOSITORIO / "web" / "backend" / "aplicacion" / "api_fotos.py").read_text(encoding="utf-8")
-    importaciones = (RAIZ_REPOSITORIO / "web" / "backend" / "aplicacion" / "api_importaciones.py").read_text(encoding="utf-8")
+    fotos = (RAIZ_REPOSITORIO / "web" / "backend" / "aplicacion" / "api_fotos.py").read_text(
+        encoding="utf-8"
+    )
+    importaciones = (
+        RAIZ_REPOSITORIO / "web" / "backend" / "aplicacion" / "api_importaciones.py"
+    ).read_text(encoding="utf-8")
 
     assert "client_max_body_size 12m;" in nginx
     assert "await archivo.read(MAXIMO_FOTO_BYTES + 1)" in fotos

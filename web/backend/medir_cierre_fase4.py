@@ -33,12 +33,14 @@ def trabajador(clave, canal):
     inicio = time.perf_counter()
     cpu = time.process_time()
     trabajo_id = procesar_un_trabajo(crear_fabrica_sesiones(motor), clave)
-    canal.send({
-        "trabajo_id": trabajo_id,
-        "worker_segundos": round(time.perf_counter() - inicio, 2),
-        "cpu_segundos": round(time.process_time() - cpu, 2),
-        "rss_worker_mib": round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024, 2),
-    })
+    canal.send(
+        {
+            "trabajo_id": trabajo_id,
+            "worker_segundos": round(time.perf_counter() - inicio, 2),
+            "cpu_segundos": round(time.process_time() - cpu, 2),
+            "rss_worker_mib": round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024, 2),
+        }
+    )
     motor.dispose()
 
 
@@ -48,34 +50,65 @@ async def main():
     contrasena = secrets.token_urlsafe(24)
     with Session(motor) as sesion:
         # Exige base sin estudiantes para impedir desactivaciones accidentales.
-        assert sesion.scalar(select(func.count()).select_from(Persona).where(
-            Persona.tipo == "estudiante"
-        )) == 0, "El ensayo exige una base sin estudiantes"
+        assert (
+            sesion.scalar(
+                select(func.count()).select_from(Persona).where(Persona.tipo == "estudiante")
+            )
+            == 0
+        ), "El ensayo exige una base sin estudiantes"
         persona = Persona(cedula="CIERRE-ADMIN", nombres="Medición", tipo="profesor")
         sesion.add(persona)
         sesion.flush()
-        cuenta = CuentaAdministrativa(persona_id=persona.id, usuario="cierre-f4",
-            contrasena_hash=hash_secreto(contrasena), rol="administrador",
-            activo=True, vinculacion_pendiente=False)
+        cuenta = CuentaAdministrativa(
+            persona_id=persona.id,
+            usuario="cierre-f4",
+            contrasena_hash=hash_secreto(contrasena),
+            rol="administrador",
+            activo=True,
+            vinculacion_pendiente=False,
+        )
         sesion.add(cuenta)
         sesion.commit()
-    app = crear_aplicacion(motor=motor, configuracion=Settings(
-        database_url=URL, cors_origin="http://pruebas", cookie_secure=False,
-        csrf_secret=secrets.token_urlsafe(32), carnet_qr_clave=clave,
-        importacion_resultados_key=clave,
-    ))
-    datos = ImportacionEntrada(anio=2026, filas=[{
-        "cedula": f"CIERRE-{i:05d}", "nombres": f"Estudiante sintético {i}",
-        "tipo": "estudiante", "seccion": "7-1",
-    } for i in range(2500)])
-    async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app),
-                               base_url="http://pruebas", timeout=60) as cliente:
+    app = crear_aplicacion(
+        motor=motor,
+        configuracion=Settings(
+            database_url=URL,
+            cors_origin="http://pruebas",
+            cookie_secure=False,
+            csrf_secret=secrets.token_urlsafe(32),
+            carnet_qr_clave=clave,
+            importacion_resultados_key=clave,
+        ),
+    )
+    datos = ImportacionEntrada(
+        anio=2026,
+        filas=[
+            {
+                "cedula": f"CIERRE-{i:05d}",
+                "nombres": f"Estudiante sintético {i}",
+                "tipo": "estudiante",
+                "seccion": "7-1",
+            }
+            for i in range(2500)
+        ],
+    )
+    async with httpx.AsyncClient(
+        transport=httpx.ASGITransport(app=app), base_url="http://pruebas", timeout=60
+    ) as cliente:
+
         async def post(ruta, datos=None):
             await cliente.get("/api/v1/autenticacion/csrf")
-            return await cliente.post("/api/v1/" + ruta, json=datos, headers={
-                "Origin": "http://pruebas", "X-CSRF-Token": cliente.cookies["csrf_token"]})
-        assert (await post("autenticacion/administracion", {
-            "usuario": "cierre-f4", "contrasena": contrasena})).status_code == 200
+            return await cliente.post(
+                "/api/v1/" + ruta,
+                json=datos,
+                headers={"Origin": "http://pruebas", "X-CSRF-Token": cliente.cookies["csrf_token"]},
+            )
+
+        assert (
+            await post(
+                "autenticacion/administracion", {"usuario": "cierre-f4", "contrasena": contrasena}
+            )
+        ).status_code == 200
         inicio = time.perf_counter()
         previa = await post("importaciones/previsualizar", datos.model_dump())
         assert previa.status_code == 200, previa.text
@@ -118,17 +151,31 @@ async def main():
         tiempos = []
         for _ in range(10):
             inicio = time.perf_counter()
-            assert (await post("autenticacion/administracion", {
-                "usuario": "cierre-f4", "contrasena": contrasena})).status_code == 200
+            assert (
+                await post(
+                    "autenticacion/administracion",
+                    {"usuario": "cierre-f4", "contrasena": contrasena},
+                )
+            ).status_code == 200
             tiempos.append((time.perf_counter() - inicio) * 1000)
         comedor = await cliente.get("/api/v1/comedor/operacion/estado?fecha=2026-09-07")
         assert comedor.status_code == 200, comedor.text
-        print(json.dumps({**metricas, "filas_persistidas": 2500,
-            "previsualizacion_ms": round(previa_ms, 2), "encolado_ms": round(cola_ms, 2),
-            "login_p95_posterior_ms": round(sorted(tiempos)[-1], 2),
-            "estados_observados": sorted(estados), "entrega_unica": True,
-            "transporte": "HTTP ASGI; worker en proceso separado", "comedor_posterior": 200,
-        }, indent=2))
+        print(
+            json.dumps(
+                {
+                    **metricas,
+                    "filas_persistidas": 2500,
+                    "previsualizacion_ms": round(previa_ms, 2),
+                    "encolado_ms": round(cola_ms, 2),
+                    "login_p95_posterior_ms": round(sorted(tiempos)[-1], 2),
+                    "estados_observados": sorted(estados),
+                    "entrega_unica": True,
+                    "transporte": "HTTP ASGI; worker en proceso separado",
+                    "comedor_posterior": 200,
+                },
+                indent=2,
+            )
+        )
     motor.dispose()
 
 

@@ -210,7 +210,9 @@ class ServicioImportacion:
         if trabajo.estado != "completado" or not trabajo.resultado_cifrado:
             raise HTTPException(409, "El resultado aún no está disponible")
         try:
-            resultado = json.loads(Fernet(clave.encode()).decrypt(trabajo.resultado_cifrado.encode()))
+            resultado = json.loads(
+                Fernet(clave.encode()).decrypt(trabajo.resultado_cifrado.encode())
+            )
         except (InvalidToken, ValueError) as error:
             raise HTTPException(500, "No se pudo recuperar el resultado") from error
         trabajo.resultado_entregado, trabajo.resultado_cifrado = True, None
