@@ -30,7 +30,8 @@ export const OPERACIONES_COMUNES: readonly OperacionApi[] = [
   {
     metodo: "GET",
     ruta: "/api/v1/anios-lectivos/{anio_id}/secciones/{seccion}/resumen-pines",
-    operacionId: "resumen_pines_seccion_api_v1_anios_lectivos__anio_id__secciones__seccion__resumen_pines_get",
+    operacionId:
+      "resumen_pines_seccion_api_v1_anios_lectivos__anio_id__secciones__seccion__resumen_pines_get",
     dominio: "comunes",
   },
   {
@@ -48,7 +49,8 @@ export const OPERACIONES_COMUNES: readonly OperacionApi[] = [
   {
     metodo: "PUT",
     ruta: "/api/v1/matriculas/{matricula_id}/beneficio-comedor",
-    operacionId: "actualizar_beneficio_comedor_api_v1_matriculas__matricula_id__beneficio_comedor_put",
+    operacionId:
+      "actualizar_beneficio_comedor_api_v1_matriculas__matricula_id__beneficio_comedor_put",
     dominio: "comunes",
   },
   {
@@ -108,7 +110,8 @@ export const OPERACIONES_COMUNES: readonly OperacionApi[] = [
   {
     metodo: "GET",
     ruta: "/api/v1/personas/referencias/{referencia_publica}",
-    operacionId: "obtener_persona_referencia_publica_api_v1_personas_referencias__referencia_publica__get",
+    operacionId:
+      "obtener_persona_referencia_publica_api_v1_personas_referencias__referencia_publica__get",
     dominio: "comunes",
   },
   {

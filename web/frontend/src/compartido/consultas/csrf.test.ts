@@ -12,7 +12,11 @@ describe("protección CSRF", () => {
     });
     globalThis.fetch = fetchNuevo;
     try {
-      const config = { method: "post", url: "/v1/autenticacion/administracion", headers: {} } as InternalAxiosRequestConfig;
+      const config = {
+        method: "post",
+        url: "/v1/autenticacion/administracion",
+        headers: {},
+      } as InternalAxiosRequestConfig;
       await agregarCsrf(config);
       expect(fetchNuevo).toHaveBeenCalledTimes(1);
       expect(config.headers["X-CSRF-Token"]).toBe("nuevo");

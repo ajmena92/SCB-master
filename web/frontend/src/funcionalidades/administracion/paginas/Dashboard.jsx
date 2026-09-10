@@ -121,12 +121,8 @@ export default function DashboardTab() {
   const [servicioNominal, setServicioNominal] = useState("comedor");
   const [filtrosBorrador, setFiltrosBorrador] = useState(copiarFiltrosVacios);
   const [filtrosAplicados, setFiltrosAplicados] = useState(copiarFiltrosVacios);
-  const [filtrosProfesorBorrador, setFiltrosProfesorBorrador] = useState(
-    FILTROS_PROFESOR_VACIOS,
-  );
-  const [filtrosProfesorAplicados, setFiltrosProfesorAplicados] = useState(
-    FILTROS_PROFESOR_VACIOS,
-  );
+  const [filtrosProfesorBorrador, setFiltrosProfesorBorrador] = useState(FILTROS_PROFESOR_VACIOS);
+  const [filtrosProfesorAplicados, setFiltrosProfesorAplicados] = useState(FILTROS_PROFESOR_VACIOS);
   const [pagina, setPagina] = useState(1);
   const esProfesor = tipoPersona === "profesor";
   const filtrosNominales = esProfesor
@@ -280,7 +276,7 @@ export default function DashboardTab() {
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <MetricCard
               label={esProfesor ? "Profesores activos" : "Ingresos registrados"}
-              value={esProfesor ? asistencia?.total ?? 0 : `${asistencia?.porcentaje ?? 0}%`}
+              value={esProfesor ? (asistencia?.total ?? 0) : `${asistencia?.porcentaje ?? 0}%`}
               detail={
                 esProfesor
                   ? "Padrón docente activo"
@@ -290,7 +286,7 @@ export default function DashboardTab() {
             />
             <MetricCard
               label={esProfesor ? "Ingresaron al comedor" : "Sin registro"}
-              value={esProfesor ? asistencia?.presentes ?? 0 : asistencia?.sinRegistro ?? 0}
+              value={esProfesor ? (asistencia?.presentes ?? 0) : (asistencia?.sinRegistro ?? 0)}
               detail={
                 esProfesor ? "Con ingreso registrado hoy" : "Sin registro de ingreso al comedor"
               }
@@ -298,9 +294,13 @@ export default function DashboardTab() {
             />
             <MetricCard
               label={esProfesor ? "Sin ingreso" : "Beneficiarios de comedor"}
-              value={esProfesor ? asistencia?.sinRegistro ?? 0 : data?.beneficiariosComedor ?? 0}
+              value={
+                esProfesor ? (asistencia?.sinRegistro ?? 0) : (data?.beneficiariosComedor ?? 0)
+              }
               detail={
-                esProfesor ? "Aún sin ingreso hoy" : `${data?.noBeneficiarios ?? 0} no beneficiarios`
+                esProfesor
+                  ? "Aún sin ingreso hoy"
+                  : `${data?.noBeneficiarios ?? 0} no beneficiarios`
               }
               icon={GraduationCap}
             />
@@ -311,7 +311,11 @@ export default function DashboardTab() {
                   ? `${asistencia?.porcentaje ?? 0}%`
                   : `${beneficiariosConIngreso} de ${data?.beneficiariosComedor ?? 0}`
               }
-              detail={esProfesor ? "Del padrón docente activo" : "Beneficiarios con ingreso registrado hoy"}
+              detail={
+                esProfesor
+                  ? "Del padrón docente activo"
+                  : "Beneficiarios con ingreso registrado hoy"
+              }
               icon={Coffee}
             />
           </div>
@@ -350,7 +354,8 @@ export default function DashboardTab() {
                 Últimos 5 días hábiles
               </h3>
               <p className="-mt-2 mb-4 text-xs text-muted-foreground">
-                Ingresos registrados y {esProfesor ? "profesores" : "estudiantes"} sin registro de ingreso al comedor.
+                Ingresos registrados y {esProfesor ? "profesores" : "estudiantes"} sin registro de
+                ingreso al comedor.
               </p>
               {!hayRegistrosHistoricos ? (
                 <p className="flex h-28 items-center justify-center text-center text-sm text-muted-foreground">
@@ -358,45 +363,48 @@ export default function DashboardTab() {
                 </p>
               ) : (
                 <>
-                  <div role="img" aria-label="Gráfico de ingresos y estudiantes sin registro de los últimos cinco días hábiles.">
+                  <div
+                    role="img"
+                    aria-label="Gráfico de ingresos y estudiantes sin registro de los últimos cinco días hábiles."
+                  >
                     <ResponsiveContainer width="100%" height={250}>
                       <LineChart data={data?.semana || []} margin={{ left: 0, right: 12 }}>
-                    <CartesianGrid stroke="rgb(var(--border))" strokeDasharray="3 3" />
-                    <XAxis
-                      dataKey="dia"
-                      tick={{ fontSize: 11, fill: "rgb(var(--muted-foreground))" }}
-                      axisLine={{ stroke: "rgb(var(--border))" }}
-                      tickLine={{ stroke: "rgb(var(--border))" }}
-                    />
-                    <YAxis
-                      allowDecimals={false}
-                      tick={{ fill: "rgb(var(--muted-foreground))" }}
-                      axisLine={{ stroke: "rgb(var(--border))" }}
-                      tickLine={{ stroke: "rgb(var(--border))" }}
-                    />
-                    <Tooltip
-                      contentStyle={{
-                        backgroundColor: "rgb(var(--popover))",
-                        border: "1px solid rgb(var(--border))",
-                        borderRadius: "0.5rem",
-                        color: "rgb(var(--popover-foreground))",
-                      }}
-                      labelStyle={{ color: "rgb(var(--muted-foreground))" }}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="presentes"
-                      name="Ingresos"
-                      stroke={COLORS[1]}
-                      strokeWidth={3}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="ausentes"
-                      name="Sin registro"
-                      stroke={COLORS[3]}
-                      strokeWidth={2}
-                    />
+                        <CartesianGrid stroke="rgb(var(--border))" strokeDasharray="3 3" />
+                        <XAxis
+                          dataKey="dia"
+                          tick={{ fontSize: 11, fill: "rgb(var(--muted-foreground))" }}
+                          axisLine={{ stroke: "rgb(var(--border))" }}
+                          tickLine={{ stroke: "rgb(var(--border))" }}
+                        />
+                        <YAxis
+                          allowDecimals={false}
+                          tick={{ fill: "rgb(var(--muted-foreground))" }}
+                          axisLine={{ stroke: "rgb(var(--border))" }}
+                          tickLine={{ stroke: "rgb(var(--border))" }}
+                        />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: "rgb(var(--popover))",
+                            border: "1px solid rgb(var(--border))",
+                            borderRadius: "0.5rem",
+                            color: "rgb(var(--popover-foreground))",
+                          }}
+                          labelStyle={{ color: "rgb(var(--muted-foreground))" }}
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="presentes"
+                          name="Ingresos"
+                          stroke={COLORS[1]}
+                          strokeWidth={3}
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="ausentes"
+                          name="Sin registro"
+                          stroke={COLORS[3]}
+                          strokeWidth={2}
+                        />
                       </LineChart>
                     </ResponsiveContainer>
                   </div>
@@ -417,39 +425,42 @@ export default function DashboardTab() {
                 </p>
               ) : (
                 <>
-                  <div role="img" aria-label="Gráfico de porcentaje de ingreso registrado durante los últimos veinte días lectivos.">
+                  <div
+                    role="img"
+                    aria-label="Gráfico de porcentaje de ingreso registrado durante los últimos veinte días lectivos."
+                  >
                     <ResponsiveContainer width="100%" height={250}>
                       <LineChart data={tendencia} margin={{ left: 0, right: 12 }}>
-                    <CartesianGrid stroke="rgb(var(--border))" strokeDasharray="3 3" />
-                    <XAxis
-                      dataKey="dia"
-                      tick={{ fontSize: 11, fill: "rgb(var(--muted-foreground))" }}
-                      axisLine={{ stroke: "rgb(var(--border))" }}
-                      tickLine={{ stroke: "rgb(var(--border))" }}
-                    />
-                    <YAxis
-                      allowDecimals={false}
-                      unit="%"
-                      tick={{ fill: "rgb(var(--muted-foreground))" }}
-                      axisLine={{ stroke: "rgb(var(--border))" }}
-                      tickLine={{ stroke: "rgb(var(--border))" }}
-                    />
-                    <Tooltip
-                      contentStyle={{
-                        backgroundColor: "rgb(var(--popover))",
-                        border: "1px solid rgb(var(--border))",
-                        borderRadius: "0.5rem",
-                        color: "rgb(var(--popover-foreground))",
-                      }}
-                      labelStyle={{ color: "rgb(var(--muted-foreground))" }}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="porcentaje"
-                      name="Ingreso registrado"
-                      stroke={COLORS[0]}
-                      strokeWidth={3}
-                    />
+                        <CartesianGrid stroke="rgb(var(--border))" strokeDasharray="3 3" />
+                        <XAxis
+                          dataKey="dia"
+                          tick={{ fontSize: 11, fill: "rgb(var(--muted-foreground))" }}
+                          axisLine={{ stroke: "rgb(var(--border))" }}
+                          tickLine={{ stroke: "rgb(var(--border))" }}
+                        />
+                        <YAxis
+                          allowDecimals={false}
+                          unit="%"
+                          tick={{ fill: "rgb(var(--muted-foreground))" }}
+                          axisLine={{ stroke: "rgb(var(--border))" }}
+                          tickLine={{ stroke: "rgb(var(--border))" }}
+                        />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: "rgb(var(--popover))",
+                            border: "1px solid rgb(var(--border))",
+                            borderRadius: "0.5rem",
+                            color: "rgb(var(--popover-foreground))",
+                          }}
+                          labelStyle={{ color: "rgb(var(--muted-foreground))" }}
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="porcentaje"
+                          name="Ingreso registrado"
+                          stroke={COLORS[0]}
+                          strokeWidth={3}
+                        />
                       </LineChart>
                     </ResponsiveContainer>
                   </div>
@@ -458,7 +469,8 @@ export default function DashboardTab() {
               )}
             </div>
           </div>
-          {!esProfesor && <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
+          {!esProfesor && (
+            <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
               <GroupChart
                 title="Beneficio de comedor"
                 description="Distribución del padrón activo entre beneficiarios y no beneficiarios."
@@ -470,51 +482,54 @@ export default function DashboardTab() {
                 data={rutasParaGrafico}
               />
               <CapacidadServicio capacidad={capacidad} fecha={fecha} />
-            </div>}
-          {!esProfesor && <section
-            className="overflow-hidden rounded-xl border bg-card"
-            aria-labelledby="casos-analiticos"
-          >
-            <div className="border-b p-4">
-              <h3 id="casos-analiticos" className="font-display font-bold">
-                Casos para revisión
-              </h3>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Señales históricas de apoyo; no modifican beneficios automáticamente.
-              </p>
             </div>
-            {casosAnaliticos.length === 0 ? (
-              <p className="p-6 text-sm text-muted-foreground">
-                Sin casos con historial suficiente para revisar. Las señales se habilitan después de
-                al menos tres días de operación con registros.
-              </p>
-            ) : (
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Estudiante</TableHead>
-                      <TableHead>Sección</TableHead>
-                      <TableHead>Señal</TableHead>
-                      <TableHead>Asistencia</TableHead>
-                      <TableHead>Consumos</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {casosAnaliticos.map((caso) => (
-                      <TableRow key={`${caso.idPersona}-${caso.senal}`}>
-                        <TableCell className="font-medium">{caso.nombreCompleto}</TableCell>
-                        <TableCell>{caso.seccion}</TableCell>
-                        <TableCell>{caso.senal}</TableCell>
-                        <TableCell>{caso.porcentajeAsistencia}%</TableCell>
-                        <TableCell>{caso.consumosComedor}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+          )}
+          {!esProfesor && (
+            <section
+              className="overflow-hidden rounded-xl border bg-card"
+              aria-labelledby="casos-analiticos"
+            >
+              <div className="border-b p-4">
+                <h3 id="casos-analiticos" className="font-display font-bold">
+                  Casos para revisión
+                </h3>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Señales históricas de apoyo; no modifican beneficios automáticamente.
+                </p>
               </div>
-            )}
-          </section>}
+              {casosAnaliticos.length === 0 ? (
+                <p className="p-6 text-sm text-muted-foreground">
+                  Sin casos con historial suficiente para revisar. Las señales se habilitan después
+                  de al menos tres días de operación con registros.
+                </p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Estudiante</TableHead>
+                        <TableHead>Sección</TableHead>
+                        <TableHead>Señal</TableHead>
+                        <TableHead>Asistencia</TableHead>
+                        <TableHead>Consumos</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {casosAnaliticos.map((caso) => (
+                        <TableRow key={`${caso.idPersona}-${caso.senal}`}>
+                          <TableCell className="font-medium">{caso.nombreCompleto}</TableCell>
+                          <TableCell>{caso.seccion}</TableCell>
+                          <TableCell>{caso.senal}</TableCell>
+                          <TableCell>{caso.porcentajeAsistencia}%</TableCell>
+                          <TableCell>{caso.consumosComedor}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </section>
+          )}
         </>
       )}
 
@@ -530,7 +545,10 @@ export default function DashboardTab() {
               </p>
             </div>
             {!esProfesor && puedeExportar && (
-              <div className="flex flex-wrap items-center gap-2" aria-label="Exportar lista de control">
+              <div
+                className="flex flex-wrap items-center gap-2"
+                aria-label="Exportar lista de control"
+              >
                 <span className="text-xs text-muted-foreground">Exporta los filtros aplicados</span>
                 <Button asChild variant="default" size="sm">
                   <a href={enlaceExportacion("xlsx")} download>
@@ -615,7 +633,10 @@ export default function DashboardTab() {
 
           <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <div className="relative sm:col-span-2 xl:col-span-1">
-              <label htmlFor="nominal-search" className="mb-1 block text-xs font-medium text-muted-foreground">
+              <label
+                htmlFor="nominal-search"
+                className="mb-1 block text-xs font-medium text-muted-foreground"
+              >
                 {esProfesor ? "Profesor" : "Estudiante"}
               </label>
               <Search className="absolute left-3 top-[2.1rem] h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -624,10 +645,17 @@ export default function DashboardTab() {
                 data-testid="nominal-search"
                 aria-label={esProfesor ? "Buscar profesor" : "Buscar estudiante"}
                 placeholder={esProfesor ? "Buscar profesor" : "Buscar estudiante"}
-                value={esProfesor ? filtrosProfesorBorrador.busqueda : filtrosBorrador[servicioNominal].busqueda}
+                value={
+                  esProfesor
+                    ? filtrosProfesorBorrador.busqueda
+                    : filtrosBorrador[servicioNominal].busqueda
+                }
                 onChange={(event) => {
                   if (esProfesor) {
-                    setFiltrosProfesorBorrador((actual) => ({ ...actual, busqueda: event.target.value }));
+                    setFiltrosProfesorBorrador((actual) => ({
+                      ...actual,
+                      busqueda: event.target.value,
+                    }));
                   } else {
                     actualizarFiltroEstudiante("busqueda", event.target.value);
                   }
@@ -637,7 +665,12 @@ export default function DashboardTab() {
             </div>
             {!esProfesor && (
               <div>
-                <label htmlFor="nominal-seccion" className="mb-1 block text-xs font-medium text-muted-foreground">Sección</label>
+                <label
+                  htmlFor="nominal-seccion"
+                  className="mb-1 block text-xs font-medium text-muted-foreground"
+                >
+                  Sección
+                </label>
                 <select
                   id="nominal-seccion"
                   value={filtrosBorrador[servicioNominal].seccion}
@@ -648,7 +681,9 @@ export default function DashboardTab() {
                   {seccionesActivas.map((nivel) => (
                     <optgroup key={nivel.etiqueta} label={nivel.etiqueta}>
                       {nivel.secciones.map((seccionDisponible) => (
-                        <option key={seccionDisponible} value={seccionDisponible}>{seccionDisponible}</option>
+                        <option key={seccionDisponible} value={seccionDisponible}>
+                          {seccionDisponible}
+                        </option>
                       ))}
                     </optgroup>
                   ))}
@@ -657,11 +692,18 @@ export default function DashboardTab() {
             )}
             {esProfesor ? (
               <div>
-                <label htmlFor="profesor-asistencia" className="mb-1 block text-xs font-medium text-muted-foreground">Ingreso al comedor</label>
+                <label
+                  htmlFor="profesor-asistencia"
+                  className="mb-1 block text-xs font-medium text-muted-foreground"
+                >
+                  Ingreso al comedor
+                </label>
                 <select
                   id="profesor-asistencia"
                   value={filtrosProfesorBorrador.estado}
-                  onChange={(e) => setFiltrosProfesorBorrador((actual) => ({ ...actual, estado: e.target.value }))}
+                  onChange={(e) =>
+                    setFiltrosProfesorBorrador((actual) => ({ ...actual, estado: e.target.value }))
+                  }
                   className="h-11 w-full rounded-md border bg-background px-3 text-sm"
                 >
                   <option value="">Todos los registros</option>
@@ -672,24 +714,54 @@ export default function DashboardTab() {
             ) : servicioNominal === "comedor" ? (
               <>
                 <div>
-                  <label htmlFor="nominal-confirmacion" className="mb-1 block text-xs font-medium text-muted-foreground">Confirmación</label>
-                  <select id="nominal-confirmacion" value={filtrosBorrador.comedor.confirmacion} onChange={(e) => actualizarFiltroEstudiante("confirmacion", e.target.value)} className="h-11 w-full rounded-md border bg-background px-3 text-sm">
+                  <label
+                    htmlFor="nominal-confirmacion"
+                    className="mb-1 block text-xs font-medium text-muted-foreground"
+                  >
+                    Confirmación
+                  </label>
+                  <select
+                    id="nominal-confirmacion"
+                    value={filtrosBorrador.comedor.confirmacion}
+                    onChange={(e) => actualizarFiltroEstudiante("confirmacion", e.target.value)}
+                    className="h-11 w-full rounded-md border bg-background px-3 text-sm"
+                  >
                     <option value="">Todas</option>
                     <option value="confirmada">Confirmó asistencia</option>
                     <option value="sin_confirmar">Sin confirmación</option>
                   </select>
                 </div>
                 <div>
-                  <label htmlFor="nominal-asistencia-comedor" className="mb-1 block text-xs font-medium text-muted-foreground">Asistencia</label>
-                  <select id="nominal-asistencia-comedor" value={filtrosBorrador.comedor.asistencia} onChange={(e) => actualizarFiltroEstudiante("asistencia", e.target.value)} className="h-11 w-full rounded-md border bg-background px-3 text-sm">
+                  <label
+                    htmlFor="nominal-asistencia-comedor"
+                    className="mb-1 block text-xs font-medium text-muted-foreground"
+                  >
+                    Asistencia
+                  </label>
+                  <select
+                    id="nominal-asistencia-comedor"
+                    value={filtrosBorrador.comedor.asistencia}
+                    onChange={(e) => actualizarFiltroEstudiante("asistencia", e.target.value)}
+                    className="h-11 w-full rounded-md border bg-background px-3 text-sm"
+                  >
                     <option value="">Todas</option>
                     <option value="presente">Asistió al comedor</option>
                     <option value="sin_registro">Sin ingreso</option>
                   </select>
                 </div>
                 <div>
-                  <label htmlFor="nominal-beneficio" className="mb-1 block text-xs font-medium text-muted-foreground">Beneficio</label>
-                  <select id="nominal-beneficio" value={filtrosBorrador.comedor.beneficio} onChange={(e) => actualizarFiltroEstudiante("beneficio", e.target.value)} className="h-11 w-full rounded-md border bg-background px-3 text-sm">
+                  <label
+                    htmlFor="nominal-beneficio"
+                    className="mb-1 block text-xs font-medium text-muted-foreground"
+                  >
+                    Beneficio
+                  </label>
+                  <select
+                    id="nominal-beneficio"
+                    value={filtrosBorrador.comedor.beneficio}
+                    onChange={(e) => actualizarFiltroEstudiante("beneficio", e.target.value)}
+                    className="h-11 w-full rounded-md border bg-background px-3 text-sm"
+                  >
                     <option value="">Con y sin beneficio</option>
                     <option value="beneficiario">Beneficiario</option>
                     <option value="no_beneficiario">No beneficiario</option>
@@ -699,23 +771,59 @@ export default function DashboardTab() {
             ) : (
               <>
                 <div>
-                  <label htmlFor="nominal-asignacion" className="mb-1 block text-xs font-medium text-muted-foreground">Asignación</label>
-                  <select id="nominal-asignacion" value={filtrosBorrador.transporte.asignacion} onChange={(e) => actualizarFiltroEstudiante("asignacion", e.target.value)} className="h-11 w-full rounded-md border bg-background px-3 text-sm">
+                  <label
+                    htmlFor="nominal-asignacion"
+                    className="mb-1 block text-xs font-medium text-muted-foreground"
+                  >
+                    Asignación
+                  </label>
+                  <select
+                    id="nominal-asignacion"
+                    value={filtrosBorrador.transporte.asignacion}
+                    onChange={(e) => actualizarFiltroEstudiante("asignacion", e.target.value)}
+                    className="h-11 w-full rounded-md border bg-background px-3 text-sm"
+                  >
                     <option value="">Con y sin ruta</option>
                     <option value="con_ruta">Con ruta asignada</option>
                     <option value="sin_ruta">Sin ruta asignada</option>
                   </select>
                 </div>
                 <div>
-                  <label htmlFor="nominal-ruta" className="mb-1 block text-xs font-medium text-muted-foreground">Ruta</label>
-                  <select id="nominal-ruta" value={filtrosBorrador.transporte.ruta} onChange={(e) => actualizarFiltroEstudiante("ruta", e.target.value)} className="h-11 w-full rounded-md border bg-background px-3 text-sm">
+                  <label
+                    htmlFor="nominal-ruta"
+                    className="mb-1 block text-xs font-medium text-muted-foreground"
+                  >
+                    Ruta
+                  </label>
+                  <select
+                    id="nominal-ruta"
+                    value={filtrosBorrador.transporte.ruta}
+                    onChange={(e) => actualizarFiltroEstudiante("ruta", e.target.value)}
+                    className="h-11 w-full rounded-md border bg-background px-3 text-sm"
+                  >
                     <option value="">Todas las rutas</option>
-                    {rutas.filter((item) => item.idRuta).map((item) => <option key={item.idRuta} value={item.idRuta}>{item.nombre}</option>)}
+                    {rutas
+                      .filter((item) => item.idRuta)
+                      .map((item) => (
+                        <option key={item.idRuta} value={item.idRuta}>
+                          {item.nombre}
+                        </option>
+                      ))}
                   </select>
                 </div>
                 <div>
-                  <label htmlFor="nominal-uso-transporte" className="mb-1 block text-xs font-medium text-muted-foreground">Uso de transporte</label>
-                  <select id="nominal-uso-transporte" value={filtrosBorrador.transporte.asistencia} onChange={(e) => actualizarFiltroEstudiante("asistencia", e.target.value)} className="h-11 w-full rounded-md border bg-background px-3 text-sm">
+                  <label
+                    htmlFor="nominal-uso-transporte"
+                    className="mb-1 block text-xs font-medium text-muted-foreground"
+                  >
+                    Uso de transporte
+                  </label>
+                  <select
+                    id="nominal-uso-transporte"
+                    value={filtrosBorrador.transporte.asistencia}
+                    onChange={(e) => actualizarFiltroEstudiante("asistencia", e.target.value)}
+                    className="h-11 w-full rounded-md border bg-background px-3 text-sm"
+                  >
                     <option value="">Con y sin marca</option>
                     <option value="presente">Usó transporte</option>
                     <option value="sin_registro">Sin marca</option>
@@ -726,7 +834,9 @@ export default function DashboardTab() {
           </div>
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
             <p className="text-xs text-muted-foreground" role="status" aria-live="polite">
-              {isFetching ? "Actualizando resultados…" : "Los resultados cambian al aplicar los filtros."}
+              {isFetching
+                ? "Actualizando resultados…"
+                : "Los resultados cambian al aplicar los filtros."}
             </p>
             <div className="flex gap-2">
               <Button
@@ -765,8 +875,16 @@ export default function DashboardTab() {
                 <TableHead>{esProfesor ? "Profesor" : "Estudiante"}</TableHead>
                 {!esProfesor && <TableHead>Sección</TableHead>}
                 {!esProfesor && <TableHead>Ruta</TableHead>}
-                <TableHead>{esProfesor ? "Identificación" : servicioNominal === "comedor" ? "Beneficio de comedor" : "Asignación"}</TableHead>
-                <TableHead>{esProfesor || servicioNominal === "comedor" ? "Asistencia hoy" : "Uso hoy"}</TableHead>
+                <TableHead>
+                  {esProfesor
+                    ? "Identificación"
+                    : servicioNominal === "comedor"
+                      ? "Beneficio de comedor"
+                      : "Asignación"}
+                </TableHead>
+                <TableHead>
+                  {esProfesor || servicioNominal === "comedor" ? "Asistencia hoy" : "Uso hoy"}
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -811,7 +929,10 @@ export default function DashboardTab() {
             </p>
           ) : (
             nominal.map((row) => (
-              <article className="rounded-lg border border-border bg-muted/20 p-3" key={row.idPersona}>
+              <article
+                className="rounded-lg border border-border bg-muted/20 p-3"
+                key={row.idPersona}
+              >
                 <div className="flex items-start justify-between gap-3">
                   <p className="font-medium text-foreground">{row.nombreCompleto}</p>
                   <Badge variant={varianteAsistencia(row)}>
@@ -828,11 +949,20 @@ export default function DashboardTab() {
                   {!esProfesor && (
                     <div>
                       <dt className="text-xs text-muted-foreground">Ruta</dt>
-                      <dd className="flex items-center gap-1"><Bus aria-hidden="true" className="h-3.5 w-3.5" />{row.ruta}</dd>
+                      <dd className="flex items-center gap-1">
+                        <Bus aria-hidden="true" className="h-3.5 w-3.5" />
+                        {row.ruta}
+                      </dd>
                     </div>
                   )}
                   <div>
-                    <dt className="text-xs text-muted-foreground">{esProfesor ? "Identificación" : servicioNominal === "comedor" ? "Comedor" : "Transporte"}</dt>
+                    <dt className="text-xs text-muted-foreground">
+                      {esProfesor
+                        ? "Identificación"
+                        : servicioNominal === "comedor"
+                          ? "Comedor"
+                          : "Transporte"}
+                    </dt>
                     <dd>{esProfesor ? row.identificacion : row.beneficioServicio}</dd>
                   </div>
                 </dl>

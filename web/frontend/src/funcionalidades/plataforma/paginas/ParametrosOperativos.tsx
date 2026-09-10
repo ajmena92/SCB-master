@@ -131,8 +131,16 @@ export default function ParametrosOperativos() {
                 }}
               >
                 <span>{horario.turno}</span>
-                <label className="sr-only" htmlFor={`hora-${horario.turno}`}>Hora límite de {horario.turno}</label>
-                <input id={`hora-${horario.turno}`} name="hora" type="time" defaultValue={horario.horaLimite} required />
+                <label className="sr-only" htmlFor={`hora-${horario.turno}`}>
+                  Hora límite de {horario.turno}
+                </label>
+                <input
+                  id={`hora-${horario.turno}`}
+                  name="hora"
+                  type="time"
+                  defaultValue={horario.horaLimite}
+                  required
+                />
                 <button className="button secondary" disabled={guardarHorario.isPending}>
                   Guardar
                 </button>

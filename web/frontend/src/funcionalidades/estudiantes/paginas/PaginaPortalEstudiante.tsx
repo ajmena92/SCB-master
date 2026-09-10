@@ -30,7 +30,9 @@ export default function PaginaPortalComedor() {
       tipoPersona={tipoPersona}
       alCerrarSesion={logout}
       estadoPortal={estadoPortal}
-      alCambiarVista={(vista) => navigate(`${rutaActual.startsWith("/comedor") ? "/comedor" : "/portal"}/${vista}`)}
+      alCambiarVista={(vista) =>
+        navigate(`${rutaActual.startsWith("/comedor") ? "/comedor" : "/portal"}/${vista}`)
+      }
     />
   );
 }

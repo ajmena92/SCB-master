@@ -93,10 +93,7 @@ describe("carnet del estudiante", () => {
     const root = createRoot(container);
     await act(async () =>
       root.render(
-        <VistaCarnetEstudiante
-          datosCarnet={{ nombre: "Ana", codigoQr: "" }}
-          tieneFoto={false}
-        />,
+        <VistaCarnetEstudiante datosCarnet={{ nombre: "Ana", codigoQr: "" }} tieneFoto={false} />,
       ),
     );
     expect(container.querySelector('[data-testid="student-card-qr-unavailable"]')).not.toBeNull();

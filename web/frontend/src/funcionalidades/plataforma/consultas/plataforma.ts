@@ -163,7 +163,9 @@ export const plataformaApi = {
       return normalizarObjeto<TrabajoImportacion>(data);
     },
     trabajo: async (trabajoId: number): Promise<TrabajoImportacion> =>
-      normalizarObjeto<TrabajoImportacion>((await api.get(`/v1/importaciones/trabajos/${trabajoId}`)).data),
+      normalizarObjeto<TrabajoImportacion>(
+        (await api.get(`/v1/importaciones/trabajos/${trabajoId}`)).data,
+      ),
     credenciales: async (trabajoId: number): Promise<ResultadoConfirmacionImportacion> => {
       const { data } = await api.post(`/v1/importaciones/trabajos/${trabajoId}/credenciales`);
       const normalizados = normalizarObjeto<{

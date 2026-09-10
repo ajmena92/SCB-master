@@ -24,7 +24,9 @@ interface SustitucionMenuApi {
   componentes: ComponenteSustitucionApi[];
 }
 
-export async function consultarCalendarioMenu(rango: RangoCalendarioMenu): Promise<DiaCalendario[]> {
+export async function consultarCalendarioMenu(
+  rango: RangoCalendarioMenu,
+): Promise<DiaCalendario[]> {
   return (await api.get<DiaCalendario[]>("/v1/menu/calendario", { params: rango })).data;
 }
 

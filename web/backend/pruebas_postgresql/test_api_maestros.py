@@ -1,5 +1,3 @@
-from sqlalchemy.orm import Session
-
 from .conftest import autenticar_portal, crear_persona, preparar_estudiante
 
 

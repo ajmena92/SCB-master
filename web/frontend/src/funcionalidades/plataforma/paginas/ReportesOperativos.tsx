@@ -2,7 +2,13 @@ import { useState, type FormEvent } from "react";
 import { Printer } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { plataformaApi } from "../consultas/plataforma";
-import { Aviso, Campo, EncabezadoPagina, EstadoPanel, Tabla } from "../componentes/ElementosComunes";
+import {
+  Aviso,
+  Campo,
+  EncabezadoPagina,
+  EstadoPanel,
+  Tabla,
+} from "../componentes/ElementosComunes";
 import { errMsg } from "@/compartido/consultas/errores_api";
 import type { ReporteFila } from "@/compartido/contratos/plataforma";
 
@@ -43,7 +49,9 @@ export default function ReportesOperativos() {
     if (!ventana) return;
     const encabezados = columnas.map((c) => `<th>${c}</th>`).join("");
     const cuerpo = filas
-      .map((fila) => `<tr>${columnas.map((c) => `<td>${String(fila[c] ?? "")}</td>`).join("")}</tr>`)
+      .map(
+        (fila) => `<tr>${columnas.map((c) => `<td>${String(fila[c] ?? "")}</td>`).join("")}</tr>`,
+      )
       .join("");
     ventana.document.write(`<!doctype html><html><head><title>Reporte ${tipo}</title><style>
       body{font-family:Arial,sans-serif;color:#0f172a;margin:24px}h1{font-size:18px;font-weight:600}

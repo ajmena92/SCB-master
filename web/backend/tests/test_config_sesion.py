@@ -36,6 +36,16 @@ def test_configuracion_lee_vigencias_absolutas(monkeypatch: pytest.MonkeyPatch) 
     assert not configuracion.cookie_secure
 
 
+@pytest.mark.parametrize("origen", ["http://localhost:3000", "http://127.0.0.1:3000"])
+def test_configuracion_acepta_origen_local_de_playwright(
+    monkeypatch: pytest.MonkeyPatch, origen: str
+) -> None:
+    _entorno_valido(monkeypatch)
+    monkeypatch.setenv("CORS_ORIGIN", origen)
+
+    assert Settings.from_environment().cors_origin == origen
+
+
 def test_cookie_no_segura_se_rechaza_fuera_de_localhost(monkeypatch: pytest.MonkeyPatch) -> None:
     _entorno_valido(monkeypatch)
     monkeypatch.setenv("CORS_ORIGIN", "https://comedor.institucion.ac.cr")

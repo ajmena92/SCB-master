@@ -36,7 +36,11 @@ export function EstadoPanel({
       )}
       {titulo && <p className="font-semibold text-foreground">{titulo}</p>}
       {children && (
-        <div className={variante === "carga" ? "text-sm text-muted-foreground" : titulo ? "mt-1" : undefined}>
+        <div
+          className={
+            variante === "carga" ? "text-sm text-muted-foreground" : titulo ? "mt-1" : undefined
+          }
+        >
           {children}
         </div>
       )}

@@ -24,7 +24,8 @@ export const OPERACIONES_ADMINISTRACION: readonly OperacionApi[] = [
   {
     metodo: "POST",
     ruta: "/api/v1/administracion/cuentas/{cuenta_id}/restablecer-contrasena",
-    operacionId: "restablecer_contrasena_api_v1_administracion_cuentas__cuenta_id__restablecer_contrasena_post",
+    operacionId:
+      "restablecer_contrasena_api_v1_administracion_cuentas__cuenta_id__restablecer_contrasena_post",
     dominio: "administracion",
   },
   {

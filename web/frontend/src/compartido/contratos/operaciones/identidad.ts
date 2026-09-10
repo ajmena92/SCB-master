@@ -12,7 +12,8 @@ export const OPERACIONES_IDENTIDAD: readonly OperacionApi[] = [
   {
     metodo: "POST",
     ruta: "/api/v1/autenticacion/administracion/contrasena",
-    operacionId: "cambiar_contrasena_administrativa_api_v1_autenticacion_administracion_contrasena_post",
+    operacionId:
+      "cambiar_contrasena_administrativa_api_v1_autenticacion_administracion_contrasena_post",
     dominio: "identidad",
   },
   {

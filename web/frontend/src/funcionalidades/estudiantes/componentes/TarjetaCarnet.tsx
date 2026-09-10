@@ -68,14 +68,13 @@ export function TarjetaCarnet({
     const esperarRecursos = async () => {
       const imagenes = Array.from(ventana.document.images);
       await Promise.all(
-        imagenes.map(
-          (imagen) =>
-            imagen.complete
-              ? Promise.resolve()
-              : new Promise<void>((resolver) => {
-                  imagen.addEventListener("load", () => resolver(), { once: true });
-                  imagen.addEventListener("error", () => resolver(), { once: true });
-                }),
+        imagenes.map((imagen) =>
+          imagen.complete
+            ? Promise.resolve()
+            : new Promise<void>((resolver) => {
+                imagen.addEventListener("load", () => resolver(), { once: true });
+                imagen.addEventListener("error", () => resolver(), { once: true });
+              }),
         ),
       );
       if (ventana.document.fonts?.ready) await ventana.document.fonts.ready;
@@ -109,164 +108,171 @@ export function TarjetaCarnet({
 
   return (
     <>
-    <div
-      className="mx-auto grid w-full max-w-[24rem] overflow-hidden rounded-[1.75rem] border border-border bg-white text-carnet-foreground shadow-[0_20px_55px_rgb(64_68_170_/_0.2)] lg:max-w-3xl lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]"
-      data-testid="html-student-card"
-    >
       <div
-        className="relative flex flex-col overflow-hidden px-6 pb-7 pt-7 lg:justify-start lg:px-7 lg:py-8"
-        style={{ backgroundColor: colorRuta, color: obtenerColorTextoRuta(colorRuta) }}
+        className="mx-auto grid w-full max-w-[24rem] overflow-hidden rounded-[1.75rem] border border-border bg-white text-carnet-foreground shadow-[0_20px_55px_rgb(64_68_170_/_0.2)] lg:max-w-3xl lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]"
+        data-testid="html-student-card"
       >
-        <div className="absolute -right-16 -top-20 h-48 w-48 rounded-full border-[22px] border-current opacity-15" />
-        <div className="relative flex items-center justify-between gap-3">
-          <div className="flex min-w-0 items-center gap-3 lg:gap-4">
-            <img
-              src={LOGO_COLEGIO}
-              alt="Escudo del CTP Platanares"
-              className="h-12 w-12 rounded-full bg-white/90 object-contain p-1 lg:h-16 lg:w-16 lg:p-1.5"
-            />
-            <div className="min-w-0">
-              <p className="break-words text-xs font-bold uppercase leading-snug tracking-[0.14em] lg:text-sm lg:tracking-[0.16em]">
-                {NOMBRE_COLEGIO}
-              </p>
-              <h3 className="mt-1 break-words font-display text-xl font-bold tracking-tight">Credencial digital</h3>
-            </div>
-          </div>
-          <IdCard className="h-8 w-8 shrink-0" aria-hidden="true" />
-        </div>
-        <div className="relative mt-6 flex items-end gap-4 lg:mt-8 lg:flex-col lg:items-center lg:gap-4">
-          <div className="flex shrink-0 flex-col items-center gap-1">
-            <div className="h-28 w-24 overflow-hidden rounded-2xl border-4 border-white/70 bg-white/25 shadow-lg lg:h-52 lg:w-44 lg:rounded-3xl lg:shadow-xl">
-              <ImagenConFallback
-                src={fotoDisponible ? fotoUrl : undefined}
-                alt={`Fotografía de ${nombre}`}
-                className="h-full w-full object-cover object-top"
-                fallback={
-                  <div className="flex h-full items-center justify-center px-2 text-center text-xs font-bold uppercase leading-tight">
-                    Sin fotografía
-                  </div>
-                }
+        <div
+          className="relative flex flex-col overflow-hidden px-6 pb-7 pt-7 lg:justify-start lg:px-7 lg:py-8"
+          style={{ backgroundColor: colorRuta, color: obtenerColorTextoRuta(colorRuta) }}
+        >
+          <div className="absolute -right-16 -top-20 h-48 w-48 rounded-full border-[22px] border-current opacity-15" />
+          <div className="relative flex items-center justify-between gap-3">
+            <div className="flex min-w-0 items-center gap-3 lg:gap-4">
+              <img
+                src={LOGO_COLEGIO}
+                alt="Escudo del CTP Platanares"
+                className="h-12 w-12 rounded-full bg-white/90 object-contain p-1 lg:h-16 lg:w-16 lg:p-1.5"
               />
-            </div>
-            <p
-              className="hidden text-center text-[0.58rem] font-semibold leading-tight opacity-80"
-              data-print-only
-            >
-              Impreso: {fechaImpresion} · Año lectivo: {anioLectivo}
-            </p>
-          </div>
-          <div className="min-w-0 pb-1 lg:text-center">
-            <p className="text-xs font-bold uppercase tracking-[0.18em]">
-              {tipoPersona === "profesor" ? "Profesor" : "Estudiante"}
-            </p>
-            <p className="mt-1 line-clamp-3 break-words font-display text-base font-bold leading-tight sm:text-lg lg:line-clamp-2 lg:text-xl">
-              {nombre || "Sin nombre"}
-            </p>
-          </div>
-        </div>
-      </div>
-      <div className="space-y-5 border-t border-border bg-card p-6 lg:flex lg:flex-col lg:gap-3 lg:space-y-0 lg:border-l lg:border-t-0 lg:p-6">
-        <div className="order-1 space-y-4 text-sm lg:order-1">
-          <div className="grid grid-cols-2 gap-x-4 gap-y-5">
-          {tipoPersona === "profesor" ? (
-            <div className="col-span-2">
-              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                Colegio
-              </p>
-              <p className="mt-1 font-bold">{datosCarnet.colegio || NOMBRE_COLEGIO}</p>
-            </div>
-          ) : (
-            <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                Año
-              </p>
-              <p className="mt-1 font-bold">{obtenerAnioCarnet(datosCarnet)}</p>
-            </div>
-          )}
-          {tipoPersona === "estudiante" && (
-            <div className="order-3 col-span-1 lg:col-span-1">
-              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                Sección
-              </p>
-              <p className="mt-1 font-bold">{datosCarnet.seccion || "Sin sección"}</p>
-            </div>
-          )}
-          {tipoPersona === "estudiante" && (
-            <div className="order-2 col-span-1">
-              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                Ruta asignada
-              </p>
-              <p className="mt-1 flex items-center gap-2 font-semibold">
-                <span
-                  className="h-2.5 w-2.5 shrink-0 rounded-full border border-foreground/20"
-                  style={{ backgroundColor: colorRuta }}
-                  aria-hidden="true"
-                />
-                <span className="min-w-0 break-words">{datosCarnet.rutaDescripcion || "Sin ruta"}</span>
-              </p>
-            </div>
-          )}
-          {tipoPersona === "estudiante" && datosCarnet.beneficioComedor && (
-            <div className="order-4 col-span-1 lg:col-span-1">
-              <p className="text-[0.58rem] font-bold uppercase tracking-wider text-muted-foreground sm:text-[0.6rem]">
-                Comedor
-              </p>
-              <p className="mt-1 flex items-center gap-2 font-semibold">
-                <Utensils className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
-                <span className="min-w-0 break-words">{datosCarnet.beneficioComedor}</span>
-              </p>
-            </div>
-          )}
-          </div>
-        </div>
-        <div className="order-2 space-y-3 lg:order-2">
-          {qrDisponible ? (
-            <button
-              type="button"
-              onClick={() => setQrAbierto(true)}
-              className="group relative block w-full overflow-hidden rounded-[1.5rem] border border-primary/15 bg-primary/5 p-3 text-carnet-foreground transition-[transform,background-color,border-color] duration-200 hover:-translate-y-0.5 hover:border-primary/35 hover:bg-primary/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-              aria-label="Ampliar QR del carnet"
-              aria-haspopup="dialog"
-              data-testid="student-card-qr"
-            >
-              <span
-                className="absolute right-3 top-3 grid h-10 w-10 place-items-center rounded-full bg-background/90 text-primary shadow-sm transition-transform duration-200 group-hover:scale-105"
-                aria-hidden="true"
-                data-print-hide
-              >
-                <Expand className="h-4 w-4" />
-              </span>
-              <span className="mb-3 flex items-center gap-2 text-left text-sm font-bold uppercase tracking-[0.16em] text-primary">
-                <ScanLine className="h-4 w-4" aria-hidden="true" data-print-hide /> Listo para escanear
-              </span>
-              <span className="block rounded-xl bg-background p-3 shadow-sm lg:[&_svg]:h-[240px] lg:[&_svg]:w-[240px]">
-                <CodigoQrCarnet valor={datosCarnet.codigoQr} />
-              </span>
-              <span className="mt-3 block text-center text-sm font-semibold text-muted-foreground">
-                Tocá para ampliar · Presentalo ante el lector
-              </span>
-            </button>
-          ) : (
-            <div
-              className="flex items-center gap-3 rounded-[1.5rem] border border-warning/35 bg-warning/10 p-4 text-sm text-foreground"
-              role="status"
-              data-testid="student-card-qr-unavailable"
-            >
-              <AlertCircle className="h-5 w-5 shrink-0 text-warning" aria-hidden="true" />
-              <div>
-                <p className="font-bold">QR no disponible</p>
-                <p className="mt-1 text-sm text-muted-foreground">El carné podrá ampliarse cuando se genere el código.</p>
+              <div className="min-w-0">
+                <p className="break-words text-xs font-bold uppercase leading-snug tracking-[0.14em] lg:text-sm lg:tracking-[0.16em]">
+                  {NOMBRE_COLEGIO}
+                </p>
+                <h3 className="mt-1 break-words font-display text-xl font-bold tracking-tight">
+                  Credencial digital
+                </h3>
               </div>
             </div>
-          )}
+            <IdCard className="h-8 w-8 shrink-0" aria-hidden="true" />
+          </div>
+          <div className="relative mt-6 flex items-end gap-4 lg:mt-8 lg:flex-col lg:items-center lg:gap-4">
+            <div className="flex shrink-0 flex-col items-center gap-1">
+              <div className="h-28 w-24 overflow-hidden rounded-2xl border-4 border-white/70 bg-white/25 shadow-lg lg:h-52 lg:w-44 lg:rounded-3xl lg:shadow-xl">
+                <ImagenConFallback
+                  src={fotoDisponible ? fotoUrl : undefined}
+                  alt={`Fotografía de ${nombre}`}
+                  className="h-full w-full object-cover object-top"
+                  fallback={
+                    <div className="flex h-full items-center justify-center px-2 text-center text-xs font-bold uppercase leading-tight">
+                      Sin fotografía
+                    </div>
+                  }
+                />
+              </div>
+              <p
+                className="hidden text-center text-[0.58rem] font-semibold leading-tight opacity-80"
+                data-print-only
+              >
+                Impreso: {fechaImpresion} · Año lectivo: {anioLectivo}
+              </p>
+            </div>
+            <div className="min-w-0 pb-1 lg:text-center">
+              <p className="text-xs font-bold uppercase tracking-[0.18em]">
+                {tipoPersona === "profesor" ? "Profesor" : "Estudiante"}
+              </p>
+              <p className="mt-1 line-clamp-3 break-words font-display text-base font-bold leading-tight sm:text-lg lg:line-clamp-2 lg:text-xl">
+                {nombre || "Sin nombre"}
+              </p>
+            </div>
+          </div>
+        </div>
+        <div className="space-y-5 border-t border-border bg-card p-6 lg:flex lg:flex-col lg:gap-3 lg:space-y-0 lg:border-l lg:border-t-0 lg:p-6">
+          <div className="order-1 space-y-4 text-sm lg:order-1">
+            <div className="grid grid-cols-2 gap-x-4 gap-y-5">
+              {tipoPersona === "profesor" ? (
+                <div className="col-span-2">
+                  <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                    Colegio
+                  </p>
+                  <p className="mt-1 font-bold">{datosCarnet.colegio || NOMBRE_COLEGIO}</p>
+                </div>
+              ) : (
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                    Año
+                  </p>
+                  <p className="mt-1 font-bold">{obtenerAnioCarnet(datosCarnet)}</p>
+                </div>
+              )}
+              {tipoPersona === "estudiante" && (
+                <div className="order-3 col-span-1 lg:col-span-1">
+                  <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                    Sección
+                  </p>
+                  <p className="mt-1 font-bold">{datosCarnet.seccion || "Sin sección"}</p>
+                </div>
+              )}
+              {tipoPersona === "estudiante" && (
+                <div className="order-2 col-span-1">
+                  <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                    Ruta asignada
+                  </p>
+                  <p className="mt-1 flex items-center gap-2 font-semibold">
+                    <span
+                      className="h-2.5 w-2.5 shrink-0 rounded-full border border-foreground/20"
+                      style={{ backgroundColor: colorRuta }}
+                      aria-hidden="true"
+                    />
+                    <span className="min-w-0 break-words">
+                      {datosCarnet.rutaDescripcion || "Sin ruta"}
+                    </span>
+                  </p>
+                </div>
+              )}
+              {tipoPersona === "estudiante" && datosCarnet.beneficioComedor && (
+                <div className="order-4 col-span-1 lg:col-span-1">
+                  <p className="text-[0.58rem] font-bold uppercase tracking-wider text-muted-foreground sm:text-[0.6rem]">
+                    Comedor
+                  </p>
+                  <p className="mt-1 flex items-center gap-2 font-semibold">
+                    <Utensils className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+                    <span className="min-w-0 break-words">{datosCarnet.beneficioComedor}</span>
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="order-2 space-y-3 lg:order-2">
+            {qrDisponible ? (
+              <button
+                type="button"
+                onClick={() => setQrAbierto(true)}
+                className="group relative block w-full overflow-hidden rounded-[1.5rem] border border-primary/15 bg-primary/5 p-3 text-carnet-foreground transition-[transform,background-color,border-color] duration-200 hover:-translate-y-0.5 hover:border-primary/35 hover:bg-primary/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                aria-label="Ampliar QR del carnet"
+                aria-haspopup="dialog"
+                data-testid="student-card-qr"
+              >
+                <span
+                  className="absolute right-3 top-3 grid h-10 w-10 place-items-center rounded-full bg-background/90 text-primary shadow-sm transition-transform duration-200 group-hover:scale-105"
+                  aria-hidden="true"
+                  data-print-hide
+                >
+                  <Expand className="h-4 w-4" />
+                </span>
+                <span className="mb-3 flex items-center gap-2 text-left text-sm font-bold uppercase tracking-[0.16em] text-primary">
+                  <ScanLine className="h-4 w-4" aria-hidden="true" data-print-hide /> Listo para
+                  escanear
+                </span>
+                <span className="block rounded-xl bg-background p-3 shadow-sm lg:[&_svg]:h-[240px] lg:[&_svg]:w-[240px]">
+                  <CodigoQrCarnet valor={datosCarnet.codigoQr} />
+                </span>
+                <span className="mt-3 block text-center text-sm font-semibold text-muted-foreground">
+                  Tocá para ampliar · Presentalo ante el lector
+                </span>
+              </button>
+            ) : (
+              <div
+                className="flex items-center gap-3 rounded-[1.5rem] border border-warning/35 bg-warning/10 p-4 text-sm text-foreground"
+                role="status"
+                data-testid="student-card-qr-unavailable"
+              >
+                <AlertCircle className="h-5 w-5 shrink-0 text-warning" aria-hidden="true" />
+                <div>
+                  <p className="font-bold">QR no disponible</p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    El carné podrá ampliarse cuando se genere el código.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
-    </div>
-    <div className="mt-3 flex justify-center">
-      <button type="button" className="button secondary w-full max-w-xs" onClick={imprimirCarnet}>
-        <Printer className="mr-2 h-4 w-4" aria-hidden="true" /> Imprimir carné
-      </button>
-    </div>
+      <div className="mt-3 flex justify-center">
+        <button type="button" className="button secondary w-full max-w-xs" onClick={imprimirCarnet}>
+          <Printer className="mr-2 h-4 w-4" aria-hidden="true" /> Imprimir carné
+        </button>
+      </div>
       <Dialog open={qrAbierto && qrDisponible} onOpenChange={setQrAbierto}>
         <DialogContent className="max-w-md p-5 sm:p-7">
           <DialogHeader>

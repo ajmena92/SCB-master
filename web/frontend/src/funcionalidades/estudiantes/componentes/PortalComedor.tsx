@@ -62,7 +62,8 @@ export function PortalComedor({
               <span>{estado.descripcionHorario}</span>
               {!cerrado && !asistenciaConfirmada && horaServidor && (
                 <span>
-                  {" "}· Hora servidor{" "}
+                  {" "}
+                  · Hora servidor{" "}
                   <span
                     data-testid="server-clock"
                     className="ml-1 inline-flex rounded-md bg-muted px-2 py-0.5 font-display text-sm font-bold tabular-nums text-foreground shadow-sm"
@@ -76,11 +77,11 @@ export function PortalComedor({
           )}
         </div>
 
-        {cargando && (
-          <EstadoPanel variante="carga">Cargando tu información…</EstadoPanel>
-        )}
+        {cargando && <EstadoPanel variante="carga">Cargando tu información…</EstadoPanel>}
         {!cargando && error && (
-          <div data-testid="student-error"><EstadoPanel variante="error">{error}</EstadoPanel></div>
+          <div data-testid="student-error">
+            <EstadoPanel variante="error">{error}</EstadoPanel>
+          </div>
         )}
         {!cargando && !error && vistaActiva === "carnet" && (
           <VistaCarnetEstudiante sesion={sesion} carnet={carnet} tipoPersona={tipoPersona} />

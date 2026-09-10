@@ -11,7 +11,12 @@ interface PropiedadesCuenta {
   alRestablecer: () => void;
 }
 
-function AccionesCuenta({ cuenta, cuentaActualId, alEditar, alRestablecer }: Omit<PropiedadesCuenta, "cuenta"> & { cuenta: CuentaAdministrativa }) {
+function AccionesCuenta({
+  cuenta,
+  cuentaActualId,
+  alEditar,
+  alRestablecer,
+}: Omit<PropiedadesCuenta, "cuenta"> & { cuenta: CuentaAdministrativa }) {
   const esPropia = cuenta.id === cuentaActualId;
   return (
     <div className="flex justify-end gap-2">
@@ -56,7 +61,12 @@ function FilaCuenta({ cuenta, cuentaActualId, alEditar, alRestablecer }: Propied
         <EstadoCuenta cuenta={cuenta} />
       </td>
       <td className="px-4 py-3">
-        <AccionesCuenta cuenta={cuenta} cuentaActualId={cuentaActualId} alEditar={alEditar} alRestablecer={alRestablecer} />
+        <AccionesCuenta
+          cuenta={cuenta}
+          cuentaActualId={cuentaActualId}
+          alEditar={alEditar}
+          alRestablecer={alRestablecer}
+        />
       </td>
     </tr>
   );
@@ -78,7 +88,12 @@ function TarjetaCuenta({ cuenta, cuentaActualId, alEditar, alRestablecer }: Prop
         <EstadoCuenta cuenta={cuenta} />
       </div>
       <div className="mt-4 border-t pt-3">
-        <AccionesCuenta cuenta={cuenta} cuentaActualId={cuentaActualId} alEditar={alEditar} alRestablecer={alRestablecer} />
+        <AccionesCuenta
+          cuenta={cuenta}
+          cuentaActualId={cuentaActualId}
+          alEditar={alEditar}
+          alRestablecer={alRestablecer}
+        />
       </div>
     </article>
   );

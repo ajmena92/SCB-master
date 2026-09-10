@@ -24,7 +24,8 @@ export const OPERACIONES_IMPORTACIONES: readonly OperacionApi[] = [
   {
     metodo: "POST",
     ruta: "/api/v1/importaciones/trabajos/{trabajo_id}/credenciales",
-    operacionId: "entregar_credenciales_api_v1_importaciones_trabajos__trabajo_id__credenciales_post",
+    operacionId:
+      "entregar_credenciales_api_v1_importaciones_trabajos__trabajo_id__credenciales_post",
     dominio: "importaciones",
   },
 ] as const;

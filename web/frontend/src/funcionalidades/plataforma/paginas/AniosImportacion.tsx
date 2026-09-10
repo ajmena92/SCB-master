@@ -78,7 +78,13 @@ export default function AniosImportacion() {
     crear.mutate({ anio: Number(datos.get("anio")), vigente: datos.get("vigente") === "on" });
   }
   const error =
-    anios.error || crear.error || activar.error || previsualizar.error || confirmar.error || trabajo.error || descargar.error;
+    anios.error ||
+    crear.error ||
+    activar.error ||
+    previsualizar.error ||
+    confirmar.error ||
+    trabajo.error ||
+    descargar.error;
   return (
     <section>
       <EncabezadoPagina
@@ -88,7 +94,8 @@ export default function AniosImportacion() {
       {error && <Aviso tipo="error">{errMsg(error)}</Aviso>}
       {trabajo.data && (
         <Aviso tipo="exito">
-          Importación: {trabajo.data.estado}. {trabajo.data.altas} altas de {trabajo.data.total} filas.
+          Importación: {trabajo.data.estado}. {trabajo.data.altas} altas de {trabajo.data.total}{" "}
+          filas.
           {trabajo.data.estado === "completado" && credenciales.length === 0 && (
             <button
               className="button secondary credentials-download"

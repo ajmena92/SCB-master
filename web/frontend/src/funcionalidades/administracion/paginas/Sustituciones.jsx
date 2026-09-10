@@ -59,7 +59,9 @@ export default function SustitucionesTab() {
         <EstadoPanel variante="carga">Cargando sustituciones…</EstadoPanel>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {subs.length === 0 && <EstadoPanel variante="vacio">No hay sustituciones registradas.</EstadoPanel>}
+          {subs.length === 0 && (
+            <EstadoPanel variante="vacio">No hay sustituciones registradas.</EstadoPanel>
+          )}
           {subs.map((s) => (
             <div
               key={s.IdMenuSustitucion}

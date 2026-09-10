@@ -10,10 +10,10 @@ from cryptography.fernet import Fernet, InvalidToken
 from fastapi import HTTPException
 
 from aplicacion.esquemas import FilaImportacion, ImportacionEntrada
+from aplicacion.limites_importacion import MAXIMO_COLUMNAS, MAXIMO_FILAS, validar_excel
 from aplicacion.modelos.maestros import AnioLectivo, Matricula, Persona
 from aplicacion.modelos.operacion import LoteImportacion
 from aplicacion.seguridad import hash_secreto
-from aplicacion.limites_importacion import MAXIMO_COLUMNAS, MAXIMO_FILAS, validar_excel
 
 
 class ServicioImportacion:

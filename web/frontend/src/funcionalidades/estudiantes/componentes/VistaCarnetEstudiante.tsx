@@ -58,11 +58,18 @@ export function VistaCarnetEstudiante({
         <EstadoPanel variante="carga">Generando tu carné digital…</EstadoPanel>
       )}
       {mensajeError && (
-        <EstadoPanel variante="error" accion={reintentar && (
-            <Button type="button" variant="outline" size="sm" onClick={reintentar}>
-              Reintentar
-            </Button>
-          )}>{mensajeError}</EstadoPanel>
+        <EstadoPanel
+          variante="error"
+          accion={
+            reintentar && (
+              <Button type="button" variant="outline" size="sm" onClick={reintentar}>
+                Reintentar
+              </Button>
+            )
+          }
+        >
+          {mensajeError}
+        </EstadoPanel>
       )}
       {!estaCargando && !mensajeError && (datos || id) && (
         <TarjetaCarnet

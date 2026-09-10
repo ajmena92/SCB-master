@@ -21,11 +21,13 @@ async function asegurarCookieCsrf(renovar = false): Promise<void> {
   bootstrapCsrf ??= fetch(`${API}/v1/autenticacion/csrf`, {
     credentials: "include",
     headers: { Accept: "application/json" },
-  }).then((respuesta) => {
-    if (!respuesta.ok) throw new Error("No se pudo iniciar la protección CSRF.");
-  }).finally(() => {
-    bootstrapCsrf = undefined;
-  });
+  })
+    .then((respuesta) => {
+      if (!respuesta.ok) throw new Error("No se pudo iniciar la protección CSRF.");
+    })
+    .finally(() => {
+      bootstrapCsrf = undefined;
+    });
   await bootstrapCsrf;
 }
 

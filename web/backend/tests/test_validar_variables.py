@@ -5,7 +5,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-
 RAIZ_WEB = Path(__file__).resolve().parents[2]
 RUTA_VALIDADOR = RAIZ_WEB / "scripts" / "validar_variables.py"
 ESPECIFICACION = importlib.util.spec_from_file_location("validar_variables", RUTA_VALIDADOR)
