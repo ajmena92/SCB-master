@@ -117,17 +117,21 @@ trazabilidad del horario y hora propia del ingreso. La API no usa la hora del
 transporte para decidir si una marca de comedor es tardía.
 La API no ejecuta DDL, no compra tiquetes y no elimina tablas históricas al iniciar.
 
-## 3. Desplegar el código
+## 3. Publicar imágenes y desplegar por digest
 
-Con la migración aprobada:
+Después de fusionar la versión aprobada en `master`, CI publica las seis
+imágenes en GHCR. Registrar los seis digests aprobados en el archivo protegido
+`ops/.env` del servidor; no se almacenan en Git ni se pasan como argumentos de
+línea de comando. Con la migración aprobada y el conjunto de digests registrado:
 
 ```bash
 ./web/scripts/deploy-production.sh all
 ```
 
-El script sincroniza `backend/`, `frontend/` y `ops/`, conserva los secretos del
-servidor, reconstruye `api` y `web`, y confirma la salud de la API mediante el
-proxy en `GET /health`. Para inspeccionar
+El script sincroniza únicamente `ops/`, conserva los secretos del servidor,
+ejecuta el preflight y usa `pull`/`up -d --no-build --no-deps` para promover
+imágenes por digest. Confirma la salud de la API mediante el proxy en
+`GET /health`. Para inspeccionar
 sin modificar producción:
 
 ```bash

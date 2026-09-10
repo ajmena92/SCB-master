@@ -81,6 +81,33 @@
       "default": "128m",
       "pattern": "^[0-9]+[kmg]?$"
     },
+    "POSTGRES_MEMORIA_LIMITE": {
+      "type": "string",
+      "description": "Límite de memoria para PostgreSQL",
+      "default": "1g",
+      "pattern": "^[0-9]+[kmg]?$"
+    },
+    "POSTGRES_MEMORIA_RESERVA": {
+      "type": "string",
+      "description": "Reserva de memoria para PostgreSQL",
+      "default": "256m",
+      "pattern": "^[0-9]+[kmg]?$"
+    },
+    "POSTGRES_CPUS": {
+      "type": "string",
+      "description": "Límite de CPU para PostgreSQL",
+      "default": "2.0",
+      "pattern": "^[0-9]+(\\.[0-9]+)?$"
+    },
+    "POSTGRES_DATA_PATH": {
+      "type": "string",
+      "description": "Ruta del directorio de datos PostgreSQL administrado por infraestructura",
+      "minLength": 1
+    },
+    "POSTGRES_SYSTEM_IDENTIFIER": {
+      "type": "string",
+      "description": "Identificador esperado del clúster PostgreSQL existente"
+    },
     "POSTGRES_ADMIN_PASSWORD_FILE": {
       "type": "string",
       "description": "Ruta del archivo con contraseña"
@@ -214,6 +241,12 @@
       "description": "Reserva de memoria para contenedor frontend",
       "default": "32m",
       "pattern": "^[0-9]+[kmg]?$"
+    },
+    "WEB_CPUS": {
+      "type": "string",
+      "description": "Límite de CPU para contenedor frontend",
+      "default": "0.5",
+      "pattern": "^[0-9]+(\\.[0-9]+)?$"
     },
     "WEB_HOST": {
       "type": "string",

@@ -13,11 +13,11 @@
 
 ## Flujo Actual (Correcto)
 
-### 1. Push a rama (PR o merge a main)
+### 1. Push a rama (PR o merge a master)
 
 ```bash
 git push origin feature/cambio
-# o: git push origin main
+# o: git push origin master
 ```
 
 ### 2. GitHub Actions ejecuta `.github/workflows/docker-build.yml`
@@ -97,7 +97,7 @@ python3 ../scripts/validar_variables.py --preflight /ruta/protegida/.env
 ## Deploy en Producción (Checklist)
 
 ```bash
-[ ] Merge a main → CI ejecuta workflows
+[ ] Merge a master → CI ejecuta workflows
 [ ] CI publica imágenes con digest (ve a GHCR)
 [ ] Copiar digest desde release notes de CI
 [ ] Registrar variables SCB_*_IMAGE=...@sha256:... en ops/.env protegido

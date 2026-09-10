@@ -38,8 +38,8 @@ def test_flujo_ci_usa_versiones_de_runtime_declaradas_por_el_proyecto() -> None:
 
     assert "node-version-file: web/frontend/.nvmrc" in contenido
     assert 'python-version: "3.12"' in contenido
-    assert "branches: [main]" in contenido
-    assert "\n      - master\n" not in contenido
+    assert "branches: [master]" in contenido
+    assert "\n      - main\n" not in contenido
     assert "\npermissions:\n  contents: read\n" in contenido
     assert "\njobs:\n  frontend:\n" in contenido
     assert "\n  backend:\n" in contenido
