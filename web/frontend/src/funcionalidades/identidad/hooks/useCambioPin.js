@@ -40,10 +40,11 @@ export function useCambioPin() {
       }
       setEstado({ cargando: true, error: "" });
       try {
-        await api.post("/v1/autenticacion/portal/pin", {
-          pinActual: formulario.actual,
-          pinNuevo: formulario.nuevo,
-        });
+        await api.post(
+          "/v1/autenticacion/portal/pin",
+          { pinActual: formulario.actual, pinNuevo: formulario.nuevo },
+          { omitirManejoFalloAutenticacion: true },
+        );
         // El backend revoca todas las sesiones al cambiar el PIN. El estado de
         // interfaz se limpia; la cookie HttpOnly deja de ser válida en servidor.
         setSession(false);
@@ -51,7 +52,10 @@ export function useCambioPin() {
         notificar.exito("PIN actualizado. Ingresá nuevamente con tu nuevo PIN.");
         navigate("/", { replace: true });
       } catch (error) {
-        setEstado({ cargando: false, error: errMsg(error) });
+        setEstado({
+          cargando: false,
+          error: errMsg(error, { showUnauthorizedDetail: true }),
+        });
         return;
       }
       setEstado((actual) => ({ ...actual, cargando: false }));

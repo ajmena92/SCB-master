@@ -15,6 +15,12 @@ describe("errores de API", () => {
         { showUnauthorizedDetail: true },
       ),
     ).toBe("no");
+    expect(
+      errMsg(
+        { response: { status: 401, data: { detail: "PIN actual incorrecto" } } },
+        { showUnauthorizedDetail: true },
+      ),
+    ).toBe("PIN actual incorrecto");
     expect(errMsg({ response: { status: 403 } })).toContain("permiso");
     expect(errMsg({ response: { status: 500 } })).toContain("servidor");
     expect(errMsg(new Error("network"))).toContain("comunicarse");

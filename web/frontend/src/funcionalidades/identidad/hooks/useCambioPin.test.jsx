@@ -4,6 +4,7 @@ import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 import { ProveedorAutenticacion } from "@/aplicacion/estado/ContextoAutenticacion";
 import { api } from "@/compartido/consultas/cliente_http";
+import { errMsg } from "@/compartido/consultas/errores_api";
 import { useCambioPin } from "./useCambioPin";
 
 vi.mock("@/compartido/consultas/cliente_http", () => ({ api: { post: vi.fn() } }));
@@ -54,10 +55,11 @@ describe("useCambioPin", () => {
       hook.cambiarConfirmar("258369");
     });
     await act(async () => hook.enviar({ preventDefault: vi.fn() }));
-    expect(api.post).toHaveBeenCalledWith("/v1/autenticacion/portal/pin", {
-      pinActual: "111111",
-      pinNuevo: "258369",
-    });
+    expect(api.post).toHaveBeenCalledWith(
+      "/v1/autenticacion/portal/pin",
+      { pinActual: "111111", pinNuevo: "258369" },
+      { omitirManejoFalloAutenticacion: true },
+    );
     await act(async () => raiz.unmount());
     contenedor.remove();
   });
@@ -74,6 +76,29 @@ describe("useCambioPin", () => {
     await act(async () => hook.enviar({ preventDefault: vi.fn() }));
     expect(hook.error).toBe("Error de PIN");
     expect(hook.cargando).toBe(false);
+    await act(async () => raiz.unmount());
+    contenedor.remove();
+  });
+
+  it("conserva la sesión y muestra el PIN actual incorrecto", async () => {
+    errMsg.mockReturnValueOnce("PIN actual incorrecto");
+    api.post.mockRejectedValueOnce({
+      response: { status: 401, data: { detail: "PIN actual incorrecto" } },
+    });
+    let hook;
+    const { contenedor, raiz } = preparar((valor) => (hook = valor));
+    await act(async () => {
+      hook.cambiarActual("111111");
+      hook.cambiarNuevo("258369");
+      hook.cambiarConfirmar("258369");
+    });
+    await act(async () => hook.enviar({ preventDefault: vi.fn() }));
+    expect(hook.error).toBe("PIN actual incorrecto");
+    expect(api.post).toHaveBeenCalledWith(
+      "/v1/autenticacion/portal/pin",
+      { pinActual: "111111", pinNuevo: "258369" },
+      { omitirManejoFalloAutenticacion: true },
+    );
     await act(async () => raiz.unmount());
     contenedor.remove();
   });
