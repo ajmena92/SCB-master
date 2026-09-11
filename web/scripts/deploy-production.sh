@@ -203,7 +203,7 @@ preflight_despliegue() {
 case "$component" in
     api) services="api" ;;
     web) services="web" ;;
-    all) services="api web" ;;
+    all) services="api web trabajador_importacion" ;;
 esac
 
 if [[ "$component" == "all" && "$dry_run" == false && "${CONFIRMAR_MIGRACION_DBA:-}" != "SI" ]]; then
@@ -267,7 +267,7 @@ case "$component" in
         ;;
     all)
         sync_ops_directory
-        services="api web"
+        services="api web trabajador_importacion"
         ;;
 esac
 
