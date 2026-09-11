@@ -192,7 +192,7 @@ preflight_despliegue() {
         respaldo_reciente="$(find "$ruta_respaldos" -mindepth 1 -maxdepth 1 -type d -name '20??????T??????Z' -print | sort | tail -n 1)"
         [[ -n "$respaldo_reciente" && -f "$respaldo_reciente/COMPLETADO" && -f "$respaldo_reciente/SHA256SUMS" ]] || \
             fallar_preflight "no hay un respaldo PostgreSQL completo verificable."
-        sha256sum --check --status "$respaldo_reciente/SHA256SUMS" || \
+        (cd "$respaldo_reciente" && sha256sum --check --status SHA256SUMS) || \
             fallar_preflight "el checksum del último respaldo PostgreSQL no es válido."
         echo "Preflight: último respaldo comprobado $(basename "$respaldo_reciente")."
     fi
