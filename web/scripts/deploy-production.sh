@@ -6,7 +6,7 @@ usage() {
     echo "Uso: $0 [api|web|all] [--local|--remote] [--dry-run]"
     echo "  api  Despliega solo el backend (predeterminado)."
     echo "  web  Despliega solo el frontend."
-    echo "  all  Despliega backend y frontend."
+    echo "  all  Despliega API, frontend y trabajador de importación."
     echo "  --local  Construye y publica en el Compose local."
     echo "  --remote Sincroniza y despliega en el servidor productivo."
     echo "deploy all ejecuta migraciones solo con CONFIRMAR_MIGRACION_DBA=SI; el retiro de tablas históricas sigue separado."
@@ -52,6 +52,7 @@ remote_dir="${SCSC_PRODUCTION_DIR:-/home/plat/scsc-comedor}"
 # El proxy público expone la salud de la API en /health. El valor se puede
 # reemplazar al verificar un balanceador o dominio externo.
 health_url="${SCSC_HEALTH_URL:-http://127.0.0.1:8081/health}"
+admin_url="${SCSC_ADMIN_URL:-http://127.0.0.1:8081/admin}"
 ops_dir="$web_dir/ops"
 env_file="$ops_dir/.env"
 compose=(docker compose --env-file "$env_file" -f "$ops_dir/compose.production.yml")
@@ -112,6 +113,26 @@ servicio_saludable() {
         fallar_preflight "el servicio $servicio no está saludable (estado: $estado)."
 }
 
+verificar_servicio_promovido() {
+    local servicio="$1"
+    local imagen_esperada="$2"
+    local identificador estado imagen_real intento
+
+    for intento in $(seq 1 18); do
+        identificador="$("${compose[@]}" ps -q "$servicio")"
+        if [[ -n "$identificador" ]]; then
+            estado="$(docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' "$identificador")"
+            imagen_real="$(docker inspect --format '{{.Config.Image}}' "$identificador")"
+            if [[ "$imagen_real" == "$imagen_esperada" && ( "$estado" == "healthy" || "$estado" == "running" ) ]]; then
+                echo "Postdeploy: $servicio saludable con el digest configurado."
+                return 0
+            fi
+        fi
+        sleep 5
+    done
+    fallar_preflight "el servicio $servicio no quedó saludable con su digest configurado."
+}
+
 verificar_espacio() {
     local etiqueta="$1"
     local ruta="$2"
@@ -126,14 +147,17 @@ verificar_espacio() {
 preflight_despliegue() {
     local entorno="$1"
     local exigir_root="no"
-    local ruta_wal ruta_respaldos respaldo_reciente
+    local ruta_wal ruta_respaldos respaldo_reciente edad_respaldo_minutos
     local postgres_db postgres_admin postgres_app postgres_migrador cantidad_roles version
     local postgres_data_path postgres_mount
     local minimo_kb="${PREFLIGHT_ESPACIO_MINIMO_KB:-1048576}"
+    local maximo_respaldo_minutos="${PREFLIGHT_RESPALDO_MAX_AGE_MINUTOS:-1440}"
 
     [[ -f "$env_file" ]] || fallar_preflight "falta $env_file."
     [[ "$entorno" == "produccion" ]] && exigir_root="si"
     [[ "$minimo_kb" =~ ^[0-9]+$ ]] || fallar_preflight "PREFLIGHT_ESPACIO_MINIMO_KB no es válido."
+    [[ "$maximo_respaldo_minutos" =~ ^[0-9]+$ ]] || \
+        fallar_preflight "PREFLIGHT_RESPALDO_MAX_AGE_MINUTOS no es válido."
 
     "${compose[@]}" config --quiet || fallar_preflight "la configuración de Compose no es válida."
     verificar_secreto postgres_admin_password "$(ruta_ops "$(valor_entorno POSTGRES_ADMIN_PASSWORD_FILE || true)")" "$exigir_root"
@@ -194,7 +218,10 @@ preflight_despliegue() {
             fallar_preflight "no hay un respaldo PostgreSQL completo verificable."
         (cd "$respaldo_reciente" && sha256sum --check --status SHA256SUMS) || \
             fallar_preflight "el checksum del último respaldo PostgreSQL no es válido."
-        echo "Preflight: último respaldo comprobado $(basename "$respaldo_reciente")."
+        edad_respaldo_minutos=$(( ($(date +%s) - $(stat -c %Y "$respaldo_reciente")) / 60 ))
+        [[ "$edad_respaldo_minutos" -le "$maximo_respaldo_minutos" ]] || \
+            fallar_preflight "el último respaldo PostgreSQL supera ${maximo_respaldo_minutos} minutos."
+        echo "Preflight: último respaldo comprobado $(basename "$respaldo_reciente") (${edad_respaldo_minutos} min)."
     fi
 
     echo "Preflight $entorno aprobado: secretos, Compose y PostgreSQL están listos."
@@ -249,7 +276,7 @@ run_remote() {
 }
 
 sync_ops_directory() {
-    local options=(-az --delete --exclude '.env' --exclude '.env.local' --exclude 'secrets/' --exclude 'importaciones/')
+    local options=(-az --delete --exclude '.env' --exclude '.env.local' --exclude '.env.preparacion*' --exclude 'secrets/' --exclude 'importaciones/')
     if "$dry_run"; then
         options+=(--dry-run)
     fi
@@ -278,7 +305,8 @@ fi
 
 deploy_log="/tmp/scsc-deploy-${component}.log"
 remote_confirmation=$(printf '%q' "${CONFIRMAR_MIGRACION_DBA:-}")
-preflight_functions="$(declare -f valor_entorno ruta_ops fallar_preflight verificar_imagen_digest verificar_secreto servicio_saludable verificar_espacio preflight_despliegue)"
+preflight_functions="$(declare -f valor_entorno ruta_ops fallar_preflight verificar_imagen_digest verificar_secreto servicio_saludable verificar_servicio_promovido verificar_espacio preflight_despliegue)"
+postdeploy_functions="$(declare -f valor_entorno fallar_preflight verificar_servicio_promovido)"
 remote_preflight="set -euo pipefail
 cd $(printf '%q' "$remote_dir")
 ops_dir=\"\$PWD/ops\"
@@ -297,6 +325,8 @@ run_remote "$remote_preflight"
 
 remote_deploy="set -euo pipefail
 cd $(printf '%q' "$remote_dir")
+ops_dir=\"\$PWD/ops\"
+env_file=\"\$ops_dir/.env\"
 compose=(docker compose --env-file ops/.env -f ops/compose.production.yml -f ops/compose.prod-deploy.yml)
 if [[ -f ops/compose.production.server.yml ]]; then
     compose+=(-f ops/compose.production.server.yml)
@@ -304,6 +334,7 @@ fi
 if [[ -f ops/compose.production.hardening.yml ]]; then
     compose+=(-f ops/compose.production.hardening.yml)
 fi
+$postdeploy_functions
 if [[ $(printf '%q' "$component") == all ]]; then
     if [[ $remote_confirmation != SI ]]; then
         echo \"deploy all requiere CONFIRMAR_MIGRACION_DBA=SI para ejecutar migraciones.\" >&2
@@ -333,12 +364,23 @@ if ! \"\${compose[@]}\" up -d --no-build --no-deps $services >> $(printf '%q' "$
     tail -n 120 $(printf '%q' "$deploy_log")
     exit 1
 fi
+for servicio in $services; do
+    case \"\$servicio\" in
+        api) imagen=\"\$(valor_entorno SCB_API_IMAGE)\" ;;
+        web) imagen=\"\$(valor_entorno SCB_WEB_IMAGE)\" ;;
+        trabajador_importacion) imagen=\"\$(valor_entorno SCB_TRABAJADOR_IMPORTACION_IMAGE)\" ;;
+    esac
+    verificar_servicio_promovido \"\$servicio\" \"\$imagen\"
+done
 \"\${compose[@]}\" ps $services
 rm -f $(printf '%q' "$deploy_log")"
 run_remote "$remote_deploy"
 
 for attempt in $(seq 1 18); do
     if run_remote "curl --fail --silent --show-error $(printf '%q' "$health_url")"; then
+        if [[ "$component" == "web" || "$component" == "all" ]]; then
+            run_remote "curl --fail --silent --show-error $(printf '%q' "$admin_url")" >/dev/null
+        fi
         echo "Despliegue completado: API saludable (intento $attempt)."
         exit 0
     fi
