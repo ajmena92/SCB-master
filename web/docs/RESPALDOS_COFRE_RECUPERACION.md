@@ -17,17 +17,18 @@ la aprobación de la persona responsable.
 
 ## Cofre GPG
 
-Se requieren dos claves públicas GPG, una por custodio autorizado. Cada
+Se requiere una o dos claves públicas GPG de custodios autorizados. Cada
 custodio conserva su clave privada fuera del servidor, de Drive, del correo y
-del repositorio. El cofre se cifra para ambas; cualquiera puede abrirlo con su
-propia clave privada.
+del repositorio. El cofre se cifra para todas las claves indicadas; cualquiera
+puede abrirlo con su propia clave privada. Con un solo custodio no existe
+redundancia: deberá respaldar su clave privada y su frase de paso fuera de
+Drive y en una ubicación independiente.
 
 El comando operativo recibe únicamente rutas a las claves públicas:
 
 ```bash
 sudo /usr/local/sbin/scb-crear-cofre-recuperacion \
-  --clave-publica /ruta/protegida/custodio-1.asc \
-  --clave-publica /ruta/protegida/custodio-2.asc
+  --clave-publica /ruta/protegida/custodio.asc
 ```
 
 Incluye secretos técnicos de la aplicación, ambas claves LUKS, cabecera LUKS y
